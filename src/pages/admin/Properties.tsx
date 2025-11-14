@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,8 +20,6 @@ import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
 
 const AdminProperties = () => {
-  const { user, isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [properties, setProperties] = useState<any[]>([]);
   const [loadingProperties, setLoadingProperties] = useState(true);
@@ -51,11 +47,6 @@ const AdminProperties = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, loading, navigate]);
 
   useEffect(() => {
     fetchProperties();
@@ -231,7 +222,7 @@ const AdminProperties = () => {
     setExistingImages([]);
   };
 
-  if (loading || !user || !isAdmin) return null;
+  
 
   return (
     <div className="min-h-screen bg-background">

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,13 +7,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { ArrowLeft, Eye, Users, Calendar } from "lucide-react";
 
 const AdminAnalytics = () => {
-  const { user, isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
   const [stats, setStats] = useState({ pageViews: 0, uniqueVisitors: 0, bookings: 0 });
-
-  useEffect(() => {
-    if (!loading && (!user || !isAdmin)) navigate("/auth");
-  }, [user, isAdmin, loading, navigate]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -30,7 +23,7 @@ const AdminAnalytics = () => {
     fetchStats();
   }, []);
 
-  if (!user || !isAdmin) return null;
+  
 
   return (
     <div className="min-h-screen bg-background">
