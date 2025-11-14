@@ -131,8 +131,7 @@ const PropertyManagement = () => {
         {/* Listing Management Section */}
         <div className="mb-20">
           <div className="max-w-6xl mx-auto">
-            <Card className="bg-card border-border shadow-elegant overflow-hidden">
-              <CardContent className="p-8 md:p-12">
+            <div className="p-8 md:p-12">
                 <div className="grid md:grid-cols-2 gap-12 items-center mb-8">
                   <div>
                     <div className="flex items-start gap-4 mb-6">
@@ -182,11 +181,10 @@ const PropertyManagement = () => {
 
                 <Link to="/book">
                   <Button className="bg-secondary hover:bg-secondary/90 text-primary shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
-                    → Contact us
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+                  → Contact us
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
