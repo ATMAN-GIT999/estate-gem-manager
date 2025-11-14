@@ -156,6 +156,7 @@ export type Database = {
       }
       properties: {
         Row: {
+          address: string | null
           amenities: string[] | null
           available: boolean | null
           bathrooms: number
@@ -166,8 +167,11 @@ export type Database = {
           guests: number
           id: string
           images: Json | null
+          latitude: number | null
           location: string
+          longitude: number | null
           name: string
+          nearby_amenities: Json | null
           price_per_night: number
           registration_number: string | null
           slug: string
@@ -175,6 +179,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          address?: string | null
           amenities?: string[] | null
           available?: boolean | null
           bathrooms: number
@@ -185,8 +190,11 @@ export type Database = {
           guests: number
           id?: string
           images?: Json | null
+          latitude?: number | null
           location: string
+          longitude?: number | null
           name: string
+          nearby_amenities?: Json | null
           price_per_night: number
           registration_number?: string | null
           slug: string
@@ -194,6 +202,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          address?: string | null
           amenities?: string[] | null
           available?: boolean | null
           bathrooms?: number
@@ -204,8 +213,11 @@ export type Database = {
           guests?: number
           id?: string
           images?: Json | null
+          latitude?: number | null
           location?: string
+          longitude?: number | null
           name?: string
+          nearby_amenities?: Json | null
           price_per_night?: number
           registration_number?: string | null
           slug?: string
