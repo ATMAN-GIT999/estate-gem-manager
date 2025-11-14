@@ -115,17 +115,9 @@ const PropertyManagement = () => {
           <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-6">
             Short-Term Rental Management
           </h2>
-          <div className="max-w-3xl mx-auto space-y-3">
-            <p className="text-2xl font-semibold text-primary">
-              Expert Property Management
-            </p>
-            <p className="text-2xl font-semibold text-primary">
-              Exceptional Guest Experiences
-            </p>
-            <p className="text-xl text-foreground/70 mt-4">
-              We manage while you relax
-            </p>
-          </div>
+          <p className="text-xl text-foreground/70 max-w-3xl mx-auto">
+            We manage while you relax
+          </p>
         </div>
 
         {/* Listing Management Section */}
