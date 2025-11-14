@@ -134,7 +134,7 @@ const PropertyManagement = () => {
             <div className="p-8 md:p-12">
                 <div className="grid md:grid-cols-2 gap-12 items-center mb-8">
                   <div>
-                    <div className="flex items-start gap-4 mb-6">
+                    <div className="flex items-start gap-4 mb-6 bg-primary p-6 rounded-lg">
                       <div className="bg-secondary rounded-full p-3">
                         <Home className="w-6 h-6 text-primary" />
                       </div>
