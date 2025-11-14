@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "@/assets/frontier-logo.png";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,11 +18,11 @@ const Navigation = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-primary backdrop-blur-sm border-b border-primary-foreground/10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
-          <Link to="/" className="font-playfair text-2xl font-bold text-primary hover:text-accent transition-colors">
-            Frontier Residences
+          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <img src={logo} alt="Frontier Residences" className="h-12 md:h-14" />
           </Link>
 
           {/* Desktop Navigation */}
@@ -30,20 +31,20 @@ const Navigation = () => {
               <Link
                 key={link.href}
                 to={link.href}
-                className="text-foreground hover:text-accent transition-colors font-medium"
+                className="text-primary-foreground hover:text-secondary transition-colors font-medium"
               >
                 {link.label}
               </Link>
             ))}
             {user ? (
               <Link to={isAdmin ? "/admin/dashboard" : "/book"}>
-                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
+                <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary shadow-gold">
                   {isAdmin ? "Dashboard" : "My Bookings"}
                 </Button>
               </Link>
             ) : (
               <Link to="/auth">
-                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
+                <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary shadow-gold">
                   Sign In
                 </Button>
               </Link>
@@ -53,7 +54,7 @@ const Navigation = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 text-foreground hover:text-accent transition-colors"
+            className="lg:hidden p-2 text-primary-foreground hover:text-secondary transition-colors"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -61,13 +62,13 @@ const Navigation = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="lg:hidden py-4 border-t border-border animate-fade-in">
+          <div className="lg:hidden py-4 border-t border-primary-foreground/10 animate-fade-in bg-primary">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
-                  className="text-foreground hover:text-accent transition-colors font-medium py-2"
+                  className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.label}
@@ -75,13 +76,13 @@ const Navigation = () => {
               ))}
               {user ? (
                 <Link to={isAdmin ? "/admin/dashboard" : "/book"} className="w-full">
-                  <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
+                  <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary w-full">
                     {isAdmin ? "Dashboard" : "My Bookings"}
                   </Button>
                 </Link>
               ) : (
                 <Link to="/auth" className="w-full">
-                  <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
+                  <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary w-full">
                     Sign In
                   </Button>
                 </Link>
