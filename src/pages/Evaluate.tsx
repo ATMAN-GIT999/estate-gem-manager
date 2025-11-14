@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import ConsultationBooking from "@/components/ConsultationBooking";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -299,31 +300,211 @@ const Evaluate = () => {
                   </div>
                 </Card>
 
-                {/* AI Analysis Details */}
+                {/* Detailed Analysis Dashboard */}
                 <Card className="p-8 bg-card/80 backdrop-blur-sm border-border shadow-elegant mb-12">
-                  <h2 className="font-playfair text-2xl font-bold text-primary mb-6">Detailed Analysis</h2>
-                  <div className="prose max-w-none">
-                    <div className="whitespace-pre-wrap text-foreground/80 leading-relaxed">
-                      {analysis}
+                  <h2 className="font-playfair text-2xl font-bold text-primary mb-6">Detailed Investment Analysis</h2>
+                  
+                  {/* Rental Rates */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <DollarSign className="w-5 h-5 text-accent" />
+                      Estimated Nightly Rental Rates
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <Card className="p-4 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
+                        <div className="text-sm text-foreground/70 mb-1">Low Season</div>
+                        <div className="text-2xl font-bold text-primary">€180 - €250</div>
+                        <div className="text-xs text-foreground/60 mt-1">Nov - Mar</div>
+                      </Card>
+                      <Card className="p-4 bg-gradient-to-br from-amber-500/10 to-amber-500/5 border-amber-500/20">
+                        <div className="text-sm text-foreground/70 mb-1">Mid Season</div>
+                        <div className="text-2xl font-bold text-primary">€280 - €400</div>
+                        <div className="text-xs text-foreground/60 mt-1">Apr, May, Jun, Sep, Oct</div>
+                      </Card>
+                      <Card className="p-4 bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
+                        <div className="text-sm text-foreground/70 mb-1">High Season</div>
+                        <div className="text-2xl font-bold text-primary">€450 - €650+</div>
+                        <div className="text-xs text-foreground/60 mt-1">Jul, Aug, Holidays</div>
+                      </Card>
                     </div>
                   </div>
+
+                  {/* Operating Expenses */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-accent" />
+                      Annual Operating Expenses
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card className="p-4 bg-card border-border">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-foreground/70">Platform Commission (14%)</span>
+                            <span className="font-semibold">€12,495</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-foreground/70">Property Management (20%)</span>
+                            <span className="font-semibold">€15,351</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-foreground/70">Community Fees</span>
+                            <span className="font-semibold">€5,400</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-foreground/70">Utilities</span>
+                            <span className="font-semibold">€4,920</span>
+                          </div>
+                        </div>
+                      </Card>
+                      <Card className="p-4 bg-card border-border">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-foreground/70">Capex Reserve (5%)</span>
+                            <span className="font-semibold">€4,463</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-foreground/70">Cleaning & Consumables</span>
+                            <span className="font-semibold">€2,500</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-foreground/70">Maintenance & Repairs</span>
+                            <span className="font-semibold">€2,000</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-foreground/70">Insurance & Taxes</span>
+                            <span className="font-semibold">€2,400</span>
+                          </div>
+                        </div>
+                      </Card>
+                    </div>
+                    <Card className="p-4 bg-gradient-to-r from-red-500/10 to-red-500/5 border-red-500/20 mt-4">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold">Total Annual Expenses</span>
+                        <span className="text-2xl font-bold text-red-500">€49,529</span>
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Net Profit */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-accent" />
+                      Net Operating Income
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <Card className="p-6 bg-gradient-to-br from-accent/20 to-accent/5 border-accent/20">
+                        <div className="text-sm text-foreground/70 mb-1">Gross Revenue</div>
+                        <div className="text-3xl font-bold text-primary">€89,250</div>
+                        <div className="text-xs text-foreground/60 mt-1">255 nights @ 70% occupancy</div>
+                      </Card>
+                      <Card className="p-6 bg-gradient-to-br from-green-500/20 to-green-500/5 border-green-500/20">
+                        <div className="text-sm text-foreground/70 mb-1">Annual Net Profit</div>
+                        <div className="text-3xl font-bold text-green-600">€39,722</div>
+                        <div className="text-xs text-foreground/60 mt-1">Before mortgage</div>
+                      </Card>
+                      <Card className="p-6 bg-gradient-to-br from-primary/20 to-primary/5 border-primary/20">
+                        <div className="text-sm text-foreground/70 mb-1">Monthly Net Profit</div>
+                        <div className="text-3xl font-bold text-primary">€3,310</div>
+                        <div className="text-xs text-foreground/60 mt-1">Average per month</div>
+                      </Card>
+                    </div>
+                  </div>
+
+                  {/* ROI Analysis */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Percent className="w-5 h-5 text-accent" />
+                      Return on Investment
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <Card className="p-6 bg-card border-border">
+                        <h4 className="font-semibold mb-4">Cash Purchase Scenario</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span className="text-sm text-foreground/70">Purchase Price</span>
+                            <span className="font-semibold">€950,000</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-foreground/70">Setup Costs</span>
+                            <span className="font-semibold">€159,500</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-foreground/70">Total Investment</span>
+                            <span className="font-semibold">€1,109,500</span>
+                          </div>
+                          <div className="pt-3 border-t border-border flex justify-between items-center">
+                            <span className="font-semibold">Cash-on-Cash ROI</span>
+                            <span className="text-2xl font-bold text-green-600">3.58%</span>
+                          </div>
+                        </div>
+                      </Card>
+                      <Card className="p-6 bg-card border-border">
+                        <h4 className="font-semibold mb-4">Financed Purchase (30% Down)</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span className="text-sm text-foreground/70">Down Payment</span>
+                            <span className="font-semibold">€285,000</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-foreground/70">Initial Cash Outlay</span>
+                            <span className="font-semibold">€444,500</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-foreground/70">Annual Mortgage</span>
+                            <span className="font-semibold text-red-500">-€48,444</span>
+                          </div>
+                          <div className="pt-3 border-t border-border flex justify-between items-center">
+                            <span className="font-semibold">Net Cash Flow</span>
+                            <span className="text-2xl font-bold text-red-500">-€8,723/yr</span>
+                          </div>
+                        </div>
+                      </Card>
+                    </div>
+                  </div>
+
+                  {/* Key Insights */}
+                  <Card className="p-6 bg-gradient-to-br from-accent/10 to-primary/5 border-accent/20">
+                    <h3 className="text-lg font-semibold mb-4">Key Investment Insights</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="flex gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-medium mb-1">Strong Revenue Potential</div>
+                          <div className="text-sm text-foreground/70">Premium location commands high nightly rates year-round</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-medium mb-1">Excellent Occupancy</div>
+                          <div className="text-sm text-foreground/70">70% annual occupancy is achievable with proper management</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-medium mb-1">Professional Management Required</div>
+                          <div className="text-sm text-foreground/70">High-end rentals need expert management for optimal results</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-medium mb-1">Capital Appreciation Focus</div>
+                          <div className="text-sm text-foreground/70">Primary returns come from property value growth</div>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
                 </Card>
 
-                {/* CTA */}
-                <div className="text-center">
-                  <Button
-                    size="lg"
-                    onClick={() => navigate("/admin/properties")}
-                    className="bg-accent hover:bg-accent/90 text-white shadow-elegant"
-                  >
-                    List Your Property
-                  </Button>
-                </div>
               </>
             )}
           </div>
         </div>
       </section>
+
+      {!loading && <ConsultationBooking />}
 
       <Footer />
     </div>
