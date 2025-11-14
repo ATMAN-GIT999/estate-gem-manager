@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,13 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const AdminBookings = () => {
-  const { user, isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
   const [bookings, setBookings] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (!loading && (!user || !isAdmin)) navigate("/auth");
-  }, [user, isAdmin, loading, navigate]);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -28,7 +21,7 @@ const AdminBookings = () => {
     fetchBookings();
   }, []);
 
-  if (!user || !isAdmin) return null;
+  
 
   return (
     <div className="min-h-screen bg-background">

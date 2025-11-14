@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,8 +20,6 @@ import {
 } from "@/components/ui/dialog";
 
 const AdminBlog = () => {
-  const { user, isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [posts, setPosts] = useState<any[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
@@ -38,9 +35,6 @@ const AdminBlog = () => {
     published: false,
   });
 
-  useEffect(() => {
-    if (!loading && (!user || !isAdmin)) navigate("/auth");
-  }, [user, isAdmin, loading, navigate]);
 
   useEffect(() => {
     fetchPosts();
@@ -75,7 +69,7 @@ const AdminBlog = () => {
     const postData = {
       ...formData,
       tags: tagsArray,
-      author_id: user?.id,
+      author_id: null,
     };
 
     try {

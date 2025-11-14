@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,19 +9,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Settings = () => {
-  const { user, isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [settingsId, setSettingsId] = useState("");
   const [homepageCount, setHomepageCount] = useState(3);
   const [gridLayout, setGridLayout] = useState(3);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, loading, navigate]);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -39,10 +29,8 @@ const Settings = () => {
       }
     };
 
-    if (user && isAdmin) {
-      fetchSettings();
-    }
-  }, [user, isAdmin]);
+    fetchSettings();
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
@@ -69,11 +57,6 @@ const Settings = () => {
     setSaving(false);
   };
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-
-  if (!user || !isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-background">
