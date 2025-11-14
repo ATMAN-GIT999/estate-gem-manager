@@ -1,15 +1,41 @@
-import { Monitor, Home, Users, DollarSign, CheckCircle2, Shield, Key, Clock, BookOpen, Sparkles, Shirt, Wrench, Package } from "lucide-react";
+import { Monitor, Home, Users, DollarSign, CheckCircle2, Shield, Key, Clock, BookOpen, Sparkles, Shirt, Wrench, Package, MapPin, Briefcase } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 const PropertyManagement = () => {
   const achievements = [
-    { label: "Properties Managed", value: "150+", icon: Home },
-    { label: "Happy Guests", value: "5,000+", icon: Users },
-    { label: "Average Occupancy", value: "92%", icon: CheckCircle2 },
-    { label: "Years of Experience", value: "10+", icon: Shield },
+    { label: "Properties Managed", value: 34, suffix: "", icon: Home },
+    { label: "Successful Reservations", value: 570, suffix: "+", icon: CheckCircle2 },
+    { label: "Destinations", value: 8, suffix: "", icon: MapPin },
+    { label: "Collaborators", value: 50, suffix: "+", icon: Briefcase },
   ];
+
+  const AnimatedNumber = ({ value, suffix }: { value: number; suffix: string }) => {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+      const duration = 2000; // 2 seconds
+      const steps = 60;
+      const increment = value / steps;
+      let currentStep = 0;
+
+      const timer = setInterval(() => {
+        currentStep++;
+        if (currentStep >= steps) {
+          setCount(value);
+          clearInterval(timer);
+        } else {
+          setCount(Math.floor(increment * currentStep));
+        }
+      }, duration / steps);
+
+      return () => clearInterval(timer);
+    }, [value]);
+
+    return <span>{count}{suffix}</span>;
+  };
 
   const listingManagement = [
     {
@@ -109,7 +135,9 @@ const PropertyManagement = () => {
               >
                 <CardContent className="p-6 text-center">
                   <Icon className="w-8 h-8 text-primary mx-auto mb-3" />
-                  <div className="text-3xl font-bold text-primary mb-2">{stat.value}</div>
+                  <div className="text-3xl font-bold text-primary mb-2">
+                    <AnimatedNumber value={stat.value} suffix={stat.suffix} />
+                  </div>
                   <div className="text-sm text-foreground/70">{stat.label}</div>
                 </CardContent>
               </Card>
