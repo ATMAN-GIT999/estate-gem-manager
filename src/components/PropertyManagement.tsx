@@ -134,12 +134,12 @@ const PropertyManagement = () => {
             <div className="p-8 md:p-12">
                 <div className="grid md:grid-cols-2 gap-12 items-center mb-8">
                   <div>
-                    <div className="flex items-start gap-4 mb-6 bg-primary p-6 rounded-lg">
-                      <div className="bg-secondary rounded-full p-3">
-                        <Home className="w-6 h-6 text-primary" />
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className="bg-primary rounded-full p-3">
+                        <Home className="w-6 h-6 text-secondary" />
                       </div>
                       <div>
-                        <div className="bg-secondary text-primary px-6 py-2 rounded-full inline-block font-semibold">
+                        <div className="bg-primary text-secondary px-6 py-2 rounded-full inline-block font-semibold">
                           Listings that stand out
                         </div>
                       </div>
