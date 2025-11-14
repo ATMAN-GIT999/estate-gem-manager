@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import platformConnections from "@/assets/platform-connections.png";
 
 const PropertyManagement = () => {
   const achievements = [
@@ -132,43 +133,35 @@ const PropertyManagement = () => {
           <div className="max-w-6xl mx-auto">
             <Card className="bg-primary border-none shadow-elegant overflow-hidden">
               <CardContent className="p-8 md:p-12">
-                {/* Achievement Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-                  {achievements.map((stat, index) => {
-                    const Icon = stat.icon;
-                    return (
-                      <div 
-                        key={index} 
-                        className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20 text-center"
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        <Icon className="w-8 h-8 text-secondary mx-auto mb-3" />
-                        <div className="text-3xl font-bold text-primary-foreground mb-2">
-                          <AnimatedNumber value={stat.value} suffix={stat.suffix} />
-                        </div>
-                        <div className="text-sm text-primary-foreground/80">{stat.label}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-                
-                <div className="flex items-start gap-4 mb-8">
-                  <div className="bg-secondary rounded-full p-3">
-                    <Home className="w-6 h-6 text-primary" />
-                  </div>
+                <div className="grid md:grid-cols-2 gap-12 items-center mb-8">
                   <div>
-                    <div className="bg-secondary text-primary px-6 py-2 rounded-full inline-block mb-4 font-semibold">
-                      Listings that stand out
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className="bg-secondary rounded-full p-3">
+                        <Home className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <div className="bg-secondary text-primary px-6 py-2 rounded-full inline-block font-semibold">
+                          Listings that stand out
+                        </div>
+                      </div>
                     </div>
+                    
+                    <h3 className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
+                      Listing management
+                    </h3>
+                    <p className="text-lg text-primary-foreground/90 leading-relaxed">
+                      Your property advertised on all major platforms. We keep listings updated for maximum visibility.
+                    </p>
+                  </div>
+                  
+                  <div className="flex justify-center">
+                    <img 
+                      src={platformConnections} 
+                      alt="Connected booking platforms" 
+                      className="w-full max-w-md animate-fade-in"
+                    />
                   </div>
                 </div>
-                
-                <h3 className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
-                  Listing management
-                </h3>
-                <p className="text-xl text-primary-foreground/90 mb-8 leading-relaxed">
-                  Your property will be advertised on your preferred platforms. We'll keep this listing updated to ensure we get the most out of your vacation home.
-                </p>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   {listingManagement.map((item, index) => {
