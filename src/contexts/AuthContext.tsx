@@ -42,26 +42,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          setTimeout(() => {
-            checkAdminRole(session.user.id);
+          // Check admin role immediately with setTimeout to avoid blocking
+          setTimeout(async () => {
+            await checkAdminRole(session.user.id);
+            setLoading(false);
           }, 0);
         } else {
           setIsAdmin(false);
+          setLoading(false);
         }
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        await checkAdminRole(session.user.id);
       }
       setLoading(false);
     });

@@ -12,11 +12,12 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { user, signIn, signUp, isAdmin } = useAuth();
+  const { user, signIn, signUp, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
+    // Wait for auth to finish loading before redirecting
+    if (!loading && user) {
       // Redirect based on admin status
       if (isAdmin) {
         navigate("/admin");
@@ -24,7 +25,7 @@ const Auth = () => {
         navigate("/");
       }
     }
-  }, [user, isAdmin, navigate]);
+  }, [user, isAdmin, loading, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
