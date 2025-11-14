@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAdmin } = useAuth();
 
   const navLinks = [
     { href: "/business-areas", label: "Our Business Areas" },
@@ -33,11 +35,19 @@ const Navigation = () => {
                 {link.label}
               </Link>
             ))}
-            <Link to="/auth">
-              <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
-                Sign In
-              </Button>
-            </Link>
+            {user ? (
+              <Link to={isAdmin ? "/admin/dashboard" : "/book"}>
+                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
+                  {isAdmin ? "Dashboard" : "My Bookings"}
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -63,11 +73,19 @@ const Navigation = () => {
                   {link.label}
                 </Link>
               ))}
-              <Link to="/auth" className="w-full">
-                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
-                  Sign In
-                </Button>
-              </Link>
+              {user ? (
+                <Link to={isAdmin ? "/admin/dashboard" : "/book"} className="w-full">
+                  <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
+                    {isAdmin ? "Dashboard" : "My Bookings"}
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/auth" className="w-full">
+                  <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
+                    Sign In
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         )}

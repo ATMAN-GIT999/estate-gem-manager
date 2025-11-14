@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
-import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CalendarIcon, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { CalendarIcon, Search, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
   const [showBooking, setShowBooking] = useState(false);
-  const [checkIn, setCheckIn] = useState<Date | undefined>(undefined);
-  const [checkOut, setCheckOut] = useState<Date | undefined>(undefined);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowBooking(true);
-    }, 3000);
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleSearch = () => {
+    navigate('/properties');
+  };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -41,35 +45,44 @@ const Hero = () => {
           </p>
         </div>
 
-        {/* Booking Engine Slide-in */}
+        {/* Compact Search Bar */}
         {showBooking && (
-          <Card className="mt-12 max-w-4xl mx-auto p-6 md:p-8 shadow-elegant animate-slide-in-right bg-card/95 backdrop-blur">
-            <h3 className="font-playfair text-2xl font-semibold text-primary mb-6">Find Your Perfect Stay</h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2 text-foreground">Check-In</label>
-                <div className="border border-border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:border-primary transition-colors bg-background">
-                  <CalendarIcon className="w-5 h-5 text-primary" />
-                  <span className="text-foreground">
-                    {checkIn ? checkIn.toLocaleDateString() : "Select date"}
-                  </span>
+          <div className="mt-12 max-w-5xl mx-auto animate-slide-in-right">
+            <Card className="p-3 shadow-elegant bg-card/95 backdrop-blur">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2">
+                <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
+                  <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
+                  <Input
+                    type="text"
+                    placeholder="Check-in"
+                    className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2 text-foreground">Check-Out</label>
-                <div className="border border-border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:border-primary transition-colors bg-background">
-                  <CalendarIcon className="w-5 h-5 text-primary" />
-                  <span className="text-foreground">
-                    {checkOut ? checkOut.toLocaleDateString() : "Select date"}
-                  </span>
+                <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
+                  <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
+                  <Input
+                    type="text"
+                    placeholder="Check-out"
+                    className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
                 </div>
+                <div className="flex-1 flex items-center gap-3 px-4 py-2">
+                  <Users className="w-5 h-5 text-primary shrink-0" />
+                  <Input
+                    type="text"
+                    placeholder="Gäste hinzufügen"
+                    className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                </div>
+                <Button 
+                  onClick={handleSearch}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft h-12 px-8 rounded-full"
+                >
+                  <Search className="h-5 w-5" />
+                </Button>
               </div>
-            </div>
-            <Button className="w-full mt-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft h-12 text-lg font-semibold">
-              <Search className="mr-2 h-5 w-5" />
-              Search Available Properties
-            </Button>
-          </Card>
+            </Card>
+          </div>
         )}
       </div>
 

@@ -12,11 +12,14 @@ import BusinessAreasPage from "./pages/BusinessAreasPage";
 import Evaluate from "./pages/Evaluate";
 import Auth from "./pages/Auth";
 import PropertyDetail from "./pages/PropertyDetail";
+import Properties from "./pages/Properties";
+import Book from "./pages/Book";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProperties from "./pages/admin/Properties";
 import AdminBookings from "./pages/admin/Bookings";
 import AdminBlog from "./pages/admin/Blog";
 import AdminAnalytics from "./pages/admin/Analytics";
+import AdminSettings from "./pages/admin/Settings";
 
 const queryClient = new QueryClient();
 
@@ -34,12 +37,16 @@ const App = () => (
             <Route path="/business-areas" element={<BusinessAreasPage />} />
             <Route path="/evaluate" element={<Evaluate />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/properties" element={<Properties />} />
+            <Route path="/book" element={<Book />} />
             <Route path="/property/:slug" element={<PropertyDetail />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/properties" element={<AdminProperties />} />
             <Route path="/admin/bookings" element={<AdminBookings />} />
             <Route path="/admin/blog" element={<AdminBlog />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
