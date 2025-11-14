@@ -33,9 +33,11 @@ const Navigation = () => {
                 {link.label}
               </Link>
             ))}
-            <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
-              Contact Us
-            </Button>
+            <Link to="/auth">
+              <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
+                Sign In
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -61,9 +63,11 @@ const Navigation = () => {
                   {link.label}
                 </Link>
               ))}
-              <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
-                Contact Us
-              </Button>
+              <Link to="/auth" className="w-full">
+                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
+                  Sign In
+                </Button>
+              </Link>
             </div>
           </div>
         )}
