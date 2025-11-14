@@ -51,6 +51,13 @@ const AdminDashboard = () => {
       href: "/admin/analytics",
       color: "text-primary",
     },
+    {
+      title: "Homepage Settings",
+      description: "Configure homepage layout",
+      icon: Building,
+      href: "/admin/settings",
+      color: "text-primary",
+    },
   ];
 
   return (
