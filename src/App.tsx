@@ -3,13 +3,20 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Projects from "./pages/Projects";
 import BusinessAreasPage from "./pages/BusinessAreasPage";
-import Book from "./pages/Book";
 import Evaluate from "./pages/Evaluate";
+import Auth from "./pages/Auth";
+import PropertyDetail from "./pages/PropertyDetail";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminProperties from "./pages/admin/Properties";
+import AdminBookings from "./pages/admin/Bookings";
+import AdminBlog from "./pages/admin/Blog";
+import AdminAnalytics from "./pages/admin/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -19,16 +26,23 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/business-areas" element={<BusinessAreasPage />} />
-          <Route path="/book" element={<Book />} />
-          <Route path="/evaluate" element={<Evaluate />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/business-areas" element={<BusinessAreasPage />} />
+            <Route path="/evaluate" element={<Evaluate />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/property/:slug" element={<PropertyDetail />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/properties" element={<AdminProperties />} />
+            <Route path="/admin/bookings" element={<AdminBookings />} />
+            <Route path="/admin/blog" element={<AdminBlog />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
