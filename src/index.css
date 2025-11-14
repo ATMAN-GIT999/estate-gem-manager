@@ -8,50 +8,50 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 32 26% 92%;
-    --foreground: 100 10% 38%;
+    --background: 32 26% 92%; /* #efe6d9 */
+    --foreground: 100 10% 38%; /* #5a6959 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 100 10% 38%;
+    --card: 0 0% 100%; /* #ffffff */
+    --card-foreground: 100 10% 38%; /* #5a6959 */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 100 10% 38%;
+    --popover: 0 0% 100%; /* #ffffff */
+    --popover-foreground: 100 10% 38%; /* #5a6959 */
 
-    --primary: 100 10% 38%;
-    --primary-foreground: 32 26% 92%;
+    --primary: 100 10% 38%; /* #5a6959 */
+    --primary-foreground: 0 0% 100%; /* #ffffff */
 
-    --secondary: 32 26% 92%;
-    --secondary-foreground: 100 10% 38%;
+    --secondary: 32 26% 92%; /* #efe6d9 */
+    --secondary-foreground: 100 10% 38%; /* #5a6959 */
 
-    --muted: 32 20% 88%;
-    --muted-foreground: 100 8% 50%;
+    --muted: 32 26% 92%; /* #efe6d9 */
+    --muted-foreground: 100 10% 38%; /* #5a6959 */
 
-    --accent: 42 78% 58%;
-    --accent-foreground: 100 10% 20%;
+    --accent: 100 10% 38%; /* #5a6959 */
+    --accent-foreground: 0 0% 100%; /* #ffffff */
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 32 26% 92%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 32 20% 85%;
-    --input: 32 20% 85%;
-    --ring: 42 78% 58%;
+    --border: 100 10% 38%; /* #5a6959 */
+    --input: 100 10% 38%; /* #5a6959 */
+    --ring: 100 10% 38%; /* #5a6959 */
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 100 10% 38%;
     --sidebar-primary: 100 10% 38%;
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 32 26% 92%;
     --sidebar-accent-foreground: 100 10% 38%;
-    --sidebar-border: 32 20% 85%;
-    --sidebar-ring: 42 78% 58%;
+    --sidebar-border: 100 10% 38%;
+    --sidebar-ring: 100 10% 38%;
 
     /* Custom gradients and shadows */
     --gradient-hero: linear-gradient(135deg, hsl(32 26% 92%) 0%, hsl(32 30% 88%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(42 78% 58%) 0%, hsl(42 68% 65%) 100%);
+    --gradient-sage: linear-gradient(135deg, hsl(100 10% 38%) 0%, hsl(100 8% 30%) 100%);
     --shadow-elegant: 0 10px 40px -10px hsl(100 10% 38% / 0.15);
-    --shadow-gold: 0 8px 30px -8px hsl(42 78% 58% / 0.3);
+    --shadow-soft: 0 8px 30px -8px hsl(100 10% 38% / 0.2);
     
     /* Transitions */
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -59,33 +59,33 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 100 10% 15%;
-    --foreground: 32 26% 92%;
+    --background: 0 0% 0%; /* #000000 */
+    --foreground: 0 0% 100%; /* #ffffff */
 
-    --card: 100 10% 18%;
-    --card-foreground: 32 26% 92%;
+    --card: 100 10% 15%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 100 10% 18%;
-    --popover-foreground: 32 26% 92%;
+    --popover: 100 10% 15%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 32 26% 92%;
-    --primary-foreground: 100 10% 20%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 100 10% 25%;
-    --secondary-foreground: 32 26% 92%;
+    --secondary: 100 10% 38%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 100 10% 25%;
-    --muted-foreground: 32 15% 70%;
+    --muted-foreground: 32 26% 92%;
 
-    --accent: 42 78% 58%;
-    --accent-foreground: 100 10% 20%;
+    --accent: 32 26% 92%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 62.8% 50%;
-    --destructive-foreground: 32 26% 92%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 100 10% 25%;
-    --input: 100 10% 25%;
-    --ring: 42 78% 58%;
+    --border: 100 10% 38%;
+    --input: 100 10% 38%;
+    --ring: 100 10% 38%;
   }
 }
 
@@ -144,16 +144,16 @@ All colors MUST be HSL.
     background: var(--gradient-hero);
   }
   
-  .gradient-gold {
-    background: var(--gradient-gold);
+  .gradient-sage {
+    background: var(--gradient-sage);
   }
   
   .shadow-elegant {
     box-shadow: var(--shadow-elegant);
   }
   
-  .shadow-gold {
-    box-shadow: var(--shadow-gold);
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
   }
   
   .transition-smooth {
