@@ -131,7 +131,7 @@ const PropertyManagement = () => {
         {/* Listing Management Section */}
         <div className="mb-20">
           <div className="max-w-6xl mx-auto">
-            <Card className="bg-primary border-none shadow-elegant overflow-hidden">
+            <Card className="bg-card border-border shadow-elegant overflow-hidden">
               <CardContent className="p-8 md:p-12">
                 <div className="grid md:grid-cols-2 gap-12 items-center mb-8">
                   <div>
@@ -146,10 +146,10 @@ const PropertyManagement = () => {
                       </div>
                     </div>
                     
-                    <h3 className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
+                    <h3 className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-6">
                       Listing management
                     </h3>
-                    <p className="text-lg text-primary-foreground/90 leading-relaxed">
+                    <p className="text-lg text-foreground/80 leading-relaxed">
                       Your property advertised on all major platforms. We keep listings updated for maximum visibility.
                     </p>
                   </div>
@@ -169,12 +169,12 @@ const PropertyManagement = () => {
                     return (
                       <div 
                         key={index} 
-                        className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20"
+                        className="bg-muted/50 backdrop-blur-sm rounded-lg p-6 hover:bg-muted transition-all duration-300 animate-fade-in border border-border"
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <Icon className="w-10 h-10 text-secondary mb-4" />
-                        <h4 className="text-lg font-semibold text-primary-foreground mb-2">{item.title}</h4>
-                        <p className="text-sm text-primary-foreground/80 leading-relaxed">{item.description}</p>
+                        <Icon className="w-10 h-10 text-primary mb-4" />
+                        <h4 className="text-lg font-semibold text-foreground mb-2">{item.title}</h4>
+                        <p className="text-sm text-foreground/70 leading-relaxed">{item.description}</p>
                       </div>
                     );
                   })}
