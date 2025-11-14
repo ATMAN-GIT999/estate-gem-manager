@@ -18,9 +18,10 @@ import property2 from "@/assets/property-2.png";
 import property3 from "@/assets/property-3.png";
 import property4 from "@/assets/property-4.png";
 import property5 from "@/assets/property-5.png";
+import villaHigueron from "@/assets/villa-higueron.png";
 
 const propertyImages: Record<string, string[]> = {
-  "los-flamingos-golf-resort": [property1, property5],
+  "villa-in-higueron": [villaHigueron, property5],
   "peninsula-corner-villa-higueron": [property2],
   "los-monteros-retreat": [property3],
   "puente-romano-hideaway": [property4],
