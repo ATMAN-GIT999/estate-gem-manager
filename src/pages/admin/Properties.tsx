@@ -41,9 +41,15 @@ const AdminProperties = () => {
     price_per_night: 0,
     registration_number: "",
     amenities: "",
+    address: "",
+    latitude: "",
+    longitude: "",
+    nearbyAmenities: "",
     featured: false,
     available: true,
   });
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
@@ -81,12 +87,43 @@ const AdminProperties = () => {
       .map((a) => a.trim())
       .filter((a) => a);
 
-    const propertyData = {
-      ...formData,
-      amenities: amenitiesArray,
-    };
+    const nearbyAmenitiesArray = formData.nearbyAmenities
+      ? JSON.parse(formData.nearbyAmenities)
+      : [];
 
     try {
+      // Upload images if any
+      const uploadedImageUrls = [...existingImages];
+      
+      if (imageFiles.length > 0) {
+        for (const file of imageFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const filePath = `${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('property-images')
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('property-images')
+            .getPublicUrl(filePath);
+
+          uploadedImageUrls.push(publicUrl);
+        }
+      }
+
+      const propertyData = {
+        ...formData,
+        amenities: amenitiesArray,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+        nearby_amenities: nearbyAmenitiesArray,
+        images: uploadedImageUrls,
+      };
+
       if (editingProperty) {
         const { error } = await supabase
           .from("properties")
@@ -125,6 +162,7 @@ const AdminProperties = () => {
 
   const handleEdit = (property: any) => {
     setEditingProperty(property);
+    setExistingImages(property.images || []);
     setFormData({
       name: property.name,
       slug: property.slug,
@@ -134,6 +172,10 @@ const AdminProperties = () => {
       bedrooms: property.bedrooms,
       bathrooms: property.bathrooms,
       guests: property.guests,
+      address: property.address || "",
+      latitude: property.latitude?.toString() || "",
+      longitude: property.longitude?.toString() || "",
+      nearbyAmenities: property.nearby_amenities ? JSON.stringify(property.nearby_amenities) : "",
       price_per_night: property.price_per_night,
       registration_number: property.registration_number || "",
       amenities: property.amenities?.join(", ") || "",
@@ -178,9 +220,15 @@ const AdminProperties = () => {
       price_per_night: 0,
       registration_number: "",
       amenities: "",
+      address: "",
+      latitude: "",
+      longitude: "",
+      nearbyAmenities: "",
       featured: false,
       available: true,
     });
+    setImageFiles([]);
+    setExistingImages([]);
   };
 
   if (loading || !user || !isAdmin) return null;
@@ -411,6 +459,71 @@ const AdminProperties = () => {
                     placeholder="Pool, WiFi, Air Conditioning"
                     rows={2}
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input
+                    id="address"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    placeholder="Street address, city, postal code"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="latitude">Latitude</Label>
+                    <Input
+                      id="latitude"
+                      type="number"
+                      step="any"
+                      value={formData.latitude}
+                      onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                      placeholder="36.5270"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="longitude">Longitude</Label>
+                    <Input
+                      id="longitude"
+                      type="number"
+                      step="any"
+                      value={formData.longitude}
+                      onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                      placeholder="-4.8896"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="nearbyAmenities">Nearby Amenities (JSON format)</Label>
+                  <Textarea
+                    id="nearbyAmenities"
+                    value={formData.nearbyAmenities}
+                    onChange={(e) => setFormData({ ...formData, nearbyAmenities: e.target.value })}
+                    placeholder='[{"name": "Beach", "distance": "100m", "type": "leisure"}]'
+                    rows={3}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="images">Property Images</Label>
+                  <Input
+                    id="images"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      setImageFiles(files);
+                    }}
+                  />
+                  {existingImages.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm text-muted-foreground">Existing images: {existingImages.length}</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-6">
