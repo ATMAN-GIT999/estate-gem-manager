@@ -114,35 +114,17 @@ const PropertyManagement = () => {
           <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-6">
             Short-Term Rental Management
           </h2>
-          <p className="text-xl text-foreground/80 max-w-3xl mx-auto leading-relaxed mb-4">
-            "A home away from home"
-          </p>
-          <p className="text-lg text-foreground/70 max-w-3xl mx-auto leading-relaxed">
-            At Frontier Residences, we strive for the most personal approach possible.
-            Our goal is to create a warm and welcoming environment where guests immediately feel at home.
-          </p>
-        </div>
-
-        {/* Achievement Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto mb-20">
-          {achievements.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card 
-                key={index} 
-                className="bg-card/90 backdrop-blur-sm border-primary/20 hover:shadow-elegant transition-all duration-300 hover:scale-105 animate-fade-in"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <CardContent className="p-6 text-center">
-                  <Icon className="w-8 h-8 text-primary mx-auto mb-3" />
-                  <div className="text-3xl font-bold text-primary mb-2">
-                    <AnimatedNumber value={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <div className="text-sm text-foreground/70">{stat.label}</div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          <div className="max-w-3xl mx-auto space-y-3">
+            <p className="text-2xl font-semibold text-primary">
+              Expert Property Management
+            </p>
+            <p className="text-2xl font-semibold text-primary">
+              Exceptional Guest Experiences
+            </p>
+            <p className="text-xl text-foreground/70 mt-4">
+              We manage while you relax
+            </p>
+          </div>
         </div>
 
         {/* Listing Management Section */}
@@ -150,6 +132,26 @@ const PropertyManagement = () => {
           <div className="max-w-6xl mx-auto">
             <Card className="bg-primary border-none shadow-elegant overflow-hidden">
               <CardContent className="p-8 md:p-12">
+                {/* Achievement Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+                  {achievements.map((stat, index) => {
+                    const Icon = stat.icon;
+                    return (
+                      <div 
+                        key={index} 
+                        className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20 text-center"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <Icon className="w-8 h-8 text-secondary mx-auto mb-3" />
+                        <div className="text-3xl font-bold text-primary-foreground mb-2">
+                          <AnimatedNumber value={stat.value} suffix={stat.suffix} />
+                        </div>
+                        <div className="text-sm text-primary-foreground/80">{stat.label}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
                 <div className="flex items-start gap-4 mb-8">
                   <div className="bg-secondary rounded-full p-3">
                     <Home className="w-6 h-6 text-primary" />
