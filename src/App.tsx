@@ -20,6 +20,8 @@ import AdminBookings from "./pages/admin/Bookings";
 import AdminBlog from "./pages/admin/Blog";
 import AdminAnalytics from "./pages/admin/Analytics";
 import AdminSettings from "./pages/admin/Settings";
+import UpdatePassword from "./pages/UpdatePassword";
+
 
 const queryClient = new QueryClient();
 
@@ -37,6 +39,7 @@ const App = () => (
             <Route path="/business-areas" element={<BusinessAreasPage />} />
             <Route path="/evaluate" element={<Evaluate />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/update-password" element={<UpdatePassword />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/book" element={<Book />} />
             <Route path="/property/:slug" element={<PropertyDetail />} />

@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabaseClient";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -13,17 +15,14 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { user, signIn, signUp, isAdmin, loading } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Wait for auth to finish loading before redirecting
+    // Redirect when authenticated
     if (!loading && user) {
-      // Redirect based on admin status
-      if (isAdmin) {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
+      if (isAdmin) navigate("/admin");
+      else navigate("/");
     }
   }, [user, isAdmin, loading, navigate]);
 
@@ -41,6 +40,28 @@ const Auth = () => {
     setIsLoading(false);
   };
 
+  const handleResetPassword = async () => {
+    if (!email) {
+      toast({
+        variant: "destructive",
+        title: "Enter your email",
+        description: "Type your email above, then click Forgot password.",
+      });
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const redirectTo = `${window.location.origin}/update-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+      if (error) throw error;
+      toast({ title: "Reset link sent", description: "Check your email and follow the link to set a new password." });
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Could not send reset link", description: err?.message || "Please try again" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
@@ -54,7 +75,7 @@ const Auth = () => {
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
@@ -78,12 +99,22 @@ const Auth = () => {
                     required
                   />
                 </div>
+                <div className="flex items-center justify-between">
+                  <div />
+                  <button
+                    type="button"
+                    onClick={handleResetPassword}
+                    className="text-sm text-primary underline underline-offset-4"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </TabsContent>
-            
+
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
@@ -131,3 +162,4 @@ const Auth = () => {
 };
 
 export default Auth;
+
