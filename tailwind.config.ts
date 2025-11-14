@@ -58,16 +58,16 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         beige: {
-          DEFAULT: "hsl(32 26% 92%)", /* #efe6d9 */
-          dark: "hsl(32 26% 85%)",
+          DEFAULT: "hsl(32, 26%, 92%)", /* #efe6d9 */
+          dark: "hsl(32, 26%, 85%)",
         },
         sage: {
-          DEFAULT: "hsl(100 10% 38%)", /* #5a6959 */
-          light: "hsl(100 8% 50%)",
-          dark: "hsl(100 8% 30%)",
+          DEFAULT: "hsl(133, 11%, 36%)", /* #546458 */
+          light: "hsl(133, 11%, 50%)",
+          dark: "hsl(100, 10%, 38%)", /* #5a6959 */
         },
-        white: "hsl(0 0% 100%)", /* #ffffff */
-        black: "hsl(0 0% 0%)", /* #000000 */
+        white: "hsl(0, 0%, 100%)", /* #ffffff */
+        black: "hsl(0, 0%, 0%)", /* #000000 */
       },
       fontFamily: {
         playfair: ["Playfair Display", "serif"],
