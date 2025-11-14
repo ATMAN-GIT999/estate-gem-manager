@@ -17,7 +17,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%; /* #ffffff */
     --popover-foreground: 100 10% 38%; /* #5a6959 */
 
-    --primary: 100 10% 38%; /* #5a6959 */
+    --primary: 133 11% 36%; /* #546458 - Header green */
     --primary-foreground: 0 0% 100%; /* #ffffff */
 
     --secondary: 32 26% 92%; /* #efe6d9 */
@@ -40,7 +40,7 @@ All colors MUST be HSL.
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 100 10% 38%;
-    --sidebar-primary: 100 10% 38%;
+    --sidebar-primary: 133 11% 36%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 32 26% 92%;
     --sidebar-accent-foreground: 100 10% 38%;
@@ -48,10 +48,10 @@ All colors MUST be HSL.
     --sidebar-ring: 100 10% 38%;
 
     /* Custom gradients and shadows */
-    --gradient-hero: linear-gradient(135deg, hsl(32 26% 92%) 0%, hsl(32 30% 88%) 100%);
-    --gradient-sage: linear-gradient(135deg, hsl(100 10% 38%) 0%, hsl(100 8% 30%) 100%);
-    --shadow-elegant: 0 10px 40px -10px hsl(100 10% 38% / 0.15);
-    --shadow-soft: 0 8px 30px -8px hsl(100 10% 38% / 0.2);
+    --gradient-hero: linear-gradient(135deg, hsl(32, 26%, 92%) 0%, hsl(32, 30%, 88%) 100%);
+    --gradient-sage: linear-gradient(135deg, hsl(133, 11%, 36%) 0%, hsl(133, 11%, 28%) 100%);
+    --shadow-elegant: 0 10px 40px -10px hsl(133 11% 36% / 0.15);
+    --shadow-soft: 0 8px 30px -8px hsl(133 11% 36% / 0.2);
     
     /* Transitions */
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);

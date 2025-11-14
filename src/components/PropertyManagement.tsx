@@ -120,23 +120,23 @@ const PropertyManagement = () => {
         {/* Listing Management Section */}
         <div className="mb-20">
           <div className="max-w-6xl mx-auto">
-            <Card className="bg-[hsl(180,35%,30%)] border-none shadow-elegant overflow-hidden">
+            <Card className="bg-primary border-none shadow-elegant overflow-hidden">
               <CardContent className="p-8 md:p-12">
                 <div className="flex items-start gap-4 mb-8">
-                  <div className="bg-[hsl(20,45%,55%)] rounded-full p-3">
-                    <Home className="w-6 h-6 text-white" />
+                  <div className="bg-secondary rounded-full p-3">
+                    <Home className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <div className="bg-[hsl(20,45%,55%)] text-white px-6 py-2 rounded-full inline-block mb-4 font-semibold">
+                    <div className="bg-secondary text-primary px-6 py-2 rounded-full inline-block mb-4 font-semibold">
                       Listings that stand out
                     </div>
                   </div>
                 </div>
                 
-                <h3 className="font-playfair text-4xl md:text-5xl font-bold text-white mb-6">
+                <h3 className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
                   Listing management
                 </h3>
-                <p className="text-xl text-white/90 mb-8 leading-relaxed">
+                <p className="text-xl text-primary-foreground/90 mb-8 leading-relaxed">
                   Your property will be advertised on your preferred platforms. We'll keep this listing updated to ensure we get the most out of your vacation home.
                 </p>
 
@@ -146,19 +146,19 @@ const PropertyManagement = () => {
                     return (
                       <div 
                         key={index} 
-                        className="bg-white/5 backdrop-blur-sm rounded-lg p-6 hover:bg-white/10 transition-all duration-300 animate-fade-in border border-white/10"
+                        className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20"
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <Icon className="w-10 h-10 text-[hsl(20,45%,55%)] mb-4" />
-                        <h4 className="text-lg font-semibold text-white mb-2">{item.title}</h4>
-                        <p className="text-sm text-white/80 leading-relaxed">{item.description}</p>
+                        <Icon className="w-10 h-10 text-secondary mb-4" />
+                        <h4 className="text-lg font-semibold text-primary-foreground mb-2">{item.title}</h4>
+                        <p className="text-sm text-primary-foreground/80 leading-relaxed">{item.description}</p>
                       </div>
                     );
                   })}
                 </div>
 
                 <Link to="/book">
-                  <Button className="bg-[hsl(20,45%,55%)] hover:bg-[hsl(20,45%,45%)] text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
+                  <Button className="bg-secondary hover:bg-secondary/90 text-primary shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
                     → Contact us
                   </Button>
                 </Link>
@@ -170,23 +170,23 @@ const PropertyManagement = () => {
         {/* Guest Management Section */}
         <div className="mb-20">
           <div className="max-w-6xl mx-auto">
-            <Card className="bg-[hsl(180,35%,30%)] border-none shadow-elegant overflow-hidden">
+            <Card className="bg-primary border-none shadow-elegant overflow-hidden">
               <CardContent className="p-8 md:p-12">
                 <div className="flex items-start gap-4 mb-8">
-                  <div className="bg-[hsl(20,45%,55%)] rounded-full p-3">
-                    <Users className="w-6 h-6 text-white" />
+                  <div className="bg-secondary rounded-full p-3">
+                    <Users className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <div className="bg-[hsl(20,45%,55%)] text-white px-6 py-2 rounded-full inline-block mb-4 font-semibold">
+                    <div className="bg-secondary text-primary px-6 py-2 rounded-full inline-block mb-4 font-semibold">
                       Stays that impress
                     </div>
                   </div>
                 </div>
                 
-                <h3 className="font-playfair text-4xl md:text-5xl font-bold text-white mb-6">
+                <h3 className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
                   Guest management
                 </h3>
-                <p className="text-xl text-white/90 mb-8 leading-relaxed">
+                <p className="text-xl text-primary-foreground/90 mb-8 leading-relaxed">
                   We ensure satisfied guests and provide support whenever needed. Your guests can contact us 24/7 with any questions or problems.
                 </p>
 
@@ -196,28 +196,28 @@ const PropertyManagement = () => {
                     return (
                       <div 
                         key={index} 
-                        className="bg-white/5 backdrop-blur-sm rounded-lg p-6 hover:bg-white/10 transition-all duration-300 animate-fade-in border border-white/10"
+                        className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20"
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <Icon className="w-10 h-10 text-[hsl(20,45%,55%)] mb-4" />
-                        <h4 className="text-lg font-semibold text-white mb-2">{item.title}</h4>
-                        <p className="text-sm text-white/80 leading-relaxed">{item.description}</p>
+                        <Icon className="w-10 h-10 text-secondary mb-4" />
+                        <h4 className="text-lg font-semibold text-primary-foreground mb-2">{item.title}</h4>
+                        <p className="text-sm text-primary-foreground/80 leading-relaxed">{item.description}</p>
                       </div>
                     );
                   })}
                 </div>
 
                 <div className="flex flex-wrap gap-4 mb-8">
-                  <div className="text-[hsl(20,45%,55%)] text-lg font-medium flex items-center gap-2">
+                  <div className="text-secondary text-lg font-medium flex items-center gap-2">
                     → Listing management
                   </div>
-                  <div className="text-[hsl(20,45%,55%)] text-lg font-medium flex items-center gap-2">
+                  <div className="text-secondary text-lg font-medium flex items-center gap-2">
                     → Property management
                   </div>
                 </div>
 
                 <Link to="/book">
-                  <Button className="bg-[hsl(20,45%,55%)] hover:bg-[hsl(20,45%,45%)] text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
+                  <Button className="bg-secondary hover:bg-secondary/90 text-primary shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
                     → Contact us
                   </Button>
                 </Link>
@@ -229,27 +229,27 @@ const PropertyManagement = () => {
         {/* Property Management Section */}
         <div>
           <div className="max-w-6xl mx-auto">
-            <Card className="bg-[hsl(180,35%,30%)] border-none shadow-elegant overflow-hidden">
+            <Card className="bg-primary border-none shadow-elegant overflow-hidden">
               <CardContent className="p-8 md:p-12">
                 <div className="flex items-start gap-4 mb-8">
-                  <div className="bg-[hsl(20,45%,55%)] rounded-full p-3">
-                    <Home className="w-6 h-6 text-white" />
+                  <div className="bg-secondary rounded-full p-3">
+                    <Home className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <div className="bg-[hsl(20,45%,55%)] text-white px-6 py-2 rounded-full inline-block mb-4 font-semibold">
+                    <div className="bg-secondary text-primary px-6 py-2 rounded-full inline-block mb-4 font-semibold">
                       Homes in good hands
                     </div>
                   </div>
                 </div>
                 
-                <h3 className="font-playfair text-4xl md:text-5xl font-bold text-white mb-6">
+                <h3 className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
                   Property management
                 </h3>
                 <div className="space-y-4 mb-8">
-                  <p className="text-xl text-white/90 leading-relaxed">
+                  <p className="text-xl text-primary-foreground/90 leading-relaxed">
                     Your home will be thoroughly inspected and cleaned after each stay. We take great care of your property.
                   </p>
-                  <p className="text-xl text-white/90 leading-relaxed">
+                  <p className="text-xl text-primary-foreground/90 leading-relaxed">
                     Once guests have checked out, we will conduct a thorough inspection of your property to detect any damage.
                   </p>
                 </div>
@@ -260,28 +260,28 @@ const PropertyManagement = () => {
                     return (
                       <div 
                         key={index} 
-                        className="bg-white/5 backdrop-blur-sm rounded-lg p-6 hover:bg-white/10 transition-all duration-300 animate-fade-in border border-white/10"
+                        className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20"
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <Icon className="w-10 h-10 text-[hsl(20,45%,55%)] mb-4" />
-                        <h4 className="text-lg font-semibold text-white mb-2">{item.title}</h4>
-                        <p className="text-sm text-white/80 leading-relaxed">{item.description}</p>
+                        <Icon className="w-10 h-10 text-secondary mb-4" />
+                        <h4 className="text-lg font-semibold text-primary-foreground mb-2">{item.title}</h4>
+                        <p className="text-sm text-primary-foreground/80 leading-relaxed">{item.description}</p>
                       </div>
                     );
                   })}
                 </div>
 
                 <div className="flex flex-wrap gap-4 mb-8">
-                  <div className="text-[hsl(20,45%,55%)] text-lg font-medium flex items-center gap-2">
+                  <div className="text-secondary text-lg font-medium flex items-center gap-2">
                     → Listing management
                   </div>
-                  <div className="text-[hsl(20,45%,55%)] text-lg font-medium flex items-center gap-2">
+                  <div className="text-secondary text-lg font-medium flex items-center gap-2">
                     → Guest management
                   </div>
                 </div>
 
                 <Link to="/book">
-                  <Button className="bg-[hsl(20,45%,55%)] hover:bg-[hsl(20,45%,45%)] text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
+                  <Button className="bg-secondary hover:bg-secondary/90 text-primary shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
                     → Contact us
                   </Button>
                 </Link>
