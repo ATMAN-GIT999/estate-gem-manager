@@ -3,8 +3,7 @@ import Hero from "@/components/Hero";
 import Stats from "@/components/Stats";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
-import StressFreeHosting from "@/components/StressFreeHosting";
-import HowWeKeepItKozy from "@/components/HowWeKeepItKozy";
+import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -119,8 +118,7 @@ const Index = () => {
       </section>
 
       <Stats />
-      <StressFreeHosting />
-      <HowWeKeepItKozy />
+      <PropertyManagement />
       <PropertyEvaluator />
       <Footer />
     </div>
