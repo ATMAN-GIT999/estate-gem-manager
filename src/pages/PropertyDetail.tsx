@@ -169,13 +169,13 @@ const PropertyDetail = () => {
           </Button>
 
           {/* Property Images */}
-          <div className="grid md:grid-cols-2 gap-4 mb-8">
-            {images.map((img, idx) => (
-              <div key={idx} className="aspect-[4/3] overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {images.slice(0, 6).map((img, idx) => (
+              <div key={idx} className="aspect-[4/3] overflow-hidden rounded-lg">
                 <img
                   src={img}
                   alt={`${property.name} - ${idx + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>
             ))}
@@ -190,9 +190,16 @@ const PropertyDetail = () => {
                     <h1 className="font-playfair text-4xl font-bold text-primary mb-2">
                       {property.name}
                     </h1>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="w-5 h-5" />
-                      <span className="text-lg">{property.location}</span>
+                    <div className="flex items-center gap-4 text-muted-foreground mb-2">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-5 h-5" />
+                        <span className="text-lg">{property.location}</span>
+                      </div>
+                      {property.type && (
+                        <Badge variant="outline" className="capitalize">
+                          {property.type}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   {property.featured && (
