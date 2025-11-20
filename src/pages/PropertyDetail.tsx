@@ -166,7 +166,7 @@ const PropertyDetail = () => {
           <Button
             variant="outline"
             onClick={() => navigate("/")}
-            className="mb-6"
+            className="mb-6 mt-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Properties
