@@ -51,8 +51,8 @@ serve(async (req) => {
     const { access_token } = await tokenResponse.json();
     console.log('Successfully authenticated with Guesty');
 
-    // Step 2: Fetch properties from Guesty
-    const propertiesResponse = await fetch('https://booking.guesty.com/v1/listings', {
+    // Step 2: Fetch properties from Guesty Booking API
+    const propertiesResponse = await fetch('https://booking.guesty.com/application/listings/list', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${access_token}`,
