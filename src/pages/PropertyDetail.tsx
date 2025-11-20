@@ -149,7 +149,9 @@ const PropertyDetail = () => {
 
   if (!property) return null;
 
-  const images = propertyImages[property.slug] || [property1];
+  // Use Guesty images if available, otherwise fall back to hardcoded images
+  const guestyImages = property.images?.map((img: any) => img.url) || [];
+  const images = guestyImages.length > 0 ? guestyImages : (propertyImages[property.slug] || [property1]);
 
   return (
     <div className="min-h-screen flex flex-col">

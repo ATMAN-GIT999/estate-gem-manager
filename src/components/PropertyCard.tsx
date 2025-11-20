@@ -18,6 +18,7 @@ interface Property {
   price_per_night: number;
   featured: boolean;
   type: string;
+  images?: Array<{ url: string; caption?: string }>;
 }
 
 interface PropertyCardProps {
@@ -32,7 +33,9 @@ const propertyImages: Record<string, string> = {
 };
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
-  const imageUrl = propertyImages[property.slug] || property1;
+  // Use Guesty images if available, otherwise fall back to hardcoded images
+  const guestyImage = property.images?.[0]?.url;
+  const imageUrl = guestyImage || propertyImages[property.slug] || property1;
 
   return (
     <Link 
