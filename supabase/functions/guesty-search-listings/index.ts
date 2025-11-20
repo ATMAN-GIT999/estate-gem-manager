@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
       ? 'available-listings' 
       : 'listings';
     
-    const listingsUrl = `https://booking-api.guesty.com/api/v2/${endpoint}?${queryParams.toString()}`;
+    const listingsUrl = `https://booking-api.guesty.com/v1/${endpoint}?${queryParams.toString()}`;
     
     console.log('Fetching from:', listingsUrl);
 
