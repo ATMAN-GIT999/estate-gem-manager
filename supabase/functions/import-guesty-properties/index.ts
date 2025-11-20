@@ -26,7 +26,7 @@ serve(async (req) => {
     console.log('Authenticating with Guesty API...');
     
     // Step 1: Get access token from Guesty
-    const tokenResponse = await fetch('https://open-api.guesty.com/oauth2/token', {
+    const tokenResponse = await fetch('https://booking.guesty.com/oauth2/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -36,7 +36,6 @@ serve(async (req) => {
         grant_type: 'client_credentials',
         client_id: clientId,
         client_secret: clientSecret,
-        scope: 'open-api',
       }),
     });
 
@@ -53,7 +52,7 @@ serve(async (req) => {
     console.log('Successfully authenticated with Guesty');
 
     // Step 2: Fetch properties from Guesty
-    const propertiesResponse = await fetch('https://open-api.guesty.com/v1/listings', {
+    const propertiesResponse = await fetch('https://booking.guesty.com/v1/listings', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${access_token}`,
