@@ -30,7 +30,6 @@ const PropertyMap = ({ latitude, longitude, propertyName, nearbyAmenities = [] }
     <div className="space-y-4">
       <div className="rounded-lg overflow-hidden border border-border shadow-soft h-[400px]">
         <MapContainer
-          //@ts-ignore
           center={center}
           zoom={14}
           scrollWheelZoom={false}
@@ -38,7 +37,6 @@ const PropertyMap = ({ latitude, longitude, propertyName, nearbyAmenities = [] }
           className="z-0"
         >
           <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
-          {/* @ts-ignore */}
           <Marker position={center} icon={customIcon}>
             <Popup>
               <div className="font-semibold">{propertyName}</div>
