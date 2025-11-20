@@ -1,1 +1,7 @@
 project_id = "gonvfprvmbhzrczmpleq"
+
+[functions.analyze-property]
+verify_jwt = false
+
+[functions.import-guesty-properties]
+verify_jwt = false
