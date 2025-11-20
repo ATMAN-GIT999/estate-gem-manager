@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 // Map temporarily disabled due to runtime error in react-leaflet
@@ -31,14 +31,17 @@ const propertyImages: Record<string, string[]> = {
 const PropertyDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { toast } = useToast();
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Initialize booking state with URL params if available
   const [booking, setBooking] = useState({
-    checkIn: "",
-    checkOut: "",
-    guests: 1,
+    checkIn: searchParams.get('checkIn') || "",
+    checkOut: searchParams.get('checkOut') || "",
+    guests: parseInt(searchParams.get('guests') || "1"),
     guestName: "",
     guestEmail: "",
     guestPhone: "",
