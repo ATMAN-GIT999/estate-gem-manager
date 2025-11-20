@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
@@ -8,13 +9,25 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CalendarIcon, Users, Search } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 const Properties = () => {
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
   const [properties, setProperties] = useState<any[]>([]);
+  const [allProperties, setAllProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState("");
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [checkInDate, setCheckInDate] = useState<Date | undefined>(
+    searchParams.get('checkIn') ? new Date(searchParams.get('checkIn')!) : undefined
+  );
+  const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(
+    searchParams.get('checkOut') ? new Date(searchParams.get('checkOut')!) : undefined
+  );
+  const [guests, setGuests] = useState(searchParams.get('guests') || "");
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -28,6 +41,7 @@ const Properties = () => {
       if (error) {
         console.error("Error fetching properties:", error);
       } else {
+        setAllProperties(data || []);
         setProperties(data || []);
       }
       setLoading(false);
@@ -36,9 +50,62 @@ const Properties = () => {
     fetchProperties();
   }, []);
 
-  const handleSearch = () => {
-    // Filter logic will be implemented here
-    console.log("Searching with:", { checkIn, checkOut, guests });
+  useEffect(() => {
+    // Auto-search if dates are provided in URL params
+    if (checkInDate && checkOutDate) {
+      handleSearch();
+    }
+  }, []);
+
+  const handleSearch = async () => {
+    if (!checkInDate || !checkOutDate) {
+      toast({
+        title: "Dates Required",
+        description: "Please select both check-in and check-out dates",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCheckingAvailability(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('check-availability', {
+        body: {
+          checkIn: format(checkInDate, 'yyyy-MM-dd'),
+          checkOut: format(checkOutDate, 'yyyy-MM-dd'),
+        },
+      });
+
+      if (error) throw error;
+
+      const availableIds = data.availablePropertyIds || [];
+      const filteredProperties = allProperties.filter(p => availableIds.includes(p.id));
+      
+      setProperties(filteredProperties);
+      
+      toast({
+        title: "Availability Check Complete",
+        description: `Found ${filteredProperties.length} available properties for your dates`,
+      });
+    } catch (error) {
+      console.error('Error checking availability:', error);
+      toast({
+        title: "Error",
+        description: "Could not check availability. Showing all properties.",
+        variant: "destructive",
+      });
+      setProperties(allProperties);
+    } finally {
+      setCheckingAvailability(false);
+    }
+  };
+
+  const clearFilters = () => {
+    setCheckInDate(undefined);
+    setCheckOutDate(undefined);
+    setGuests("");
+    setProperties(allProperties);
   };
 
   return (
@@ -53,40 +120,77 @@ const Properties = () => {
               <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2">
                 <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
                   <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
-                  <Input
-                    type="date"
-                    value={checkIn}
-                    onChange={(e) => setCheckIn(e.target.value)}
-                    placeholder="Check-in"
-                    className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 font-normal justify-start text-left hover:bg-transparent w-full"
+                      >
+                        {checkInDate ? format(checkInDate, "PPP") : "Check-in"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={checkInDate}
+                        onSelect={setCheckInDate}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
                   <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
-                  <Input
-                    type="date"
-                    value={checkOut}
-                    onChange={(e) => setCheckOut(e.target.value)}
-                    placeholder="Check-out"
-                    className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 font-normal justify-start text-left hover:bg-transparent w-full"
+                      >
+                        {checkOutDate ? format(checkOutDate, "PPP") : "Check-out"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={checkOutDate}
+                        onSelect={setCheckOutDate}
+                        disabled={(date) => date < new Date() || (checkInDate && date <= checkInDate)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="flex-1 flex items-center gap-3 px-4 py-2">
                   <Users className="w-5 h-5 text-primary shrink-0" />
                   <Input
                     type="number"
+                    min="1"
                     value={guests}
                     onChange={(e) => setGuests(e.target.value)}
                     placeholder="Gäste hinzufügen"
                     className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </div>
-                <Button 
-                  onClick={handleSearch}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft h-12 px-8 rounded-full"
-                >
-                  <Search className="h-5 w-5" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={handleSearch}
+                    disabled={checkingAvailability}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft h-12 px-8 rounded-full"
+                  >
+                    {checkingAvailability ? "Checking..." : <Search className="h-5 w-5" />}
+                  </Button>
+                  {(checkInDate || checkOutDate) && (
+                    <Button 
+                      onClick={clearFilters}
+                      variant="outline"
+                      className="h-12 px-6 rounded-full"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
               </div>
             </Card>
           </div>
@@ -96,10 +200,10 @@ const Properties = () => {
         <div className="container mx-auto px-4 mt-8">
           <div className="mb-8">
             <h1 className="font-playfair text-4xl font-bold text-primary mb-2">
-              All Properties
+              {checkInDate && checkOutDate ? "Available Properties" : "All Properties"}
             </h1>
-            <p className="text-foreground/80">
-              {properties.length} properties available
+            <p className="text-muted-foreground">
+              {loading ? "Loading..." : checkingAvailability ? "Checking availability..." : `${properties.length} properties ${checkInDate && checkOutDate ? 'available for your dates' : 'available'}`}
             </p>
           </div>
 
