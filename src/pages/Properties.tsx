@@ -70,23 +70,31 @@ const Properties = () => {
     setCheckingAvailability(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('check-availability', {
+      const { data, error } = await supabase.functions.invoke('guesty-search-listings', {
         body: {
           checkIn: format(checkInDate, 'yyyy-MM-dd'),
           checkOut: format(checkOutDate, 'yyyy-MM-dd'),
+          adults: parseInt(guests) || 1,
         },
       });
 
       if (error) throw error;
 
-      const availableIds = data.availablePropertyIds || [];
-      const filteredProperties = allProperties.filter(p => availableIds.includes(p.id));
+      const guestyListings = data.listings || [];
       
-      setProperties(filteredProperties);
+      // Match Guesty listings with our database properties by name/slug
+      const matchedProperties = allProperties.filter(prop => {
+        return guestyListings.some((listing: any) => 
+          prop.name.toLowerCase().includes(listing.title?.toLowerCase()) ||
+          listing.title?.toLowerCase().includes(prop.name.toLowerCase())
+        );
+      });
+      
+      setProperties(matchedProperties);
       
       toast({
         title: "Availability Check Complete",
-        description: `Found ${filteredProperties.length} available properties for your dates`,
+        description: `Found ${matchedProperties.length} available properties for your dates`,
       });
     } catch (error) {
       console.error('Error checking availability:', error);
