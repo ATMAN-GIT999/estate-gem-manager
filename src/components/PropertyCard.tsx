@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { MapPin, Bed, Bath, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import property1 from "@/assets/property-1.png";
@@ -33,13 +33,30 @@ const propertyImages: Record<string, string> = {
 };
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
+  const [searchParams] = useSearchParams();
+  
   // Use Guesty images if available, otherwise fall back to hardcoded images
   const guestyImage = property.images?.[0]?.url;
   const imageUrl = guestyImage || propertyImages[property.slug] || property1;
 
+  // Build link with search params if they exist
+  const buildLink = () => {
+    const checkIn = searchParams.get('checkIn');
+    const checkOut = searchParams.get('checkOut');
+    const guests = searchParams.get('guests');
+    
+    const params = new URLSearchParams();
+    if (checkIn) params.set('checkIn', checkIn);
+    if (checkOut) params.set('checkOut', checkOut);
+    if (guests) params.set('guests', guests);
+    
+    const queryString = params.toString();
+    return `/property/${property.slug}${queryString ? `?${queryString}` : ''}`;
+  };
+
   return (
     <Link 
-      to={`/property/${property.slug}`} 
+      to={buildLink()} 
       className="group block"
     >
       <div className="overflow-hidden transition-all duration-300 hover:shadow-2xl border border-border bg-card">
