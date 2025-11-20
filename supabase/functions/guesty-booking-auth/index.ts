@@ -27,7 +27,36 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Check for cached token in Supabase storage or use a simple in-memory cache
+    // Check for cached token first
+    const { data: cachedToken, error: cacheError } = await supabase
+      .from('guesty_token_cache')
+      .select('*')
+      .single();
+
+    if (!cacheError && cachedToken) {
+      const expiresAt = new Date(cachedToken.expires_at);
+      const now = new Date();
+      
+      // If token is still valid (with 1 hour buffer), return it
+      if (expiresAt > new Date(now.getTime() + 3600000)) {
+        console.log('Using cached token (expires:', expiresAt.toISOString(), ')');
+        return new Response(
+          JSON.stringify({
+            access_token: cachedToken.access_token,
+            expires_in: Math.floor((expiresAt.getTime() - now.getTime()) / 1000),
+            token_type: 'Bearer',
+            cached: true,
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      } else {
+        console.log('Cached token expired, requesting new one');
+      }
+    }
+
     const clientId = Deno.env.get('GUESTY_CLIENT_ID');
     const clientSecret = Deno.env.get('GUESTY_CLIENT_SECRET');
 
@@ -55,17 +84,53 @@ Deno.serve(async (req) => {
     if (!authResponse.ok) {
       const errorText = await authResponse.text();
       console.error('Guesty Booking Engine auth failed:', errorText);
+      
+      // If rate limited, check if we have ANY cached token (even slightly expired)
+      if (errorText.includes('TOO_MANY_REQUESTS') && cachedToken) {
+        console.log('Rate limited, using slightly expired cached token as fallback');
+        return new Response(
+          JSON.stringify({
+            access_token: cachedToken.access_token,
+            expires_in: 3600,
+            token_type: 'Bearer',
+            cached: true,
+            warning: 'Using cached token due to rate limit',
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      
       throw new Error(`Failed to authenticate with Guesty Booking Engine: ${errorText}`);
     }
 
     const authData: GuestyAuthResponse = await authResponse.json();
     console.log('Successfully obtained Guesty Booking Engine token');
 
+    // Cache the new token
+    const expiresAt = new Date(Date.now() + (authData.expires_in * 1000));
+    
+    await supabase
+      .from('guesty_token_cache')
+      .upsert({
+        access_token: authData.access_token,
+        expires_at: expiresAt.toISOString(),
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'id',
+        ignoreDuplicates: false,
+      });
+
+    console.log('Token cached until:', expiresAt.toISOString());
+
     return new Response(
       JSON.stringify({
         access_token: authData.access_token,
         expires_in: authData.expires_in,
         token_type: authData.token_type,
+        cached: false,
       }),
       {
         status: 200,

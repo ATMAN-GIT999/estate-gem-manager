@@ -154,6 +154,30 @@ export type Database = {
           },
         ]
       }
+      guesty_token_cache: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           address: string | null
