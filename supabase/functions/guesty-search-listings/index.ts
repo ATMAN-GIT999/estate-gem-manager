@@ -30,7 +30,9 @@ Deno.serve(async (req) => {
     });
 
     if (!authResponse.ok) {
-      throw new Error('Failed to get authentication token');
+      const errorData = await authResponse.json();
+      console.error('Auth function error:', errorData);
+      throw new Error(errorData.error || 'Failed to get authentication token');
     }
 
     const { access_token } = await authResponse.json();
