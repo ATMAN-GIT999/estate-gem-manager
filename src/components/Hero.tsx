@@ -4,9 +4,15 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { CalendarIcon, Search, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
 
 const Hero = () => {
   const [showBooking, setShowBooking] = useState(false);
+  const [checkInDate, setCheckInDate] = useState<Date>();
+  const [checkOutDate, setCheckOutDate] = useState<Date>();
+  const [guests, setGuests] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,7 +23,11 @@ const Hero = () => {
   }, []);
 
   const handleSearch = () => {
-    navigate('/properties');
+    const params = new URLSearchParams();
+    if (checkInDate) params.set('checkIn', format(checkInDate, 'yyyy-MM-dd'));
+    if (checkOutDate) params.set('checkOut', format(checkOutDate, 'yyyy-MM-dd'));
+    if (guests) params.set('guests', guests);
+    navigate(`/properties?${params.toString()}`);
   };
 
   return (
@@ -52,25 +62,56 @@ const Hero = () => {
               <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2">
                 <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
                   <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
-                  <Input
-                    type="text"
-                    placeholder="Check-in"
-                    className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 font-normal justify-start text-left hover:bg-transparent"
+                      >
+                        {checkInDate ? format(checkInDate, "PPP") : "Check-in"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={checkInDate}
+                        onSelect={setCheckInDate}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
                   <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
-                  <Input
-                    type="text"
-                    placeholder="Check-out"
-                    className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 font-normal justify-start text-left hover:bg-transparent"
+                      >
+                        {checkOutDate ? format(checkOutDate, "PPP") : "Check-out"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={checkOutDate}
+                        onSelect={setCheckOutDate}
+                        disabled={(date) => date < new Date() || (checkInDate && date <= checkInDate)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="flex-1 flex items-center gap-3 px-4 py-2">
                   <Users className="w-5 h-5 text-primary shrink-0" />
                   <Input
-                    type="text"
+                    type="number"
+                    min="1"
                     placeholder="Gäste hinzufügen"
+                    value={guests}
+                    onChange={(e) => setGuests(e.target.value)}
                     className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </div>
