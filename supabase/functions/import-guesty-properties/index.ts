@@ -115,7 +115,7 @@ serve(async (req) => {
           latitude: guestyProperty.address?.lat || null,
           longitude: guestyProperty.address?.lng || null,
           registration_number: guestyProperty.publicDescription?.space || null,
-          available: guestyProperty.active || false,
+          available: true,
           featured: false,
         };
 
