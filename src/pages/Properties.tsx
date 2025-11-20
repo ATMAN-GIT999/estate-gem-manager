@@ -20,7 +20,6 @@ const Properties = () => {
   const [properties, setProperties] = useState<any[]>([]);
   const [allProperties, setAllProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [checkingAvailability, setCheckingAvailability] = useState(false);
   const [checkInDate, setCheckInDate] = useState<Date | undefined>(
     searchParams.get('checkIn') ? new Date(searchParams.get('checkIn')!) : undefined
   );
@@ -69,46 +68,10 @@ const Properties = () => {
       return;
     }
 
-    setCheckingAvailability(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('guesty-search-listings', {
-        body: {
-          checkIn: format(checkInDate, 'yyyy-MM-dd'),
-          checkOut: format(checkOutDate, 'yyyy-MM-dd'),
-          adults: parseInt(guests) || 1,
-        },
-      });
-
-      if (error) throw error;
-
-      const guestyListings = data.listings || [];
-      
-      // Match Guesty listings with our database properties by name/slug
-      const matchedProperties = allProperties.filter(prop => {
-        return guestyListings.some((listing: any) => 
-          prop.name.toLowerCase().includes(listing.title?.toLowerCase()) ||
-          listing.title?.toLowerCase().includes(prop.name.toLowerCase())
-        );
-      });
-      
-      setProperties(matchedProperties);
-      
-      toast({
-        title: "Availability Check Complete",
-        description: `Found ${matchedProperties.length} available properties for your dates`,
-      });
-    } catch (error) {
-      console.error('Error checking availability:', error);
-      toast({
-        title: "Error",
-        description: "Could not check availability. Showing all properties.",
-        variant: "destructive",
-      });
-      setProperties(allProperties);
-    } finally {
-      setCheckingAvailability(false);
-    }
+    toast({
+      title: "Dates Selected",
+      description: "Showing all properties. Your dates will be pre-filled in booking forms.",
+    });
   };
 
   const clearFilters = () => {
@@ -197,10 +160,9 @@ const Properties = () => {
                 <div className="flex gap-2">
                   <Button 
                     onClick={handleSearch}
-                    disabled={checkingAvailability}
                     className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft h-12 px-8 rounded-full"
                   >
-                    {checkingAvailability ? "Checking..." : <Search className="h-5 w-5" />}
+                    <Search className="h-5 w-5" />
                   </Button>
                   {(checkInDate || checkOutDate) && (
                     <Button 
@@ -224,7 +186,7 @@ const Properties = () => {
               {checkInDate && checkOutDate ? "Available Properties" : "All Properties"}
             </h1>
             <p className="text-muted-foreground">
-              {loading ? "Loading..." : checkingAvailability ? "Checking availability..." : `${properties.length} properties ${checkInDate && checkOutDate ? 'available for your dates' : 'available'}`}
+              {loading ? "Loading..." : `${properties.length} properties ${checkInDate && checkOutDate ? 'available for your dates' : 'available'}`}
             </p>
           </div>
 
