@@ -66,7 +66,7 @@ const About = () => {
                   <h3 className="font-playfair text-2xl font-semibold text-primary text-center mb-2">
                     Lorenz Aschbacher
                   </h3>
-                  <p className="text-primary font-medium text-center mb-4">Founder & CEO</p>
+                  <p className="text-primary font-medium text-center mb-4">Co-Founder</p>
                   <p className="text-foreground/80 leading-relaxed text-center">
                     International hospitality and real estate expertise.
                   </p>
@@ -79,7 +79,7 @@ const About = () => {
                   <h3 className="font-playfair text-2xl font-semibold text-primary text-center mb-2">
                     Alejandro Marinetto Rohr
                   </h3>
-                  <p className="text-primary font-medium text-center mb-4">Co-Founder & Director</p>
+                  <p className="text-primary font-medium text-center mb-4">Founder & CEO</p>
                   <p className="text-foreground/80 leading-relaxed text-center">
                     Real estate strategy, marketing, and design leadership.
                   </p>
