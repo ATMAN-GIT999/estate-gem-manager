@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabaseClient";
-import { Plus, Edit, Trash2, ArrowLeft, X, ImageIcon } from "lucide-react";
+import { Plus, Edit, Trash2, ArrowLeft, X, ImageIcon, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -46,6 +46,7 @@ const AdminProperties = () => {
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [isImporting, setIsImporting] = useState(false);
 
 
   useEffect(() => {
@@ -198,6 +199,52 @@ const AdminProperties = () => {
     }
   };
 
+  const handleGuestyImport = async () => {
+    setIsImporting(true);
+    
+    try {
+      console.log('Starting Guesty import...');
+      
+      const { data, error } = await supabase.functions.invoke('import-guesty-properties');
+
+      if (error) {
+        console.error('Import error:', error);
+        throw error;
+      }
+
+      console.log('Import response:', data);
+
+      if (data.error) {
+        toast({
+          variant: "destructive",
+          title: "Import Failed",
+          description: data.error,
+        });
+      } else {
+        toast({
+          title: "Import Successful",
+          description: `Imported ${data.imported} of ${data.total} properties from Guesty`,
+        });
+        
+        if (data.errors && data.errors.length > 0) {
+          console.warn('Some properties failed to import:', data.errors);
+        }
+        
+        // Refresh the properties list
+        fetchProperties();
+      }
+    } catch (error) {
+      console.error('Import error:', error);
+      toast({
+        variant: "destructive",
+        title: "Import Failed",
+        description: error instanceof Error ? error.message : "Failed to import properties from Guesty",
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -241,16 +288,26 @@ const AdminProperties = () => {
               <h1 className="font-playfair text-4xl font-bold text-primary mb-2">Properties</h1>
               <p className="text-foreground/80">Manage your property listings</p>
             </div>
-            <Button
-              onClick={() => {
-                resetForm();
-                setEditingProperty(null);
-                setIsDialogOpen(true);
-              }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Property
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={handleGuestyImport}
+                disabled={isImporting}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {isImporting ? "Importing..." : "Import from Guesty"}
+              </Button>
+              <Button
+                onClick={() => {
+                  resetForm();
+                  setEditingProperty(null);
+                  setIsDialogOpen(true);
+                }}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Property
+              </Button>
+            </div>
           </div>
 
           {loadingProperties ? (
