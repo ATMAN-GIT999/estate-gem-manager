@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import PropertyMap from "@/components/PropertyMap";
+// Map temporarily disabled due to runtime error in react-leaflet
+// import PropertyMap from "@/components/PropertyMap";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { MapPin, Bed, Bath, Users, ArrowLeft, Calendar } from "lucide-react";
@@ -248,25 +249,15 @@ const PropertyDetail = () => {
                 </div>
               )}
 
-              {property.latitude && property.longitude && (
-                <div className="border-t border-border pt-6">
-                  <h2 className="font-playfair text-2xl font-bold text-primary mb-4">
-                    Location
-                  </h2>
-                  <PropertyMap
-                    latitude={property.latitude}
-                    longitude={property.longitude}
-                    propertyName={property.name}
-                    nearbyAmenities={property.nearby_amenities || []}
-                  />
-                  {property.address && (
-                    <p className="text-foreground/80 mt-4 flex items-start gap-2">
-                      <MapPin className="w-5 h-5 mt-0.5 text-primary" />
-                      {property.address}
-                    </p>
-                  )}
-                </div>
-              )}
+              {/* Map temporarily disabled due to runtime error in react-leaflet */}
+              <div className="border-t border-border pt-6">
+                <h2 className="font-playfair text-2xl font-bold text-primary mb-4">
+                  Location
+                </h2>
+                <p className="text-muted-foreground">
+                  {property.address || property.location}
+                </p>
+              </div>
 
               {property.registration_number && (
                 <div className="border-t border-border pt-6">
