@@ -145,9 +145,9 @@ const Properties = () => {
                         selected={checkInDate}
                         onSelect={(date) => {
                           setCheckInDate(date);
-                          setCheckInOpen(false);
                           if (date) {
-                            setTimeout(() => setCheckOutOpen(true), 100);
+                            setCheckInOpen(false);
+                            setCheckOutOpen(true);
                           }
                         }}
                         disabled={(date) => date < new Date()}
