@@ -28,6 +28,8 @@ const Properties = () => {
     searchParams.get('checkOut') ? new Date(searchParams.get('checkOut')!) : undefined
   );
   const [guests, setGuests] = useState(searchParams.get('guests') || "");
+  const [checkInOpen, setCheckInOpen] = useState(false);
+  const [checkOutOpen, setCheckOutOpen] = useState(false);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -128,7 +130,7 @@ const Properties = () => {
               <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2">
                 <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
                   <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
-                  <Popover>
+                  <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="ghost"
@@ -141,16 +143,23 @@ const Properties = () => {
                       <Calendar
                         mode="single"
                         selected={checkInDate}
-                        onSelect={setCheckInDate}
+                        onSelect={(date) => {
+                          setCheckInDate(date);
+                          setCheckInOpen(false);
+                          if (date) {
+                            setTimeout(() => setCheckOutOpen(true), 100);
+                          }
+                        }}
                         disabled={(date) => date < new Date()}
                         initialFocus
+                        className="pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
                 <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
                   <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
-                  <Popover>
+                  <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="ghost"
@@ -163,9 +172,13 @@ const Properties = () => {
                       <Calendar
                         mode="single"
                         selected={checkOutDate}
-                        onSelect={setCheckOutDate}
+                        onSelect={(date) => {
+                          setCheckOutDate(date);
+                          setCheckOutOpen(false);
+                        }}
                         disabled={(date) => date < new Date() || (checkInDate && date <= checkInDate)}
                         initialFocus
+                        className="pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
