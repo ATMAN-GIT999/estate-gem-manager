@@ -53,10 +53,10 @@ const PropertyEvaluator = () => {
           <div className="text-center mb-12">
             <TrendingUp className="w-16 h-16 text-accent mx-auto mb-6" />
             <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">
-              Evaluate Your Property Value with AI
+              Property Cashflow Analysis
             </h2>
             <p className="text-xl text-foreground/80 max-w-2xl mx-auto">
-              Get instant cash flow analysis using live market data from Airbnb, Booking.com, and more
+              Find out your property's short term and long term rental income potential using live market data
             </p>
           </div>
 
