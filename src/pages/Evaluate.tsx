@@ -4,11 +4,60 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ConsultationBooking from "@/components/ConsultationBooking";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, TrendingUp, Home, DollarSign, Calendar, Users, Percent, CheckCircle2, BarChart3, Sun, Cloud, Snowflake } from "lucide-react";
+import { Loader2, TrendingUp, Home, DollarSign, Calendar, Percent, CheckCircle2, BarChart3, Sun, Cloud, Snowflake } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+
+interface PropertyAnalysis {
+  monthlyIncome: number;
+  annualRevenue: number;
+  occupancyRate: number;
+  peakSeason: {
+    period: string;
+    occupancy: number;
+    nightlyRate: number;
+    monthlyIncome: number;
+  };
+  midSeason: {
+    period: string;
+    occupancy: number;
+    nightlyRate: number;
+    monthlyIncome: number;
+  };
+  lowSeason: {
+    period: string;
+    occupancy: number;
+    nightlyRate: number;
+    monthlyIncome: number;
+  };
+  monthlyData: Array<{ month: string; revenue: number; occupancy: number }>;
+  rentalRates: {
+    low: { min: number; max: number };
+    mid: { min: number; max: number };
+    high: { min: number; max: number };
+  };
+  expenses: {
+    cleaning: number;
+    maintenance: number;
+    utilities: number;
+    insurance: number;
+    platformFees: number;
+    management: number;
+    total: number;
+  };
+  longTermRental: {
+    monthlyRent: number;
+    annualIncome: number;
+    occupancyRate: number;
+  };
+  comparison: {
+    shortTermAnnual: number;
+    longTermAnnual: number;
+    recommendation: string;
+  };
+  marketInsights: string;
+}
 
 const Evaluate = () => {
   const location = useLocation();
@@ -17,12 +66,12 @@ const Evaluate = () => {
   const [loading, setLoading] = useState(true);
   const [loadingStep, setLoadingStep] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [analysis, setAnalysis] = useState<string>("");
+  const [analysis, setAnalysis] = useState<PropertyAnalysis | null>(null);
   const propertyData = location.state?.propertyData;
 
   const loadingSteps = [
     { icon: Home, text: "Analyzing property details...", progress: 20 },
-    { icon: BarChart3, text: "Checking Airbnb market data...", progress: 40 },
+    { icon: BarChart3, text: "Searching Airbnb market data...", progress: 40 },
     { icon: TrendingUp, text: "Analyzing Booking.com listings...", progress: 60 },
     { icon: Calendar, text: "Calculating occupancy rates...", progress: 80 },
     { icon: DollarSign, text: "Generating cash flow projections...", progress: 100 },
@@ -36,7 +85,6 @@ const Evaluate = () => {
 
     const analyzeProperty = async () => {
       try {
-        // Simulate progressive loading steps
         const stepInterval = setInterval(() => {
           setLoadingStep((prev) => {
             if (prev < loadingSteps.length - 1) {
@@ -45,7 +93,7 @@ const Evaluate = () => {
             }
             return prev;
           });
-        }, 1200);
+        }, 1500);
 
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-property`,
@@ -62,7 +110,8 @@ const Evaluate = () => {
         clearInterval(stepInterval);
 
         if (!response.ok) {
-          throw new Error("Analysis failed");
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Analysis failed");
         }
 
         const data = await response.json();
@@ -72,7 +121,7 @@ const Evaluate = () => {
         console.error("Error:", error);
         toast({
           title: "Analysis Error",
-          description: "Failed to analyze property. Please try again.",
+          description: error instanceof Error ? error.message : "Failed to analyze property. Please try again.",
           variant: "destructive",
         });
       } finally {
@@ -82,6 +131,10 @@ const Evaluate = () => {
 
     analyzeProperty();
   }, [propertyData, navigate, toast]);
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-EU', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
+  };
 
   return (
     <div className="min-h-screen">
@@ -133,7 +186,7 @@ const Evaluate = () => {
                   </div>
                 </div>
               </Card>
-            ) : (
+            ) : analysis ? (
               <>
                 <div className="text-center mb-12">
                   <TrendingUp className="w-16 h-16 text-accent mx-auto mb-4" />
@@ -174,19 +227,19 @@ const Evaluate = () => {
                   <Card className="p-6 bg-gradient-to-br from-accent/20 to-accent/5 border-accent/20 backdrop-blur-sm">
                     <DollarSign className="w-10 h-10 text-accent mb-3" />
                     <h3 className="text-lg font-semibold text-foreground/70 mb-2">Monthly Income</h3>
-                    <div className="text-4xl font-bold text-primary mb-1">€3,200</div>
+                    <div className="text-4xl font-bold text-primary mb-1">{formatCurrency(analysis.monthlyIncome)}</div>
                     <p className="text-sm text-foreground/60">Average net income</p>
                   </Card>
                   <Card className="p-6 bg-gradient-to-br from-primary/20 to-primary/5 border-primary/20 backdrop-blur-sm">
                     <TrendingUp className="w-10 h-10 text-primary mb-3" />
                     <h3 className="text-lg font-semibold text-foreground/70 mb-2">Annual Revenue</h3>
-                    <div className="text-4xl font-bold text-primary mb-1">€38,400</div>
+                    <div className="text-4xl font-bold text-primary mb-1">{formatCurrency(analysis.annualRevenue)}</div>
                     <p className="text-sm text-foreground/60">Projected yearly</p>
                   </Card>
                   <Card className="p-6 bg-gradient-to-br from-green-500/20 to-green-500/5 border-green-500/20 backdrop-blur-sm">
                     <Percent className="w-10 h-10 text-green-500 mb-3" />
                     <h3 className="text-lg font-semibold text-foreground/70 mb-2">Occupancy Rate</h3>
-                    <div className="text-4xl font-bold text-primary mb-1">72%</div>
+                    <div className="text-4xl font-bold text-primary mb-1">{analysis.occupancyRate}%</div>
                     <p className="text-sm text-foreground/60">Average year-round</p>
                   </Card>
                 </div>
@@ -204,19 +257,19 @@ const Evaluate = () => {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Period:</span>
-                          <span className="font-medium">Jun-Aug</span>
+                          <span className="font-medium">{analysis.peakSeason.period}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Occupancy:</span>
-                          <span className="font-bold text-green-500">90%</span>
+                          <span className="font-bold text-green-500">{analysis.peakSeason.occupancy}%</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Nightly Rate:</span>
-                          <span className="font-bold">€280</span>
+                          <span className="font-bold">{formatCurrency(analysis.peakSeason.nightlyRate)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Monthly Income:</span>
-                          <span className="font-bold text-accent">€5,200</span>
+                          <span className="font-bold text-accent">{formatCurrency(analysis.peakSeason.monthlyIncome)}</span>
                         </div>
                       </div>
                     </div>
@@ -226,19 +279,19 @@ const Evaluate = () => {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Period:</span>
-                          <span className="font-medium">Apr-May, Sep-Oct</span>
+                          <span className="font-medium">{analysis.midSeason.period}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Occupancy:</span>
-                          <span className="font-bold text-yellow-500">70%</span>
+                          <span className="font-bold text-yellow-500">{analysis.midSeason.occupancy}%</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Nightly Rate:</span>
-                          <span className="font-bold">€180</span>
+                          <span className="font-bold">{formatCurrency(analysis.midSeason.nightlyRate)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Monthly Income:</span>
-                          <span className="font-bold text-accent">€3,200</span>
+                          <span className="font-bold text-accent">{formatCurrency(analysis.midSeason.monthlyIncome)}</span>
                         </div>
                       </div>
                     </div>
@@ -248,19 +301,19 @@ const Evaluate = () => {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Period:</span>
-                          <span className="font-medium">Nov-Mar</span>
+                          <span className="font-medium">{analysis.lowSeason.period}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Occupancy:</span>
-                          <span className="font-bold text-orange-500">55%</span>
+                          <span className="font-bold text-orange-500">{analysis.lowSeason.occupancy}%</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Nightly Rate:</span>
-                          <span className="font-bold">€140</span>
+                          <span className="font-bold">{formatCurrency(analysis.lowSeason.nightlyRate)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Monthly Income:</span>
-                          <span className="font-bold text-accent">€1,900</span>
+                          <span className="font-bold text-accent">{formatCurrency(analysis.lowSeason.monthlyIncome)}</span>
                         </div>
                       </div>
                     </div>
@@ -270,20 +323,7 @@ const Evaluate = () => {
                   <div className="mt-8">
                     <h3 className="font-semibold text-lg mb-4">Monthly Revenue Projection</h3>
                     <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={[
-                        { month: 'Jan', revenue: 1800, occupancy: 50 },
-                        { month: 'Feb', revenue: 1900, occupancy: 55 },
-                        { month: 'Mar', revenue: 2200, occupancy: 60 },
-                        { month: 'Apr', revenue: 3100, occupancy: 68 },
-                        { month: 'May', revenue: 3400, occupancy: 72 },
-                        { month: 'Jun', revenue: 4900, occupancy: 88 },
-                        { month: 'Jul', revenue: 5400, occupancy: 92 },
-                        { month: 'Aug', revenue: 5200, occupancy: 90 },
-                        { month: 'Sep', revenue: 3300, occupancy: 70 },
-                        { month: 'Oct', revenue: 3000, occupancy: 68 },
-                        { month: 'Nov', revenue: 2000, occupancy: 56 },
-                        { month: 'Dec', revenue: 1900, occupancy: 54 }
-                      ]}>
+                      <BarChart data={analysis.monthlyData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                         <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
                         <YAxis stroke="hsl(var(--foreground))" />
@@ -293,6 +333,7 @@ const Evaluate = () => {
                             border: '1px solid hsl(var(--border))',
                             borderRadius: '8px'
                           }} 
+                          formatter={(value: number) => [formatCurrency(value), 'Revenue']}
                         />
                         <Bar dataKey="revenue" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
                       </BarChart>
@@ -313,18 +354,24 @@ const Evaluate = () => {
                     <div className="grid md:grid-cols-3 gap-4">
                       <Card className="p-4 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
                         <div className="text-sm text-foreground/70 mb-1">Low Season</div>
-                        <div className="text-2xl font-bold text-primary">€180 - €250</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {formatCurrency(analysis.rentalRates.low.min)} - {formatCurrency(analysis.rentalRates.low.max)}
+                        </div>
                         <div className="text-xs text-foreground/60 mt-1">Nov - Mar</div>
                       </Card>
                       <Card className="p-4 bg-gradient-to-br from-amber-500/10 to-amber-500/5 border-amber-500/20">
                         <div className="text-sm text-foreground/70 mb-1">Mid Season</div>
-                        <div className="text-2xl font-bold text-primary">€280 - €400</div>
-                        <div className="text-xs text-foreground/60 mt-1">Apr, May, Jun, Sep, Oct</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {formatCurrency(analysis.rentalRates.mid.min)} - {formatCurrency(analysis.rentalRates.mid.max)}
+                        </div>
+                        <div className="text-xs text-foreground/60 mt-1">Apr, May, Sep, Oct</div>
                       </Card>
                       <Card className="p-4 bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
                         <div className="text-sm text-foreground/70 mb-1">High Season</div>
-                        <div className="text-2xl font-bold text-primary">€450 - €650+</div>
-                        <div className="text-xs text-foreground/60 mt-1">Jul, Aug, Holidays</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {formatCurrency(analysis.rentalRates.high.min)} - {formatCurrency(analysis.rentalRates.high.max)}
+                        </div>
+                        <div className="text-xs text-foreground/60 mt-1">Jun, Jul, Aug</div>
                       </Card>
                     </div>
                   </div>
@@ -339,40 +386,32 @@ const Evaluate = () => {
                       <Card className="p-4 bg-card border-border">
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-foreground/70">Platform Commission (14%)</span>
-                            <span className="font-semibold">€12,495</span>
+                            <span className="text-sm text-foreground/70">Platform Fees</span>
+                            <span className="font-semibold">{formatCurrency(analysis.expenses.platformFees)}</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-foreground/70">Property Management (20%)</span>
-                            <span className="font-semibold">€15,351</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-foreground/70">Community Fees</span>
-                            <span className="font-semibold">€5,400</span>
+                            <span className="text-sm text-foreground/70">Property Management</span>
+                            <span className="font-semibold">{formatCurrency(analysis.expenses.management)}</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-foreground/70">Utilities</span>
-                            <span className="font-semibold">€4,920</span>
+                            <span className="font-semibold">{formatCurrency(analysis.expenses.utilities)}</span>
                           </div>
                         </div>
                       </Card>
                       <Card className="p-4 bg-card border-border">
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-foreground/70">Capex Reserve (5%)</span>
-                            <span className="font-semibold">€4,463</span>
+                            <span className="text-sm text-foreground/70">Cleaning</span>
+                            <span className="font-semibold">{formatCurrency(analysis.expenses.cleaning)}</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-foreground/70">Cleaning & Consumables</span>
-                            <span className="font-semibold">€2,500</span>
+                            <span className="text-sm text-foreground/70">Maintenance</span>
+                            <span className="font-semibold">{formatCurrency(analysis.expenses.maintenance)}</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-foreground/70">Maintenance & Repairs</span>
-                            <span className="font-semibold">€2,000</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-foreground/70">Insurance & Taxes</span>
-                            <span className="font-semibold">€2,400</span>
+                            <span className="text-sm text-foreground/70">Insurance</span>
+                            <span className="font-semibold">{formatCurrency(analysis.expenses.insurance)}</span>
                           </div>
                         </div>
                       </Card>
@@ -380,131 +419,82 @@ const Evaluate = () => {
                     <Card className="p-4 bg-gradient-to-r from-red-500/10 to-red-500/5 border-red-500/20 mt-4">
                       <div className="flex justify-between items-center">
                         <span className="font-semibold">Total Annual Expenses</span>
-                        <span className="text-2xl font-bold text-red-500">€49,529</span>
+                        <span className="text-2xl font-bold text-red-500">{formatCurrency(analysis.expenses.total)}</span>
                       </div>
                     </Card>
                   </div>
 
-                  {/* Net Profit */}
+                  {/* Short-term vs Long-term Comparison */}
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                       <TrendingUp className="w-5 h-5 text-accent" />
-                      Net Operating Income
+                      Short-term vs Long-term Rental Comparison
                     </h3>
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-2 gap-4">
                       <Card className="p-6 bg-gradient-to-br from-accent/20 to-accent/5 border-accent/20">
-                        <div className="text-sm text-foreground/70 mb-1">Gross Revenue</div>
-                        <div className="text-3xl font-bold text-primary">€89,250</div>
-                        <div className="text-xs text-foreground/60 mt-1">255 nights @ 70% occupancy</div>
-                      </Card>
-                      <Card className="p-6 bg-gradient-to-br from-green-500/20 to-green-500/5 border-green-500/20">
-                        <div className="text-sm text-foreground/70 mb-1">Annual Net Profit</div>
-                        <div className="text-3xl font-bold text-green-600">€39,722</div>
-                        <div className="text-xs text-foreground/60 mt-1">Before mortgage</div>
+                        <h4 className="font-semibold mb-4">Short-term Rental (STR)</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span className="text-sm text-foreground/70">Annual Revenue</span>
+                            <span className="font-semibold">{formatCurrency(analysis.comparison.shortTermAnnual)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-foreground/70">Avg. Occupancy</span>
+                            <span className="font-semibold">{analysis.occupancyRate}%</span>
+                          </div>
+                          <div className="pt-3 border-t border-border flex justify-between items-center">
+                            <span className="font-semibold">Net Annual Income</span>
+                            <span className="text-2xl font-bold text-green-600">
+                              {formatCurrency(analysis.comparison.shortTermAnnual - analysis.expenses.total)}
+                            </span>
+                          </div>
+                        </div>
                       </Card>
                       <Card className="p-6 bg-gradient-to-br from-primary/20 to-primary/5 border-primary/20">
-                        <div className="text-sm text-foreground/70 mb-1">Monthly Net Profit</div>
-                        <div className="text-3xl font-bold text-primary">€3,310</div>
-                        <div className="text-xs text-foreground/60 mt-1">Average per month</div>
-                      </Card>
-                    </div>
-                  </div>
-
-                  {/* ROI Analysis */}
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <Percent className="w-5 h-5 text-accent" />
-                      Return on Investment
-                    </h3>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <Card className="p-6 bg-card border-border">
-                        <h4 className="font-semibold mb-4">Cash Purchase Scenario</h4>
+                        <h4 className="font-semibold mb-4">Long-term Rental (LTR)</h4>
                         <div className="space-y-3">
                           <div className="flex justify-between">
-                            <span className="text-sm text-foreground/70">Purchase Price</span>
-                            <span className="font-semibold">€950,000</span>
+                            <span className="text-sm text-foreground/70">Monthly Rent</span>
+                            <span className="font-semibold">{formatCurrency(analysis.longTermRental.monthlyRent)}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-sm text-foreground/70">Setup Costs</span>
-                            <span className="font-semibold">€159,500</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-foreground/70">Total Investment</span>
-                            <span className="font-semibold">€1,109,500</span>
+                            <span className="text-sm text-foreground/70">Annual Income</span>
+                            <span className="font-semibold">{formatCurrency(analysis.longTermRental.annualIncome)}</span>
                           </div>
                           <div className="pt-3 border-t border-border flex justify-between items-center">
-                            <span className="font-semibold">Cash-on-Cash ROI</span>
-                            <span className="text-2xl font-bold text-green-600">3.58%</span>
-                          </div>
-                        </div>
-                      </Card>
-                      <Card className="p-6 bg-card border-border">
-                        <h4 className="font-semibold mb-4">Financed Purchase (30% Down)</h4>
-                        <div className="space-y-3">
-                          <div className="flex justify-between">
-                            <span className="text-sm text-foreground/70">Down Payment</span>
-                            <span className="font-semibold">€285,000</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-foreground/70">Initial Cash Outlay</span>
-                            <span className="font-semibold">€444,500</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-foreground/70">Annual Mortgage</span>
-                            <span className="font-semibold text-red-500">-€48,444</span>
-                          </div>
-                          <div className="pt-3 border-t border-border flex justify-between items-center">
-                            <span className="font-semibold">Net Cash Flow</span>
-                            <span className="text-2xl font-bold text-red-500">-€8,723/yr</span>
+                            <span className="font-semibold">Occupancy Rate</span>
+                            <span className="text-2xl font-bold text-primary">{analysis.longTermRental.occupancyRate}%</span>
                           </div>
                         </div>
                       </Card>
                     </div>
                   </div>
 
-                  {/* Key Insights */}
+                  {/* Market Insights */}
                   <Card className="p-6 bg-gradient-to-br from-accent/10 to-primary/5 border-accent/20">
-                    <h3 className="text-lg font-semibold mb-4">Key Investment Insights</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="flex gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <div className="font-medium mb-1">Strong Revenue Potential</div>
-                          <div className="text-sm text-foreground/70">Premium location commands high nightly rates year-round</div>
-                        </div>
-                      </div>
-                      <div className="flex gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <div className="font-medium mb-1">Excellent Occupancy</div>
-                          <div className="text-sm text-foreground/70">70% annual occupancy is achievable with proper management</div>
-                        </div>
-                      </div>
-                      <div className="flex gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <div className="font-medium mb-1">Professional Management Required</div>
-                          <div className="text-sm text-foreground/70">High-end rentals need expert management for optimal results</div>
-                        </div>
-                      </div>
-                      <div className="flex gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <div className="font-medium mb-1">Capital Appreciation Focus</div>
-                          <div className="text-sm text-foreground/70">Primary returns come from property value growth</div>
-                        </div>
+                    <h3 className="text-lg font-semibold mb-4">Market Insights & Recommendation</h3>
+                    <p className="text-foreground/80 mb-4">{analysis.marketInsights}</p>
+                    <div className="flex gap-3 items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-medium mb-1">Our Recommendation</div>
+                        <div className="text-sm text-foreground/70">{analysis.comparison.recommendation}</div>
                       </div>
                     </div>
                   </Card>
                 </Card>
 
               </>
+            ) : (
+              <Card className="p-12 bg-card/80 backdrop-blur-sm border-border text-center">
+                <p className="text-xl text-muted-foreground">No analysis data available. Please try again.</p>
+              </Card>
             )}
           </div>
         </div>
       </section>
 
-      {!loading && <ConsultationBooking />}
+      {!loading && analysis && <ConsultationBooking />}
 
       <Footer />
     </div>
