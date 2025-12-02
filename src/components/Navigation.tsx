@@ -1,20 +1,37 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Menu, X, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/frontier-logo.png";
 
+const GUESTY_BOOKING_URL = "https://booking.guesty.com/properties?brandId=67471cfce5b88600014f0647";
+
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleEvaluationClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname === "/") {
+      // Already on homepage, scroll to section
+      const element = document.getElementById("property-evaluation");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Navigate to homepage with hash
+      navigate("/#property-evaluation");
+    }
+    setIsOpen(false);
+  };
 
   const navLinks = [
     { href: "/business-areas", label: "Our Business Areas" },
     { href: "/projects", label: "Projects" },
     { href: "/about", label: "About Us" },
-    { href: "/book", label: "Book Your Stay" },
-    { href: "/evaluate", label: "Property Evaluation" },
   ];
 
   return (
@@ -36,6 +53,21 @@ const Navigation = () => {
                 {link.label}
               </Link>
             ))}
+            <a
+              href={GUESTY_BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-foreground hover:text-secondary transition-colors font-medium inline-flex items-center gap-1"
+            >
+              Book Your Stay
+              <ExternalLink className="w-3 h-3" />
+            </a>
+            <button
+              onClick={handleEvaluationClick}
+              className="text-primary-foreground hover:text-secondary transition-colors font-medium"
+            >
+              Property Evaluation
+            </button>
             {user ? (
               <Link to={isAdmin ? "/admin/dashboard" : "/book"}>
                 <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary shadow-gold">
@@ -74,6 +106,22 @@ const Navigation = () => {
                   {link.label}
                 </Link>
               ))}
+              <a
+                href={GUESTY_BOOKING_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2 inline-flex items-center gap-1"
+                onClick={() => setIsOpen(false)}
+              >
+                Book Your Stay
+                <ExternalLink className="w-3 h-3" />
+              </a>
+              <button
+                onClick={handleEvaluationClick}
+                className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2 text-left"
+              >
+                Property Evaluation
+              </button>
               {user ? (
                 <Link to={isAdmin ? "/admin/dashboard" : "/book"} className="w-full">
                   <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary w-full">

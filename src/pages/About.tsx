@@ -12,6 +12,29 @@ const About = () => {
     "Hotel-level hospitality with real estate expertise",
   ];
 
+  const teamMembers = [
+    {
+      name: "Alejandro Marinetto Rohr",
+      role: "Founder & CEO",
+      description: "Real estate strategy, marketing, and design leadership.",
+    },
+    {
+      name: "Lorenz Aschbacher",
+      role: "Co-Founder",
+      description: "International hospitality and real estate expertise.",
+    },
+    {
+      name: "Julien Olek",
+      role: "Partner",
+      description: "Strategic partnerships and business development.",
+    },
+    {
+      name: "Carlos",
+      role: "Technology Lead",
+      description: "Digital innovation and platform development.",
+    },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
@@ -37,10 +60,30 @@ const About = () => {
               <CardContent className="pt-6">
                 <h2 className="font-playfair text-3xl font-semibold text-primary mb-6 text-center">Our Mission</h2>
                 <p className="text-lg text-foreground/80 leading-relaxed text-center max-w-3xl mx-auto">
-                  Transform property ownership into effortless elegance through bespoke management.
+                  Transform property ownership into effortless elegance through bespoke management. We combine 
+                  international hospitality standards with local expertise to maximize your property's potential 
+                  while ensuring exceptional guest experiences.
                 </p>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Our Story */}
+          <div className="max-w-5xl mx-auto mb-16">
+            <h2 className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">Our Story</h2>
+            <div className="prose prose-lg max-w-none text-foreground/80 text-center">
+              <p className="mb-4">
+                Founded with a passion for luxury hospitality and real estate, Frontier Residences emerged from the 
+                recognition that property owners deserve more than standard management services. We saw an opportunity 
+                to bridge the gap between traditional property management and the personalized, high-touch service that 
+                discerning owners and guests expect.
+              </p>
+              <p>
+                Today, we manage a curated portfolio of exceptional properties across Spain's Costa del Sol, 
+                Austria's Alpine regions, and Croatia's stunning coastline. Each property in our collection 
+                is treated with the same care and attention as if it were our own.
+              </p>
+            </div>
           </div>
 
           {/* Why Choose Us */}
@@ -58,33 +101,25 @@ const About = () => {
 
           {/* Team Section */}
           <div className="max-w-5xl mx-auto mb-16">
-            <h2 className="font-playfair text-3xl font-semibold text-primary mb-12 text-center">Leadership</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              <Card className="shadow-elegant hover:shadow-soft transition-all">
-                <CardContent className="pt-6">
-                  <div className="w-24 h-24 bg-gradient-sage rounded-full mx-auto mb-6"></div>
-                  <h3 className="font-playfair text-2xl font-semibold text-primary text-center mb-2">
-                    Lorenz Aschbacher
-                  </h3>
-                  <p className="text-primary font-medium text-center mb-4">Co-Founder</p>
-                  <p className="text-foreground/80 leading-relaxed text-center">
-                    International hospitality and real estate expertise.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-elegant hover:shadow-soft transition-all">
-                <CardContent className="pt-6">
-                  <div className="w-24 h-24 bg-gradient-sage rounded-full mx-auto mb-6"></div>
-                  <h3 className="font-playfair text-2xl font-semibold text-primary text-center mb-2">
-                    Alejandro Marinetto Rohr
-                  </h3>
-                  <p className="text-primary font-medium text-center mb-4">Founder & CEO</p>
-                  <p className="text-foreground/80 leading-relaxed text-center">
-                    Real estate strategy, marketing, and design leadership.
-                  </p>
-                </CardContent>
-              </Card>
+            <h2 className="font-playfair text-3xl font-semibold text-primary mb-4 text-center">Meet the Team</h2>
+            <p className="text-lg text-foreground/70 text-center mb-12 max-w-2xl mx-auto">
+              Our diverse team brings together expertise in hospitality, real estate, technology, and business development.
+            </p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {teamMembers.map((member, index) => (
+                <Card key={index} className="shadow-elegant hover:shadow-soft transition-all">
+                  <CardContent className="pt-6">
+                    <div className="w-20 h-20 bg-gradient-sage rounded-full mx-auto mb-4"></div>
+                    <h3 className="font-playfair text-xl font-semibold text-primary text-center mb-1">
+                      {member.name}
+                    </h3>
+                    <p className="text-primary/80 font-medium text-center text-sm mb-3">{member.role}</p>
+                    <p className="text-foreground/70 text-sm leading-relaxed text-center">
+                      {member.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
 

@@ -9,12 +9,25 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Index = () => {
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [gridLayout, setGridLayout] = useState(3);
+  const location = useLocation();
+
+  // Handle hash navigation for Property Evaluation section
+  useEffect(() => {
+    if (location.hash === "#property-evaluation") {
+      setTimeout(() => {
+        const element = document.getElementById("property-evaluation");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  }, [location.hash]);
 
   useEffect(() => {
     const fetchData = async () => {
