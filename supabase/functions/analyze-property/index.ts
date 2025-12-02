@@ -60,179 +60,82 @@ Deno.serve(async (req) => {
 
   try {
     const { propertyData } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!OPENROUTER_API_KEY) {
+      throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
     console.log("Analyzing property:", propertyData);
 
-    const systemPrompt = `You are a professional real estate cash flow analyst specializing in the Spanish Costa del Sol market (Marbella, Malaga, Benalmadena, Fuengirola area). 
+    const systemPrompt = `You are a professional real estate cash flow analyst specializing in the Spanish Costa del Sol market (Marbella, Malaga, Benalmadena, Fuengirola, Estepona area). 
 
-Analyze vacation rental properties and provide realistic market data based on:
-- Current Airbnb and Booking.com market rates for the area
+You have access to current market data and should provide realistic, location-specific estimates based on:
+- Current Airbnb and Booking.com market rates for the specific area
+- The exact neighborhood and its desirability
 - Seasonal tourism patterns in Costa del Sol
-- Local property management costs
+- Local property management costs (typically 15-25% for short-term rentals)
 - Platform commission rates (typically 3% host fee + 14% guest fee for Airbnb)
 
-Always provide realistic, market-based estimates. For Costa del Sol:
-- Peak season: June-August (high tourist demand)
-- Mid season: April-May, September-October (good weather, moderate demand)
-- Low season: November-March (lower demand but still tourists)
+IMPORTANT: Provide DIFFERENT estimates based on the specific location. Properties in:
+- Puerto Banus/Golden Mile: Premium rates, €300-1000+/night for luxury
+- Marbella Center: High rates, €150-500/night
+- Nueva Andalucia: Upper-mid rates, €120-400/night
+- Fuengirola/Benalmadena: Mid-range, €80-200/night
+- Inland areas: Lower rates, €60-150/night
 
-Consider the property size, bedrooms, and location when estimating rates. Luxury properties in Marbella command premium prices.`;
+Always adjust your estimates based on:
+1. Exact location and neighborhood prestige
+2. Number of bedrooms (more = higher total but lower per-night rate per guest)
+3. Property type (villa commands premium over apartment)
+4. Size and amenities implied
+
+Peak season: June-August (85-95% occupancy)
+Mid season: April-May, September-October (60-75% occupancy)
+Low season: November-March (30-50% occupancy)`;
 
     const userPrompt = `Analyze this property for vacation rental potential and provide detailed cash flow analysis:
 
 Property Details:
-- Address: ${propertyData.address}
+- Address/Location: ${propertyData.address}
 - Bedrooms: ${propertyData.bedrooms}
 - Bathrooms: ${propertyData.bathrooms}
 - Property Type: ${propertyData.propertyType || "Apartment"}
 - Size: ${propertyData.size ? propertyData.size + " sqm" : "Not specified"}
 
-Provide comprehensive analysis with realistic market data for this specific location. Include seasonal breakdowns, expense estimates, and comparison between short-term and long-term rental strategies.`;
+Provide a comprehensive analysis with REALISTIC market data specific to this exact location. The estimates should vary significantly based on the neighborhood prestige and property characteristics. Include seasonal breakdowns, expense estimates, and comparison between short-term and long-term rental strategies.
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+Return your analysis as a JSON object with this exact structure:
+{
+  "monthlyIncome": number (average monthly net income in EUR),
+  "annualRevenue": number (total annual revenue in EUR),
+  "occupancyRate": number (average occupancy 0-100),
+  "peakSeason": { "period": "Jun-Aug", "occupancy": number, "nightlyRate": number, "monthlyIncome": number },
+  "midSeason": { "period": "Apr-May, Sep-Oct", "occupancy": number, "nightlyRate": number, "monthlyIncome": number },
+  "lowSeason": { "period": "Nov-Mar", "occupancy": number, "nightlyRate": number, "monthlyIncome": number },
+  "monthlyData": [{ "month": "Jan", "revenue": number, "occupancy": number }, ... for all 12 months],
+  "rentalRates": { "low": { "min": number, "max": number }, "mid": { "min": number, "max": number }, "high": { "min": number, "max": number } },
+  "expenses": { "cleaning": number, "maintenance": number, "utilities": number, "insurance": number, "platformFees": number, "management": number, "total": number },
+  "longTermRental": { "monthlyRent": number, "annualIncome": number, "occupancyRate": number },
+  "comparison": { "shortTermAnnual": number, "longTermAnnual": number, "recommendation": "string with brief recommendation" },
+  "marketInsights": "2-3 sentences about market conditions specific to this location"
+}`;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://frontier-residences.com",
+        "X-Title": "Frontier Residences Property Analysis",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-flash-preview-05-20",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "provide_property_analysis",
-              description: "Provide structured property cash flow analysis with market data",
-              parameters: {
-                type: "object",
-                properties: {
-                  monthlyIncome: {
-                    type: "number",
-                    description: "Average monthly net income in EUR"
-                  },
-                  annualRevenue: {
-                    type: "number",
-                    description: "Total annual revenue projection in EUR"
-                  },
-                  occupancyRate: {
-                    type: "number",
-                    description: "Average year-round occupancy rate as percentage (0-100)"
-                  },
-                  peakSeason: {
-                    type: "object",
-                    properties: {
-                      period: { type: "string", description: "Peak season months e.g. 'Jun-Aug'" },
-                      occupancy: { type: "number", description: "Occupancy rate percentage" },
-                      nightlyRate: { type: "number", description: "Average nightly rate in EUR" },
-                      monthlyIncome: { type: "number", description: "Average monthly income in EUR" }
-                    },
-                    required: ["period", "occupancy", "nightlyRate", "monthlyIncome"]
-                  },
-                  midSeason: {
-                    type: "object",
-                    properties: {
-                      period: { type: "string", description: "Mid season months" },
-                      occupancy: { type: "number" },
-                      nightlyRate: { type: "number" },
-                      monthlyIncome: { type: "number" }
-                    },
-                    required: ["period", "occupancy", "nightlyRate", "monthlyIncome"]
-                  },
-                  lowSeason: {
-                    type: "object",
-                    properties: {
-                      period: { type: "string", description: "Low season months" },
-                      occupancy: { type: "number" },
-                      nightlyRate: { type: "number" },
-                      monthlyIncome: { type: "number" }
-                    },
-                    required: ["period", "occupancy", "nightlyRate", "monthlyIncome"]
-                  },
-                  monthlyData: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        month: { type: "string" },
-                        revenue: { type: "number" },
-                        occupancy: { type: "number" }
-                      },
-                      required: ["month", "revenue", "occupancy"]
-                    },
-                    description: "Monthly breakdown for all 12 months"
-                  },
-                  rentalRates: {
-                    type: "object",
-                    properties: {
-                      low: {
-                        type: "object",
-                        properties: { min: { type: "number" }, max: { type: "number" } },
-                        required: ["min", "max"]
-                      },
-                      mid: {
-                        type: "object",
-                        properties: { min: { type: "number" }, max: { type: "number" } },
-                        required: ["min", "max"]
-                      },
-                      high: {
-                        type: "object",
-                        properties: { min: { type: "number" }, max: { type: "number" } },
-                        required: ["min", "max"]
-                      }
-                    },
-                    required: ["low", "mid", "high"]
-                  },
-                  expenses: {
-                    type: "object",
-                    properties: {
-                      cleaning: { type: "number", description: "Annual cleaning costs" },
-                      maintenance: { type: "number", description: "Annual maintenance costs" },
-                      utilities: { type: "number", description: "Annual utilities costs" },
-                      insurance: { type: "number", description: "Annual insurance costs" },
-                      platformFees: { type: "number", description: "Annual platform fees" },
-                      management: { type: "number", description: "Annual management fees" },
-                      total: { type: "number", description: "Total annual expenses" }
-                    },
-                    required: ["cleaning", "maintenance", "utilities", "insurance", "platformFees", "management", "total"]
-                  },
-                  longTermRental: {
-                    type: "object",
-                    properties: {
-                      monthlyRent: { type: "number" },
-                      annualIncome: { type: "number" },
-                      occupancyRate: { type: "number" }
-                    },
-                    required: ["monthlyRent", "annualIncome", "occupancyRate"]
-                  },
-                  comparison: {
-                    type: "object",
-                    properties: {
-                      shortTermAnnual: { type: "number" },
-                      longTermAnnual: { type: "number" },
-                      recommendation: { type: "string", description: "Brief recommendation on which strategy is better for this property" }
-                    },
-                    required: ["shortTermAnnual", "longTermAnnual", "recommendation"]
-                  },
-                  marketInsights: {
-                    type: "string",
-                    description: "2-3 sentences about market conditions, trends, or opportunities specific to this property location"
-                  }
-                },
-                required: ["monthlyIncome", "annualRevenue", "occupancyRate", "peakSeason", "midSeason", "lowSeason", "monthlyData", "rentalRates", "expenses", "longTermRental", "comparison", "marketInsights"]
-              }
-            }
-          }
-        ],
-        tool_choice: { type: "function", function: { name: "provide_property_analysis" } }
+        response_format: { type: "json_object" },
       }),
     });
 
@@ -245,25 +148,39 @@ Provide comprehensive analysis with realistic market data for this specific loca
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "Payment required, please add funds to your workspace." }),
+          JSON.stringify({ error: "Payment required, please add funds to your account." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      console.error("OpenRouter API error:", response.status, errorText);
+      throw new Error(`OpenRouter API error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log("AI response:", JSON.stringify(data, null, 2));
+    console.log("OpenRouter response:", JSON.stringify(data, null, 2));
 
-    // Extract the structured data from tool call
-    const toolCall = data.choices[0]?.message?.tool_calls?.[0];
-    if (!toolCall || toolCall.function.name !== "provide_property_analysis") {
-      throw new Error("Invalid AI response format");
+    // Extract the JSON response from the message content
+    const content = data.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error("No content in AI response");
     }
 
-    const analysis: PropertyAnalysis = JSON.parse(toolCall.function.arguments);
+    // Parse the JSON response
+    let analysis: PropertyAnalysis;
+    try {
+      analysis = JSON.parse(content);
+    } catch (parseError) {
+      // Try to extract JSON from the response if it contains extra text
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        analysis = JSON.parse(jsonMatch[0]);
+      } else {
+        console.error("Failed to parse AI response:", content);
+        throw new Error("Invalid JSON in AI response");
+      }
+    }
+
     console.log("Parsed analysis:", analysis);
 
     return new Response(JSON.stringify({ analysis }), {
