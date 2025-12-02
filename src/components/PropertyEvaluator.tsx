@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, TrendingUp } from "lucide-react";
+import AddressAutocomplete from "./AddressAutocomplete";
 
 const PropertyEvaluator = () => {
   const [loading, setLoading] = useState(false);
@@ -33,10 +34,8 @@ const PropertyEvaluator = () => {
 
     setLoading(true);
     
-    // Simulate analysis with timeout
-    setTimeout(() => {
-      navigate("/evaluate", { state: { propertyData: formData } });
-    }, 3000);
+    // Navigate immediately - the analysis will happen on the results page
+    navigate("/evaluate", { state: { propertyData: formData } });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,8 +45,15 @@ const PropertyEvaluator = () => {
     }));
   };
 
+  const handleAddressChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      address: value
+    }));
+  };
+
   return (
-    <section className="py-20 bg-background">
+    <section id="property-evaluation" className="py-20 bg-background scroll-mt-20">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
@@ -65,13 +71,10 @@ const PropertyEvaluator = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <Label htmlFor="address">Property Address *</Label>
-                  <Input
-                    id="address"
-                    name="address"
+                  <AddressAutocomplete
                     value={formData.address}
-                    onChange={handleChange}
-                    placeholder="e.g., Calle Marbella, Marbella, Spain"
-                    required
+                    onChange={handleAddressChange}
+                    placeholder="Start typing an address..."
                   />
                 </div>
 
@@ -134,7 +137,7 @@ const PropertyEvaluator = () => {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Analyzing Market Data...
+                    Analyzing...
                   </>
                 ) : (
                   "Get Free Cash Flow Analysis"
