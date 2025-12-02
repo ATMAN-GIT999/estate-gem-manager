@@ -130,7 +130,7 @@ Return your analysis as a JSON object with this exact structure:
         "X-Title": "Frontier Residences Property Analysis",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-preview-05-20",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
