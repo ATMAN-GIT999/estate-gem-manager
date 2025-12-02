@@ -189,6 +189,7 @@ export type Database = {
           description: string | null
           featured: boolean | null
           guests: number
+          guesty_listing_id: string | null
           id: string
           images: Json | null
           latitude: number | null
@@ -212,6 +213,7 @@ export type Database = {
           description?: string | null
           featured?: boolean | null
           guests: number
+          guesty_listing_id?: string | null
           id?: string
           images?: Json | null
           latitude?: number | null
@@ -235,6 +237,7 @@ export type Database = {
           description?: string | null
           featured?: boolean | null
           guests?: number
+          guesty_listing_id?: string | null
           id?: string
           images?: Json | null
           latitude?: number | null
