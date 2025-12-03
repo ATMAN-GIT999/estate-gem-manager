@@ -2,18 +2,20 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-// Map temporarily disabled due to runtime error in react-leaflet
-// import PropertyMap from "@/components/PropertyMap";
+import BookingSummary from "@/components/BookingSummary";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
-import { MapPin, Bed, Bath, Users, ArrowLeft, Calendar } from "lucide-react";
+import { MapPin, Bed, Bath, Users, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import property1 from "@/assets/property-1.png";
 import property2 from "@/assets/property-2.png";
 import property3 from "@/assets/property-3.png";
@@ -32,22 +34,17 @@ const PropertyDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
   const { toast } = useToast();
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showBookingSummary, setShowBookingSummary] = useState(false);
   
   // Initialize booking state with URL params if available
   const [booking, setBooking] = useState({
     checkIn: searchParams.get('checkIn') || "",
     checkOut: searchParams.get('checkOut') || "",
     guests: parseInt(searchParams.get('guests') || "1"),
-    guestName: "",
-    guestEmail: "",
-    guestPhone: "",
-    specialRequests: "",
   });
-  const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -74,157 +71,25 @@ const PropertyDetail = () => {
     fetchProperty();
   }, [slug, navigate, toast]);
 
-  const calculateTotalPrice = () => {
-    if (!booking.checkIn || !booking.checkOut || !property) return 0;
-    
-    const checkIn = new Date(booking.checkIn);
-    const checkOut = new Date(booking.checkOut);
-    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
-    
-    return nights > 0 ? nights * property.price_per_night : 0;
-  };
-
-  const handleBooking = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleBookNow = () => {
     if (!booking.checkIn || !booking.checkOut) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Select dates",
         description: "Please select check-in and check-out dates",
       });
       return;
     }
+    setShowBookingSummary(true);
+  };
 
-    if (!booking.guestName || !booking.guestEmail) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please fill in your name and email",
-      });
-      return;
-    }
-
-    setBookingLoading(true);
-
-    try {
-      // Check if property has Guesty listing ID for API booking
-      if (property.guesty_listing_id) {
-        // Step 1: Get quote from Guesty
-        console.log('Getting quote from Guesty...');
-        const quoteResponse = await supabase.functions.invoke('guesty-get-quote', {
-          body: {
-            listingId: property.guesty_listing_id,
-            checkIn: booking.checkIn,
-            checkOut: booking.checkOut,
-            guests: {
-              adults: booking.guests,
-            },
-          },
-        });
-
-        if (quoteResponse.error) {
-          throw new Error(quoteResponse.error.message || 'Failed to get quote');
-        }
-
-        const { quote } = quoteResponse.data;
-        console.log('Quote received:', quote);
-
-        if (!quote || !quote.quoteId || !quote.ratePlans?.[0]?.ratePlanId) {
-          throw new Error('Invalid quote response from booking system');
-        }
-
-        // Step 2: Create reservation via Guesty API
-        console.log('Creating reservation via Guesty...');
-        const reservationResponse = await supabase.functions.invoke('guesty-create-reservation', {
-          body: {
-            quoteId: quote.quoteId,
-            ratePlanId: quote.ratePlans[0].ratePlanId,
-            guest: {
-              firstName: booking.guestName.split(' ')[0] || booking.guestName,
-              lastName: booking.guestName.split(' ').slice(1).join(' ') || '',
-              email: booking.guestEmail,
-              phone: booking.guestPhone || '',
-            },
-            policy: {
-              terms: true,
-              cancellation: true,
-            },
-            type: 'inquiry', // Use inquiry for now (instant requires payment integration)
-          },
-        });
-
-        if (reservationResponse.error) {
-          throw new Error(reservationResponse.error.message || 'Failed to create reservation');
-        }
-
-        console.log('Reservation created:', reservationResponse.data);
-
-        // Also save to local database for tracking
-        await supabase.from("bookings").insert({
-          property_id: property.id,
-          user_id: user?.id || null,
-          guest_name: booking.guestName,
-          guest_email: booking.guestEmail,
-          guest_phone: booking.guestPhone,
-          check_in: booking.checkIn,
-          check_out: booking.checkOut,
-          guests: booking.guests,
-          total_price: quote.ratePlans[0]?.totalPrice || calculateTotalPrice(),
-          special_requests: booking.specialRequests,
-          status: "confirmed",
-        });
-
-        toast({
-          title: "Booking confirmed!",
-          description: "Your reservation has been created. Check your email for details.",
-        });
-      } else {
-        // Fallback: Save to local database only
-        const totalPrice = calculateTotalPrice();
-        
-        const { error } = await supabase.from("bookings").insert({
-          property_id: property.id,
-          user_id: user?.id || null,
-          guest_name: booking.guestName,
-          guest_email: booking.guestEmail,
-          guest_phone: booking.guestPhone,
-          check_in: booking.checkIn,
-          check_out: booking.checkOut,
-          guests: booking.guests,
-          total_price: totalPrice,
-          special_requests: booking.specialRequests,
-          status: "pending",
-        });
-
-        if (error) throw error;
-
-        toast({
-          title: "Booking request sent!",
-          description: "We'll contact you shortly to confirm your booking.",
-        });
-      }
-
-      // Reset form
-      setBooking({
-        checkIn: "",
-        checkOut: "",
-        guests: 1,
-        guestName: "",
-        guestEmail: "",
-        guestPhone: "",
-        specialRequests: "",
-      });
-    } catch (error: any) {
-      console.error('Booking error:', error);
-      toast({
-        variant: "destructive",
-        title: "Booking failed",
-        description: error.message || "Could not create booking",
-      });
-    } finally {
-      setBookingLoading(false);
-    }
+  const handleBookingSuccess = () => {
+    setShowBookingSummary(false);
+    setBooking({
+      checkIn: "",
+      checkOut: "",
+      guests: 1,
+    });
   };
 
   if (loading) {
@@ -336,7 +201,6 @@ const PropertyDetail = () => {
                 </div>
               )}
 
-              {/* Map temporarily disabled due to runtime error in react-leaflet */}
               <div className="border-t border-border pt-6">
                 <h2 className="font-playfair text-2xl font-bold text-primary mb-4">
                   Location
@@ -368,7 +232,7 @@ const PropertyDetail = () => {
                     </div>
                   </div>
 
-                  <form onSubmit={handleBooking} className="space-y-4">
+                  <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="checkIn">Check-in</Label>
@@ -379,7 +243,7 @@ const PropertyDetail = () => {
                           onChange={(e) =>
                             setBooking({ ...booking, checkIn: e.target.value })
                           }
-                          required
+                          min={new Date().toISOString().split('T')[0]}
                         />
                       </div>
                       <div className="space-y-2">
@@ -391,7 +255,7 @@ const PropertyDetail = () => {
                           onChange={(e) =>
                             setBooking({ ...booking, checkOut: e.target.value })
                           }
-                          required
+                          min={booking.checkIn || new Date().toISOString().split('T')[0]}
                         />
                       </div>
                     </div>
@@ -405,81 +269,19 @@ const PropertyDetail = () => {
                         max={property.guests}
                         value={booking.guests}
                         onChange={(e) =>
-                          setBooking({ ...booking, guests: parseInt(e.target.value) })
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="guestName">Full Name</Label>
-                      <Input
-                        id="guestName"
-                        type="text"
-                        value={booking.guestName}
-                        onChange={(e) =>
-                          setBooking({ ...booking, guestName: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="guestEmail">Email</Label>
-                      <Input
-                        id="guestEmail"
-                        type="email"
-                        value={booking.guestEmail}
-                        onChange={(e) =>
-                          setBooking({ ...booking, guestEmail: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="guestPhone">Phone</Label>
-                      <Input
-                        id="guestPhone"
-                        type="tel"
-                        value={booking.guestPhone}
-                        onChange={(e) =>
-                          setBooking({ ...booking, guestPhone: e.target.value })
+                          setBooking({ ...booking, guests: parseInt(e.target.value) || 1 })
                         }
                       />
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="specialRequests">Special Requests</Label>
-                      <Textarea
-                        id="specialRequests"
-                        value={booking.specialRequests}
-                        onChange={(e) =>
-                          setBooking({ ...booking, specialRequests: e.target.value })
-                        }
-                        rows={3}
-                      />
-                    </div>
-
-                    {booking.checkIn && booking.checkOut && (
-                      <div className="border-t border-border pt-4">
-                        <div className="flex justify-between text-sm mb-2">
-                          <span>Total Price:</span>
-                          <span className="font-bold text-primary">
-                            €{calculateTotalPrice()}
-                          </span>
-                        </div>
-                      </div>
-                    )}
 
                     <Button
-                      type="submit"
+                      onClick={handleBookNow}
                       className="w-full"
-                      disabled={bookingLoading}
+                      size="lg"
                     >
-                      {bookingLoading ? "Processing..." : (property.guesty_listing_id ? "Book Now" : "Request Booking")}
+                      Book Now
                     </Button>
-                  </form>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -487,6 +289,21 @@ const PropertyDetail = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Booking Summary Dialog */}
+      <Dialog open={showBookingSummary} onOpenChange={setShowBookingSummary}>
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+          <DialogTitle className="sr-only">Booking Summary</DialogTitle>
+          <BookingSummary
+            property={property}
+            checkIn={booking.checkIn}
+            checkOut={booking.checkOut}
+            guests={booking.guests}
+            onClose={() => setShowBookingSummary(false)}
+            onSuccess={handleBookingSuccess}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

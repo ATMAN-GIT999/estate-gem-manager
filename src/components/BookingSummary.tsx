@@ -1,0 +1,409 @@
+import { useState, useEffect } from "react";
+import { format, differenceInDays } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/lib/supabaseClient";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2, Tag, ChevronDown, ChevronUp } from "lucide-react";
+
+interface BookingSummaryProps {
+  property: any;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+interface QuoteData {
+  quoteId: string;
+  subtotal: number;
+  fees: number;
+  total: number;
+  currency: string;
+  ratePlanId?: string;
+  cancellationPolicy?: string;
+}
+
+const BookingSummary = ({
+  property,
+  checkIn,
+  checkOut,
+  guests,
+  onClose,
+  onSuccess,
+}: BookingSummaryProps) => {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [quote, setQuote] = useState<QuoteData | null>(null);
+  const [showCoupon, setShowCoupon] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [guestInfo, setGuestInfo] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+  });
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
+  const nights = differenceInDays(new Date(checkOut), new Date(checkIn));
+
+  useEffect(() => {
+    fetchQuote();
+  }, []);
+
+  const fetchQuote = async () => {
+    setLoading(true);
+    try {
+      if (property.guesty_listing_id) {
+        const response = await supabase.functions.invoke('guesty-get-quote', {
+          body: {
+            listingId: property.guesty_listing_id,
+            checkIn,
+            checkOut,
+            guests: { adults: guests },
+          },
+        });
+
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+
+        const quoteData = response.data?.quote;
+        console.log('Quote data:', quoteData);
+
+        if (quoteData) {
+          // Parse Guesty quote response
+          const ratePlan = quoteData.ratePlans?.[0] || quoteData;
+          const subtotal = ratePlan.totalPrice || ratePlan.basePrice || property.price_per_night * nights;
+          const fees = ratePlan.fees?.total || ratePlan.serviceFee || 0;
+          
+          setQuote({
+            quoteId: quoteData.quoteId || quoteData._id,
+            subtotal: subtotal - fees,
+            fees: fees,
+            total: subtotal,
+            currency: quoteData.currency || 'EUR',
+            ratePlanId: ratePlan.ratePlanId || ratePlan._id,
+            cancellationPolicy: ratePlan.cancellationPolicy || 'Non-refundable',
+          });
+        } else {
+          // Fallback calculation
+          setQuote({
+            quoteId: '',
+            subtotal: property.price_per_night * nights,
+            fees: Math.round(property.price_per_night * nights * 0.1),
+            total: Math.round(property.price_per_night * nights * 1.1),
+            currency: 'EUR',
+            cancellationPolicy: 'Non-refundable',
+          });
+        }
+      } else {
+        // No Guesty - use local calculation
+        const subtotal = property.price_per_night * nights;
+        const fees = Math.round(subtotal * 0.1);
+        setQuote({
+          quoteId: '',
+          subtotal,
+          fees,
+          total: subtotal + fees,
+          currency: 'EUR',
+          cancellationPolicy: 'Non-refundable',
+        });
+      }
+    } catch (error: any) {
+      console.error('Error fetching quote:', error);
+      // Fallback to local calculation
+      const subtotal = property.price_per_night * nights;
+      const fees = Math.round(subtotal * 0.1);
+      setQuote({
+        quoteId: '',
+        subtotal,
+        fees,
+        total: subtotal + fees,
+        currency: 'EUR',
+        cancellationPolicy: 'Non-refundable',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (!guestInfo.firstName || !guestInfo.lastName || !guestInfo.email) {
+      toast({
+        variant: "destructive",
+        title: "Missing information",
+        description: "Please fill in all required fields",
+      });
+      return;
+    }
+
+    if (!termsAccepted) {
+      toast({
+        variant: "destructive",
+        title: "Terms required",
+        description: "Please accept the terms and conditions",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      if (property.guesty_listing_id && quote?.quoteId) {
+        // Create reservation via Guesty API
+        const response = await supabase.functions.invoke('guesty-create-reservation', {
+          body: {
+            quoteId: quote.quoteId,
+            ratePlanId: quote.ratePlanId,
+            guest: {
+              firstName: guestInfo.firstName,
+              lastName: guestInfo.lastName,
+              email: guestInfo.email,
+              phone: guestInfo.phone,
+            },
+            policy: {
+              terms: true,
+              cancellation: true,
+            },
+            type: 'inquiry',
+          },
+        });
+
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+
+        // Also save to local database
+        await supabase.from("bookings").insert({
+          property_id: property.id,
+          user_id: user?.id || null,
+          guest_name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+          guest_email: guestInfo.email,
+          guest_phone: guestInfo.phone,
+          check_in: checkIn,
+          check_out: checkOut,
+          guests,
+          total_price: quote.total,
+          status: "confirmed",
+        });
+
+        toast({
+          title: "Booking confirmed!",
+          description: "Your reservation has been created. Check your email for details.",
+        });
+      } else {
+        // Save to local database only
+        await supabase.from("bookings").insert({
+          property_id: property.id,
+          user_id: user?.id || null,
+          guest_name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+          guest_email: guestInfo.email,
+          guest_phone: guestInfo.phone,
+          check_in: checkIn,
+          check_out: checkOut,
+          guests,
+          total_price: quote?.total || property.price_per_night * nights,
+          status: "pending",
+        });
+
+        toast({
+          title: "Booking request sent!",
+          description: "We'll contact you shortly to confirm your booking.",
+        });
+      }
+
+      onSuccess();
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      toast({
+        variant: "destructive",
+        title: "Booking failed",
+        description: error.message || "Could not complete booking",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardContent className="p-8 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <span className="ml-3 text-muted-foreground">Loading quote...</span>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="pb-4">
+        <h2 className="font-playfair text-2xl font-bold text-primary">{property.name}</h2>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Booking Details */}
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">Check In</p>
+            <p className="font-semibold">{format(new Date(checkIn), 'MMM d, yyyy')}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Check Out</p>
+            <p className="font-semibold">{format(new Date(checkOut), 'MMM d, yyyy')}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Nights</p>
+            <p className="font-semibold">{nights} Nights</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Guests</p>
+            <p className="font-semibold">{guests}</p>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Cancellation Policy */}
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="bg-muted">
+            {quote?.cancellationPolicy || 'Non-refundable'}
+          </Badge>
+        </div>
+
+        {/* Coupon Section */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowCoupon(!showCoupon)}
+            className="flex items-center gap-2 text-sm text-primary hover:underline"
+          >
+            <Tag className="w-4 h-4" />
+            I have a coupon
+            {showCoupon ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+          {showCoupon && (
+            <div className="mt-2 flex gap-2">
+              <Input
+                placeholder="Enter coupon code"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                className="flex-1"
+              />
+              <Button variant="outline" size="sm">Apply</Button>
+            </div>
+          )}
+        </div>
+
+        <Separator />
+
+        {/* Pricing Breakdown */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Subtotal</span>
+            <span>€{quote?.subtotal?.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Fees</span>
+            <span>€{quote?.fees?.toFixed(2)}</span>
+          </div>
+          <Separator />
+          <div className="flex justify-between font-bold text-lg">
+            <span>Total</span>
+            <span className="text-primary">€{quote?.total?.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Guest Information */}
+        <div className="space-y-3">
+          <h3 className="font-semibold">Guest Information</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="firstName" className="text-xs">First Name *</Label>
+              <Input
+                id="firstName"
+                value={guestInfo.firstName}
+                onChange={(e) => setGuestInfo({ ...guestInfo, firstName: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="lastName" className="text-xs">Last Name *</Label>
+              <Input
+                id="lastName"
+                value={guestInfo.lastName}
+                onChange={(e) => setGuestInfo({ ...guestInfo, lastName: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="email" className="text-xs">Email *</Label>
+            <Input
+              id="email"
+              type="email"
+              value={guestInfo.email}
+              onChange={(e) => setGuestInfo({ ...guestInfo, email: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="phone" className="text-xs">Phone</Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={guestInfo.phone}
+              onChange={(e) => setGuestInfo({ ...guestInfo, phone: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {/* Terms */}
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id="terms"
+            checked={termsAccepted}
+            onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+          />
+          <label htmlFor="terms" className="text-xs text-muted-foreground leading-tight">
+            I accept the terms and conditions and cancellation policy
+          </label>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 pt-2">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCheckout}
+            disabled={submitting}
+            className="flex-1"
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Complete Booking"
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default BookingSummary;
