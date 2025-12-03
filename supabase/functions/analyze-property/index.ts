@@ -60,10 +60,10 @@ Deno.serve(async (req) => {
 
   try {
     const { propertyData } = await req.json();
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
-    if (!OPENROUTER_API_KEY) {
-      throw new Error("OPENROUTER_API_KEY is not configured");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
     }
 
     console.log("Analyzing property:", JSON.stringify(propertyData));
@@ -128,27 +128,24 @@ Return your analysis as a JSON object with this exact structure:
   "marketInsights": "2-3 sentences about market conditions specific to this location"
 }`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://frontierresidences.com",
-        "X-Title": "Frontier Residences Property Analysis",
       },
       body: JSON.stringify({
-        model: "anthropic/claude-3.5-sonnet",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("OpenRouter API error:", response.status, errorText);
+      console.error("Lovable AI API error:", response.status, errorText);
       
       if (response.status === 429) {
         return new Response(
@@ -156,10 +153,10 @@ Return your analysis as a JSON object with this exact structure:
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402 || response.status === 401) {
+      if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: `OpenRouter API error: ${errorText}. Please check your API key and credits.` }),
-          { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "AI credits depleted. Please add credits to your Lovable workspace." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       throw new Error(`AI API error: ${response.status} - ${errorText}`);
