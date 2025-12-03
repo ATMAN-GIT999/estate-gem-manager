@@ -5,7 +5,7 @@ const corsHeaders = {
 
 interface ReservationRequest {
   quoteId: string;
-  ratePlanId: string;
+  ratePlanId?: string;
   guest: {
     firstName: string;
     lastName: string;
@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
       type,
     }: ReservationRequest = await req.json();
     
-    if (!quoteId || !ratePlanId || !guest || !policy || !type) {
+    if (!quoteId || !guest || !policy || !type) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -58,28 +58,39 @@ Deno.serve(async (req) => {
 
     const { access_token } = await authResponse.json();
 
-    // Choose endpoint based on booking type
-    const endpoint = type === 'instant' 
-      ? 'instant-reservation-from-quote'
-      : 'inquiry-reservation-from-quote';
-    
-    const reservationUrl = `https://booking-api.guesty.com/api/v2/${endpoint}`;
+    // Use Guesty Booking Engine API v1 Reservation Quote Flow
+    // According to docs, create reservation from quote
+    const reservationUrl = 'https://booking-api.guesty.com/v1/reservations';
     
     const reservationPayload: any = {
       quoteId,
-      ratePlanId,
       guest: {
-        ...guest,
-        policies: policy,
+        firstName: guest.firstName,
+        lastName: guest.lastName,
+        email: guest.email,
+        phone: guest.phone,
+      },
+      policy: {
+        termsAccepted: policy.terms,
+        cancellationPolicyAccepted: policy.cancellation,
       },
     };
 
-    // Add payment token for instant bookings
-    if (type === 'instant' && paymentToken) {
-      reservationPayload.ccToken = paymentToken;
+    // Add rate plan if provided
+    if (ratePlanId) {
+      reservationPayload.ratePlanId = ratePlanId;
     }
 
+    // Add payment token for instant bookings
+    if (type === 'instant' && paymentToken) {
+      reservationPayload.paymentToken = paymentToken;
+    }
+
+    // Set reservation type
+    reservationPayload.type = type === 'instant' ? 'confirmed' : 'inquiry';
+
     console.log('Creating reservation at:', reservationUrl);
+    console.log('Payload:', JSON.stringify(reservationPayload));
 
     const reservationResponse = await fetch(reservationUrl, {
       method: 'POST',
@@ -93,12 +104,12 @@ Deno.serve(async (req) => {
 
     if (!reservationResponse.ok) {
       const errorText = await reservationResponse.text();
-      console.error('Failed to create reservation:', errorText);
+      console.error('Failed to create reservation:', reservationResponse.status, errorText);
       throw new Error(`Failed to create reservation: ${errorText}`);
     }
 
     const reservation = await reservationResponse.json();
-    console.log('Reservation created:', reservation);
+    console.log('Reservation created:', JSON.stringify(reservation).substring(0, 500));
 
     return new Response(
       JSON.stringify({ reservation }),
