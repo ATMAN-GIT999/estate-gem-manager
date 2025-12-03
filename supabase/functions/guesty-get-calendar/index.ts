@@ -40,12 +40,13 @@ Deno.serve(async (req) => {
 
     const { access_token } = await authResponse.json();
 
-    // Get listing calendar from Guesty Booking Engine API
-    const calendarUrl = `https://booking-api.guesty.com/api/v2/availability-pricing/api/calendar/listings?listingId=${listingId}&checkIn=${checkIn}&checkOut=${checkOut}`;
+    // Get listing calendar from Guesty Booking Engine API v1
+    const calendarUrl = `https://booking-api.guesty.com/v1/listings/${listingId}/calendar?checkIn=${checkIn}&checkOut=${checkOut}`;
     
     console.log('Fetching calendar from:', calendarUrl);
 
     const calendarResponse = await fetch(calendarUrl, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${access_token}`,
         'accept': 'application/json',
@@ -54,21 +55,23 @@ Deno.serve(async (req) => {
 
     if (!calendarResponse.ok) {
       const errorText = await calendarResponse.text();
-      console.error('Failed to fetch calendar:', errorText);
+      console.error('Failed to fetch calendar:', calendarResponse.status, errorText);
       throw new Error(`Failed to fetch calendar: ${errorText}`);
     }
 
     const calendar = await calendarResponse.json();
+    console.log('Calendar response:', JSON.stringify(calendar).substring(0, 500));
     
     // Check if all days are available
-    const isAvailable = calendar.data?.every((day: any) => 
-      day.status === 'available' && day.isAvailable === true
-    ) ?? false;
+    const calendarData = calendar.calendar || calendar.data || calendar;
+    const isAvailable = Array.isArray(calendarData) 
+      ? calendarData.every((day: any) => day.status === 'available' || day.available === true)
+      : true;
 
     console.log(`Listing ${listingId}: ${isAvailable ? 'available' : 'not available'}`);
 
     return new Response(
-      JSON.stringify({ calendar: calendar.data, isAvailable }),
+      JSON.stringify({ calendar: calendarData, isAvailable }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

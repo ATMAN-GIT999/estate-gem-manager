@@ -45,15 +45,17 @@ Deno.serve(async (req) => {
 
     const { access_token } = await authResponse.json();
 
-    // Get reservation quote from Guesty Booking Engine API
-    const quoteUrl = 'https://booking-api.guesty.com/api/v2/reservation-quote';
+    // Get reservation quote from Guesty Booking Engine API v1
+    // Using the Reservation Quote Flow as recommended in the docs
+    const quoteUrl = 'https://booking-api.guesty.com/v1/reservations/quotes';
     
     const quotePayload = {
       listingId,
-      checkInDate: checkIn,
-      checkOutDate: checkOut,
-      guestsCount: guests.adults + (guests.children || 0),
-      ...guests,
+      checkIn,
+      checkOut,
+      guests: guests.adults + (guests.children || 0),
+      adults: guests.adults,
+      children: guests.children || 0,
     };
 
     console.log('Requesting quote with payload:', quotePayload);
@@ -70,12 +72,12 @@ Deno.serve(async (req) => {
 
     if (!quoteResponse.ok) {
       const errorText = await quoteResponse.text();
-      console.error('Failed to get quote:', errorText);
+      console.error('Failed to get quote:', quoteResponse.status, errorText);
       throw new Error(`Failed to get quote: ${errorText}`);
     }
 
     const quote = await quoteResponse.json();
-    console.log('Quote received:', quote);
+    console.log('Quote received:', JSON.stringify(quote).substring(0, 500));
 
     return new Response(
       JSON.stringify({ quote }),

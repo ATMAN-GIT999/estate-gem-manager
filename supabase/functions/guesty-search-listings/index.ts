@@ -8,7 +8,8 @@ interface SearchParams {
   checkOut?: string;
   adults?: number;
   children?: number;
-  city?: string;
+  guests?: number;
+  location?: string;
 }
 
 Deno.serve(async (req) => {
@@ -17,9 +18,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { checkIn, checkOut, adults, children, city }: SearchParams = await req.json();
+    const { checkIn, checkOut, adults, children, guests, location }: SearchParams = await req.json();
     
-    console.log('Searching listings with params:', { checkIn, checkOut, adults, children, city });
+    console.log('Searching listings with params:', { checkIn, checkOut, adults, children, guests, location });
 
     // Get authentication token
     const authUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/guesty-booking-auth`;
@@ -37,41 +38,39 @@ Deno.serve(async (req) => {
 
     const { access_token } = await authResponse.json();
 
-    // Build query parameters
+    // Build query parameters according to Guesty Booking Engine API v1 docs
     const queryParams = new URLSearchParams();
     if (checkIn) queryParams.set('checkIn', checkIn);
     if (checkOut) queryParams.set('checkOut', checkOut);
     if (adults) queryParams.set('adults', adults.toString());
     if (children) queryParams.set('children', children.toString());
-    if (city) queryParams.set('city', city);
+    if (guests) queryParams.set('guests', guests.toString());
+    if (location) queryParams.set('location', location);
 
-    // Call Guesty Booking Engine API - Get available listings if dates provided
-    const endpoint = (checkIn && checkOut) 
-      ? 'available-listings' 
-      : 'listings';
+    // Use the correct search endpoint as per Guesty docs
+    const searchUrl = `https://booking-api.guesty.com/v1/search?${queryParams.toString()}`;
     
-    const listingsUrl = `https://booking-api.guesty.com/v1/${endpoint}?${queryParams.toString()}`;
-    
-    console.log('Fetching from:', listingsUrl);
+    console.log('Fetching from:', searchUrl);
 
-    const listingsResponse = await fetch(listingsUrl, {
+    const searchResponse = await fetch(searchUrl, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${access_token}`,
         'accept': 'application/json',
       },
     });
 
-    if (!listingsResponse.ok) {
-      const errorText = await listingsResponse.text();
-      console.error('Failed to fetch listings:', errorText);
-      throw new Error(`Failed to fetch listings: ${errorText}`);
+    if (!searchResponse.ok) {
+      const errorText = await searchResponse.text();
+      console.error('Failed to search listings:', searchResponse.status, errorText);
+      throw new Error(`Failed to search listings: ${errorText}`);
     }
 
-    const listings = await listingsResponse.json();
-    console.log(`Found ${listings.length || 0} listings`);
+    const results = await searchResponse.json();
+    console.log(`Search returned results:`, JSON.stringify(results).substring(0, 500));
 
     return new Response(
-      JSON.stringify({ listings }),
+      JSON.stringify({ listings: results.results || results }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
