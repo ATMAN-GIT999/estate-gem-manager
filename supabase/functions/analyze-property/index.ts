@@ -68,65 +68,38 @@ Deno.serve(async (req) => {
 
     console.log("Analyzing property:", JSON.stringify(propertyData));
 
-    const systemPrompt = `You are an expert real estate analyst specializing in Costa del Sol, Spain vacation rentals. You have deep knowledge of:
-- Current 2024-2025 Airbnb/Booking.com market rates for SPECIFIC neighborhoods
+    const systemPrompt = `You are an expert real estate analyst specializing in Costa del Sol, Spain vacation rentals. You MUST ALWAYS respond with ONLY a valid JSON object, never with explanatory text, questions, or markdown.
+
+Your knowledge includes:
+- Current 2024-2025 Airbnb/Booking.com market rates for Costa del Sol neighborhoods
 - Seasonal tourism patterns and occupancy rates
 - Property management costs (15-25% for short-term)
 - Platform fees (Airbnb ~15% total, Booking.com ~15%)
 
-CRITICAL: Your estimates MUST vary significantly based on the EXACT address/location provided:
+LOCATION PRICING GUIDELINES:
+- PREMIUM (€250-800+/night): Puerto Banus, Golden Mile, Sierra Blanca, La Zagaleta, Beachfront Marbella, Los Monteros
+- HIGH-END (€150-400/night): Marbella Old Town, Nueva Andalucia golf areas, San Pedro beachfront, Estepona port
+- MID-RANGE (€80-200/night): Fuengirola center, Benalmadena Costa, Torremolinos, Mijas Costa, Calahonda
+- BUDGET (€50-120/night): Inland Mijas, Alhaurin, Coin, Non-beachfront apartments
 
-PREMIUM AREAS (€250-800+/night):
-- Puerto Banus, Golden Mile, Sierra Blanca, La Zagaleta
-- Beachfront Marbella, Los Monteros
+PROPERTY ADJUSTMENTS:
+- Bedrooms: 1BR=base, 2BR=+40%, 3BR=+70%, 4BR+=+100%
+- Villa/house: +30-50% vs apartment
+- Size: Adjust proportionally for sqm
 
-HIGH-END AREAS (€150-400/night):
-- Marbella Old Town, Nueva Andalucia golf areas
-- San Pedro beachfront, Estepona port area
+CRITICAL: Even if the address is vague, you MUST provide estimates using mid-range values for that area. Never refuse - make reasonable assumptions and return JSON.`;
 
-MID-RANGE AREAS (€80-200/night):
-- Fuengirola center, Benalmadena Costa
-- Torremolinos, Mijas Costa, Calahonda
+    const userPrompt = `Analyze this property. Return ONLY valid JSON, no text.
 
-BUDGET AREAS (€50-120/night):
-- Inland Mijas, Alhaurin, Coin
-- Non-beachfront standard apartments
-
-For EACH property, calculate unique values based on:
-1. EXACT street/neighborhood (research typical rates)
-2. Bedrooms: 1BR=base, 2BR=+40%, 3BR=+70%, 4BR+=+100%
-3. Property type: Villa/house=+30-50% vs apartment
-4. Size: Adjust for sqm if provided
-5. Season: Peak (Jun-Aug), Mid (Apr-May, Sep-Oct), Low (Nov-Mar)
-
-Be SPECIFIC and REALISTIC. A 2BR in Puerto Banus ≠ 2BR in Fuengirola center.`;
-
-    const userPrompt = `Analyze this property for vacation rental potential and provide detailed cash flow analysis:
-
-Property Details:
-- Address/Location: ${propertyData.address}
+Property:
+- Address: ${propertyData.address}
 - Bedrooms: ${propertyData.bedrooms}
 - Bathrooms: ${propertyData.bathrooms}
-- Property Type: ${propertyData.propertyType || "Apartment"}
-- Size: ${propertyData.size ? propertyData.size + " sqm" : "Not specified"}
+- Type: ${propertyData.propertyType || "Apartment"}
+- Size: ${propertyData.size ? propertyData.size + " sqm" : "Unknown"}
 
-Provide a comprehensive analysis with REALISTIC market data specific to this exact location. The estimates should vary significantly based on the neighborhood prestige and property characteristics. Include seasonal breakdowns, expense estimates, and comparison between short-term and long-term rental strategies.
-
-Return your analysis as a JSON object with this exact structure:
-{
-  "monthlyIncome": number (average monthly net income in EUR),
-  "annualRevenue": number (total annual revenue in EUR),
-  "occupancyRate": number (average occupancy 0-100),
-  "peakSeason": { "period": "Jun-Aug", "occupancy": number, "nightlyRate": number, "monthlyIncome": number },
-  "midSeason": { "period": "Apr-May, Sep-Oct", "occupancy": number, "nightlyRate": number, "monthlyIncome": number },
-  "lowSeason": { "period": "Nov-Mar", "occupancy": number, "nightlyRate": number, "monthlyIncome": number },
-  "monthlyData": [{ "month": "Jan", "revenue": number, "occupancy": number }, ... for all 12 months],
-  "rentalRates": { "low": { "min": number, "max": number }, "mid": { "min": number, "max": number }, "high": { "min": number, "max": number } },
-  "expenses": { "cleaning": number, "maintenance": number, "utilities": number, "insurance": number, "platformFees": number, "management": number, "total": number },
-  "longTermRental": { "monthlyRent": number, "annualIncome": number, "occupancyRate": number },
-  "comparison": { "shortTermAnnual": number, "longTermAnnual": number, "recommendation": "string with brief recommendation" },
-  "marketInsights": "2-3 sentences about market conditions specific to this location"
-}`;
+Return this exact JSON structure with realistic EUR values:
+{"monthlyIncome":number,"annualRevenue":number,"occupancyRate":number,"peakSeason":{"period":"Jun-Aug","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"midSeason":{"period":"Apr-May, Sep-Oct","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"lowSeason":{"period":"Nov-Mar","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"monthlyData":[{"month":"Jan","revenue":number,"occupancy":number},{"month":"Feb","revenue":number,"occupancy":number},{"month":"Mar","revenue":number,"occupancy":number},{"month":"Apr","revenue":number,"occupancy":number},{"month":"May","revenue":number,"occupancy":number},{"month":"Jun","revenue":number,"occupancy":number},{"month":"Jul","revenue":number,"occupancy":number},{"month":"Aug","revenue":number,"occupancy":number},{"month":"Sep","revenue":number,"occupancy":number},{"month":"Oct","revenue":number,"occupancy":number},{"month":"Nov","revenue":number,"occupancy":number},{"month":"Dec","revenue":number,"occupancy":number}],"rentalRates":{"low":{"min":number,"max":number},"mid":{"min":number,"max":number},"high":{"min":number,"max":number}},"expenses":{"cleaning":number,"maintenance":number,"utilities":number,"insurance":number,"platformFees":number,"management":number,"total":number},"longTermRental":{"monthlyRent":number,"annualIncome":number,"occupancyRate":number},"comparison":{"shortTermAnnual":number,"longTermAnnual":number,"recommendation":"string"},"marketInsights":"string"}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -165,21 +138,21 @@ Return your analysis as a JSON object with this exact structure:
     const data = await response.json();
     console.log("AI response received");
 
-    // Extract the JSON response from the message content
     const content = data.choices[0]?.message?.content;
     if (!content) {
       throw new Error("No content in AI response");
     }
 
-    // Parse the JSON response
     let analysis: PropertyAnalysis;
     try {
+      // Try direct parse first
       analysis = JSON.parse(content);
     } catch (parseError) {
-      // Try to extract JSON from the response if it contains extra text
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      // Try to extract JSON from markdown code blocks or text
+      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        analysis = JSON.parse(jsonMatch[0]);
+        const jsonStr = jsonMatch[1] || jsonMatch[0];
+        analysis = JSON.parse(jsonStr);
       } else {
         console.error("Failed to parse AI response:", content);
         throw new Error("Invalid JSON in AI response");
