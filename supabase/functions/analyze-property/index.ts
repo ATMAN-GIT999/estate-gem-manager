@@ -60,39 +60,46 @@ Deno.serve(async (req) => {
 
   try {
     const { propertyData } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!OPENROUTER_API_KEY) {
+      throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
-    console.log("Analyzing property:", propertyData);
+    console.log("Analyzing property:", JSON.stringify(propertyData));
 
-    const systemPrompt = `You are a professional real estate cash flow analyst specializing in the Spanish Costa del Sol market (Marbella, Malaga, Benalmadena, Fuengirola, Estepona area). 
+    const systemPrompt = `You are an expert real estate analyst specializing in Costa del Sol, Spain vacation rentals. You have deep knowledge of:
+- Current 2024-2025 Airbnb/Booking.com market rates for SPECIFIC neighborhoods
+- Seasonal tourism patterns and occupancy rates
+- Property management costs (15-25% for short-term)
+- Platform fees (Airbnb ~15% total, Booking.com ~15%)
 
-You have access to current market data and should provide realistic, location-specific estimates based on:
-- Current Airbnb and Booking.com market rates for the specific area
-- The exact neighborhood and its desirability
-- Seasonal tourism patterns in Costa del Sol
-- Local property management costs (typically 15-25% for short-term rentals)
-- Platform commission rates (typically 3% host fee + 14% guest fee for Airbnb)
+CRITICAL: Your estimates MUST vary significantly based on the EXACT address/location provided:
 
-IMPORTANT: Provide DIFFERENT estimates based on the specific location. Properties in:
-- Puerto Banus/Golden Mile: Premium rates, €300-1000+/night for luxury
-- Marbella Center: High rates, €150-500/night
-- Nueva Andalucia: Upper-mid rates, €120-400/night
-- Fuengirola/Benalmadena: Mid-range, €80-200/night
-- Inland areas: Lower rates, €60-150/night
+PREMIUM AREAS (€250-800+/night):
+- Puerto Banus, Golden Mile, Sierra Blanca, La Zagaleta
+- Beachfront Marbella, Los Monteros
 
-Always adjust your estimates based on:
-1. Exact location and neighborhood prestige
-2. Number of bedrooms (more = higher total but lower per-night rate per guest)
-3. Property type (villa commands premium over apartment)
-4. Size and amenities implied
+HIGH-END AREAS (€150-400/night):
+- Marbella Old Town, Nueva Andalucia golf areas
+- San Pedro beachfront, Estepona port area
 
-Peak season: June-August (85-95% occupancy)
-Mid season: April-May, September-October (60-75% occupancy)
-Low season: November-March (30-50% occupancy)`;
+MID-RANGE AREAS (€80-200/night):
+- Fuengirola center, Benalmadena Costa
+- Torremolinos, Mijas Costa, Calahonda
+
+BUDGET AREAS (€50-120/night):
+- Inland Mijas, Alhaurin, Coin
+- Non-beachfront standard apartments
+
+For EACH property, calculate unique values based on:
+1. EXACT street/neighborhood (research typical rates)
+2. Bedrooms: 1BR=base, 2BR=+40%, 3BR=+70%, 4BR+=+100%
+3. Property type: Villa/house=+30-50% vs apartment
+4. Size: Adjust for sqm if provided
+5. Season: Peak (Jun-Aug), Mid (Apr-May, Sep-Oct), Low (Nov-Mar)
+
+Be SPECIFIC and REALISTIC. A 2BR in Puerto Banus ≠ 2BR in Fuengirola center.`;
 
     const userPrompt = `Analyze this property for vacation rental potential and provide detailed cash flow analysis:
 
@@ -121,18 +128,21 @@ Return your analysis as a JSON object with this exact structure:
   "marketInsights": "2-3 sentences about market conditions specific to this location"
 }`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://frontierresidences.com",
+        "X-Title": "Frontier Residences Property Analysis",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "anthropic/claude-3.5-sonnet",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
+        temperature: 0.7,
       }),
     });
 
