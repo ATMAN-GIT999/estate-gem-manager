@@ -8,7 +8,6 @@ import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
 import BusinessAreas from "@/components/BusinessAreas";
 import TechnologySection from "@/components/TechnologySection";
-import BookingChannels from "@/components/BookingChannels";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -138,7 +137,6 @@ const Index = () => {
       <Stats />
       <BusinessAreas />
       <TechnologySection />
-      <BookingChannels />
       <PropertyManagement />
       <PropertyEvaluator />
       <Footer />

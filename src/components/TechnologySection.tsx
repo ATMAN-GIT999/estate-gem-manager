@@ -28,7 +28,7 @@ const TechnologySection = () => {
           </div>
 
           <div className="mt-12">
-            <h3 className="text-xl font-semibold text-center mb-8 text-accent">
+            <h3 className="text-xl font-semibold text-center mb-8 text-primary-foreground">
               Our advanced AI ensures:
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -40,8 +40,8 @@ const TechnologySection = () => {
                     className="p-6 bg-primary-foreground/10 border-primary-foreground/20 backdrop-blur-sm hover:bg-primary-foreground/15 transition-all duration-300"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center shrink-0">
-                        <Icon className="w-5 h-5 text-accent" />
+                      <div className="w-10 h-10 bg-primary-foreground/20 rounded-lg flex items-center justify-center shrink-0">
+                        <Icon className="w-5 h-5 text-primary-foreground" />
                       </div>
                       <p className="text-primary-foreground/90">{feature.text}</p>
                     </div>
@@ -52,7 +52,7 @@ const TechnologySection = () => {
           </div>
 
           <div className="mt-12 text-center">
-            <p className="font-playfair text-2xl italic text-accent">
+            <p className="font-playfair text-2xl italic text-primary-foreground">
               We don't just manage homes — we engineer high-performance assets.
             </p>
           </div>
