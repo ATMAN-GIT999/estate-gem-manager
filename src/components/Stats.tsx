@@ -32,6 +32,17 @@ const Stats = () => {
   return (
     <section ref={sectionRef} className="py-20 bg-gradient-hero">
       <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">
+            A Portfolio Built on Precision & Performance
+          </h2>
+          <p className="text-lg text-foreground/70">
+            Spain • Austria • Croatia
+          </p>
+          <p className="text-muted-foreground">
+            Costa del Sol • Vienna & Carinthia • Istria
+          </p>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {stats.map((stat, index) => (
             <AnimatedStatCard
