@@ -48,16 +48,18 @@ const Hero = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* YouTube Video Background */}
+      {/* Video Background */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
-        <iframe
-          className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2"
-          src="https://www.youtube.com/embed/JFC-seoKRkI?autoplay=1&mute=1&loop=1&playlist=JFC-seoKRkI&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
-          title="Background Video"
-          allow="autoplay; encrypted-media"
-          style={{ pointerEvents: 'none' }}
-        />
-        <div className="absolute inset-0 bg-black/20"></div>
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute top-1/2 left-1/2 w-auto h-auto min-w-full min-h-full object-cover -translate-x-1/2 -translate-y-1/2"
+        >
+          <source src="/videos/hero-background.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
       {/* Content */}
