@@ -50,15 +50,12 @@ const Hero = () => {
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Video Background */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute top-1/2 left-1/2 w-auto h-auto min-w-full min-h-full object-cover -translate-x-1/2 -translate-y-1/2"
-        >
-          <source src="/videos/hero-background.mp4" type="video/mp4" />
-        </video>
+        <iframe
+          src="https://drive.google.com/file/d/1H_je_YXoMxy0rMxn4rWlV3N-lMvS2vgu/preview?autoplay=1"
+          className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2"
+          allow="autoplay; encrypted-media"
+          style={{ pointerEvents: 'none', border: 'none' }}
+        />
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
