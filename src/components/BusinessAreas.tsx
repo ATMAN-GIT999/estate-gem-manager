@@ -6,30 +6,38 @@ const BusinessAreas = () => {
     {
       icon: Building2,
       title: "Property Management",
-      description: "Seamless Property Management Services",
-      details:
-        "We handle every aspect of property management, from professional photography and staging to guest communication, legal compliance, and dynamic pricing. Maximize your profits while we take care of everything.",
+      description: "Bespoke property management for villas and luxury residences.",
+      details: "We manage your home with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset.",
+      services: [
+        "Architectural photography & luxury staging",
+        "High-converting listings (Airbnb, Booking, & direct)",
+        "24/7 guest communication & personalised check-ins",
+        "Legal traveller registration & compliance",
+        "Dynamic pricing & revenue optimisation",
+        "Housekeeping, maintenance & inspections",
+        "Transparent monthly financial reporting",
+      ],
     },
     {
       icon: TrendingUp,
       title: "Guaranteed Income",
-      description: "Secure and Reliable Rental Income",
-      details:
-        "Enjoy peace of mind with our guaranteed income program. Receive fixed monthly payments regardless of occupancy while we invest in maintaining and enhancing your property's value.",
+      description: "Effortless ownership with a fixed monthly payment.",
+      details: "We lease your property long-term, guaranteeing steady income regardless of occupancy — while maintaining and improving your home.",
+      services: [],
     },
     {
       icon: Wrench,
       title: "Renovations & Design",
-      description: "Transforming Properties for Your Vision",
-      details:
-        "From simple updates to complete overhauls, our expert team handles all aspects of renovation and project management, maximizing your property's appeal and value.",
+      description: "Timeless Mediterranean interiors designed to elevate your home's value and rental performance.",
+      details: "We manage the full process: concept → construction → delivery → staging.",
+      services: [],
     },
     {
       icon: BarChart3,
-      title: "Strategic Investments",
-      description: "Expert Consultancy for Property Investments",
-      details:
-        "We guide investors in finding perfect opportunities across Spain, Austria, and Croatia. From acquisition to completion, we provide end-to-end consultancy for profitable investments.",
+      title: "Investments",
+      description: "Curated real estate investments across Spain, Austria, and Croatia.",
+      details: "We guide investors from acquisition to renovation and turnkey operations.",
+      services: [],
     },
   ];
 
@@ -59,7 +67,17 @@ const BusinessAreas = () => {
                   <CardDescription className="text-lg font-medium text-accent">{area.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-foreground/80 leading-relaxed">{area.details}</p>
+                  <p className="text-foreground/80 leading-relaxed mb-4">{area.details}</p>
+                  {area.services && area.services.length > 0 && (
+                    <ul className="space-y-2">
+                      {area.services.map((service, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-foreground/70">
+                          <span className="text-accent mt-1">•</span>
+                          <span>{service}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </CardContent>
               </Card>
             );
