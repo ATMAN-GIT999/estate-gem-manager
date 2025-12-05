@@ -1,11 +1,14 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
+import IntroSection from "@/components/IntroSection";
 import Stats from "@/components/Stats";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
 import BusinessAreas from "@/components/BusinessAreas";
+import TechnologySection from "@/components/TechnologySection";
+import BookingChannels from "@/components/BookingChannels";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -73,6 +76,7 @@ const Index = () => {
     <div className="min-h-screen">
       <Navigation />
       <Hero />
+      <IntroSection />
       
       {/* Featured Properties Section */}
       <section className="py-20 bg-background">
@@ -133,6 +137,8 @@ const Index = () => {
 
       <Stats />
       <BusinessAreas />
+      <TechnologySection />
+      <BookingChannels />
       <PropertyManagement />
       <PropertyEvaluator />
       <Footer />
