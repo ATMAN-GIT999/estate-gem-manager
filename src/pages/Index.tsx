@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
+import BusinessAreas from "@/components/BusinessAreas";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -131,6 +132,7 @@ const Index = () => {
       </section>
 
       <Stats />
+      <BusinessAreas />
       <PropertyManagement />
       <PropertyEvaluator />
       <Footer />
