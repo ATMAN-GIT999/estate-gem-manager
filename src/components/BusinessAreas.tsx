@@ -1,5 +1,7 @@
 import { Building2, TrendingUp, Wrench, BarChart3 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const BusinessAreas = () => {
   const areas = [
@@ -8,6 +10,7 @@ const BusinessAreas = () => {
       title: "Property Management",
       description: "Bespoke property management for villas and luxury residences.",
       details: "We manage your home with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset.",
+      href: "/property-management",
       services: [
         "Architectural photography & luxury staging",
         "High-converting listings (Airbnb, Booking, & direct)",
@@ -23,6 +26,7 @@ const BusinessAreas = () => {
       title: "Guaranteed Income",
       description: "Effortless ownership with a fixed monthly payment.",
       details: "We lease your property long-term, guaranteeing steady income regardless of occupancy — while maintaining and improving your home.",
+      href: "/guaranteed-income",
       services: [],
     },
     {
@@ -30,6 +34,7 @@ const BusinessAreas = () => {
       title: "Renovations & Design",
       description: "Timeless Mediterranean interiors designed to elevate your home's value and rental performance.",
       details: "We manage the full process: concept → construction → delivery → staging.",
+      href: "/renovations",
       services: [],
     },
     {
@@ -37,6 +42,7 @@ const BusinessAreas = () => {
       title: "Investments",
       description: "Curated real estate investments across Spain, Austria, and Croatia.",
       details: "We guide investors from acquisition to renovation and turnkey operations.",
+      href: "/investments",
       services: [],
     },
   ];
@@ -57,7 +63,7 @@ const BusinessAreas = () => {
             return (
               <Card
                 key={index}
-                className="group hover:shadow-elegant transition-all duration-500 cursor-pointer border-border hover:border-accent"
+                className="group hover:shadow-elegant transition-all duration-500 border-border hover:border-accent"
               >
                 <CardHeader>
                   <div className="w-16 h-16 bg-gradient-gold rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-gold">
@@ -69,7 +75,7 @@ const BusinessAreas = () => {
                 <CardContent>
                   <p className="text-foreground/80 leading-relaxed mb-4">{area.details}</p>
                   {area.services && area.services.length > 0 && (
-                    <ul className="space-y-2">
+                    <ul className="space-y-2 mb-4">
                       {area.services.map((service, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-foreground/70">
                           <span className="text-accent mt-1">•</span>
@@ -78,6 +84,11 @@ const BusinessAreas = () => {
                       ))}
                     </ul>
                   )}
+                  <Link to={area.href}>
+                    <Button variant="outline" className="mt-2 group-hover:bg-accent group-hover:text-accent-foreground transition-colors">
+                      Learn More
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             );

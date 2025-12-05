@@ -14,6 +14,10 @@ import Auth from "./pages/Auth";
 import PropertyDetail from "./pages/PropertyDetail";
 import Properties from "./pages/Properties";
 import Book from "./pages/Book";
+import PropertyManagementPage from "./pages/PropertyManagementPage";
+import GuaranteedIncomePage from "./pages/GuaranteedIncomePage";
+import RenovationsPage from "./pages/RenovationsPage";
+import InvestmentsPage from "./pages/InvestmentsPage";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProperties from "./pages/admin/Properties";
 import AdminBookings from "./pages/admin/Bookings";
@@ -37,6 +41,10 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/business-areas" element={<BusinessAreasPage />} />
+            <Route path="/property-management" element={<PropertyManagementPage />} />
+            <Route path="/guaranteed-income" element={<GuaranteedIncomePage />} />
+            <Route path="/renovations" element={<RenovationsPage />} />
+            <Route path="/investments" element={<InvestmentsPage />} />
             <Route path="/evaluate" element={<Evaluate />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/update-password" element={<UpdatePassword />} />

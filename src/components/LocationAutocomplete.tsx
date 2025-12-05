@@ -16,6 +16,18 @@ interface NominatimResult {
   lon: string;
 }
 
+// Costa del Sol default suggestions
+const costaDelSolLocations = [
+  { place_id: 1, display_name: "Marbella, Málaga, Spain", name: "Marbella", lat: "36.5107", lon: "-4.8825" },
+  { place_id: 2, display_name: "Málaga, Spain", name: "Málaga", lat: "36.7213", lon: "-4.4216" },
+  { place_id: 3, display_name: "Estepona, Málaga, Spain", name: "Estepona", lat: "36.4267", lon: "-5.1459" },
+  { place_id: 4, display_name: "Fuengirola, Málaga, Spain", name: "Fuengirola", lat: "36.5443", lon: "-4.6247" },
+  { place_id: 5, display_name: "Benalmádena, Málaga, Spain", name: "Benalmádena", lat: "36.5989", lon: "-4.5168" },
+  { place_id: 6, display_name: "Mijas, Málaga, Spain", name: "Mijas", lat: "36.5959", lon: "-4.6370" },
+  { place_id: 7, display_name: "Torremolinos, Málaga, Spain", name: "Torremolinos", lat: "36.6216", lon: "-4.4998" },
+  { place_id: 8, display_name: "Nerja, Málaga, Spain", name: "Nerja", lat: "36.7442", lon: "-3.8758" },
+];
+
 const LocationAutocomplete = ({ value, onChange, placeholder = "Where to?" }: LocationAutocompleteProps) => {
   const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,10 +52,25 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Where to?" }: Lo
   }, []);
 
   const searchLocations = async (query: string) => {
-    if (query.length < 2) {
-      setSuggestions([]);
+    if (query.length < 1) {
+      // Show Costa del Sol suggestions when empty or just starting
+      setSuggestions(costaDelSolLocations);
+      setShowSuggestions(true);
       return;
     }
+
+    // Filter Costa del Sol locations first
+    const filteredLocal = costaDelSolLocations.filter(loc => 
+      loc.name.toLowerCase().includes(query.toLowerCase()) ||
+      loc.display_name.toLowerCase().includes(query.toLowerCase())
+    );
+
+    if (filteredLocal.length > 0) {
+      setSuggestions(filteredLocal);
+      setShowSuggestions(true);
+    }
+
+    if (query.length < 2) return;
 
     setIsLoading(true);
     try {
@@ -56,11 +83,15 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Where to?" }: Lo
         }
       );
       const data: NominatimResult[] = await response.json();
-      setSuggestions(data);
+      // Combine Costa del Sol results with API results, prioritizing local
+      const combined = [...filteredLocal, ...data.filter(d => 
+        !filteredLocal.some(l => l.name.toLowerCase() === (d.name || '').toLowerCase())
+      )];
+      setSuggestions(combined.slice(0, 8));
       setShowSuggestions(true);
     } catch (error) {
       console.error("Error fetching locations:", error);
-      setSuggestions([]);
+      setSuggestions(filteredLocal);
     } finally {
       setIsLoading(false);
     }
@@ -77,6 +108,16 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Where to?" }: Lo
     debounceRef.current = setTimeout(() => {
       searchLocations(newValue);
     }, 300);
+  };
+
+  const handleFocus = () => {
+    if (suggestions.length > 0) {
+      setShowSuggestions(true);
+    } else {
+      // Show Costa del Sol suggestions on focus
+      setSuggestions(costaDelSolLocations);
+      setShowSuggestions(true);
+    }
   };
 
   const handleSelectSuggestion = (suggestion: NominatimResult) => {
@@ -101,7 +142,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Where to?" }: Lo
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+          onFocus={handleFocus}
           placeholder={placeholder}
           className="w-full bg-transparent border-0 p-0 h-auto focus:outline-none focus:ring-0 text-foreground placeholder:text-muted-foreground"
         />
