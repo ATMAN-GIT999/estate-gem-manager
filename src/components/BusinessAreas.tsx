@@ -60,84 +60,81 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
               <div className="absolute bottom-0 left-0 w-48 md:w-64 h-48 md:h-64 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
               
               <div className="relative p-6 md:p-10 lg:p-12 xl:p-16">
-                <div className="flex flex-col md:flex-row gap-8 md:gap-10 lg:gap-16">
-                  {/* Left content */}
-                  <div className="flex-1">
-                    <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm rounded-full mb-4 md:mb-6">
-                      <span className="w-2 h-2 bg-amber-300 rounded-full animate-pulse" />
-                      <span className="text-white/90 text-xs md:text-sm font-medium">Our Core Service</span>
-                    </div>
-                    
-                    <div className="flex items-start gap-3 md:gap-4 mb-4 md:mb-6">
-                      <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl flex items-center justify-center flex-shrink-0">
-                        <Building2 className="w-6 h-6 md:w-8 md:h-8 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-playfair text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-1 md:mb-2">
-                          Property Management
-                        </h3>
-                        <p className="text-base md:text-lg lg:text-xl text-white/80 font-medium">
-                          Bespoke management for villas and luxury residences
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <p className="text-white/70 text-base md:text-lg leading-relaxed mb-6 md:mb-8 max-w-xl">
-                      We manage your home with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset.
-                    </p>
-
-                    {/* Guaranteed Income Feature */}
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 md:p-6 mb-6 md:mb-8 border border-white/20">
-                      <div className="flex items-start gap-3 md:gap-4">
-                        <div className="w-10 h-10 md:w-12 md:h-12 bg-amber-400/90 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
-                          <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <h4 className="text-white font-semibold text-base md:text-lg">Guaranteed Income Program</h4>
-                            <span className="px-2 py-0.5 bg-amber-400/20 text-amber-200 text-xs font-medium rounded-full border border-amber-400/30">Included</span>
-                          </div>
-                          <p className="text-white/70 text-xs md:text-sm leading-relaxed">
-                            Effortless ownership with a fixed monthly payment. We lease your property long-term, guaranteeing steady income regardless of occupancy — while maintaining and improving your home.
-                          </p>
-                          <Link to="/guaranteed-income" className="inline-flex items-center gap-1 text-amber-200 text-sm font-medium mt-3 hover:text-white hover:gap-2 transition-all">
-                            Learn more <ArrowRight className="w-4 h-4" />
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Link to="/property-management">
-                      <Button 
-                        size="lg"
-                        className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold px-6 md:px-8"
-                      >
-                        Discover Our Services
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </Link>
+                {/* Top section - Title, subtitle, description */}
+                <div className="mb-8 md:mb-10">
+                  <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm rounded-full mb-4 md:mb-6">
+                    <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                    <span className="text-white/90 text-xs md:text-sm font-medium">Our Core Service</span>
                   </div>
                   
-                  {/* Right content - Services */}
-                  <div className="md:w-[280px] lg:w-[340px] xl:w-[380px] flex-shrink-0">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/20">
-                      <h4 className="text-white font-semibold text-base md:text-lg mb-4 md:mb-5 flex items-center gap-2">
-                        <Shield className="w-5 h-5 text-amber-200" />
-                        What's Included
-                      </h4>
-                      <ul className="space-y-3 md:space-y-4">
-                        {propertyManagementServices.map((service, i) => (
-                          <li key={i} className="flex items-start gap-2.5 md:gap-3">
-                            <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <Check className="w-3 h-3 text-white" />
-                            </div>
-                            <span className="text-white/90 text-xs md:text-sm">{service}</span>
-                          </li>
-                        ))}
-                      </ul>
+                  <div className="flex items-start gap-3 md:gap-4 mb-4 md:mb-6">
+                    <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <Building2 className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-playfair text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-1 md:mb-2">
+                        Property Management
+                      </h3>
+                      <p className="text-base md:text-lg lg:text-xl text-white/80 font-medium">
+                        Bespoke management for villas and luxury residences
+                      </p>
                     </div>
                   </div>
+                  
+                  <p className="text-white/70 text-base md:text-lg leading-relaxed max-w-3xl">
+                    We manage your home with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset.
+                  </p>
                 </div>
+
+                {/* Two symmetrical boxes below */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
+                  {/* What's Included Box */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-5 md:p-6 border border-white/20 h-full">
+                    <h4 className="text-white font-semibold text-base md:text-lg mb-4 md:mb-5 flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-white" />
+                      What's Included
+                    </h4>
+                    <ul className="space-y-3">
+                      {propertyManagementServices.map((service, i) => (
+                        <li key={i} className="flex items-start gap-2.5 md:gap-3">
+                          <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                          <span className="text-white/90 text-xs md:text-sm">{service}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Guaranteed Income Program Box */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-5 md:p-6 border border-white/20 h-full flex flex-col">
+                    <div className="flex items-start gap-3 md:gap-4 mb-4">
+                      <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
+                        <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="text-white font-semibold text-base md:text-lg">Guaranteed Income Program</h4>
+                        <span className="px-2 py-0.5 bg-white/20 text-white text-xs font-medium rounded-full border border-white/30">Included</span>
+                      </div>
+                    </div>
+                    <p className="text-white/80 text-sm md:text-base leading-relaxed flex-grow">
+                      Effortless ownership with a fixed monthly payment. We lease your property long-term, guaranteeing steady income regardless of occupancy — while maintaining and improving your home.
+                    </p>
+                    <Link to="/guaranteed-income" className="inline-flex items-center gap-1 text-white text-sm font-medium mt-4 hover:gap-2 transition-all">
+                      Learn more <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+                
+                <Link to="/property-management">
+                  <Button 
+                    size="lg"
+                    className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold px-6 md:px-8"
+                  >
+                    Discover Our Services
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
