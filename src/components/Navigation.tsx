@@ -53,15 +53,12 @@ const Navigation = () => {
                 {link.label}
               </Link>
             ))}
-            <a
-              href={GUESTY_BOOKING_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary-foreground hover:text-secondary transition-colors font-medium inline-flex items-center gap-1"
+            <Link
+              to="/properties"
+              className="text-primary-foreground hover:text-secondary transition-colors font-medium"
             >
               Book Your Stay
-              <ExternalLink className="w-3 h-3" />
-            </a>
+            </Link>
             <button
               onClick={handleEvaluationClick}
               className="text-primary-foreground hover:text-secondary transition-colors font-medium"
@@ -106,16 +103,13 @@ const Navigation = () => {
                   {link.label}
                 </Link>
               ))}
-              <a
-                href={GUESTY_BOOKING_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2 inline-flex items-center gap-1"
+              <Link
+                to="/properties"
+                className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2"
                 onClick={() => setIsOpen(false)}
               >
                 Book Your Stay
-                <ExternalLink className="w-3 h-3" />
-              </a>
+              </Link>
               <button
                 onClick={handleEvaluationClick}
                 className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2 text-left"
