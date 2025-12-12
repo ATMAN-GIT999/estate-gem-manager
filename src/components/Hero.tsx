@@ -51,7 +51,7 @@ const Hero = () => {
       {/* Video Background */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
         <iframe
-          src="https://www.youtube.com/embed/tqmWpFCv_1M?autoplay=1&mute=1&loop=1&playlist=tqmWpFCv_1M&start=0&end=24&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
+          src="https://www.youtube.com/embed/tqmWpFCv_1M?autoplay=1&mute=1&loop=1&playlist=tqmWpFCv_1M&start=0&end=23&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
           className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2"
           allow="autoplay; encrypted-media"
           style={{ pointerEvents: 'none', border: 'none' }}
