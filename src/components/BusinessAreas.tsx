@@ -3,7 +3,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-const BusinessAreas = () => {
+interface BusinessAreasProps {
+  showHeader?: boolean;
+}
+
+const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
   const areas = [
     {
       icon: Building2,
@@ -50,12 +54,14 @@ const BusinessAreas = () => {
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">Our Business Areas</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Comprehensive services designed to maximize your property's potential
-          </p>
-        </div>
+        {showHeader && (
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">Our Business Areas</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Comprehensive services designed to maximize your property's potential
+            </p>
+          </div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {areas.map((area, index) => {

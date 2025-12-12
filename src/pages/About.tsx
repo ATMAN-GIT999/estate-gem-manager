@@ -24,9 +24,14 @@ const About = () => {
       description: "International hospitality and real estate expertise.",
     },
     {
-      name: "Julien Olek",
+      name: "Olek",
       role: "Partner",
       description: "Strategic partnerships and business development.",
+    },
+    {
+      name: "Julien",
+      role: "Partner",
+      description: "Investment strategy and client relations.",
     },
     {
       name: "Carlos",
@@ -105,7 +110,7 @@ const About = () => {
             <p className="text-lg text-foreground/70 text-center mb-12 max-w-2xl mx-auto">
               Our diverse team brings together expertise in hospitality, real estate, technology, and business development.
             </p>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {teamMembers.map((member, index) => (
                 <Card key={index} className="shadow-elegant hover:shadow-soft transition-all">
                   <CardContent className="pt-6">

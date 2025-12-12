@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, TrendingUp } from "lucide-react";
 import AddressAutocomplete from "./AddressAutocomplete";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const PropertyEvaluator = () => {
   const [loading, setLoading] = useState(false);
@@ -16,6 +22,7 @@ const PropertyEvaluator = () => {
     bathrooms: "",
     propertyType: "",
     size: "",
+    guests: "",
   });
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -38,17 +45,17 @@ const PropertyEvaluator = () => {
     navigate("/evaluate", { state: { propertyData: formData } });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
   const handleAddressChange = (value: string) => {
     setFormData(prev => ({
       ...prev,
       address: value
+    }));
+  };
+
+  const handleSelectChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
     }));
   };
 
@@ -80,51 +87,99 @@ const PropertyEvaluator = () => {
 
                 <div>
                   <Label htmlFor="bedrooms">Bedrooms *</Label>
-                  <Input
-                    id="bedrooms"
-                    name="bedrooms"
-                    type="number"
+                  <Select
                     value={formData.bedrooms}
-                    onChange={handleChange}
-                    placeholder="3"
-                    required
-                  />
+                    onValueChange={(value) => handleSelectChange("bedrooms", value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select bedrooms" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 Bedroom</SelectItem>
+                      <SelectItem value="2">2 Bedrooms</SelectItem>
+                      <SelectItem value="3">3 Bedrooms</SelectItem>
+                      <SelectItem value="4">4 Bedrooms</SelectItem>
+                      <SelectItem value="5">5 Bedrooms</SelectItem>
+                      <SelectItem value="6">6+ Bedrooms</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <Label htmlFor="bathrooms">Bathrooms *</Label>
-                  <Input
-                    id="bathrooms"
-                    name="bathrooms"
-                    type="number"
+                  <Select
                     value={formData.bathrooms}
-                    onChange={handleChange}
-                    placeholder="2"
-                    required
-                  />
+                    onValueChange={(value) => handleSelectChange("bathrooms", value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select bathrooms" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 Bathroom</SelectItem>
+                      <SelectItem value="2">2 Bathrooms</SelectItem>
+                      <SelectItem value="3">3 Bathrooms</SelectItem>
+                      <SelectItem value="4">4 Bathrooms</SelectItem>
+                      <SelectItem value="5">5+ Bathrooms</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <Label htmlFor="propertyType">Property Type</Label>
-                  <Input
-                    id="propertyType"
-                    name="propertyType"
+                  <Select
                     value={formData.propertyType}
-                    onChange={handleChange}
-                    placeholder="e.g., Villa, Apartment"
-                  />
+                    onValueChange={(value) => handleSelectChange("propertyType", value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select property type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Apartment">Apartment</SelectItem>
+                      <SelectItem value="Villa">Villa</SelectItem>
+                      <SelectItem value="Studio">Studio</SelectItem>
+                      <SelectItem value="Multi Unit">Multi Unit</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <Label htmlFor="size">Size (sqm)</Label>
-                  <Input
-                    id="size"
-                    name="size"
-                    type="number"
+                  <Select
                     value={formData.size}
-                    onChange={handleChange}
-                    placeholder="150"
-                  />
+                    onValueChange={(value) => handleSelectChange("size", value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select size range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="75">50-100 sqm</SelectItem>
+                      <SelectItem value="125">100-150 sqm</SelectItem>
+                      <SelectItem value="175">150-200 sqm</SelectItem>
+                      <SelectItem value="250">200-300 sqm</SelectItem>
+                      <SelectItem value="400">300-500 sqm</SelectItem>
+                      <SelectItem value="600">500+ sqm</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <Label htmlFor="guests">Maximum Guests</Label>
+                  <Select
+                    value={formData.guests}
+                    onValueChange={(value) => handleSelectChange("guests", value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select maximum guests" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2">2 Guests</SelectItem>
+                      <SelectItem value="4">4 Guests</SelectItem>
+                      <SelectItem value="6">6 Guests</SelectItem>
+                      <SelectItem value="8">8 Guests</SelectItem>
+                      <SelectItem value="10">10 Guests</SelectItem>
+                      <SelectItem value="12">12+ Guests</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 

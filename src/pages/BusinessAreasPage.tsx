@@ -15,7 +15,7 @@ const BusinessAreasPage = () => {
             </p>
           </div>
         </div>
-        <BusinessAreas />
+        <BusinessAreas showHeader={false} />
       </main>
       <Footer />
     </div>

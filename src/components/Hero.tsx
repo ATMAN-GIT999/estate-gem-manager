@@ -62,11 +62,11 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="max-w-5xl mx-auto text-center animate-fade-in">
-          <h1 className="font-playfair text-5xl md:text-7xl font-bold text-white mb-6 text-balance drop-shadow-2xl">
-            Luxury Property Management for Iconic Homes
+          <h1 className="font-playfair text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-4 md:mb-6 text-balance drop-shadow-2xl">
+            Bespoke Property Management
           </h1>
-          <p className="text-base md:text-lg text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
-            Frontier Residences delivers a private, bespoke management experience designed for exclusive villas and residences across the Mediterranean. From high-performance rental operations to guaranteed-income programs, renovations, and investment advisory — we transform ownership into something effortless, elegant, and profitable.
+          <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
+            Private, tailored management for exceptional properties
           </p>
         </div>
 
