@@ -136,6 +136,12 @@ const Evaluate = () => {
     return new Intl.NumberFormat('en-EU', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
   };
 
+  // Format occupancy rate - handle both decimal (0.7) and percentage (70) formats
+  const formatOccupancy = (rate: number) => {
+    if (rate === undefined || rate === null) return 0;
+    return rate < 1 ? Math.round(rate * 100) : Math.round(rate);
+  };
+
   return (
     <div className="min-h-screen">
       <Navigation />
@@ -239,7 +245,7 @@ const Evaluate = () => {
                   <Card className="p-6 bg-gradient-to-br from-green-500/20 to-green-500/5 border-green-500/20 backdrop-blur-sm">
                     <Percent className="w-10 h-10 text-green-500 mb-3" />
                     <h3 className="text-lg font-semibold text-foreground/70 mb-2">Occupancy Rate</h3>
-                    <div className="text-4xl font-bold text-primary mb-1">{analysis.occupancyRate}%</div>
+                    <div className="text-4xl font-bold text-primary mb-1">{formatOccupancy(analysis.occupancyRate)}%</div>
                     <p className="text-sm text-foreground/60">Average year-round</p>
                   </Card>
                 </div>
@@ -261,7 +267,7 @@ const Evaluate = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Occupancy:</span>
-                          <span className="font-bold text-green-500">{analysis.peakSeason.occupancy}%</span>
+                          <span className="font-bold text-green-500">{formatOccupancy(analysis.peakSeason.occupancy)}%</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Nightly Rate:</span>
@@ -283,7 +289,7 @@ const Evaluate = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Occupancy:</span>
-                          <span className="font-bold text-yellow-500">{analysis.midSeason.occupancy}%</span>
+                          <span className="font-bold text-yellow-500">{formatOccupancy(analysis.midSeason.occupancy)}%</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Nightly Rate:</span>
@@ -305,7 +311,7 @@ const Evaluate = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Occupancy:</span>
-                          <span className="font-bold text-orange-500">{analysis.lowSeason.occupancy}%</span>
+                          <span className="font-bold text-orange-500">{formatOccupancy(analysis.lowSeason.occupancy)}%</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Nightly Rate:</span>

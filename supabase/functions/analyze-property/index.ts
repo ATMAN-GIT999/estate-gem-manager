@@ -86,8 +86,12 @@ PROPERTY ADJUSTMENTS:
 - Bedrooms: 1BR=base, 2BR=+40%, 3BR=+70%, 4BR+=+100%
 - Villa/house: +30-50% vs apartment
 - Size: Adjust proportionally for sqm
+- GUEST CAPACITY: Properties that can accommodate more guests command higher rates. 8+ guests = +20-40% premium over standard rates.
 
-CRITICAL: Even if the address is vague, you MUST provide estimates using mid-range values for that area. Never refuse - make reasonable assumptions and return JSON.`;
+CRITICAL FORMATTING RULES:
+- All occupancy rates MUST be expressed as WHOLE NUMBERS (e.g., 70 for 70%, NOT 0.7)
+- All monetary values in EUR
+- Even if the address is vague, you MUST provide estimates using mid-range values for that area. Never refuse - make reasonable assumptions and return JSON.`;
 
     const userPrompt = `Analyze this property. Return ONLY valid JSON, no text.
 
@@ -97,8 +101,11 @@ Property:
 - Bathrooms: ${propertyData.bathrooms}
 - Type: ${propertyData.propertyType || "Apartment"}
 - Size: ${propertyData.size ? propertyData.size + " sqm" : "Unknown"}
+- Maximum Guests: ${propertyData.guests || "Not specified"}
 
-Return this exact JSON structure with realistic EUR values:
+IMPORTANT: Consider the guest capacity when calculating rates. Properties that can host more guests typically achieve higher nightly rates.
+
+Return this exact JSON structure with realistic EUR values. ALL OCCUPANCY RATES MUST BE WHOLE NUMBERS (e.g., 70 for 70%, NOT 0.7):
 {"monthlyIncome":number,"annualRevenue":number,"occupancyRate":number,"peakSeason":{"period":"Jun-Aug","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"midSeason":{"period":"Apr-May, Sep-Oct","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"lowSeason":{"period":"Nov-Mar","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"monthlyData":[{"month":"Jan","revenue":number,"occupancy":number},{"month":"Feb","revenue":number,"occupancy":number},{"month":"Mar","revenue":number,"occupancy":number},{"month":"Apr","revenue":number,"occupancy":number},{"month":"May","revenue":number,"occupancy":number},{"month":"Jun","revenue":number,"occupancy":number},{"month":"Jul","revenue":number,"occupancy":number},{"month":"Aug","revenue":number,"occupancy":number},{"month":"Sep","revenue":number,"occupancy":number},{"month":"Oct","revenue":number,"occupancy":number},{"month":"Nov","revenue":number,"occupancy":number},{"month":"Dec","revenue":number,"occupancy":number}],"rentalRates":{"low":{"min":number,"max":number},"mid":{"min":number,"max":number},"high":{"min":number,"max":number}},"expenses":{"cleaning":number,"maintenance":number,"utilities":number,"insurance":number,"platformFees":number,"management":number,"total":number},"longTermRental":{"monthlyRent":number,"annualIncome":number,"occupancyRate":number},"comparison":{"shortTermAnnual":number,"longTermAnnual":number,"recommendation":"string"},"marketInsights":"string"}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
