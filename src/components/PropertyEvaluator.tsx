@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -16,6 +17,7 @@ import {
 
 const PropertyEvaluator = () => {
   const [loading, setLoading] = useState(false);
+  const [showCustomSize, setShowCustomSize] = useState(false);
   const [formData, setFormData] = useState({
     address: "",
     bedrooms: "",
@@ -53,9 +55,27 @@ const PropertyEvaluator = () => {
   };
 
   const handleSelectChange = (field: string, value: string) => {
+    if (field === "size" && value === "custom") {
+      setShowCustomSize(true);
+      setFormData(prev => ({
+        ...prev,
+        size: ""
+      }));
+    } else {
+      if (field === "size") {
+        setShowCustomSize(false);
+      }
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
+
+  const handleCustomSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      size: e.target.value
     }));
   };
 
@@ -100,7 +120,11 @@ const PropertyEvaluator = () => {
                       <SelectItem value="3">3 Bedrooms</SelectItem>
                       <SelectItem value="4">4 Bedrooms</SelectItem>
                       <SelectItem value="5">5 Bedrooms</SelectItem>
-                      <SelectItem value="6">6+ Bedrooms</SelectItem>
+                      <SelectItem value="6">6 Bedrooms</SelectItem>
+                      <SelectItem value="7">7 Bedrooms</SelectItem>
+                      <SelectItem value="8">8 Bedrooms</SelectItem>
+                      <SelectItem value="9">9 Bedrooms</SelectItem>
+                      <SelectItem value="10">10+ Bedrooms</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -119,7 +143,12 @@ const PropertyEvaluator = () => {
                       <SelectItem value="2">2 Bathrooms</SelectItem>
                       <SelectItem value="3">3 Bathrooms</SelectItem>
                       <SelectItem value="4">4 Bathrooms</SelectItem>
-                      <SelectItem value="5">5+ Bathrooms</SelectItem>
+                      <SelectItem value="5">5 Bathrooms</SelectItem>
+                      <SelectItem value="6">6 Bathrooms</SelectItem>
+                      <SelectItem value="7">7 Bathrooms</SelectItem>
+                      <SelectItem value="8">8 Bathrooms</SelectItem>
+                      <SelectItem value="9">9 Bathrooms</SelectItem>
+                      <SelectItem value="10">10+ Bathrooms</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -144,22 +173,47 @@ const PropertyEvaluator = () => {
 
                 <div>
                   <Label htmlFor="size">Size (sqm)</Label>
-                  <Select
-                    value={formData.size}
-                    onValueChange={(value) => handleSelectChange("size", value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select size range" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="75">50-100 sqm</SelectItem>
-                      <SelectItem value="125">100-150 sqm</SelectItem>
-                      <SelectItem value="175">150-200 sqm</SelectItem>
-                      <SelectItem value="250">200-300 sqm</SelectItem>
-                      <SelectItem value="400">300-500 sqm</SelectItem>
-                      <SelectItem value="600">500+ sqm</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {showCustomSize ? (
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Enter exact sqm"
+                        value={formData.size}
+                        onChange={handleCustomSizeChange}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setShowCustomSize(false);
+                          setFormData(prev => ({ ...prev, size: "" }));
+                        }}
+                        className="px-3"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <Select
+                      value={formData.size}
+                      onValueChange={(value) => handleSelectChange("size", value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select size range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="75">50-100 sqm</SelectItem>
+                        <SelectItem value="125">100-150 sqm</SelectItem>
+                        <SelectItem value="175">150-200 sqm</SelectItem>
+                        <SelectItem value="250">200-300 sqm</SelectItem>
+                        <SelectItem value="400">300-500 sqm</SelectItem>
+                        <SelectItem value="600">500+ sqm</SelectItem>
+                        <SelectItem value="custom">Custom (enter exact sqm)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
 
                 <div className="md:col-span-2">
