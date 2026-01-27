@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building, FileText, BarChart3, Calendar, Settings, TrendingUp, Users, Home, ArrowRight, Eye, DollarSign, Megaphone } from "lucide-react";
+import { Building, FileText, BarChart3, Calendar, Settings, TrendingUp, Users, Home, ArrowRight, Eye, DollarSign, Megaphone, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import MessengerButton from "@/components/admin/MessengerButton";
 interface DashboardStats {
   propertyCount: number;
   bookingCount: number;
@@ -367,8 +367,26 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             </Link>
+            <Link to="/admin/marketing" className="lg:hidden">
+              <Card className="hover:shadow-lg hover:border-primary/30 transition-all cursor-pointer group h-full">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-xl bg-cyan-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <MessageCircle className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Messages</h3>
+                      <p className="text-sm text-muted-foreground">Guest communication hub</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
+
+        {/* Messenger Button */}
+        <MessengerButton />
       </main>
     </div>
   );
