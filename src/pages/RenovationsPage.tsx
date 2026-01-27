@@ -1,11 +1,20 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { 
   Lightbulb, Calculator, HardHat, Package, Palette, Camera, TrendingUp 
 } from "lucide-react";
+import EditableText from "@/components/admin/EditableText";
 
 const RenovationsPage = () => {
+  // Editable content state
+  const [pageTitle, setPageTitle] = useState("Timeless Mediterranean Interiors. Elevated Asset Value.");
+  const [pageSubtitle, setPageSubtitle] = useState("Our renovation and design team transforms properties into refined, contemporary Mediterranean spaces. We oversee the entire process with a focus on craftsmanship, functionality, and increased rental performance.");
+  const [servicesTitle, setServicesTitle] = useState("What We Handle");
+  const [processTitle, setProcessTitle] = useState("Our Process");
+  const [processText, setProcessText] = useState("From initial concept to final staging, we manage every detail to ensure your property reaches its full potential.");
+
   const services = [
     { icon: Lightbulb, title: "Architectural concept & mood boards", description: "We create inspiring visual concepts that capture the Mediterranean essence." },
     { icon: Calculator, title: "Budget planning", description: "Transparent cost estimation and financial planning for your project." },
@@ -24,12 +33,25 @@ const RenovationsPage = () => {
         <section className="py-16 bg-gradient-hero">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center animate-fade-in">
-              <h1 className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6">
-                Timeless Mediterranean Interiors. Elevated Asset Value.
-              </h1>
-              <p className="text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-                Our renovation and design team transforms properties into refined, contemporary Mediterranean spaces. We oversee the entire process with a focus on craftsmanship, functionality, and increased rental performance.
-              </p>
+              <EditableText
+                id="reno-page-title"
+                value={pageTitle}
+                onChange={setPageTitle}
+                as="h1"
+                className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6"
+              >
+                {pageTitle}
+              </EditableText>
+              <EditableText
+                id="reno-page-subtitle"
+                value={pageSubtitle}
+                onChange={setPageSubtitle}
+                as="p"
+                multiline
+                className="text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto"
+              >
+                {pageSubtitle}
+              </EditableText>
             </div>
           </div>
         </section>
@@ -38,9 +60,15 @@ const RenovationsPage = () => {
         <section className="py-20 bg-background">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
-              <h2 className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-12 text-center">
-                What We Handle
-              </h2>
+              <EditableText
+                id="reno-services-title"
+                value={servicesTitle}
+                onChange={setServicesTitle}
+                as="h2"
+                className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-12 text-center"
+              >
+                {servicesTitle}
+              </EditableText>
               <div className="grid md:grid-cols-2 gap-6">
                 {services.map((service, index) => {
                   const Icon = service.icon;
@@ -67,9 +95,15 @@ const RenovationsPage = () => {
         <section className="py-20 bg-secondary/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-8">
-                Our Process
-              </h2>
+              <EditableText
+                id="reno-process-title"
+                value={processTitle}
+                onChange={setProcessTitle}
+                as="h2"
+                className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-8"
+              >
+                {processTitle}
+              </EditableText>
               <div className="flex flex-wrap justify-center items-center gap-4 text-lg text-foreground/80">
                 <span className="font-semibold text-accent">Concept</span>
                 <span className="text-accent">→</span>
@@ -79,9 +113,15 @@ const RenovationsPage = () => {
                 <span className="text-accent">→</span>
                 <span className="font-semibold text-accent">Staging</span>
               </div>
-              <p className="mt-8 text-foreground/70 max-w-2xl mx-auto">
-                From initial concept to final staging, we manage every detail to ensure your property reaches its full potential.
-              </p>
+              <EditableText
+                id="reno-process-text"
+                value={processText}
+                onChange={setProcessText}
+                as="p"
+                className="mt-8 text-foreground/70 max-w-2xl mx-auto"
+              >
+                {processText}
+              </EditableText>
             </div>
           </div>
         </section>

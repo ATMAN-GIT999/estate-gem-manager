@@ -11,16 +11,31 @@ interface BusinessAreasProps {
 const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
   const [sectionTitle, setSectionTitle] = useState("Business Areas");
   const [sectionSubtitle, setSectionSubtitle] = useState("Comprehensive services designed to maximize your property's potential");
+  const [expertiseLabel, setExpertiseLabel] = useState("Our Expertise");
   const [pmTitle, setPmTitle] = useState("Property Management");
   const [pmSubtitle, setPmSubtitle] = useState("Bespoke management for villas and luxury residences");
   const [pmDescription, setPmDescription] = useState(
     "We manage your home with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset."
   );
+  const [coreServiceLabel, setCoreServiceLabel] = useState("Our Core Service");
+  const [whatsIncludedLabel, setWhatsIncludedLabel] = useState("What's Included");
+  const [guaranteedIncomeTitle, setGuaranteedIncomeTitle] = useState("Guaranteed Income Program");
+  const [guaranteedIncomeLabel, setGuaranteedIncomeLabel] = useState("Included");
   const [guaranteedIncomeDesc, setGuaranteedIncomeDesc] = useState(
     "Effortless ownership with a fixed monthly payment. We lease your property long-term, guaranteeing steady income regardless of occupancy — while maintaining and improving your home."
   );
+  const [discoverBtnText, setDiscoverBtnText] = useState("Discover Our Services");
+  const [learnMoreText, setLearnMoreText] = useState("Learn more");
+  
+  // Additional services editable state
+  const [renovationsTitle, setRenovationsTitle] = useState("Renovations & Design");
+  const [renovationsDesc, setRenovationsDesc] = useState("Timeless Mediterranean interiors designed to elevate your home's value and rental performance.");
+  const [renovationsDetails, setRenovationsDetails] = useState("We manage the full process: concept → construction → delivery → staging.");
+  const [investmentsTitle, setInvestmentsTitle] = useState("Investments");
+  const [investmentsDesc, setInvestmentsDesc] = useState("Curated real estate investments across Spain, Austria, and Croatia.");
+  const [investmentsDetails, setInvestmentsDetails] = useState("We guide investors from acquisition to renovation and turnkey operations.");
 
-  const propertyManagementServices = [
+  const [propertyManagementServices, setPropertyManagementServices] = useState([
     "Architectural photography & luxury staging",
     "High-converting listings (Airbnb, Booking, & direct)",
     "24/7 guest communication & personalised check-ins",
@@ -28,22 +43,30 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
     "Dynamic pricing & revenue optimisation",
     "Housekeeping, maintenance & inspections",
     "Transparent monthly financial reporting",
-  ];
+  ]);
 
   const additionalServices = [
     {
       icon: Wrench,
-      title: "Renovations & Design",
-      description: "Timeless Mediterranean interiors designed to elevate your home's value and rental performance.",
-      details: "We manage the full process: concept → construction → delivery → staging.",
+      title: renovationsTitle,
+      setTitle: setRenovationsTitle,
+      description: renovationsDesc,
+      setDescription: setRenovationsDesc,
+      details: renovationsDetails,
+      setDetails: setRenovationsDetails,
       href: "/renovations",
+      id: "renovations"
     },
     {
       icon: BarChart3,
-      title: "Investments",
-      description: "Curated real estate investments across Spain, Austria, and Croatia.",
-      details: "We guide investors from acquisition to renovation and turnkey operations.",
+      title: investmentsTitle,
+      setTitle: setInvestmentsTitle,
+      description: investmentsDesc,
+      setDescription: setInvestmentsDesc,
+      details: investmentsDetails,
+      setDetails: setInvestmentsDetails,
       href: "/investments",
+      id: "investments"
     },
   ];
 
@@ -52,9 +75,15 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
       <div className="container mx-auto px-4">
         {showHeader && (
           <div className="text-center mb-16 animate-fade-in">
-            <span className="inline-block px-4 py-1.5 bg-accent/10 text-accent text-sm font-medium rounded-full mb-4">
-              Our Expertise
-            </span>
+            <EditableText
+              id="ba-expertise-label"
+              value={expertiseLabel}
+              onChange={setExpertiseLabel}
+              as="span"
+              className="inline-block px-4 py-1.5 bg-accent/10 text-accent text-sm font-medium rounded-full mb-4"
+            >
+              {expertiseLabel}
+            </EditableText>
             <EditableText
               id="ba-title"
               value={sectionTitle}
@@ -89,7 +118,15 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                 <div className="mb-8 md:mb-10">
                   <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm rounded-full mb-4 md:mb-6">
                     <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                    <span className="text-white/90 text-xs md:text-sm font-medium">Our Core Service</span>
+                    <EditableText
+                      id="ba-core-service-label"
+                      value={coreServiceLabel}
+                      onChange={setCoreServiceLabel}
+                      as="span"
+                      className="text-white/90 text-xs md:text-sm font-medium"
+                    >
+                      {coreServiceLabel}
+                    </EditableText>
                   </div>
                   
                   <div className="flex items-start gap-3 md:gap-4 mb-4 md:mb-6">
@@ -136,7 +173,14 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-5 md:p-6 border border-white/20 h-full">
                     <h4 className="text-white font-semibold text-base md:text-lg mb-4 md:mb-5 flex items-center gap-2">
                       <Shield className="w-5 h-5 text-white" />
-                      What's Included
+                      <EditableText
+                        id="ba-whats-included-label"
+                        value={whatsIncludedLabel}
+                        onChange={setWhatsIncludedLabel}
+                        as="span"
+                      >
+                        {whatsIncludedLabel}
+                      </EditableText>
                     </h4>
                     <ul className="space-y-3">
                       {propertyManagementServices.map((service, i) => (
@@ -144,7 +188,19 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                           <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                             <Check className="w-3 h-3 text-white" />
                           </div>
-                          <span className="text-white/90 text-xs md:text-sm">{service}</span>
+                          <EditableText
+                            id={`ba-pm-service-${i}`}
+                            value={service}
+                            onChange={(newValue) => {
+                              const newServices = [...propertyManagementServices];
+                              newServices[i] = newValue;
+                              setPropertyManagementServices(newServices);
+                            }}
+                            as="span"
+                            className="text-white/90 text-xs md:text-sm"
+                          >
+                            {service}
+                          </EditableText>
                         </li>
                       ))}
                     </ul>
@@ -157,8 +213,24 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                         <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-white" />
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-white font-semibold text-base md:text-lg">Guaranteed Income Program</h4>
-                        <span className="px-2 py-0.5 bg-white/20 text-white text-xs font-medium rounded-full border border-white/30">Included</span>
+                        <EditableText
+                          id="ba-gi-title"
+                          value={guaranteedIncomeTitle}
+                          onChange={setGuaranteedIncomeTitle}
+                          as="h4"
+                          className="text-white font-semibold text-base md:text-lg"
+                        >
+                          {guaranteedIncomeTitle}
+                        </EditableText>
+                        <EditableText
+                          id="ba-gi-label"
+                          value={guaranteedIncomeLabel}
+                          onChange={setGuaranteedIncomeLabel}
+                          as="span"
+                          className="px-2 py-0.5 bg-white/20 text-white text-xs font-medium rounded-full border border-white/30"
+                        >
+                          {guaranteedIncomeLabel}
+                        </EditableText>
                       </div>
                     </div>
                     <EditableText
@@ -172,7 +244,15 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                       {guaranteedIncomeDesc}
                     </EditableText>
                     <Link to="/guaranteed-income" className="inline-flex items-center gap-1 text-white text-sm font-medium mt-4 hover:gap-2 transition-all">
-                      Learn more <ArrowRight className="w-4 h-4" />
+                      <EditableText
+                        id="ba-gi-learn-more"
+                        value={learnMoreText}
+                        onChange={setLearnMoreText}
+                        as="span"
+                      >
+                        {learnMoreText}
+                      </EditableText>
+                      <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 </div>
@@ -182,7 +262,14 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                     size="lg"
                     className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold px-6 md:px-8"
                   >
-                    Discover Our Services
+                    <EditableText
+                      id="ba-discover-btn"
+                      value={discoverBtnText}
+                      onChange={setDiscoverBtnText}
+                      as="span"
+                    >
+                      {discoverBtnText}
+                    </EditableText>
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
@@ -213,19 +300,37 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                       </div>
                       
                       {/* Title */}
-                      <h3 className="font-playfair text-xl md:text-2xl font-bold text-primary mb-2 md:mb-3 group-hover:text-accent transition-colors duration-300">
+                      <EditableText
+                        id={`ba-${service.id}-title`}
+                        value={service.title}
+                        onChange={service.setTitle}
+                        as="h3"
+                        className="font-playfair text-xl md:text-2xl font-bold text-primary mb-2 md:mb-3 group-hover:text-accent transition-colors duration-300"
+                      >
                         {service.title}
-                      </h3>
+                      </EditableText>
                       
                       {/* Description */}
-                      <p className="text-accent font-medium mb-2 md:mb-3 text-sm md:text-base">
+                      <EditableText
+                        id={`ba-${service.id}-desc`}
+                        value={service.description}
+                        onChange={service.setDescription}
+                        as="p"
+                        className="text-accent font-medium mb-2 md:mb-3 text-sm md:text-base"
+                      >
                         {service.description}
-                      </p>
+                      </EditableText>
                       
                       {/* Details */}
-                      <p className="text-foreground/70 leading-relaxed mb-4 md:mb-6 text-sm md:text-base flex-grow">
+                      <EditableText
+                        id={`ba-${service.id}-details`}
+                        value={service.details}
+                        onChange={service.setDetails}
+                        as="p"
+                        className="text-foreground/70 leading-relaxed mb-4 md:mb-6 text-sm md:text-base flex-grow"
+                      >
                         {service.details}
-                      </p>
+                      </EditableText>
                       
                       {/* CTA Button */}
                       <Link to={service.href} className="mt-auto">

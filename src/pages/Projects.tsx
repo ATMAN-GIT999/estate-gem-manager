@@ -1,10 +1,18 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, TrendingUp, Home, Star } from "lucide-react";
+import EditableText from "@/components/admin/EditableText";
 
 const Projects = () => {
+  // Editable content state
+  const [pageTitle, setPageTitle] = useState("Our Work: Precision, Performance, and Mediterranean Craftsmanship");
+  const [pageSubtitle, setPageSubtitle] = useState("Showcasing properties by country with before/after transformations, renovation stories, revenue improvements, and occupancy results.");
+  const [destinationsTitle, setDestinationsTitle] = useState("Our Destinations");
+  const [transformationsTitle, setTransformationsTitle] = useState("Featured Transformations");
+
   const regions = [
     {
       name: "Spain",
@@ -66,17 +74,38 @@ const Projects = () => {
         <div className="container mx-auto px-4">
           {/* Hero Section */}
           <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in">
-            <h1 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-6">
-              Our Work: Precision, Performance, and Mediterranean Craftsmanship
-            </h1>
-            <p className="text-xl text-foreground/80 leading-relaxed">
-              Showcasing properties by country with before/after transformations, renovation stories, revenue improvements, and occupancy results.
-            </p>
+            <EditableText
+              id="projects-page-title"
+              value={pageTitle}
+              onChange={setPageTitle}
+              as="h1"
+              className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-6"
+            >
+              {pageTitle}
+            </EditableText>
+            <EditableText
+              id="projects-page-subtitle"
+              value={pageSubtitle}
+              onChange={setPageSubtitle}
+              as="p"
+              multiline
+              className="text-xl text-foreground/80 leading-relaxed"
+            >
+              {pageSubtitle}
+            </EditableText>
           </div>
 
           {/* Regions */}
           <div className="max-w-6xl mx-auto mb-20">
-            <h2 className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">Our Destinations</h2>
+            <EditableText
+              id="projects-destinations-title"
+              value={destinationsTitle}
+              onChange={setDestinationsTitle}
+              as="h2"
+              className="font-playfair text-3xl font-semibold text-primary mb-8 text-center"
+            >
+              {destinationsTitle}
+            </EditableText>
             <div className="grid md:grid-cols-3 gap-6">
               {regions.map((region, index) => (
                 <Card key={index} className="shadow-elegant hover:shadow-gold transition-all hover:scale-105 duration-300 overflow-hidden">
@@ -96,7 +125,15 @@ const Projects = () => {
 
           {/* Featured Projects */}
           <div className="max-w-6xl mx-auto">
-            <h2 className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">Featured Transformations</h2>
+            <EditableText
+              id="projects-transformations-title"
+              value={transformationsTitle}
+              onChange={setTransformationsTitle}
+              as="h2"
+              className="font-playfair text-3xl font-semibold text-primary mb-8 text-center"
+            >
+              {transformationsTitle}
+            </EditableText>
             <div className="space-y-12">
               {featuredProjects.map((project, index) => (
                 <Card key={index} className="shadow-elegant border-accent/20 overflow-hidden">
