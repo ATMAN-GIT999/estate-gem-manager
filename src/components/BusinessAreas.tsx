@@ -1,12 +1,25 @@
+import { useState } from "react";
 import { Building2, TrendingUp, Wrench, BarChart3, ArrowRight, Check, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import EditableText from "./admin/EditableText";
 
 interface BusinessAreasProps {
   showHeader?: boolean;
 }
 
 const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
+  const [sectionTitle, setSectionTitle] = useState("Business Areas");
+  const [sectionSubtitle, setSectionSubtitle] = useState("Comprehensive services designed to maximize your property's potential");
+  const [pmTitle, setPmTitle] = useState("Property Management");
+  const [pmSubtitle, setPmSubtitle] = useState("Bespoke management for villas and luxury residences");
+  const [pmDescription, setPmDescription] = useState(
+    "We manage your home with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset."
+  );
+  const [guaranteedIncomeDesc, setGuaranteedIncomeDesc] = useState(
+    "Effortless ownership with a fixed monthly payment. We lease your property long-term, guaranteeing steady income regardless of occupancy — while maintaining and improving your home."
+  );
+
   const propertyManagementServices = [
     "Architectural photography & luxury staging",
     "High-converting listings (Airbnb, Booking, & direct)",
@@ -42,12 +55,24 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
             <span className="inline-block px-4 py-1.5 bg-accent/10 text-accent text-sm font-medium rounded-full mb-4">
               Our Expertise
             </span>
-            <h2 className="font-playfair text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6">
-              Business Areas
-            </h2>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Comprehensive services designed to maximize your property's potential
-            </p>
+            <EditableText
+              id="ba-title"
+              value={sectionTitle}
+              onChange={setSectionTitle}
+              as="h2"
+              className="font-playfair text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6"
+            >
+              {sectionTitle}
+            </EditableText>
+            <EditableText
+              id="ba-subtitle"
+              value={sectionSubtitle}
+              onChange={setSectionSubtitle}
+              as="p"
+              className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            >
+              {sectionSubtitle}
+            </EditableText>
           </div>
         )}
 
@@ -72,18 +97,37 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                       <Building2 className="w-6 h-6 md:w-8 md:h-8 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-playfair text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-1 md:mb-2">
-                        Property Management
-                      </h3>
-                      <p className="text-base md:text-lg lg:text-xl text-white/80 font-medium">
-                        Bespoke management for villas and luxury residences
-                      </p>
+                      <EditableText
+                        id="ba-pm-title"
+                        value={pmTitle}
+                        onChange={setPmTitle}
+                        as="h3"
+                        className="font-playfair text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-1 md:mb-2"
+                      >
+                        {pmTitle}
+                      </EditableText>
+                      <EditableText
+                        id="ba-pm-subtitle"
+                        value={pmSubtitle}
+                        onChange={setPmSubtitle}
+                        as="p"
+                        className="text-base md:text-lg lg:text-xl text-white/80 font-medium"
+                      >
+                        {pmSubtitle}
+                      </EditableText>
                     </div>
                   </div>
                   
-                  <p className="text-white/70 text-base md:text-lg leading-relaxed max-w-3xl">
-                    We manage your home with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset.
-                  </p>
+                  <EditableText
+                    id="ba-pm-desc"
+                    value={pmDescription}
+                    onChange={setPmDescription}
+                    as="p"
+                    multiline
+                    className="text-white/70 text-base md:text-lg leading-relaxed max-w-3xl"
+                  >
+                    {pmDescription}
+                  </EditableText>
                 </div>
 
                 {/* Two symmetrical boxes below */}
@@ -117,9 +161,16 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                         <span className="px-2 py-0.5 bg-white/20 text-white text-xs font-medium rounded-full border border-white/30">Included</span>
                       </div>
                     </div>
-                    <p className="text-white/80 text-sm md:text-base leading-relaxed flex-grow">
-                      Effortless ownership with a fixed monthly payment. We lease your property long-term, guaranteeing steady income regardless of occupancy — while maintaining and improving your home.
-                    </p>
+                    <EditableText
+                      id="ba-gi-desc"
+                      value={guaranteedIncomeDesc}
+                      onChange={setGuaranteedIncomeDesc}
+                      as="p"
+                      multiline
+                      className="text-white/80 text-sm md:text-base leading-relaxed flex-grow"
+                    >
+                      {guaranteedIncomeDesc}
+                    </EditableText>
                     <Link to="/guaranteed-income" className="inline-flex items-center gap-1 text-white text-sm font-medium mt-4 hover:gap-2 transition-all">
                       Learn more <ArrowRight className="w-4 h-4" />
                     </Link>

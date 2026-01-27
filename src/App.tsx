@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { InlineEditProvider } from "./contexts/InlineEditContext";
+import EditModeToggle from "./components/admin/EditModeToggle";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
@@ -39,7 +41,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
+          <InlineEditProvider>
+            <EditModeToggle />
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
             <Route path="/projects" element={<Projects />} />
@@ -65,8 +69,9 @@ const App = () => (
             <Route path="/admin/tasks" element={<AdminTasks />} />
             <Route path="/admin/calendar" element={<AdminCalendar />} />
             <Route path="/admin/messages" element={<AdminMessages />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </InlineEditProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
