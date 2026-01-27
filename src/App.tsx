@@ -30,6 +30,7 @@ import AdminMarketing from "./pages/admin/Marketing";
 import AdminTasks from "./pages/admin/Tasks";
 import AdminCalendar from "./pages/admin/Calendar";
 import AdminMessages from "./pages/admin/Messages";
+import AdminCreate from "./pages/admin/Create";
 import UpdatePassword from "./pages/UpdatePassword";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="/admin/tasks" element={<AdminTasks />} />
             <Route path="/admin/calendar" element={<AdminCalendar />} />
             <Route path="/admin/messages" element={<AdminMessages />} />
+            <Route path="/admin/create" element={<AdminCreate />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </InlineEditProvider>
