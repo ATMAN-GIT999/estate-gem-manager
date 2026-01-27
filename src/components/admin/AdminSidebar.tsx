@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Wallet,
   LayoutDashboard,
   Building,
   Calendar,
@@ -12,8 +11,12 @@ import {
   MessageCircle,
   ListTodo,
   CalendarDays,
-  ChevronLeft,
-  ChevronRight,
+  Menu,
+  Store,
+  Heart,
+  PlusSquare,
+  Users,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,31 +26,38 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface NavItem {
   label: string;
   icon: React.ElementType;
   href: string;
+  badge?: number;
 }
 
 const mainNavItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
   { label: "Properties", icon: Building, href: "/admin/properties" },
   { label: "Bookings", icon: Calendar, href: "/admin/bookings" },
+  { label: "Messages", icon: MessageCircle, href: "/admin/messages" },
   { label: "Blog", icon: FileText, href: "/admin/blog" },
-  { label: "Analytics", icon: BarChart3, href: "/admin/analytics" },
-  { label: "Settings", icon: Settings, href: "/admin/settings" },
+  { label: "Notifications", icon: Heart, href: "/admin/notifications" },
+  { label: "Create", icon: PlusSquare, href: "/admin/create" },
 ];
 
-const moneyMakingItems: NavItem[] = [
+const discoverItems: NavItem[] = [
   { label: "Marketing", icon: Megaphone, href: "/admin/marketing" },
-  { label: "Messages", icon: MessageCircle, href: "/admin/messages" },
-  { label: "Task Board", icon: ListTodo, href: "/admin/tasks" },
-  { label: "Calendar", icon: CalendarDays, href: "/admin/calendar" },
+  { label: "Analytics", icon: BarChart3, href: "/admin/analytics" },
+  { label: "Accounts", icon: Users, href: "/admin/accounts" },
+];
+
+const communityItems: NavItem[] = [
+  { label: "Tasks", icon: ListTodo, href: "/admin/tasks" },
 ];
 
 export default function AdminSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const location = useLocation();
 
   const isActive = (href: string) => {
@@ -63,19 +73,24 @@ export default function AdminSidebar() {
       <NavLink
         to={item.href}
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-          "hover:bg-white/10",
+          "flex items-center gap-4 px-3 py-3 rounded-lg transition-all duration-200",
+          "hover:bg-muted",
           active
-            ? "bg-white/20 text-white font-medium shadow-lg"
-            : "text-white/70 hover:text-white"
+            ? "bg-muted font-medium"
+            : "text-foreground/80 hover:text-foreground"
         )}
       >
-        <Icon className="h-5 w-5 shrink-0" />
-        {!collapsed && <span className="truncate">{item.label}</span>}
+        <Icon className={cn("h-6 w-6 shrink-0", active && "stroke-[2.5px]")} />
+        {expanded && <span className="text-[15px]">{item.label}</span>}
+        {item.badge && item.badge > 0 && (
+          <Badge className="ml-auto h-5 min-w-[20px] px-1.5 text-xs bg-destructive">
+            {item.badge}
+          </Badge>
+        )}
       </NavLink>
     );
 
-    if (collapsed) {
+    if (!expanded) {
       return (
         <TooltipProvider key={item.href} delayDuration={0}>
           <Tooltip>
@@ -95,71 +110,86 @@ export default function AdminSidebar() {
     <aside
       className={cn(
         "hidden lg:flex flex-col h-screen sticky top-0 z-40 transition-all duration-300",
-        "bg-gradient-to-b from-primary via-primary/95 to-primary/90",
-        "backdrop-blur-xl border-r border-white/10",
-        collapsed ? "w-[72px]" : "w-64"
+        "bg-background border-r",
+        expanded ? "w-[220px]" : "w-[72px]"
       )}
     >
-      {/* Logo Section */}
-      <div className="p-4 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-            <Building className="h-5 w-5 text-white" />
+      {/* Logo */}
+      <div className="p-4 pt-6">
+        <NavLink to="/admin" className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center shrink-0">
+            <Building className="h-4 w-4 text-background" />
           </div>
-          {!collapsed && (
-            <div className="overflow-hidden">
-              <h1 className="font-playfair font-bold text-white text-lg truncate">
-                Frontier
-              </h1>
-              <p className="text-white/60 text-xs truncate">Admin Panel</p>
-            </div>
+          {expanded && (
+            <span className="font-playfair font-bold text-xl">Frontier</span>
           )}
-        </div>
+        </NavLink>
       </div>
 
       {/* Main Navigation */}
-      <div className="flex-1 overflow-y-auto py-4 px-3">
-        <div className="space-y-1">
+      <div className="flex-1 overflow-y-auto py-2 px-3">
+        <nav className="space-y-1">
           {mainNavItems.map(renderNavItem)}
+        </nav>
+
+        {/* Discover Section */}
+        <div className="mt-6 pt-4 border-t">
+          {expanded && (
+            <span className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Discover
+            </span>
+          )}
+          <nav className="mt-2 space-y-1">
+            {discoverItems.map(renderNavItem)}
+          </nav>
         </div>
 
-        {/* Money Making Section */}
-        <div className="mt-6 pt-6 border-t border-white/10">
-          <div className="flex items-center gap-2 px-3 mb-3">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-              <Wallet className="h-4 w-4 text-white" />
-            </div>
-            {!collapsed && (
-              <span className="text-xs font-semibold text-white/80 uppercase tracking-wider">
-                Revenue Center
-              </span>
-            )}
-          </div>
-          <div className="space-y-1">
-            {moneyMakingItems.map(renderNavItem)}
-          </div>
+        {/* Community Section */}
+        <div className="mt-6 pt-4 border-t">
+          {expanded && (
+            <span className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Community
+            </span>
+          )}
+          <nav className="mt-2 space-y-1">
+            {communityItems.map(renderNavItem)}
+          </nav>
         </div>
       </div>
 
-      {/* Collapse Toggle */}
-      <div className="p-3 border-t border-white/10">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setCollapsed(!collapsed)}
+      {/* Bottom Section */}
+      <div className="p-3 border-t space-y-1">
+        {/* Profile */}
+        <NavLink
+          to="/admin/settings"
           className={cn(
-            "w-full justify-center text-white/70 hover:text-white hover:bg-white/10",
-            !collapsed && "justify-start"
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all",
+            "hover:bg-muted",
+            isActive("/admin/settings") && "bg-muted"
           )}
         >
-          {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <>
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              <span>Collapse</span>
-            </>
+          <Avatar className="h-7 w-7">
+            <AvatarFallback className="text-xs bg-primary/10">FR</AvatarFallback>
+          </Avatar>
+          {expanded && <span className="text-sm">Profile</span>}
+          {!expanded && (
+            <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-[10px] bg-primary">
+              1
+            </Badge>
           )}
+        </NavLink>
+
+        {/* More Menu */}
+        <Button
+          variant="ghost"
+          onClick={() => setExpanded(!expanded)}
+          className={cn(
+            "w-full justify-start gap-3 px-3 py-2.5 h-auto",
+            "text-foreground/80 hover:text-foreground hover:bg-muted"
+          )}
+        >
+          <Menu className="h-6 w-6 shrink-0" />
+          {expanded && <span className="text-[15px]">More</span>}
         </Button>
       </div>
     </aside>
