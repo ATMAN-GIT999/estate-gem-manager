@@ -328,6 +328,105 @@ export type Database = {
         }
         Relationships: []
       }
+      channel_connections: {
+        Row: {
+          channel: Database["public"]["Enums"]["messaging_channel"]
+          connection_status: string | null
+          created_at: string
+          id: string
+          is_connected: boolean
+          last_sync_at: string | null
+          metadata: Json | null
+          updated_at: string
+        }
+        Insert: {
+          channel: Database["public"]["Enums"]["messaging_channel"]
+          connection_status?: string | null
+          created_at?: string
+          id?: string
+          is_connected?: boolean
+          last_sync_at?: string | null
+          metadata?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          channel?: Database["public"]["Enums"]["messaging_channel"]
+          connection_status?: string | null
+          created_at?: string
+          id?: string
+          is_connected?: boolean
+          last_sync_at?: string | null
+          metadata?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          booking_id: string | null
+          channel: Database["public"]["Enums"]["messaging_channel"]
+          created_at: string
+          external_id: string | null
+          guest_email: string | null
+          guest_name: string
+          guest_phone: string | null
+          id: string
+          last_message_at: string | null
+          metadata: Json | null
+          property_id: string | null
+          status: string
+          unread_count: number
+          updated_at: string
+        }
+        Insert: {
+          booking_id?: string | null
+          channel: Database["public"]["Enums"]["messaging_channel"]
+          created_at?: string
+          external_id?: string | null
+          guest_email?: string | null
+          guest_name: string
+          guest_phone?: string | null
+          id?: string
+          last_message_at?: string | null
+          metadata?: Json | null
+          property_id?: string | null
+          status?: string
+          unread_count?: number
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string | null
+          channel?: Database["public"]["Enums"]["messaging_channel"]
+          created_at?: string
+          external_id?: string | null
+          guest_email?: string | null
+          guest_name?: string
+          guest_phone?: string | null
+          id?: string
+          last_message_at?: string | null
+          metadata?: Json | null
+          property_id?: string | null
+          status?: string
+          unread_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guesty_token_cache: {
         Row: {
           access_token: string
@@ -351,6 +450,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          external_id: string | null
+          id: string
+          message_type: string
+          metadata: Json | null
+          read_at: string | null
+          sender_type: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          message_type?: string
+          metadata?: Json | null
+          read_at?: string | null
+          sender_type: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          message_type?: string
+          metadata?: Json | null
+          read_at?: string | null
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -523,6 +666,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      messaging_channel:
+        | "whatsapp"
+        | "airbnb"
+        | "booking_com"
+        | "email"
+        | "instagram"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -651,6 +801,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      messaging_channel: [
+        "whatsapp",
+        "airbnb",
+        "booking_com",
+        "email",
+        "instagram",
+        "other",
+      ],
     },
   },
 } as const
