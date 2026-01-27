@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 import {
   MessageCircle,
   Send,
@@ -19,6 +20,7 @@ import {
   Search,
   Settings,
   Circle,
+  Building,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -81,7 +83,6 @@ export default function MessengerPanel({ isOpen, onClose, onOpenSettings }: Mess
   const [channelConnections, setChannelConnections] = useState<ChannelConnection[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch channel connections
   useEffect(() => {
     const fetchConnections = async () => {
       const { data } = await supabase
@@ -94,7 +95,6 @@ export default function MessengerPanel({ isOpen, onClose, onOpenSettings }: Mess
     fetchConnections();
   }, []);
 
-  // Fetch conversations
   useEffect(() => {
     if (!isOpen) return;
 
@@ -122,7 +122,6 @@ export default function MessengerPanel({ isOpen, onClose, onOpenSettings }: Mess
 
     fetchConversations();
 
-    // Subscribe to realtime updates
     const channel = supabase
       .channel("conversations-changes")
       .on(
@@ -137,7 +136,6 @@ export default function MessengerPanel({ isOpen, onClose, onOpenSettings }: Mess
     };
   }, [isOpen, activeChannel, searchQuery]);
 
-  // Fetch messages for selected conversation
   useEffect(() => {
     if (!selectedConversation) {
       setMessages([]);
@@ -158,13 +156,11 @@ export default function MessengerPanel({ isOpen, onClose, onOpenSettings }: Mess
 
     fetchMessages();
 
-    // Mark as read
     supabase
       .from("conversations")
       .update({ unread_count: 0 })
       .eq("id", selectedConversation.id);
 
-    // Subscribe to new messages
     const channel = supabase
       .channel(`messages-${selectedConversation.id}`)
       .on(
@@ -186,7 +182,6 @@ export default function MessengerPanel({ isOpen, onClose, onOpenSettings }: Mess
     };
   }, [selectedConversation]);
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -204,7 +199,6 @@ export default function MessengerPanel({ isOpen, onClose, onOpenSettings }: Mess
 
     if (!error) {
       setNewMessage("");
-      // Update conversation last message time
       await supabase
         .from("conversations")
         .update({ last_message_at: new Date().toISOString() })
@@ -238,194 +232,199 @@ export default function MessengerPanel({ isOpen, onClose, onOpenSettings }: Mess
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] lg:w-[640px] bg-background border-l shadow-2xl z-50 flex flex-col animate-slide-in-right">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary/5 to-accent/5">
-        <div className="flex items-center gap-3">
-          {selectedConversation && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSelectedConversation(null)}
-              className="lg:hidden"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-          )}
-          <MessageCircle className="h-6 w-6 text-primary" />
-          <div>
-            <h2 className="font-semibold text-lg">Messages</h2>
-            {totalUnread > 0 && (
-              <span className="text-xs text-muted-foreground">
-                {totalUnread} unread
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={onOpenSettings}>
-            <Settings className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Channel Tabs */}
-      <div className="flex items-center gap-1 p-2 border-b overflow-x-auto">
-        <Button
-          variant={activeChannel === "all" ? "secondary" : "ghost"}
-          size="sm"
-          onClick={() => setActiveChannel("all")}
-          className="shrink-0"
-        >
-          All
-        </Button>
-        {Object.entries(channelConfig).map(([key, config]) => {
-          if (key === "other") return null;
-          const Icon = config.icon;
-          const connected = isChannelConnected(key);
-          return (
-            <Button
-              key={key}
-              variant={activeChannel === key ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setActiveChannel(key as Channel)}
-              className={cn("shrink-0 gap-1.5", !connected && "opacity-50")}
-            >
-              <div className={cn("p-1 rounded", config.color)}>
-                <Icon className="h-3 w-3 text-white" />
+    <div className="h-full flex bg-white dark:bg-background">
+      {/* Left Sidebar - Frontier Account & Conversations */}
+      <div
+        className={cn(
+          "w-full lg:w-80 border-r flex flex-col bg-white dark:bg-background",
+          selectedConversation && "hidden lg:flex"
+        )}
+      >
+        {/* Frontier Account Header */}
+        <div className="p-4 border-b bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
+              <Building className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h2 className="font-playfair font-bold text-lg">Frontier Residences</h2>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <span>Online</span>
+                {totalUnread > 0 && (
+                  <Badge variant="destructive" className="ml-2 h-4 px-1.5 text-[10px]">
+                    {totalUnread} new
+                  </Badge>
+                )}
               </div>
-              <span className="hidden sm:inline">{config.label}</span>
-              {!connected && (
-                <Circle className="h-2 w-2 text-muted-foreground" />
-              )}
-            </Button>
-          );
-        })}
-      </div>
-
-      <div className="flex-1 flex overflow-hidden">
-        {/* Conversations List */}
-        <div
-          className={cn(
-            "w-full lg:w-72 border-r flex flex-col",
-            selectedConversation && "hidden lg:flex"
-          )}
-        >
-          {/* Search */}
-          <div className="p-3 border-b">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search conversations..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
             </div>
           </div>
-
-          <ScrollArea className="flex-1">
-            {loading ? (
-              <div className="p-3 space-y-3">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <Skeleton className="h-10 w-10 rounded-full" />
-                    <div className="flex-1">
-                      <Skeleton className="h-4 w-24 mb-1" />
-                      <Skeleton className="h-3 w-32" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : conversations.length === 0 ? (
-              <div className="p-6 text-center text-muted-foreground">
-                <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-20" />
-                <p className="text-sm">No conversations yet</p>
-                <p className="text-xs mt-1">
-                  Connect your channels to start receiving messages
-                </p>
-              </div>
-            ) : (
-              <div className="p-2 space-y-1">
-                {conversations.map((conv) => {
-                  const config = channelConfig[conv.channel] || channelConfig.other;
-                  return (
-                    <button
-                      key={conv.id}
-                      onClick={() => setSelectedConversation(conv)}
-                      className={cn(
-                        "w-full p-3 rounded-lg text-left transition-colors flex items-start gap-3",
-                        selectedConversation?.id === conv.id
-                          ? "bg-primary/10"
-                          : "hover:bg-muted/50"
-                      )}
-                    >
-                      <div className="relative">
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className="text-xs">
-                            {getInitials(conv.guest_name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div
-                          className={cn(
-                            "absolute -bottom-0.5 -right-0.5 p-1 rounded-full",
-                            config.color
-                          )}
-                        >
-                          {getChannelIcon(conv.channel)}
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-sm truncate">
-                            {conv.guest_name}
-                          </span>
-                          {conv.unread_count > 0 && (
-                            <Badge
-                              variant="default"
-                              className="h-5 min-w-[20px] px-1.5 text-xs"
-                            >
-                              {conv.unread_count}
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {conv.last_message_at
-                            ? format(new Date(conv.last_message_at), "MMM d, h:mm a")
-                            : "No messages yet"}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </ScrollArea>
         </div>
 
-        {/* Messages Area */}
-        <div
-          className={cn(
-            "flex-1 flex flex-col",
-            !selectedConversation && "hidden lg:flex"
+        {/* Channel Tabs */}
+        <div className="flex items-center gap-1 p-2 border-b overflow-x-auto bg-muted/30">
+          <Button
+            variant={activeChannel === "all" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveChannel("all")}
+            className="shrink-0"
+          >
+            All
+          </Button>
+          {Object.entries(channelConfig).map(([key, config]) => {
+            if (key === "other") return null;
+            const Icon = config.icon;
+            const connected = isChannelConnected(key);
+            return (
+              <Button
+                key={key}
+                variant={activeChannel === key ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setActiveChannel(key as Channel)}
+                className={cn("shrink-0 gap-1.5", !connected && "opacity-50")}
+              >
+                <div className={cn("p-1 rounded", config.color)}>
+                  <Icon className="h-3 w-3 text-white" />
+                </div>
+                <span className="hidden sm:inline">{config.label}</span>
+                {!connected && (
+                  <Circle className="h-2 w-2 text-muted-foreground" />
+                )}
+              </Button>
+            );
+          })}
+        </div>
+
+        {/* Search */}
+        <div className="p-3 border-b">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search conversations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-muted/50"
+            />
+          </div>
+        </div>
+
+        {/* Conversations List */}
+        <ScrollArea className="flex-1">
+          {loading ? (
+            <div className="p-3 space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="flex-1">
+                    <Skeleton className="h-4 w-24 mb-1" />
+                    <Skeleton className="h-3 w-32" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : conversations.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground">
+              <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <p className="text-sm">No conversations yet</p>
+              <p className="text-xs mt-1">
+                Connect your channels to start receiving messages
+              </p>
+            </div>
+          ) : (
+            <div className="p-2 space-y-1">
+              {conversations.map((conv) => {
+                const config = channelConfig[conv.channel] || channelConfig.other;
+                return (
+                  <button
+                    key={conv.id}
+                    onClick={() => setSelectedConversation(conv)}
+                    className={cn(
+                      "w-full p-3 rounded-xl text-left transition-all flex items-start gap-3",
+                      selectedConversation?.id === conv.id
+                        ? "bg-primary/10 shadow-sm"
+                        : "hover:bg-muted/50"
+                    )}
+                  >
+                    <div className="relative">
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback className="text-xs bg-gradient-to-br from-primary/20 to-primary/10">
+                          {getInitials(conv.guest_name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div
+                        className={cn(
+                          "absolute -bottom-0.5 -right-0.5 p-1 rounded-full",
+                          config.color
+                        )}
+                      >
+                        {getChannelIcon(conv.channel)}
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm truncate">
+                          {conv.guest_name}
+                        </span>
+                        {conv.unread_count > 0 && (
+                          <Badge
+                            variant="default"
+                            className="h-5 min-w-[20px] px-1.5 text-xs"
+                          >
+                            {conv.unread_count}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {conv.last_message_at
+                          ? format(new Date(conv.last_message_at), "MMM d, h:mm a")
+                          : "No messages yet"}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           )}
-        >
-          {selectedConversation ? (
-            <>
-              {/* Conversation Header */}
-              <div className="p-4 border-b flex items-center gap-3">
+        </ScrollArea>
+
+        {/* Settings Button */}
+        <div className="p-3 border-t">
+          <Button variant="outline" className="w-full" onClick={onOpenSettings}>
+            <Settings className="h-4 w-4 mr-2" />
+            Channel Settings
+          </Button>
+        </div>
+      </div>
+
+      {/* Chat Area - Glassmorphic Green Interface */}
+      <div
+        className={cn(
+          "flex-1 flex flex-col",
+          !selectedConversation && "hidden lg:flex"
+        )}
+      >
+        {selectedConversation ? (
+          <>
+            {/* Chat Header */}
+            <div className="p-4 border-b bg-gradient-to-r from-emerald-500/10 via-green-500/5 to-teal-500/10 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSelectedConversation(null)}
+                  className="lg:hidden"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback>
+                  <AvatarFallback className="bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/50 dark:to-green-900/50">
                     {getInitials(selectedConversation.guest_name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <h3 className="font-medium">{selectedConversation.guest_name}</h3>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Badge variant="outline" className="gap-1">
+                    <Badge variant="outline" className="gap-1 bg-white/50 dark:bg-background/50">
                       {getChannelIcon(selectedConversation.channel)}
                       {channelConfig[selectedConversation.channel]?.label || "Other"}
                     </Badge>
@@ -434,79 +433,86 @@ export default function MessengerPanel({ isOpen, onClose, onOpenSettings }: Mess
                     )}
                   </div>
                 </div>
-              </div>
-
-              {/* Messages */}
-              <ScrollArea className="flex-1 p-4">
-                <div className="space-y-4">
-                  {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={cn(
-                        "flex",
-                        msg.sender_type === "admin" ? "justify-end" : "justify-start"
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "max-w-[80%] rounded-2xl px-4 py-2",
-                          msg.sender_type === "admin"
-                            ? "bg-primary text-primary-foreground rounded-br-md"
-                            : "bg-muted rounded-bl-md"
-                        )}
-                      >
-                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                        <span
-                          className={cn(
-                            "text-[10px] mt-1 block",
-                            msg.sender_type === "admin"
-                              ? "text-primary-foreground/70"
-                              : "text-muted-foreground"
-                          )}
-                        >
-                          {format(new Date(msg.created_at), "h:mm a")}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-              </ScrollArea>
-
-              {/* Message Input */}
-              <div className="p-4 border-t">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }}
-                  className="flex gap-2"
-                >
-                  <Input
-                    placeholder="Type a message..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    disabled={sending}
-                    className="flex-1"
-                  />
-                  <Button type="submit" disabled={!newMessage.trim() || sending}>
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </form>
-              </div>
-            </>
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <MessageCircle className="h-16 w-16 mx-auto mb-4 opacity-20" />
-                <h3 className="font-medium text-lg mb-1">Select a conversation</h3>
-                <p className="text-sm">
-                  Choose a conversation from the list to start messaging
-                </p>
+                <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden">
+                  <X className="h-5 w-5" />
+                </Button>
               </div>
             </div>
-          )}
-        </div>
+
+            {/* Messages - White Background */}
+            <ScrollArea className="flex-1 bg-white dark:bg-background">
+              <div className="p-4 space-y-4">
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={cn(
+                      "flex",
+                      msg.sender_type === "admin" ? "justify-end" : "justify-start"
+                    )}
+                  >
+                    <Card
+                      className={cn(
+                        "max-w-[80%] px-4 py-2 shadow-sm",
+                        msg.sender_type === "admin"
+                          ? "bg-gradient-to-br from-emerald-500 to-green-600 text-white border-0 rounded-2xl rounded-br-md"
+                          : "bg-muted/50 rounded-2xl rounded-bl-md border-0"
+                      )}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      <span
+                        className={cn(
+                          "text-[10px] mt-1 block",
+                          msg.sender_type === "admin"
+                            ? "text-white/70"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {format(new Date(msg.created_at), "h:mm a")}
+                      </span>
+                    </Card>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            </ScrollArea>
+
+            {/* Message Input - Glassmorphic */}
+            <div className="p-4 border-t bg-gradient-to-r from-emerald-500/5 via-green-500/10 to-teal-500/5 backdrop-blur-sm">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendMessage();
+                }}
+                className="flex gap-2"
+              >
+                <Input
+                  placeholder="Type a message..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  disabled={sending}
+                  className="flex-1 bg-white dark:bg-background border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
+                />
+                <Button 
+                  type="submit" 
+                  disabled={!newMessage.trim() || sending}
+                  className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-emerald-50/50 via-white to-green-50/50 dark:from-emerald-950/20 dark:via-background dark:to-green-950/20">
+            <div className="text-center text-muted-foreground">
+              <div className="h-20 w-20 rounded-full bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 flex items-center justify-center mx-auto mb-4">
+                <MessageCircle className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <h3 className="font-medium text-foreground mb-1">Select a conversation</h3>
+              <p className="text-sm">Choose a conversation from the list to start messaging</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

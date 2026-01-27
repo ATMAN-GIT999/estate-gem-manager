@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
+import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building, FileText, BarChart3, Calendar, Settings, TrendingUp, Users, Home, ArrowRight, Eye, DollarSign, Megaphone, MessageCircle } from "lucide-react";
@@ -95,10 +96,12 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <main className="container mx-auto px-4 pt-28 pb-12">
-        <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background flex w-full">
+      <AdminSidebar />
+      <div className="flex-1 flex flex-col">
+        <Navigation />
+        <main className="flex-1 container mx-auto px-4 pt-28 pb-12">
+          <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
             <div>
@@ -383,11 +386,12 @@ const AdminDashboard = () => {
               </Card>
             </Link>
           </div>
-        </div>
+          </div>
 
-        {/* Messenger Button */}
-        <MessengerButton />
-      </main>
+          {/* Messenger Button */}
+          <MessengerButton />
+        </main>
+      </div>
     </div>
   );
 };
