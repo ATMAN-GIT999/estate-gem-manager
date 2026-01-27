@@ -9,7 +9,8 @@ interface AuthContextType {
   isAdmin: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>;
+  signInWithUsername: (username: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName?: string, username?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -93,7 +94,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signInWithUsername = async (username: string, password: string) => {
+    try {
+      // First, look up the email by username
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('username', username)
+        .maybeSingle();
+      
+      if (profileError) throw profileError;
+      if (!profile) {
+        throw new Error('Username not found');
+      }
+      
+      // Get the user's email from auth
+      const { data: userData } = await supabase.auth.admin.getUserById(profile.user_id);
+      if (!userData?.user?.email) {
+        throw new Error('Could not find user email');
+      }
+      
+      // Sign in with the email
+      const { error } = await supabase.auth.signInWithPassword({ 
+        email: userData.user.email, 
+        password 
+      });
+      if (error) throw error;
+      
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully signed in.",
+      });
+      
+      return { error: null };
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Sign in failed",
+        description: error.message || "Invalid username or password",
+      });
+      return { error };
+    }
+  };
+
+  const signUp = async (email: string, password: string, fullName?: string, username?: string) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -102,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: { full_name: fullName }
+          data: { full_name: fullName, username: username }
         }
       });
       
@@ -141,7 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, loading, signIn, signInWithUsername, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
