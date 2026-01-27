@@ -68,20 +68,22 @@ export default function EditableText({
   if (!isActive) {
     return (
       <div className="group relative inline-block">
-        <Component className={className}>{children || value}</Component>
+        <Component className={cn(className, "outline outline-2 outline-dashed outline-primary/40 outline-offset-2 rounded")}>{children || value}</Component>
         <button
           onClick={() => setIsEditing(id)}
           className={cn(
-            "absolute -top-2 -right-2 z-50",
-            "h-7 w-7 rounded-full",
-            "bg-primary text-primary-foreground shadow-lg",
+            "absolute -top-3 -right-3 z-50",
+            "h-8 w-8 rounded-full",
+            "bg-primary text-primary-foreground shadow-xl",
             "flex items-center justify-center",
-            "opacity-0 group-hover:opacity-100",
+            "opacity-100",
             "transition-all duration-200 hover:scale-110",
-            "ring-2 ring-white"
+            "ring-2 ring-background",
+            "animate-pulse"
           )}
+          title="Edit text"
         >
-          <Pencil className="h-3.5 w-3.5" />
+          <Pencil className="h-4 w-4" />
         </button>
       </div>
     );

@@ -65,7 +65,9 @@ export default function EditableVideo({
   return (
     <>
       <div className="group relative">
-        {children}
+        <div className="outline outline-2 outline-dashed outline-primary/40 outline-offset-2 rounded-lg">
+          {children}
+        </div>
         <button
           onClick={() => {
             setIsEditing(id);
@@ -73,15 +75,17 @@ export default function EditableVideo({
           }}
           className={cn(
             "absolute top-4 right-4 z-50",
-            "h-10 w-10 rounded-full",
-            "bg-primary text-primary-foreground shadow-lg",
+            "h-12 w-12 rounded-full",
+            "bg-primary text-primary-foreground shadow-xl",
             "flex items-center justify-center",
-            "opacity-0 group-hover:opacity-100",
+            "opacity-100",
             "transition-all duration-200 hover:scale-110",
-            "ring-2 ring-white"
+            "ring-2 ring-background",
+            "animate-pulse"
           )}
+          title="Edit video"
         >
-          <Pencil className="h-5 w-5" />
+          <Pencil className="h-6 w-6" />
         </button>
       </div>
 

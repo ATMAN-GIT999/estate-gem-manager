@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import MessengerButton from "@/components/admin/MessengerButton";
+import EditModeToggle from "@/components/admin/EditModeToggle";
+import EditableText from "@/components/admin/EditableText";
 
 interface DashboardStats {
   propertyCount: number;
@@ -160,14 +162,33 @@ const AdminDashboard = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
               <div>
-                <h1 className="font-playfair text-4xl font-bold text-primary mb-2">Admin Dashboard</h1>
-                <p className="text-muted-foreground">Manage your luxury property portfolio</p>
+                <EditableText
+                  id="dashboard-title"
+                  value="Admin Dashboard"
+                  onChange={() => {}}
+                  as="h1"
+                  className="font-playfair text-4xl font-bold text-primary mb-2"
+                >
+                  Admin Dashboard
+                </EditableText>
+                <EditableText
+                  id="dashboard-subtitle"
+                  value="Manage your luxury property portfolio"
+                  onChange={() => {}}
+                  as="p"
+                  className="text-muted-foreground"
+                >
+                  Manage your luxury property portfolio
+                </EditableText>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 Live data
               </div>
             </div>
+            
+            {/* Edit Mode Toggle Button */}
+            <EditModeToggle />
 
             {/* Stats Overview */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

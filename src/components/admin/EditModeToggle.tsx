@@ -3,12 +3,6 @@ import { useInlineEdit } from "@/contexts/InlineEditContext";
 import { Button } from "@/components/ui/button";
 import { Pencil, PencilOff } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 export default function EditModeToggle() {
   const { isAdmin } = useAuth();
@@ -18,31 +12,30 @@ export default function EditModeToggle() {
   if (!isAdmin) return null;
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            onClick={toggleEditMode}
-            size="icon"
-            className={cn(
-              "fixed bottom-20 right-6 z-50 h-12 w-12 rounded-full shadow-lg",
-              "transition-all duration-300",
-              editMode
-                ? "bg-green-500 hover:bg-green-600 text-white ring-4 ring-green-500/30"
-                : "bg-primary hover:bg-primary/90 text-primary-foreground"
-            )}
-          >
-            {editMode ? (
-              <PencilOff className="h-5 w-5" />
-            ) : (
-              <Pencil className="h-5 w-5" />
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="left" className="font-medium">
-          {editMode ? "Exit Edit Mode" : "Enter Edit Mode"}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Button
+      onClick={toggleEditMode}
+      className={cn(
+        "fixed bottom-6 right-6 z-50",
+        "h-16 px-6 rounded-2xl shadow-2xl",
+        "flex items-center gap-3",
+        "transition-all duration-300 transform hover:scale-105",
+        "font-semibold text-base",
+        editMode
+          ? "bg-green-500 hover:bg-green-600 text-white ring-4 ring-green-500/30"
+          : "bg-primary hover:bg-primary/90 text-primary-foreground ring-4 ring-primary/20"
+      )}
+    >
+      {editMode ? (
+        <>
+          <PencilOff className="h-7 w-7" />
+          <span>Exit Editor</span>
+        </>
+      ) : (
+        <>
+          <Pencil className="h-7 w-7" />
+          <span>Edit Mode</span>
+        </>
+      )}
+    </Button>
   );
 }
