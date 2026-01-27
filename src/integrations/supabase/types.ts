@@ -403,6 +403,78 @@ export type Database = {
         }
         Relationships: []
       }
+      contacts: {
+        Row: {
+          campaign_id: string | null
+          company: string | null
+          created_at: string
+          email: string | null
+          first_name: string
+          id: string
+          last_contacted_at: string | null
+          last_name: string | null
+          metadata: Json | null
+          notes: string | null
+          phone: string | null
+          property_interest: string | null
+          source: string | null
+          status: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          first_name: string
+          id?: string
+          last_contacted_at?: string | null
+          last_name?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          phone?: string | null
+          property_interest?: string | null
+          source?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_contacted_at?: string | null
+          last_name?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          phone?: string | null
+          property_interest?: string | null
+          source?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_property_interest_fkey"
+            columns: ["property_interest"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           booking_id: string | null
@@ -536,6 +608,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      offers: {
+        Row: {
+          completion_percentage: number | null
+          created_at: string
+          description: string | null
+          discount_type: string | null
+          discount_value: number | null
+          end_date: string | null
+          id: string
+          max_redemptions: number | null
+          properties: string[] | null
+          redemption_count: number | null
+          start_date: string | null
+          status: string
+          target_audience: string | null
+          tasks: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completion_percentage?: number | null
+          created_at?: string
+          description?: string | null
+          discount_type?: string | null
+          discount_value?: number | null
+          end_date?: string | null
+          id?: string
+          max_redemptions?: number | null
+          properties?: string[] | null
+          redemption_count?: number | null
+          start_date?: string | null
+          status?: string
+          target_audience?: string | null
+          tasks?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completion_percentage?: number | null
+          created_at?: string
+          description?: string | null
+          discount_type?: string | null
+          discount_value?: number | null
+          end_date?: string | null
+          id?: string
+          max_redemptions?: number | null
+          properties?: string[] | null
+          redemption_count?: number | null
+          start_date?: string | null
+          status?: string
+          target_audience?: string | null
+          tasks?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
