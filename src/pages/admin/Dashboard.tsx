@@ -17,7 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
-import MessengerButton from "@/components/admin/MessengerButton";
+
 import EditModeToggle from "@/components/admin/EditModeToggle";
 import EditableText from "@/components/admin/EditableText";
 
@@ -863,7 +863,6 @@ const AdminDashboard = () => {
           </div>
         </main>
       </div>
-      <MessengerButton />
     </div>
   );
 };
