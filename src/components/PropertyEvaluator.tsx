@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, TrendingUp } from "lucide-react";
 import AddressAutocomplete from "./AddressAutocomplete";
+import EditableText from "./admin/EditableText";
 import {
   Select,
   SelectContent,
@@ -28,6 +29,11 @@ const PropertyEvaluator = () => {
   });
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Editable content state
+  const [sectionTitle, setSectionTitle] = useState("Property Cashflow Analysis");
+  const [sectionSubtitle, setSectionSubtitle] = useState("Find out your property's short term and long term rental income potential using live market data");
+  const [buttonText, setButtonText] = useState("Get Free Cash Flow Analysis");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,12 +91,25 @@ const PropertyEvaluator = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <TrendingUp className="w-16 h-16 text-accent mx-auto mb-6" />
-            <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">
-              Property Cashflow Analysis
-            </h2>
-            <p className="text-xl text-foreground/80 max-w-2xl mx-auto">
-              Find out your property's short term and long term rental income potential using live market data
-            </p>
+            <EditableText
+              id="pe-section-title"
+              value={sectionTitle}
+              onChange={setSectionTitle}
+              as="h2"
+              className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4"
+            >
+              {sectionTitle}
+            </EditableText>
+            <EditableText
+              id="pe-section-subtitle"
+              value={sectionSubtitle}
+              onChange={setSectionSubtitle}
+              as="p"
+              multiline
+              className="text-xl text-foreground/80 max-w-2xl mx-auto"
+            >
+              {sectionSubtitle}
+            </EditableText>
           </div>
 
           <Card className="p-8 bg-card/80 backdrop-blur-sm border-border shadow-elegant">
@@ -249,7 +268,14 @@ const PropertyEvaluator = () => {
                     Analyzing...
                   </>
                 ) : (
-                  "Get Free Cash Flow Analysis"
+                  <EditableText
+                    id="pe-button-text"
+                    value={buttonText}
+                    onChange={setButtonText}
+                    as="span"
+                  >
+                    {buttonText}
+                  </EditableText>
                 )}
               </Button>
             </form>

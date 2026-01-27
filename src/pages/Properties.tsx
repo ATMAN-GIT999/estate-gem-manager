@@ -13,6 +13,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import EditableText from "@/components/admin/EditableText";
 
 const Properties = () => {
   const [searchParams] = useSearchParams();
@@ -29,6 +30,10 @@ const Properties = () => {
   const [guests, setGuests] = useState(searchParams.get('guests') || "");
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [checkOutOpen, setCheckOutOpen] = useState(false);
+
+  // Editable content state
+  const [pageTitle, setPageTitle] = useState("All Properties");
+  const [availableTitle, setAvailableTitle] = useState("Available Properties");
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -182,9 +187,15 @@ const Properties = () => {
         {/* Properties Grid */}
         <div className="container mx-auto px-4 mt-8">
           <div className="mb-8">
-            <h1 className="font-playfair text-4xl font-bold text-primary mb-2">
-              {checkInDate && checkOutDate ? "Available Properties" : "All Properties"}
-            </h1>
+            <EditableText
+              id="properties-page-title"
+              value={checkInDate && checkOutDate ? availableTitle : pageTitle}
+              onChange={checkInDate && checkOutDate ? setAvailableTitle : setPageTitle}
+              as="h1"
+              className="font-playfair text-4xl font-bold text-primary mb-2"
+            >
+              {checkInDate && checkOutDate ? availableTitle : pageTitle}
+            </EditableText>
             <p className="text-muted-foreground">
               {loading ? "Loading..." : `${properties.length} properties ${checkInDate && checkOutDate ? 'available for your dates' : 'available'}`}
             </p>

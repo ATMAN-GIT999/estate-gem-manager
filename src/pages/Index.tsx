@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import IntroSection from "@/components/IntroSection";
@@ -8,17 +9,23 @@ import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
 import BusinessAreas from "@/components/BusinessAreas";
 import TechnologySection from "@/components/TechnologySection";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
+import EditableText from "@/components/admin/EditableText";
 
 const Index = () => {
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [gridLayout, setGridLayout] = useState(3);
   const location = useLocation();
+
+  // Editable content state
+  const [featuredTitle, setFeaturedTitle] = useState("Featured Properties");
+  const [featuredSubtitle, setFeaturedSubtitle] = useState("Discover our curated collection of luxury villas and apartments");
+  const [viewAllText, setViewAllText] = useState("View All Properties");
 
   // Handle hash navigation for Property Evaluation section
   useEffect(() => {
@@ -81,12 +88,24 @@ const Index = () => {
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-4xl font-bold text-primary mb-4">
-              Featured Properties
-            </h2>
-            <p className="text-xl text-foreground/80 max-w-2xl mx-auto">
-              Discover our curated collection of luxury villas and apartments
-            </p>
+            <EditableText
+              id="index-featured-title"
+              value={featuredTitle}
+              onChange={setFeaturedTitle}
+              as="h2"
+              className="font-playfair text-4xl font-bold text-primary mb-4"
+            >
+              {featuredTitle}
+            </EditableText>
+            <EditableText
+              id="index-featured-subtitle"
+              value={featuredSubtitle}
+              onChange={setFeaturedSubtitle}
+              as="p"
+              className="text-xl text-foreground/80 max-w-2xl mx-auto"
+            >
+              {featuredSubtitle}
+            </EditableText>
           </div>
 
           {loading ? (
@@ -125,7 +144,14 @@ const Index = () => {
               <div className="text-center mt-12">
                 <Link to="/properties">
                   <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant">
-                    View All Properties
+                    <EditableText
+                      id="index-view-all-btn"
+                      value={viewAllText}
+                      onChange={setViewAllText}
+                      as="span"
+                    >
+                      {viewAllText}
+                    </EditableText>
                   </Button>
                 </Link>
               </div>

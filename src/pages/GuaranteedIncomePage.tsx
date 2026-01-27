@@ -1,11 +1,21 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { 
   Wallet, ShieldCheck, Wrench, Paintbrush, Cpu, Check 
 } from "lucide-react";
+import EditableText from "@/components/admin/EditableText";
 
 const GuaranteedIncomePage = () => {
+  // Editable content state
+  const [pageTitle, setPageTitle] = useState("Effortless Ownership. Guaranteed Monthly Income.");
+  const [pageSubtitle, setPageSubtitle] = useState("Our Guaranteed Income Program is ideal for homeowners seeking financial stability. We lease your property long-term, guaranteeing a fixed monthly payment — regardless of occupancy.");
+  const [contentText, setContentText] = useState("Frontier Residences manages, maintains, and enhances your property while you enjoy stress-free income.");
+  const [benefitsTitle, setBenefitsTitle] = useState("Program Benefits");
+  const [ctaTitle, setCtaTitle] = useState("Ready for Stress-Free Income?");
+  const [ctaText, setCtaText] = useState("Contact us to learn how our Guaranteed Income Program can work for your property.");
+
   const benefits = [
     { icon: Wallet, title: "Predictable monthly earnings", description: "Receive a fixed payment every month, regardless of bookings or occupancy rates." },
     { icon: ShieldCheck, title: "Zero vacancy risk", description: "No more worrying about empty periods — your income is guaranteed." },
@@ -22,12 +32,25 @@ const GuaranteedIncomePage = () => {
         <section className="py-16 bg-gradient-hero">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center animate-fade-in">
-              <h1 className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6">
-                Effortless Ownership. Guaranteed Monthly Income.
-              </h1>
-              <p className="text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-                Our Guaranteed Income Program is ideal for homeowners seeking financial stability. We lease your property long-term, guaranteeing a fixed monthly payment — regardless of occupancy.
-              </p>
+              <EditableText
+                id="gip-page-title"
+                value={pageTitle}
+                onChange={setPageTitle}
+                as="h1"
+                className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6"
+              >
+                {pageTitle}
+              </EditableText>
+              <EditableText
+                id="gip-page-subtitle"
+                value={pageSubtitle}
+                onChange={setPageSubtitle}
+                as="p"
+                multiline
+                className="text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto"
+              >
+                {pageSubtitle}
+              </EditableText>
             </div>
           </div>
         </section>
@@ -36,15 +59,27 @@ const GuaranteedIncomePage = () => {
         <section className="py-20 bg-background">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center mb-16">
-              <p className="text-lg text-foreground/80 leading-relaxed">
-                Frontier Residences manages, maintains, and enhances your property while you enjoy stress-free income.
-              </p>
+              <EditableText
+                id="gip-content-text"
+                value={contentText}
+                onChange={setContentText}
+                as="p"
+                className="text-lg text-foreground/80 leading-relaxed"
+              >
+                {contentText}
+              </EditableText>
             </div>
 
             <div className="max-w-6xl mx-auto">
-              <h2 className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-12 text-center">
-                Program Benefits
-              </h2>
+              <EditableText
+                id="gip-benefits-title"
+                value={benefitsTitle}
+                onChange={setBenefitsTitle}
+                as="h2"
+                className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-12 text-center"
+              >
+                {benefitsTitle}
+              </EditableText>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {benefits.map((benefit, index) => {
                   const Icon = benefit.icon;
@@ -69,12 +104,24 @@ const GuaranteedIncomePage = () => {
         <section className="py-16 bg-secondary/30">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h2 className="font-playfair text-3xl font-bold text-primary mb-6">
-                Ready for Stress-Free Income?
-              </h2>
-              <p className="text-lg text-foreground/80 mb-8">
-                Contact us to learn how our Guaranteed Income Program can work for your property.
-              </p>
+              <EditableText
+                id="gip-cta-title"
+                value={ctaTitle}
+                onChange={setCtaTitle}
+                as="h2"
+                className="font-playfair text-3xl font-bold text-primary mb-6"
+              >
+                {ctaTitle}
+              </EditableText>
+              <EditableText
+                id="gip-cta-text"
+                value={ctaText}
+                onChange={setCtaText}
+                as="p"
+                className="text-lg text-foreground/80 mb-8"
+              >
+                {ctaText}
+              </EditableText>
             </div>
           </div>
         </section>
