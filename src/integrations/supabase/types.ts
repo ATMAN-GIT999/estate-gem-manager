@@ -154,6 +154,180 @@ export type Database = {
           },
         ]
       }
+      campaign_events: {
+        Row: {
+          booking_id: string | null
+          campaign_id: string | null
+          created_at: string
+          event_type: string
+          event_value: number | null
+          id: string
+          metadata: Json | null
+          property_id: string | null
+          session_id: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          event_type: string
+          event_value?: number | null
+          id?: string
+          metadata?: Json | null
+          property_id?: string | null
+          session_id?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          event_type?: string
+          event_value?: number | null
+          id?: string
+          metadata?: Json | null
+          property_id?: string | null
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_events_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_events_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_metrics: {
+        Row: {
+          bookings: number | null
+          campaign_id: string
+          clicks: number | null
+          conversion_rate: number | null
+          cpa: number | null
+          cpc: number | null
+          created_at: string
+          ctr: number | null
+          date: string
+          id: string
+          impressions: number | null
+          leads: number | null
+          revenue: number | null
+          roas: number | null
+          spend: number | null
+          updated_at: string
+        }
+        Insert: {
+          bookings?: number | null
+          campaign_id: string
+          clicks?: number | null
+          conversion_rate?: number | null
+          cpa?: number | null
+          cpc?: number | null
+          created_at?: string
+          ctr?: number | null
+          date: string
+          id?: string
+          impressions?: number | null
+          leads?: number | null
+          revenue?: number | null
+          roas?: number | null
+          spend?: number | null
+          updated_at?: string
+        }
+        Update: {
+          bookings?: number | null
+          campaign_id?: string
+          clicks?: number | null
+          conversion_rate?: number | null
+          cpa?: number | null
+          cpc?: number | null
+          created_at?: string
+          ctr?: number | null
+          date?: string
+          id?: string
+          impressions?: number | null
+          leads?: number | null
+          revenue?: number | null
+          roas?: number | null
+          spend?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_metrics_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          budget: number
+          created_at: string
+          end_date: string | null
+          id: string
+          name: string
+          platform: string
+          spent: number
+          start_date: string
+          status: string
+          target_audience: string | null
+          updated_at: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          budget?: number
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          name: string
+          platform: string
+          spent?: number
+          start_date: string
+          status?: string
+          target_audience?: string | null
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          budget?: number
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          name?: string
+          platform?: string
+          spent?: number
+          start_date?: string
+          status?: string
+          target_audience?: string | null
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       guesty_token_cache: {
         Row: {
           access_token: string
@@ -330,6 +504,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_campaign_score: {
+        Args: {
+          p_conversion_rate: number
+          p_cpa: number
+          p_roas: number
+          p_target_cpa?: number
+        }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

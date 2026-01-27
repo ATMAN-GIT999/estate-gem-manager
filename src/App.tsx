@@ -24,6 +24,7 @@ import AdminBookings from "./pages/admin/Bookings";
 import AdminBlog from "./pages/admin/Blog";
 import AdminAnalytics from "./pages/admin/Analytics";
 import AdminSettings from "./pages/admin/Settings";
+import AdminMarketing from "./pages/admin/Marketing";
 import UpdatePassword from "./pages/UpdatePassword";
 
 
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/admin/blog" element={<AdminBlog />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/marketing" element={<AdminMarketing />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

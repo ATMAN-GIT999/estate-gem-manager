@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building, FileText, BarChart3, Calendar, Settings, TrendingUp, Users, Home, ArrowRight, Eye, DollarSign } from "lucide-react";
+import { Building, FileText, BarChart3, Calendar, Settings, TrendingUp, Users, Home, ArrowRight, Eye, DollarSign, Megaphone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -346,6 +346,22 @@ const AdminDashboard = () => {
                     <div>
                       <h3 className="font-semibold">Homepage Settings</h3>
                       <p className="text-sm text-muted-foreground">Configure homepage layout</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/admin/marketing">
+              <Card className="hover:shadow-lg hover:border-primary/30 transition-all cursor-pointer group h-full">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-xl bg-pink-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Megaphone className="h-6 w-6 text-pink-600 dark:text-pink-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Marketing Analytics</h3>
+                      <p className="text-sm text-muted-foreground">Campaigns & conversions</p>
                     </div>
                   </div>
                 </CardContent>
