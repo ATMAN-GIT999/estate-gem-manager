@@ -88,7 +88,7 @@ export default function EditableImage({
   return (
     <>
       <div className="group relative inline-block">
-        <img src={src} alt={alt} className={className} />
+        <img src={src} alt={alt} className={cn(className, "outline outline-2 outline-dashed outline-primary/40 outline-offset-2 rounded")} />
         <button
           onClick={() => {
             setIsEditing(id);
@@ -96,15 +96,17 @@ export default function EditableImage({
           }}
           className={cn(
             "absolute top-2 right-2 z-50",
-            "h-8 w-8 rounded-full",
-            "bg-primary text-primary-foreground shadow-lg",
+            "h-10 w-10 rounded-full",
+            "bg-primary text-primary-foreground shadow-xl",
             "flex items-center justify-center",
-            "opacity-0 group-hover:opacity-100",
+            "opacity-100",
             "transition-all duration-200 hover:scale-110",
-            "ring-2 ring-white"
+            "ring-2 ring-background",
+            "animate-pulse"
           )}
+          title="Edit image"
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil className="h-5 w-5" />
         </button>
       </div>
 
