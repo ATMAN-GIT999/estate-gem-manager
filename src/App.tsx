@@ -25,8 +25,10 @@ import AdminBlog from "./pages/admin/Blog";
 import AdminAnalytics from "./pages/admin/Analytics";
 import AdminSettings from "./pages/admin/Settings";
 import AdminMarketing from "./pages/admin/Marketing";
+import AdminTasks from "./pages/admin/Tasks";
+import AdminCalendar from "./pages/admin/Calendar";
+import AdminMessages from "./pages/admin/Messages";
 import UpdatePassword from "./pages/UpdatePassword";
-
 
 const queryClient = new QueryClient();
 
@@ -60,6 +62,9 @@ const App = () => (
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
             <Route path="/admin/marketing" element={<AdminMarketing />} />
+            <Route path="/admin/tasks" element={<AdminTasks />} />
+            <Route path="/admin/calendar" element={<AdminCalendar />} />
+            <Route path="/admin/messages" element={<AdminMessages />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
