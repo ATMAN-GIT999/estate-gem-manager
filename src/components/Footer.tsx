@@ -1,16 +1,28 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react";
+import EditableText from "./admin/EditableText";
 
 const Footer = () => {
+  const [tagline, setTagline] = useState("Bespoke property management and investment solutions for exclusive properties.");
+  const [email, setEmail] = useState("Hello@frontier-residences.com");
+  const [phone, setPhone] = useState("+34 665 51 18 53");
+
   return (
     <footer className="bg-primary text-primary-foreground py-12">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
             <h3 className="font-playfair text-2xl font-bold mb-4">Frontier Residences</h3>
-            <p className="text-primary-foreground/80 leading-relaxed">
-              Bespoke property management and investment solutions for exclusive properties.
-            </p>
+            <EditableText
+              id="footer-tagline"
+              value={tagline}
+              onChange={setTagline}
+              as="p"
+              className="text-primary-foreground/80 leading-relaxed"
+            >
+              {tagline}
+            </EditableText>
           </div>
 
           <div>
@@ -65,11 +77,27 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-primary-foreground/80">
                 <Mail className="w-4 h-4" />
-                Hello@frontier-residences.com
+                <EditableText
+                  id="footer-email"
+                  value={email}
+                  onChange={setEmail}
+                  as="span"
+                  className="text-primary-foreground/80"
+                >
+                  {email}
+                </EditableText>
               </li>
               <li className="flex items-center gap-2 text-primary-foreground/80">
                 <Phone className="w-4 h-4" />
-                +34 665 51 18 53
+                <EditableText
+                  id="footer-phone"
+                  value={phone}
+                  onChange={setPhone}
+                  as="span"
+                  className="text-primary-foreground/80"
+                >
+                  {phone}
+                </EditableText>
               </li>
             </ul>
             <div className="flex gap-4 mt-4">

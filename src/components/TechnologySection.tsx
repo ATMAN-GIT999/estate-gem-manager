@@ -1,7 +1,15 @@
+import { useState } from "react";
 import { Cpu, TrendingUp, Globe, MessageSquare, Wrench, LayoutDashboard, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import EditableText from "./admin/EditableText";
 
 const TechnologySection = () => {
+  const [title, setTitle] = useState("Technology That Redefines Property Management");
+  const [description, setDescription] = useState(
+    "Frontier Residences operates with a fully integrated 360º software ecosystem connecting reservations, cleaning, maintenance, pricing, guest communications, and owner reporting into one seamless platform."
+  );
+  const [tagline, setTagline] = useState("We don't just manage homes — we engineer high-performance assets.");
+
   const features = [
     { icon: TrendingUp, text: "Higher ROI through real-time dynamic pricing" },
     { icon: Globe, text: "Market analysis using hotel & Airbnb data" },
@@ -19,12 +27,25 @@ const TechnologySection = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-accent/20 rounded-full mb-6">
               <Cpu className="w-8 h-8 text-accent" />
             </div>
-            <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-6">
-              Technology That Redefines Property Management
-            </h2>
-            <p className="text-lg text-primary-foreground/80 max-w-3xl mx-auto leading-relaxed">
-              Frontier Residences operates with a fully integrated 360º software ecosystem connecting reservations, cleaning, maintenance, pricing, guest communications, and owner reporting into one seamless platform.
-            </p>
+            <EditableText
+              id="tech-title"
+              value={title}
+              onChange={setTitle}
+              as="h2"
+              className="font-playfair text-4xl md:text-5xl font-bold mb-6"
+            >
+              {title}
+            </EditableText>
+            <EditableText
+              id="tech-description"
+              value={description}
+              onChange={setDescription}
+              as="p"
+              multiline
+              className="text-lg text-primary-foreground/80 max-w-3xl mx-auto leading-relaxed"
+            >
+              {description}
+            </EditableText>
           </div>
 
           <div className="mt-12">
@@ -52,9 +73,15 @@ const TechnologySection = () => {
           </div>
 
           <div className="mt-12 text-center">
-            <p className="font-playfair text-2xl italic text-primary-foreground">
-              We don't just manage homes — we engineer high-performance assets.
-            </p>
+            <EditableText
+              id="tech-tagline"
+              value={tagline}
+              onChange={setTagline}
+              as="p"
+              className="font-playfair text-2xl italic text-primary-foreground"
+            >
+              {tagline}
+            </EditableText>
           </div>
         </div>
       </div>

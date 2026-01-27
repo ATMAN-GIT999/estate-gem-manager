@@ -1,7 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { useEffect, useRef, useState } from "react";
+import EditableText from "./admin/EditableText";
 
 const Stats = () => {
+  const [sectionTitle, setSectionTitle] = useState("A Portfolio Built on Precision & Performance");
+  const [locations, setLocations] = useState("Spain • Austria • Croatia");
+  const [regions, setRegions] = useState("Costa del Sol • Vienna & Carinthia • Istria");
+
   const stats = [
     { number: "34", label: "Properties Managed" },
     { number: "570+", label: "Successful Reservations" },
@@ -33,15 +38,33 @@ const Stats = () => {
     <section ref={sectionRef} className="py-20 bg-gradient-hero">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">
-            A Portfolio Built on Precision & Performance
-          </h2>
-          <p className="text-lg text-foreground/70">
-            Spain • Austria • Croatia
-          </p>
-          <p className="text-muted-foreground">
-            Costa del Sol • Vienna & Carinthia • Istria
-          </p>
+          <EditableText
+            id="stats-title"
+            value={sectionTitle}
+            onChange={setSectionTitle}
+            as="h2"
+            className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4"
+          >
+            {sectionTitle}
+          </EditableText>
+          <EditableText
+            id="stats-locations"
+            value={locations}
+            onChange={setLocations}
+            as="p"
+            className="text-lg text-foreground/70"
+          >
+            {locations}
+          </EditableText>
+          <EditableText
+            id="stats-regions"
+            value={regions}
+            onChange={setRegions}
+            as="p"
+            className="text-muted-foreground"
+          >
+            {regions}
+          </EditableText>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {stats.map((stat, index) => (
