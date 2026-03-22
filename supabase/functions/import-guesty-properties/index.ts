@@ -93,6 +93,13 @@ serve(async (req) => {
       console.log('Successfully authenticated with Guesty');
     }
 
+    if (!access_token) {
+      return new Response(
+        JSON.stringify({ error: 'Failed to obtain Guesty access token' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Step 2: Fetch properties from Guesty Booking API
     const propertiesResponse = await fetch('https://booking.guesty.com/api/listings?limit=50', {
       method: 'GET',
