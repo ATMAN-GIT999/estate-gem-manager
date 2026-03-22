@@ -1,39 +1,16 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { CalendarIcon, Users, Search } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { useToast } from "@/hooks/use-toast";
 import EditableText from "@/components/admin/EditableText";
+import GuestySearchWidget from "@/components/GuestySearchWidget";
 
 const Properties = () => {
-  const [searchParams] = useSearchParams();
-  const { toast } = useToast();
   const [properties, setProperties] = useState<any[]>([]);
-  const [allProperties, setAllProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [checkInDate, setCheckInDate] = useState<Date | undefined>(
-    searchParams.get('checkIn') ? new Date(searchParams.get('checkIn')!) : undefined
-  );
-  const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(
-    searchParams.get('checkOut') ? new Date(searchParams.get('checkOut')!) : undefined
-  );
-  const [guests, setGuests] = useState(searchParams.get('guests') || "");
-  const [checkInOpen, setCheckInOpen] = useState(false);
-  const [checkOutOpen, setCheckOutOpen] = useState(false);
-
-  // Editable content state
   const [pageTitle, setPageTitle] = useState("All Properties");
-  const [availableTitle, setAvailableTitle] = useState("Available Properties");
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -47,7 +24,6 @@ const Properties = () => {
       if (error) {
         console.error("Error fetching properties:", error);
       } else {
-        setAllProperties(data || []);
         setProperties(data || []);
       }
       setLoading(false);
@@ -56,131 +32,15 @@ const Properties = () => {
     fetchProperties();
   }, []);
 
-  useEffect(() => {
-    // Auto-search if dates are provided in URL params
-    if (checkInDate && checkOutDate) {
-      handleSearch();
-    }
-  }, []);
-
-  const handleSearch = async () => {
-    if (!checkInDate || !checkOutDate) {
-      toast({
-        title: "Dates Required",
-        description: "Please select both check-in and check-out dates",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Dates Selected",
-      description: "Showing all properties. Your dates will be pre-filled in booking forms.",
-    });
-  };
-
-  const clearFilters = () => {
-    setCheckInDate(undefined);
-    setCheckOutDate(undefined);
-    setGuests("");
-    setProperties(allProperties);
-  };
-
   return (
     <div className="min-h-screen">
       <Navigation />
       
       <main className="pt-24 pb-12">
-        {/* Search Filter Bar */}
+        {/* Guesty Booking Engine Search Widget */}
         <div className="border-b border-border bg-background sticky top-20 z-40 shadow-sm">
           <div className="container mx-auto px-4 py-4">
-            <Card className="p-3 shadow-elegant">
-              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2">
-                <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
-                  <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
-                  <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 font-normal justify-start text-left hover:bg-transparent w-full"
-                      >
-                        {checkInDate ? format(checkInDate, "PPP") : "Check-in"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={checkInDate}
-                        onSelect={(date) => {
-                          setCheckInDate(date);
-                          if (date) {
-                            setCheckInOpen(false);
-                            setCheckOutOpen(true);
-                          }
-                        }}
-                        disabled={(date) => date < new Date()}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
-                  <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
-                  <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 font-normal justify-start text-left hover:bg-transparent w-full"
-                      >
-                        {checkOutDate ? format(checkOutDate, "PPP") : "Check-out"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={checkOutDate}
-                        onSelect={(date) => {
-                          setCheckOutDate(date);
-                          setCheckOutOpen(false);
-                        }}
-                        disabled={(date) => date < new Date() || (checkInDate && date <= checkInDate)}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="flex-1 flex items-center gap-3 px-4 py-2">
-                  <Users className="w-5 h-5 text-primary shrink-0" />
-                  <Input
-                    type="number"
-                    min="1"
-                    value={guests}
-                    onChange={(e) => setGuests(e.target.value)}
-                    placeholder="Gäste hinzufügen"
-                    className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={handleSearch}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft h-12 px-8 rounded-full"
-                  >
-                    <Search className="h-5 w-5" />
-                  </Button>
-                  {(checkInDate || checkOutDate) && (
-                    <Button 
-                      onClick={clearFilters}
-                      variant="outline"
-                      className="h-12 px-6 rounded-full"
-                    >
-                      Clear
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Card>
+            <GuestySearchWidget />
           </div>
         </div>
 
@@ -189,15 +49,15 @@ const Properties = () => {
           <div className="mb-8">
             <EditableText
               id="properties-page-title"
-              value={checkInDate && checkOutDate ? availableTitle : pageTitle}
-              onChange={checkInDate && checkOutDate ? setAvailableTitle : setPageTitle}
+              value={pageTitle}
+              onChange={setPageTitle}
               as="h1"
               className="font-playfair text-4xl font-bold text-primary mb-2"
             >
-              {checkInDate && checkOutDate ? availableTitle : pageTitle}
+              {pageTitle}
             </EditableText>
             <p className="text-muted-foreground">
-              {loading ? "Loading..." : `${properties.length} properties ${checkInDate && checkOutDate ? 'available for your dates' : 'available'}`}
+              {loading ? "Loading..." : `${properties.length} properties available`}
             </p>
           </div>
 
