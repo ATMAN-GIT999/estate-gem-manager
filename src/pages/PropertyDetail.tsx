@@ -72,15 +72,22 @@ const PropertyDetail = () => {
   }, [slug, navigate, toast]);
 
   const handleBookNow = () => {
-    if (!booking.checkIn || !booking.checkOut) {
-      toast({
-        variant: "destructive",
-        title: "Select dates",
-        description: "Please select check-in and check-out dates",
-      });
-      return;
+    // Redirect to Guesty Booking Engine for real-time availability & payment
+    const guestyBaseUrl = "https://frontierresidences.guestybookings.com";
+    
+    if (property.guesty_listing_id) {
+      // Direct link to the specific listing on Guesty
+      const params = new URLSearchParams();
+      if (booking.checkIn) params.set("checkIn", booking.checkIn);
+      if (booking.checkOut) params.set("checkOut", booking.checkOut);
+      if (booking.guests) params.set("guests", booking.guests.toString());
+      
+      const listingUrl = `${guestyBaseUrl}/properties/${property.guesty_listing_id}${params.toString() ? '?' + params.toString() : ''}`;
+      window.open(listingUrl, "_blank");
+    } else {
+      // Fallback: open the general booking engine
+      window.open(guestyBaseUrl, "_blank");
     }
-    setShowBookingSummary(true);
   };
 
   const handleBookingSuccess = () => {
