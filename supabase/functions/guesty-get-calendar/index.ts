@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
     const { access_token } = await authResponse.json();
 
     // Get listing calendar from Guesty Booking Engine API v1
-    const calendarUrl = `https://booking-api.guesty.com/v1/listings/${listingId}/calendar?checkIn=${checkIn}&checkOut=${checkOut}`;
+    const calendarUrl = `https://booking.guesty.com/api/v1/listings/${listingId}/calendar?checkIn=${checkIn}&checkOut=${checkOut}`;
     
     console.log('Fetching calendar from:', calendarUrl);
 
