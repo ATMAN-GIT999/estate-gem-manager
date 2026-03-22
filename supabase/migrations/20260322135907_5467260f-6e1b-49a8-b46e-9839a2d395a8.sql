@@ -1,0 +1,1 @@
+DELETE FROM public.guesty_token_cache;
