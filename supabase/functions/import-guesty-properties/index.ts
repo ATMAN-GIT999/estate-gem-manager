@@ -80,20 +80,32 @@ serve(async (req) => {
 
     // Step 4: Transform and insert properties
     const importedProperties = [];
+    const updatedProperties = [];
     const errors = [];
 
     for (const guestyProperty of guestyProperties) {
       try {
+        const listingId = guestyProperty._id || guestyProperty.id || guestyProperty.listingId;
+        if (!listingId) {
+          errors.push({
+            property: guestyProperty.title || guestyProperty.nickname || 'Unknown property',
+            error: 'Missing listing ID in Guesty response',
+          });
+          continue;
+        }
+
         // Create slug from property title
         const slug = (guestyProperty.title || guestyProperty.nickname || 'property')
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/(^-|-$)/g, '');
 
+        const propertySlug = `${slug}-${listingId.slice(-6)}`;
+
         // Map Guesty property to our schema
-        const property = {
+        const baseProperty = {
           name: guestyProperty.title || guestyProperty.nickname || 'Untitled Property',
-          slug: `${slug}-${guestyProperty._id.slice(-6)}`,
+          slug: propertySlug,
           location: guestyProperty.address?.city || 'Unknown',
           address: [
             guestyProperty.address?.street,
@@ -115,24 +127,85 @@ serve(async (req) => {
           latitude: guestyProperty.address?.lat || null,
           longitude: guestyProperty.address?.lng || null,
           registration_number: guestyProperty.publicDescription?.space || null,
-          guesty_listing_id: guestyProperty._id,
+          guesty_listing_id: listingId,
+        };
+
+        const insertProperty = {
+          ...baseProperty,
           available: true,
           featured: false,
         };
 
-        // Insert into database
-        const { data, error } = await supabase
+        // Find existing property by listing ID first, then slug, then name
+        let existingId: string | null = null;
+
+        const { data: existingByListingId } = await supabase
           .from('properties')
-          .insert(property)
-          .select()
-          .single();
+          .select('id')
+          .eq('guesty_listing_id', listingId)
+          .maybeSingle();
+
+        if (existingByListingId?.id) {
+          existingId = existingByListingId.id;
+        } else {
+          const { data: existingBySlug } = await supabase
+            .from('properties')
+            .select('id')
+            .eq('slug', propertySlug)
+            .maybeSingle();
+
+          if (existingBySlug?.id) {
+            existingId = existingBySlug.id;
+          } else {
+            const { data: existingByName } = await supabase
+              .from('properties')
+              .select('id')
+              .eq('name', baseProperty.name)
+              .maybeSingle();
+
+            if (existingByName?.id) {
+              existingId = existingByName.id;
+            }
+          }
+        }
+
+        let data;
+        let error;
+
+        if (existingId) {
+          // Update existing property with latest Guesty data while preserving existing featured/available flags
+          const updateResponse = await supabase
+            .from('properties')
+            .update(baseProperty)
+            .eq('id', existingId)
+            .select()
+            .single();
+
+          data = updateResponse.data;
+          error = updateResponse.error;
+        } else {
+          // Insert new property
+          const insertResponse = await supabase
+            .from('properties')
+            .insert(insertProperty)
+            .select()
+            .single();
+
+          data = insertResponse.data;
+          error = insertResponse.error;
+        }
 
         if (error) {
-          console.error(`Failed to insert property ${property.name}:`, error);
-          errors.push({ property: property.name, error: error.message });
+          console.error(`Failed to sync property ${baseProperty.name}:`, error);
+          errors.push({ property: baseProperty.name, error: error.message });
         } else {
-          console.log(`Successfully imported: ${property.name}`);
-          importedProperties.push(data);
+          if (existingId) {
+            console.log(`Successfully updated: ${baseProperty.name}`);
+            updatedProperties.push(data);
+          } else {
+            console.log(`Successfully imported: ${baseProperty.name}`);
+            importedProperties.push(data);
+          }
         }
       } catch (err) {
         console.error(`Error processing property:`, err);
@@ -146,10 +219,12 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        imported: importedProperties.length,
+        imported: importedProperties.length + updatedProperties.length,
+        created: importedProperties.length,
+        updated: updatedProperties.length,
         total: guestyProperties.length,
         errors: errors.length > 0 ? errors : undefined,
-        properties: importedProperties,
+        properties: [...importedProperties, ...updatedProperties],
       }),
       { 
         status: 200, 
