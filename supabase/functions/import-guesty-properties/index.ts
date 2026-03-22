@@ -23,33 +23,82 @@ serve(async (req) => {
       );
     }
 
-    console.log('Authenticating with Guesty API...');
-    
-    // Step 1: Get access token from Guesty
-    const tokenResponse = await fetch('https://booking.guesty.com/oauth2/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-      },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: clientId,
-        client_secret: clientSecret,
-      }),
-    });
+    // Initialize Supabase client first (used for token cache and DB sync)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text();
-      console.error('Guesty auth failed:', tokenResponse.status, errorText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to authenticate with Guesty API', details: errorText }),
-        { status: tokenResponse.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    console.log('Authenticating with Guesty API...');
+
+    let access_token: string | null = null;
+
+    // Try cached token first to avoid Guesty token rate limits
+    const { data: cachedToken } = await supabase
+      .from('guesty_token_cache')
+      .select('access_token, expires_at')
+      .single();
+
+    if (cachedToken?.access_token && cachedToken?.expires_at) {
+      const expiresAt = new Date(cachedToken.expires_at);
+      const now = new Date();
+      // Keep a 5-minute safety buffer
+      if (expiresAt > new Date(now.getTime() + 5 * 60 * 1000)) {
+        access_token = cachedToken.access_token;
+        console.log('Using cached Guesty token');
+      }
     }
 
-    const { access_token } = await tokenResponse.json();
-    console.log('Successfully authenticated with Guesty');
+    if (!access_token) {
+      // Step 1: Get access token from Guesty
+      const tokenResponse = await fetch('https://booking.guesty.com/oauth2/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+        },
+        body: new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: clientId,
+          client_secret: clientSecret,
+        }),
+      });
+
+      if (!tokenResponse.ok) {
+        const errorText = await tokenResponse.text();
+        console.error('Guesty auth failed:', tokenResponse.status, errorText);
+        return new Response(
+          JSON.stringify({ error: 'Failed to authenticate with Guesty API', details: errorText }),
+          { status: tokenResponse.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const tokenData = await tokenResponse.json();
+      access_token = tokenData.access_token;
+
+      // Cache token when possible
+      if (access_token && tokenData.expires_in) {
+        const expiresAt = new Date(Date.now() + Number(tokenData.expires_in) * 1000);
+        await supabase
+          .from('guesty_token_cache')
+          .upsert({
+            access_token,
+            expires_at: expiresAt.toISOString(),
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'id',
+            ignoreDuplicates: false,
+          });
+      }
+
+      console.log('Successfully authenticated with Guesty');
+    }
+
+    if (!access_token) {
+      return new Response(
+        JSON.stringify({ error: 'Failed to obtain Guesty access token' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Step 2: Fetch properties from Guesty Booking API
     const propertiesResponse = await fetch('https://booking.guesty.com/api/listings?limit=50', {
@@ -73,27 +122,34 @@ serve(async (req) => {
     const guestyProperties = guestyData.results || [];
     console.log(`Fetched ${guestyProperties.length} properties from Guesty`);
 
-    // Step 3: Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Step 4: Transform and insert properties
+    // Step 3: Transform and sync properties
     const importedProperties = [];
+    const updatedProperties = [];
     const errors = [];
 
     for (const guestyProperty of guestyProperties) {
       try {
+        const listingId = guestyProperty._id || guestyProperty.id || guestyProperty.listingId;
+        if (!listingId) {
+          errors.push({
+            property: guestyProperty.title || guestyProperty.nickname || 'Unknown property',
+            error: 'Missing listing ID in Guesty response',
+          });
+          continue;
+        }
+
         // Create slug from property title
         const slug = (guestyProperty.title || guestyProperty.nickname || 'property')
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/(^-|-$)/g, '');
 
+        const propertySlug = `${slug}-${listingId.slice(-6)}`;
+
         // Map Guesty property to our schema
-        const property = {
+        const baseProperty = {
           name: guestyProperty.title || guestyProperty.nickname || 'Untitled Property',
-          slug: `${slug}-${guestyProperty._id.slice(-6)}`,
+          slug: propertySlug,
           location: guestyProperty.address?.city || 'Unknown',
           address: [
             guestyProperty.address?.street,
@@ -115,24 +171,85 @@ serve(async (req) => {
           latitude: guestyProperty.address?.lat || null,
           longitude: guestyProperty.address?.lng || null,
           registration_number: guestyProperty.publicDescription?.space || null,
-          guesty_listing_id: guestyProperty._id,
+          guesty_listing_id: listingId,
+        };
+
+        const insertProperty = {
+          ...baseProperty,
           available: true,
           featured: false,
         };
 
-        // Insert into database
-        const { data, error } = await supabase
+        // Find existing property by listing ID first, then slug, then name
+        let existingId: string | null = null;
+
+        const { data: existingByListingId } = await supabase
           .from('properties')
-          .insert(property)
-          .select()
-          .single();
+          .select('id')
+          .eq('guesty_listing_id', listingId)
+          .maybeSingle();
+
+        if (existingByListingId?.id) {
+          existingId = existingByListingId.id;
+        } else {
+          const { data: existingBySlug } = await supabase
+            .from('properties')
+            .select('id')
+            .eq('slug', propertySlug)
+            .maybeSingle();
+
+          if (existingBySlug?.id) {
+            existingId = existingBySlug.id;
+          } else {
+            const { data: existingByName } = await supabase
+              .from('properties')
+              .select('id')
+              .eq('name', baseProperty.name)
+              .maybeSingle();
+
+            if (existingByName?.id) {
+              existingId = existingByName.id;
+            }
+          }
+        }
+
+        let data;
+        let error;
+
+        if (existingId) {
+          // Update existing property with latest Guesty data while preserving existing featured/available flags
+          const updateResponse = await supabase
+            .from('properties')
+            .update(baseProperty)
+            .eq('id', existingId)
+            .select()
+            .single();
+
+          data = updateResponse.data;
+          error = updateResponse.error;
+        } else {
+          // Insert new property
+          const insertResponse = await supabase
+            .from('properties')
+            .insert(insertProperty)
+            .select()
+            .single();
+
+          data = insertResponse.data;
+          error = insertResponse.error;
+        }
 
         if (error) {
-          console.error(`Failed to insert property ${property.name}:`, error);
-          errors.push({ property: property.name, error: error.message });
+          console.error(`Failed to sync property ${baseProperty.name}:`, error);
+          errors.push({ property: baseProperty.name, error: error.message });
         } else {
-          console.log(`Successfully imported: ${property.name}`);
-          importedProperties.push(data);
+          if (existingId) {
+            console.log(`Successfully updated: ${baseProperty.name}`);
+            updatedProperties.push(data);
+          } else {
+            console.log(`Successfully imported: ${baseProperty.name}`);
+            importedProperties.push(data);
+          }
         }
       } catch (err) {
         console.error(`Error processing property:`, err);
@@ -146,10 +263,12 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        imported: importedProperties.length,
+        imported: importedProperties.length + updatedProperties.length,
+        created: importedProperties.length,
+        updated: updatedProperties.length,
         total: guestyProperties.length,
         errors: errors.length > 0 ? errors : undefined,
-        properties: importedProperties,
+        properties: [...importedProperties, ...updatedProperties],
       }),
       { 
         status: 200, 

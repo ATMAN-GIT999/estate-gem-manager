@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
 
     // Get reservation quote from Guesty Booking Engine API v1
     // Using the Reservation Quote Flow as recommended in the docs
-    const quoteUrl = 'https://booking-api.guesty.com/v1/reservations/quotes';
+    const quoteUrl = 'https://booking.guesty.com/api/v1/reservations/quotes';
     
     const quotePayload = {
       listingId,

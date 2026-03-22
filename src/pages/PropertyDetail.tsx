@@ -74,20 +74,16 @@ const PropertyDetail = () => {
   const handleBookNow = () => {
     // Redirect to Guesty Booking Engine for real-time availability & payment
     const guestyBaseUrl = "https://frontierresidences.guestybookings.com";
-    
-    if (property.guesty_listing_id) {
-      // Direct link to the specific listing on Guesty
-      const params = new URLSearchParams();
-      if (booking.checkIn) params.set("checkIn", booking.checkIn);
-      if (booking.checkOut) params.set("checkOut", booking.checkOut);
-      if (booking.guests) params.set("guests", booking.guests.toString());
-      
-      const listingUrl = `${guestyBaseUrl}/properties/${property.guesty_listing_id}${params.toString() ? '?' + params.toString() : ''}`;
-      window.open(listingUrl, "_blank");
-    } else {
-      // Fallback: open the general booking engine
-      window.open(guestyBaseUrl, "_blank");
-    }
+
+    // Use root booking engine URL with query params to avoid invalid listing-level deep links
+    const params = new URLSearchParams();
+    if (booking.checkIn) params.set("checkIn", booking.checkIn);
+    if (booking.checkOut) params.set("checkOut", booking.checkOut);
+    if (booking.guests) params.set("guests", booking.guests.toString());
+    if (property.guesty_listing_id) params.set("listingId", property.guesty_listing_id);
+
+    const bookingUrl = `${guestyBaseUrl}/${params.toString() ? `?${params.toString()}` : ""}`;
+    window.open(bookingUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleBookingSuccess = () => {
@@ -231,12 +227,21 @@ const PropertyDetail = () => {
               <Card className="sticky top-24">
                 <CardContent className="p-6">
                   <div className="mb-6">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-primary">
-                        €{property.price_per_night}
-                      </span>
-                      <span className="text-muted-foreground">/ night</span>
-                    </div>
+                    {property.guesty_listing_id ? (
+                      <div>
+                        <span className="text-2xl font-bold text-primary">Live pricing</span>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Rates are calculated in real-time in the booking engine.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-bold text-primary">
+                          €{property.price_per_night}
+                        </span>
+                        <span className="text-muted-foreground">/ night</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-4">

@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     if (location) queryParams.set('location', location);
 
     // Use the correct search endpoint as per Guesty docs
-    const searchUrl = `https://booking-api.guesty.com/v1/search?${queryParams.toString()}`;
+    const searchUrl = `https://booking.guesty.com/api/v1/search?${queryParams.toString()}`;
     
     console.log('Fetching from:', searchUrl);
 
