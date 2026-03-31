@@ -185,4 +185,10 @@ const AboutContent = () => {
   );
 };
 
+const About = () => (
+  <PageWrapper slug="site--about">
+    <AboutContent />
+  </PageWrapper>
+);
+
 export default About;

@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import EditableText from "@/components/admin/EditableText";
+import PageWrapper from "@/components/PageWrapper";
 
 const IndexContent = () => {
   const [properties, setProperties] = useState<any[]>([]);
