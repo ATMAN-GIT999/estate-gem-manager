@@ -6,16 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import {
   MessageCircle,
   Send,
@@ -24,27 +15,8 @@ import {
   Mail,
   User,
   Home,
-  CreditCard,
-  Target,
-  Trophy,
-  Zap,
-  DollarSign,
-  CheckCircle2,
   Plus,
-  X,
-  Star,
-  TrendingUp,
-  Flame,
-  Crown,
-  Camera,
-  MapPin,
-  Clock,
-  Sparkles,
-  Brain,
-  Rocket,
   ChevronRight,
-  Edit3,
-  Play,
   Globe,
   Instagram,
   Facebook,
@@ -52,56 +24,158 @@ import {
   Video,
   MessageSquare,
   Settings,
+  CheckCircle2,
+  XCircle,
+  ArrowRight,
+  Plug,
+  Bell,
+  Sparkles,
+  ExternalLink,
+  Shield,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import ChannelSettingsDialog from "@/components/admin/ChannelSettingsDialog";
+import { useToast } from "@/hooks/use-toast";
 
-// Channel configuration
-const channelConfig: Record<string, { icon: React.ElementType; label: string; color: string; bgColor: string }> = {
-  whatsapp: { icon: Phone, label: "WhatsApp", color: "text-green-600", bgColor: "bg-green-500/10" },
-  airbnb: { icon: Home, label: "Airbnb", color: "text-rose-500", bgColor: "bg-rose-500/10" },
-  booking_com: { icon: Globe, label: "Booking.com", color: "text-blue-600", bgColor: "bg-blue-500/10" },
-  email: { icon: Mail, label: "Email", color: "text-amber-600", bgColor: "bg-amber-500/10" },
-  instagram: { icon: Instagram, label: "Instagram", color: "text-pink-500", bgColor: "bg-pink-500/10" },
-  tiktok: { icon: Video, label: "TikTok", color: "text-foreground", bgColor: "bg-foreground/10" },
-  facebook: { icon: Facebook, label: "Facebook", color: "text-blue-500", bgColor: "bg-blue-500/10" },
-  linkedin: { icon: Linkedin, label: "LinkedIn", color: "text-sky-600", bgColor: "bg-sky-500/10" },
-  sms: { icon: MessageSquare, label: "SMS", color: "text-purple-500", bgColor: "bg-purple-500/10" },
-  other: { icon: MessageCircle, label: "Other", color: "text-muted-foreground", bgColor: "bg-muted" },
-};
-
-// Output extraction stages - the gamified funnel
-const extractionStages = [
-  { id: "attention", label: "Attention", icon: Zap, points: 10, color: "text-amber-500", bg: "bg-amber-500/10" },
-  { id: "name", label: "Name", icon: User, points: 15, color: "text-blue-500", bg: "bg-blue-500/10" },
-  { id: "contact", label: "Contact", icon: Phone, points: 20, color: "text-green-500", bg: "bg-green-500/10" },
-  { id: "property", label: "Property", icon: Home, points: 25, color: "text-purple-500", bg: "bg-purple-500/10" },
-  { id: "images", label: "Images", icon: Camera, points: 30, color: "text-pink-500", bg: "bg-pink-500/10" },
-  { id: "address", label: "Address", icon: MapPin, points: 25, color: "text-orange-500", bg: "bg-orange-500/10" },
-  { id: "booking", label: "Booking", icon: Clock, points: 35, color: "text-cyan-500", bg: "bg-cyan-500/10" },
-  { id: "payment", label: "💰 MONEY", icon: CreditCard, points: 100, color: "text-emerald-600", bg: "bg-emerald-500/20" },
-];
-
-// Quick response templates for extracting outputs
-const quickResponses: Record<string, string[]> = {
-  attention: ["Hi! 👋 Thanks for reaching out!", "Welcome! How can I help you today?"],
-  name: ["May I have your name?", "Who am I speaking with today?"],
-  contact: ["What's the best number to reach you?", "Can I get your email for updates?"],
-  property: ["Tell me about your ideal property?", "What type of property interests you?"],
-  images: ["Could you share some photos?", "We'd love to see your property!"],
-  address: ["What's the property address?", "Where exactly is it located?"],
-  booking: ["When are you looking to book?", "What dates work for you?"],
-  payment: ["Ready to secure your booking?", "I'll send you the payment link!"],
-};
-
-// Company mission
-const companyMission = {
-  title: "FRONTIER RESIDENCES",
-  objective: "Convert Every Visitor Into Revenue",
-  values: ["Excellence", "Precision", "Results"],
-  dailyGoal: 5000,
-  currentRevenue: 3250,
+// Channel configuration with setup guides
+const channelConfig: Record<string, {
+  icon: React.ElementType;
+  label: string;
+  color: string;
+  bgColor: string;
+  gradient: string;
+  description: string;
+  setupSteps: string[];
+}> = {
+  whatsapp: {
+    icon: Phone,
+    label: "WhatsApp",
+    color: "text-green-600",
+    bgColor: "bg-green-500/10",
+    gradient: "from-green-500 to-emerald-600",
+    description: "Receive and reply to guest inquiries via WhatsApp Business API",
+    setupSteps: [
+      "Create a Meta Business account",
+      "Set up WhatsApp Business API",
+      "Enter your Phone Number ID and Access Token",
+      "Test the connection",
+    ],
+  },
+  airbnb: {
+    icon: Home,
+    label: "Airbnb",
+    color: "text-rose-500",
+    bgColor: "bg-rose-500/10",
+    gradient: "from-rose-500 to-pink-600",
+    description: "Sync guest messages from your Airbnb listings automatically",
+    setupSteps: [
+      "Log into your Airbnb Host account",
+      "Navigate to Account Settings → API",
+      "Generate an API key",
+      "Paste the key in the settings dialog",
+    ],
+  },
+  booking_com: {
+    icon: Globe,
+    label: "Booking.com",
+    color: "text-blue-600",
+    bgColor: "bg-blue-500/10",
+    gradient: "from-blue-500 to-indigo-600",
+    description: "Connect to Booking.com messaging for guest communications",
+    setupSteps: [
+      "Log into your Booking.com Extranet",
+      "Go to Account → Connectivity",
+      "Copy your username and password",
+      "Enter credentials in settings",
+    ],
+  },
+  email: {
+    icon: Mail,
+    label: "Email",
+    color: "text-amber-600",
+    bgColor: "bg-amber-500/10",
+    gradient: "from-amber-500 to-orange-600",
+    description: "Forward guest inquiry emails to your universal inbox",
+    setupSteps: [
+      "Enter your support email address",
+      "Configure IMAP server settings",
+      "Generate an App Password (Gmail/Outlook)",
+      "Test email forwarding",
+    ],
+  },
+  instagram: {
+    icon: Instagram,
+    label: "Instagram",
+    color: "text-pink-500",
+    bgColor: "bg-pink-500/10",
+    gradient: "from-purple-500 via-pink-500 to-orange-500",
+    description: "Manage Instagram DMs through Meta Business Suite integration",
+    setupSteps: [
+      "Connect Instagram to a Facebook Page",
+      "Set up Meta Business Suite",
+      "Generate a Page Access Token",
+      "Enter Page ID and Token",
+    ],
+  },
+  sms: {
+    icon: MessageSquare,
+    label: "SMS",
+    color: "text-purple-500",
+    bgColor: "bg-purple-500/10",
+    gradient: "from-purple-500 to-violet-600",
+    description: "Send and receive SMS messages via Twilio integration",
+    setupSteps: [
+      "Create a Twilio account",
+      "Get a phone number",
+      "Copy Account SID and Auth Token",
+      "Connect via Twilio connector",
+    ],
+  },
+  tiktok: {
+    icon: Video,
+    label: "TikTok",
+    color: "text-foreground",
+    bgColor: "bg-foreground/10",
+    gradient: "from-gray-800 to-gray-900",
+    description: "Monitor and respond to TikTok DMs and comments",
+    setupSteps: [
+      "Apply for TikTok Developer access",
+      "Create a TikTok app",
+      "Configure OAuth redirect",
+      "Connect your account",
+    ],
+  },
+  facebook: {
+    icon: Facebook,
+    label: "Facebook",
+    color: "text-blue-500",
+    bgColor: "bg-blue-500/10",
+    gradient: "from-blue-600 to-blue-700",
+    description: "Manage Facebook Messenger conversations from your Page",
+    setupSteps: [
+      "Connect your Facebook Page",
+      "Set up Messenger permissions",
+      "Generate Page Access Token",
+      "Test the webhook",
+    ],
+  },
+  linkedin: {
+    icon: Linkedin,
+    label: "LinkedIn",
+    color: "text-sky-600",
+    bgColor: "bg-sky-500/10",
+    gradient: "from-sky-600 to-blue-700",
+    description: "Track LinkedIn messages and inquiries",
+    setupSteps: [
+      "Create a LinkedIn Developer App",
+      "Request Messaging API access",
+      "Configure OAuth 2.0",
+      "Connect your profile",
+    ],
+  },
 };
 
 interface Conversation {
@@ -122,18 +196,11 @@ interface Message {
   created_at: string;
 }
 
-interface ActiveTask {
+interface ChannelConnection {
   id: string;
-  objective: string;
-  target: string;
-  stage: string;
-  deadline: string;
-  priority: "hot" | "warm" | "cold";
-}
-
-interface LeadScore {
-  total: number;
-  stages: Record<string, boolean>;
+  channel: string;
+  is_connected: boolean;
+  connection_status: string;
 }
 
 export default function MessagesPage() {
@@ -145,42 +212,33 @@ export default function MessagesPage() {
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [channelConnections, setChannelConnections] = useState<ChannelConnection[]>([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [expandedGuide, setExpandedGuide] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  // Active task state - the current objective
-  const [activeTask, setActiveTask] = useState<ActiveTask>({
-    id: "1",
-    objective: "Close Villa Booking - €2,500",
-    target: "Marcus Weber",
-    stage: "booking",
-    deadline: "Today 6PM",
-    priority: "hot",
-  });
-  const [showTaskEditor, setShowTaskEditor] = useState(false);
-
-  // Lead scoring for current conversation
-  const [leadScore, setLeadScore] = useState<LeadScore>({ total: 0, stages: {} });
-
-  // Daily goals
-  const [goals] = useState([
-    { id: "1", title: "Daily Revenue", current: 3250, target: 5000, unit: "€" },
-    { id: "2", title: "Leads Converted", current: 3, target: 10, unit: "" },
-    { id: "3", title: "Bookings", current: 2, target: 5, unit: "" },
-  ]);
+  useEffect(() => {
+    fetchConversations();
+    fetchChannelConnections();
+  }, []);
 
   useEffect(() => {
     fetchConversations();
   }, [searchQuery, selectedChannel]);
 
   useEffect(() => {
-    if (selectedConversation) {
-      fetchMessages(selectedConversation.id);
-    }
+    if (selectedConversation) fetchMessages(selectedConversation.id);
   }, [selectedConversation]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const fetchChannelConnections = async () => {
+    const { data } = await supabase.from("channel_connections").select("id, channel, is_connected, connection_status");
+    if (data) setChannelConnections(data as ChannelConnection[]);
+  };
 
   const fetchConversations = async () => {
     setLoading(true);
@@ -189,60 +247,30 @@ export default function MessagesPage() {
       .select("*")
       .order("last_message_at", { ascending: false, nullsFirst: false });
 
-    if (searchQuery) {
-      query = query.ilike("guest_name", `%${searchQuery}%`);
-    }
-
+    if (searchQuery) query = query.ilike("guest_name", `%${searchQuery}%`);
     if (selectedChannel && Object.keys(channelConfig).includes(selectedChannel)) {
       query = query.eq("channel", selectedChannel as any);
     }
 
-    const { data, error } = await query;
-    if (!error && data) {
-      setConversations(data as Conversation[]);
-    }
+    const { data } = await query;
+    if (data) setConversations(data as Conversation[]);
     setLoading(false);
   };
 
   const fetchMessages = async (conversationId: string) => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("messages")
       .select("*")
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: true });
 
-    if (!error && data) {
-      setMessages(data as Message[]);
-      calculateLeadScore(data as Message[]);
-    }
+    if (data) setMessages(data as Message[]);
 
-    // Mark as read
-    await supabase
-      .from("conversations")
-      .update({ unread_count: 0 })
-      .eq("id", conversationId);
-  };
-
-  const calculateLeadScore = (msgs: Message[]) => {
-    const content = msgs.map((m) => m.content.toLowerCase()).join(" ");
-    const stages: Record<string, boolean> = {};
-    let total = 0;
-
-    if (msgs.length > 0) { stages.attention = true; total += 10; }
-    if (/my name is|i'm |i am /i.test(content)) { stages.name = true; total += 15; }
-    if (/\d{9,}|@|email/i.test(content)) { stages.contact = true; total += 20; }
-    if (/bedroom|villa|apartment|property/i.test(content)) { stages.property = true; total += 25; }
-    if (/photo|image|picture/i.test(content)) { stages.images = true; total += 30; }
-    if (/street|address|location|calle/i.test(content)) { stages.address = true; total += 25; }
-    if (/book|reserve|available|date/i.test(content)) { stages.booking = true; total += 35; }
-    if (/pay|card|transfer|invoice/i.test(content)) { stages.payment = true; total += 100; }
-
-    setLeadScore({ total, stages });
+    await supabase.from("conversations").update({ unread_count: 0 }).eq("id", conversationId);
   };
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation) return;
-
     setSending(true);
     const { error } = await supabase.from("messages").insert({
       conversation_id: selectedConversation.id,
@@ -250,7 +278,6 @@ export default function MessagesPage() {
       sender_type: "admin",
       message_type: "text",
     });
-
     if (!error) {
       setNewMessage("");
       await supabase
@@ -262,22 +289,14 @@ export default function MessagesPage() {
     setSending(false);
   };
 
-  const insertQuickResponse = (response: string) => {
-    setNewMessage(response);
-  };
+  const getInitials = (name: string) =>
+    name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
-  const toggleStage = (stageId: string) => {
-    setLeadScore((prev) => {
-      const newStages = { ...prev.stages, [stageId]: !prev.stages[stageId] };
-      const stage = extractionStages.find((s) => s.id === stageId);
-      const pointChange = stage ? (newStages[stageId] ? stage.points : -stage.points) : 0;
-      return { total: prev.total + pointChange, stages: newStages };
-    });
-  };
+  const isChannelConnected = (channel: string) =>
+    channelConnections.some((c) => c.channel === channel && c.is_connected);
 
-  const getInitials = (name: string) => name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-
-  const revenueProgress = (companyMission.currentRevenue / companyMission.dailyGoal) * 100;
+  const connectedCount = channelConnections.filter((c) => c.is_connected).length;
+  const totalChannels = Object.keys(channelConfig).length;
 
   const filteredConversations = conversations.filter((c) => {
     const matchesSearch = c.guest_name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -290,96 +309,24 @@ export default function MessagesPage() {
       <AdminSidebar />
 
       <div className="flex-1 flex flex-col">
-        {/* MISSION HEADER - The WHY we do this */}
-        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-amber-500/10 border-b p-3">
+        {/* Header */}
+        <div className="border-b bg-background px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Crown className="h-6 w-6 text-amber-500" />
-                <div>
-                  <h1 className="text-lg font-bold tracking-tight">{companyMission.title}</h1>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Target className="h-3 w-3 text-primary" />
-                    {companyMission.objective}
-                  </p>
-                </div>
-              </div>
-              <div className="hidden md:flex items-center gap-2">
-                {companyMission.values.map((value) => (
-                  <Badge key={value} variant="outline" className="text-xs border-primary/30">
-                    {value}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* Revenue Tracker */}
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-emerald-500" />
-                  <span className="text-lg font-bold text-emerald-600">
-                    €{companyMission.currentRevenue.toLocaleString()}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    / €{companyMission.dailyGoal.toLocaleString()}
-                  </span>
-                </div>
-                <Progress value={revenueProgress} className="h-2 w-40" />
-              </div>
-              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-white font-bold text-sm">
-                {Math.round(revenueProgress)}%
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ACTIVE TASK BANNER - Current Objective */}
-        <div className="bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-rose-500/20 border-b p-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className={cn(
-                "h-12 w-12 rounded-xl flex items-center justify-center animate-pulse",
-                activeTask.priority === "hot" ? "bg-rose-500/20" : 
-                activeTask.priority === "warm" ? "bg-amber-500/20" : "bg-blue-500/20"
-              )}>
-                {activeTask.priority === "hot" ? (
-                  <Flame className="h-6 w-6 text-rose-500" />
-                ) : activeTask.priority === "warm" ? (
-                  <Zap className="h-6 w-6 text-amber-500" />
-                ) : (
-                  <Target className="h-6 w-6 text-blue-500" />
-                )}
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+                <MessageCircle className="h-5 w-5 text-white" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <Badge className={cn(
-                    "text-xs uppercase tracking-wide",
-                    activeTask.priority === "hot" ? "bg-rose-500" : 
-                    activeTask.priority === "warm" ? "bg-amber-500" : "bg-blue-500"
-                  )}>
-                    {activeTask.priority} lead
-                  </Badge>
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> {activeTask.deadline}
-                  </span>
-                </div>
-                <h2 className="text-xl font-bold mt-1">{activeTask.objective}</h2>
+                <h1 className="text-xl font-bold">Universal Inbox</h1>
                 <p className="text-sm text-muted-foreground">
-                  Target: <span className="font-medium text-foreground">{activeTask.target}</span>
-                  <span className="mx-2">•</span>
-                  Stage: <span className="font-medium text-primary capitalize">{activeTask.stage}</span>
+                  {connectedCount} of {totalChannels} channels connected
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setShowTaskEditor(true)}>
-                <Edit3 className="h-4 w-4 mr-1" />
-                Edit
-              </Button>
-              <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-green-600">
-                <Play className="h-4 w-4 mr-1" />
-                Start
+              <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
+                <Settings className="h-4 w-4 mr-2" />
+                Channel Settings
               </Button>
             </div>
           </div>
@@ -399,16 +346,17 @@ export default function MessagesPage() {
                 )}
               >
                 <Sparkles className="h-4 w-4" />
-                All
+                All Channels
               </button>
-              {Object.entries(channelConfig).slice(0, 8).map(([key, config]) => {
+              {Object.entries(channelConfig).map(([key, config]) => {
                 const Icon = config.icon;
+                const connected = isChannelConnected(key);
                 return (
                   <button
                     key={key}
                     onClick={() => setSelectedChannel(key)}
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap border",
+                      "flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap border relative",
                       selectedChannel === key
                         ? cn(config.bgColor, config.color, "border-current")
                         : "bg-background hover:bg-muted border-border"
@@ -416,6 +364,9 @@ export default function MessagesPage() {
                   >
                     <Icon className="h-4 w-4" />
                     <span className="hidden lg:inline">{config.label}</span>
+                    {connected && (
+                      <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                    )}
                   </button>
                 );
               })}
@@ -430,7 +381,6 @@ export default function MessagesPage() {
             "w-full md:w-80 border-r flex flex-col bg-muted/30",
             selectedConversation && "hidden md:flex"
           )}>
-            {/* Search */}
             <div className="p-3 border-b">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -443,11 +393,10 @@ export default function MessagesPage() {
               </div>
             </div>
 
-            {/* Conversations */}
             <ScrollArea className="flex-1">
               <div className="p-2 space-y-1">
                 {filteredConversations.map((conv) => {
-                  const config = channelConfig[conv.channel] || channelConfig.other;
+                  const config = channelConfig[conv.channel] || { icon: MessageCircle, label: "Other", color: "text-muted-foreground", bgColor: "bg-muted" };
                   const Icon = config.icon;
                   return (
                     <div
@@ -484,6 +433,11 @@ export default function MessagesPage() {
                           <p className="text-xs text-muted-foreground truncate">
                             {conv.guest_email || conv.guest_phone || "No contact info"}
                           </p>
+                          {conv.last_message_at && (
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                              {format(new Date(conv.last_message_at), "MMM d, HH:mm")}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -500,104 +454,48 @@ export default function MessagesPage() {
             </ScrollArea>
           </div>
 
-          {/* Chat Area */}
+          {/* Center Area */}
           <div className="flex-1 flex flex-col">
             {selectedConversation ? (
               <>
-                {/* Chat Header with Lead Score */}
+                {/* Chat Header */}
                 <div className="border-b p-3 bg-background">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="md:hidden"
-                        onClick={() => setSelectedConversation(null)}
-                      >
-                        <ChevronRight className="h-4 w-4 rotate-180" />
-                      </Button>
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/40 font-medium">
-                          {getInitials(selectedConversation.guest_name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-semibold">{selectedConversation.guest_name}</h3>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          {(() => {
-                            const config = channelConfig[selectedConversation.channel] || channelConfig.other;
-                            const Icon = config.icon;
-                            return (
-                              <>
-                                <Icon className={cn("h-3 w-3", config.color)} />
-                                <span>{config.label}</span>
-                              </>
-                            );
-                          })()}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Lead Score */}
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <div className="text-xs text-muted-foreground">Lead Score</div>
-                        <div className="flex items-center gap-1">
-                          <Trophy className={cn(
-                            "h-4 w-4",
-                            leadScore.total >= 200 ? "text-emerald-500" :
-                            leadScore.total >= 100 ? "text-amber-500" : "text-muted-foreground"
-                          )} />
-                          <span className="font-bold text-lg">{leadScore.total}</span>
-                          <span className="text-xs text-muted-foreground">/ 260</span>
-                        </div>
-                      </div>
-                      <div className="h-12 w-12 rounded-full border-4 border-primary/20 flex items-center justify-center relative overflow-hidden">
-                        <div 
-                          className="absolute inset-0 bg-gradient-to-t from-primary to-emerald-500"
-                          style={{ height: `${(leadScore.total / 260) * 100}%`, bottom: 0, top: 'auto' }}
-                        />
-                        <span className="relative font-bold text-sm">{Math.round((leadScore.total / 260) * 100)}%</span>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="md:hidden"
+                      onClick={() => setSelectedConversation(null)}
+                    >
+                      <ChevronRight className="h-4 w-4 rotate-180" />
+                    </Button>
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/40 font-medium">
+                        {getInitials(selectedConversation.guest_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{selectedConversation.guest_name}</h3>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {(() => {
+                          const config = channelConfig[selectedConversation.channel] || { icon: MessageCircle, label: "Other", color: "text-muted-foreground" };
+                          const Icon = config.icon;
+                          return (
+                            <>
+                              <Icon className={cn("h-3 w-3", config.color)} />
+                              <span>{config.label}</span>
+                              {selectedConversation.guest_email && (
+                                <>
+                                  <span>•</span>
+                                  <span>{selectedConversation.guest_email}</span>
+                                </>
+                              )}
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Extraction Progress - Gamified Funnel */}
-                <div className="border-b p-2 bg-muted/30">
-                  <ScrollArea className="w-full">
-                    <div className="flex items-center gap-1 pb-1">
-                      {extractionStages.map((stage, index) => {
-                        const Icon = stage.icon;
-                        const isComplete = leadScore.stages[stage.id];
-                        return (
-                          <button
-                            key={stage.id}
-                            onClick={() => toggleStage(stage.id)}
-                            className={cn(
-                              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0",
-                              isComplete 
-                                ? "bg-emerald-500/20 text-emerald-600 border border-emerald-500/30" 
-                                : "bg-muted hover:bg-muted/80 text-muted-foreground"
-                            )}
-                          >
-                            {isComplete ? (
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                            ) : (
-                              <Icon className={cn("h-3.5 w-3.5", stage.color)} />
-                            )}
-                            <span>{stage.label}</span>
-                            <Badge variant="outline" className="h-4 px-1 text-[10px]">
-                              +{stage.points}
-                            </Badge>
-                            {index < extractionStages.length - 1 && (
-                              <ChevronRight className="h-3 w-3 text-muted-foreground/50 ml-1" />
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </ScrollArea>
                 </div>
 
                 {/* Messages */}
@@ -630,35 +528,6 @@ export default function MessagesPage() {
                   </div>
                 </ScrollArea>
 
-                {/* Quick Responses - Output Extractors */}
-                <div className="border-t p-2 bg-muted/30">
-                  <ScrollArea className="w-full">
-                    <div className="flex gap-2 pb-1">
-                      {extractionStages.map((stage) => {
-                        if (!leadScore.stages[stage.id] && quickResponses[stage.id]) {
-                          return (
-                            <Button
-                              key={stage.id}
-                              variant="outline"
-                              size="sm"
-                              className="h-7 text-xs shrink-0 gap-1"
-                              onClick={() => insertQuickResponse(quickResponses[stage.id][0])}
-                            >
-                              <Sparkles className="h-3 w-3 text-amber-500" />
-                              Get {stage.label}
-                            </Button>
-                          );
-                        }
-                        return null;
-                      })}
-                      <Button variant="outline" size="sm" className="h-7 text-xs shrink-0 gap-1 text-emerald-600 border-emerald-500/50">
-                        <DollarSign className="h-3 w-3" />
-                        Close Deal
-                      </Button>
-                    </div>
-                  </ScrollArea>
-                </div>
-
                 {/* Message Input */}
                 <div className="border-t p-3 bg-background">
                   <div className="flex gap-2">
@@ -682,153 +551,211 @@ export default function MessagesPage() {
                 </div>
               </>
             ) : (
-              /* Empty State - Goals Dashboard */
-              <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-background via-muted/20 to-background">
-                <div className="max-w-2xl w-full space-y-6">
-                  <div className="text-center mb-8">
-                    <Brain className="h-16 w-16 mx-auto mb-4 text-primary/50" />
-                    <h2 className="text-2xl font-bold mb-2">Intelligent Output Extractor</h2>
-                    <p className="text-muted-foreground">
-                      Select a conversation to begin extracting valuable outputs from visitors
+              /* Channel Setup Center - replaces Intelligent Output Extractor */
+              <ScrollArea className="flex-1">
+                <div className="p-6 max-w-4xl mx-auto space-y-6">
+                  {/* Header */}
+                  <div className="text-center space-y-2">
+                    <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mx-auto">
+                      <Plug className="h-8 w-8 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold">Channel Setup Center</h2>
+                    <p className="text-muted-foreground max-w-md mx-auto">
+                      Connect your messaging channels to receive all guest inquiries in one universal inbox
                     </p>
+                    <div className="flex items-center justify-center gap-2 pt-2">
+                      <Badge variant="outline" className="text-sm">
+                        <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-emerald-500" />
+                        {connectedCount} Connected
+                      </Badge>
+                      <Badge variant="outline" className="text-sm">
+                        <XCircle className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
+                        {totalChannels - connectedCount} Remaining
+                      </Badge>
+                    </div>
                   </div>
 
-                  {/* Goals Cards */}
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {goals.map((goal) => (
-                      <Card key={goal.id} className="bg-gradient-to-br from-background to-muted/30">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="text-sm font-medium">{goal.title}</span>
-                            <Trophy className={cn(
-                              "h-4 w-4",
-                              goal.current >= goal.target ? "text-emerald-500" : "text-muted-foreground"
-                            )} />
-                          </div>
-                          <div className="flex items-end gap-1 mb-2">
-                            <span className="text-3xl font-bold">{goal.unit}{goal.current}</span>
-                            <span className="text-sm text-muted-foreground mb-1">/ {goal.target}</span>
-                          </div>
-                          <Progress value={(goal.current / goal.target) * 100} className="h-2" />
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                  {/* Channel Cards */}
+                  <div className="grid gap-4">
+                    {Object.entries(channelConfig).map(([key, config]) => {
+                      const Icon = config.icon;
+                      const connected = isChannelConnected(key);
 
-                  {/* Extraction Funnel Visual */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold mb-4 flex items-center gap-2">
-                        <Rocket className="h-5 w-5 text-primary" />
-                        Output Extraction Funnel
-                      </h3>
-                      <div className="space-y-2">
-                        {extractionStages.map((stage, i) => {
-                          const Icon = stage.icon;
-                          const width = 100 - (i * 10);
-                          return (
-                            <div key={stage.id} className="flex items-center gap-3">
-                              <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center", stage.bg)}>
-                                <Icon className={cn("h-4 w-4", stage.color)} />
-                              </div>
-                              <div className="flex-1">
-                                <div 
-                                  className={cn("h-6 rounded-r-full flex items-center px-3", stage.bg)}
-                                  style={{ width: `${width}%` }}
-                                >
-                                  <span className="text-xs font-medium">{stage.label}</span>
+                      return (
+                        <Card
+                          key={key}
+                          className={cn(
+                            "transition-all duration-200 overflow-hidden",
+                            connected && "ring-2 ring-emerald-500/30 border-emerald-500/50"
+                          )}
+                        >
+                          <CardContent className="p-0">
+                            <div className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className={cn(
+                                    "h-11 w-11 rounded-xl bg-gradient-to-br text-white flex items-center justify-center shadow-lg",
+                                    config.gradient
+                                  )}>
+                                    <Icon className="h-5 w-5" />
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <h3 className="font-semibold">{config.label}</h3>
+                                      {connected ? (
+                                        <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-xs">
+                                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                                          Connected
+                                        </Badge>
+                                      ) : (
+                                        <Badge variant="secondary" className="text-xs">
+                                          Not Connected
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mt-0.5">
+                                      {config.description}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {!connected && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setExpandedGuide(expandedGuide === key ? null : key)}
+                                    >
+                                      {expandedGuide === key ? "Hide Guide" : "Setup Guide"}
+                                    </Button>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    onClick={() => setSettingsOpen(true)}
+                                    className={cn(
+                                      connected
+                                        ? "bg-emerald-500 hover:bg-emerald-600"
+                                        : "bg-gradient-to-r from-primary to-primary/80"
+                                    )}
+                                  >
+                                    {connected ? (
+                                      <>
+                                        <Settings className="h-4 w-4 mr-1" />
+                                        Manage
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Plug className="h-4 w-4 mr-1" />
+                                        Connect
+                                      </>
+                                    )}
+                                  </Button>
                                 </div>
                               </div>
-                              <Badge variant="outline" className="text-xs">+{stage.points}pts</Badge>
                             </div>
-                          );
-                        })}
+
+                            {/* Expandable Setup Guide */}
+                            {expandedGuide === key && !connected && (
+                              <div className="border-t bg-muted/30 p-4">
+                                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                                  <Shield className="h-4 w-4 text-primary" />
+                                  How to connect {config.label}
+                                </h4>
+                                <div className="space-y-2">
+                                  {config.setupSteps.map((step, i) => (
+                                    <div key={i} className="flex items-start gap-3">
+                                      <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                        {i + 1}
+                                      </div>
+                                      <p className="text-sm text-muted-foreground">{step}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                                <Button
+                                  className="mt-4 w-full"
+                                  onClick={() => setSettingsOpen(true)}
+                                >
+                                  <ArrowRight className="h-4 w-4 mr-2" />
+                                  Open Connection Settings
+                                </Button>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+
+                  {/* Help Banner */}
+                  <Card className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-primary/20">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <Bell className="h-5 w-5 text-primary shrink-0" />
+                        <div>
+                          <h4 className="font-medium text-sm">Notifications & Activity Tracking</h4>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Once channels are connected, every inquiry, booking request, and message will appear here in real-time. You'll be able to respond to all channels from this single inbox.
+                          </p>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
-              </div>
+              </ScrollArea>
             )}
           </div>
 
-          {/* Right Sidebar - Lead Intelligence */}
+          {/* Right Sidebar - Contact Info (when conversation selected) */}
           {selectedConversation && (
             <div className="hidden xl:flex w-72 border-l bg-muted/30 flex-col">
-              <div className="p-3 border-b">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Target className="h-4 w-4 text-primary" />
-                  Lead Intelligence
-                </h3>
+              <div className="p-4 border-b">
+                <h3 className="font-semibold text-sm">Contact Details</h3>
               </div>
-
-              <ScrollArea className="flex-1 p-3">
+              <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
-                  {/* Contact Info */}
                   <div className="space-y-2">
-                    <h4 className="text-xs font-semibold uppercase text-muted-foreground">Contact</h4>
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2 text-sm">
-                        <User className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>{selectedConversation.guest_name}</span>
-                        {leadScore.stages.name && <CheckCircle2 className="h-3 w-3 text-emerald-500" />}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="truncate">{selectedConversation.guest_email || "Not captured"}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>{selectedConversation.guest_phone || "Not captured"}</span>
-                      </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <span>{selectedConversation.guest_name}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span className="truncate">{selectedConversation.guest_email || "Not provided"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{selectedConversation.guest_phone || "Not provided"}</span>
                     </div>
                   </div>
 
-                  {/* Next Actions */}
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-semibold uppercase text-muted-foreground">Next Actions</h4>
-                    <div className="space-y-2">
-                      {extractionStages.filter(s => !leadScore.stages[s.id]).slice(0, 3).map((stage) => {
-                        const Icon = stage.icon;
-                        return (
-                          <div key={stage.id} className="flex items-center gap-2 p-2 rounded-lg bg-background border">
-                            <Icon className={cn("h-4 w-4", stage.color)} />
-                            <span className="text-sm flex-1">Get {stage.label}</span>
-                            <Badge variant="outline" className="text-xs">+{stage.points}</Badge>
+                  <div className="pt-2 border-t">
+                    <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Channel</h4>
+                    {(() => {
+                      const config = channelConfig[selectedConversation.channel] || { icon: MessageCircle, label: "Other", color: "text-muted-foreground", gradient: "from-gray-500 to-gray-600" };
+                      const Icon = config.icon;
+                      return (
+                        <div className="flex items-center gap-2">
+                          <div className={cn("h-8 w-8 rounded-lg bg-gradient-to-br text-white flex items-center justify-center", config.gradient)}>
+                            <Icon className="h-4 w-4" />
                           </div>
-                        );
-                      })}
-                    </div>
+                          <span className="text-sm font-medium">{config.label}</span>
+                        </div>
+                      );
+                    })()}
                   </div>
 
-                  {/* Money Focus Card */}
-                  <Card className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border-emerald-500/20">
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="h-5 w-5 text-emerald-500" />
-                        <span className="font-semibold text-emerald-600">Revenue Target</span>
+                  <div className="pt-2 border-t">
+                    <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Quick Stats</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="p-3 rounded-lg bg-background border text-center">
+                        <div className="text-2xl font-bold">{messages.length}</div>
+                        <div className="text-xs text-muted-foreground">Messages</div>
                       </div>
-                      <p className="text-2xl font-bold text-emerald-600">€2,500</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Potential booking value
-                      </p>
-                      <Button size="sm" className="w-full mt-3 bg-emerald-500 hover:bg-emerald-600">
-                        <CreditCard className="h-4 w-4 mr-2" />
-                        Send Payment Link
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Quick Stats */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="p-3 rounded-lg bg-background border text-center">
-                      <div className="text-2xl font-bold">{messages.length}</div>
-                      <div className="text-xs text-muted-foreground">Messages</div>
-                    </div>
-                    <div className="p-3 rounded-lg bg-background border text-center">
-                      <div className="text-2xl font-bold text-primary">
-                        {Object.values(leadScore.stages).filter(Boolean).length}
+                      <div className="p-3 rounded-lg bg-background border text-center">
+                        <div className="text-2xl font-bold text-primary">
+                          {selectedConversation.status === "active" ? "Active" : "—"}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Status</div>
                       </div>
-                      <div className="text-xs text-muted-foreground">Outputs</div>
                     </div>
                   </div>
                 </div>
@@ -838,75 +765,8 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      {/* Task Editor Dialog */}
-      <Dialog open={showTaskEditor} onOpenChange={setShowTaskEditor}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              Edit Active Task
-            </DialogTitle>
-            <DialogDescription>
-              Define your current objective for maximum focus
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Objective</label>
-              <Input 
-                value={activeTask.objective} 
-                onChange={(e) => setActiveTask({ ...activeTask, objective: e.target.value })}
-                placeholder="e.g., Close Villa Booking - €2,500"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Target Person</label>
-              <Input 
-                value={activeTask.target} 
-                onChange={(e) => setActiveTask({ ...activeTask, target: e.target.value })}
-                placeholder="e.g., Marcus Weber"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Stage</label>
-                <select 
-                  className="w-full h-10 px-3 rounded-md border bg-background"
-                  value={activeTask.stage}
-                  onChange={(e) => setActiveTask({ ...activeTask, stage: e.target.value })}
-                >
-                  {extractionStages.map((s) => (
-                    <option key={s.id} value={s.id}>{s.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Priority</label>
-                <select 
-                  className="w-full h-10 px-3 rounded-md border bg-background"
-                  value={activeTask.priority}
-                  onChange={(e) => setActiveTask({ ...activeTask, priority: e.target.value as "hot" | "warm" | "cold" })}
-                >
-                  <option value="hot">🔥 Hot</option>
-                  <option value="warm">⚡ Warm</option>
-                  <option value="cold">❄️ Cold</option>
-                </select>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Deadline</label>
-              <Input 
-                value={activeTask.deadline} 
-                onChange={(e) => setActiveTask({ ...activeTask, deadline: e.target.value })}
-                placeholder="e.g., Today 6PM"
-              />
-            </div>
-            <Button onClick={() => setShowTaskEditor(false)} className="w-full">
-              Save Task
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Channel Settings Dialog */}
+      <ChannelSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 }
