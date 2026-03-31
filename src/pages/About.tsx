@@ -4,8 +4,9 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
+import PageWrapper from "@/components/PageWrapper";
 
-const About = () => {
+const AboutContent = () => {
   const [pageTitle, setPageTitle] = useState("About Frontier Residences");
   const [pageSubtitle, setPageSubtitle] = useState("Premier property management across Europe's most desirable locations");
   const [missionTitle, setMissionTitle] = useState("Our Mission");
