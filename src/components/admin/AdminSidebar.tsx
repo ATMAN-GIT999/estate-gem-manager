@@ -45,6 +45,7 @@ const mainNavItems: NavItem[] = [
   { label: "Blog", icon: FileText, href: "/admin/blog" },
   { label: "Notifications", icon: Heart, href: "/admin/notifications" },
   { label: "Create", icon: PlusSquare, href: "/admin/create" },
+  { label: "Page Builder", icon: Paintbrush, href: "/admin/builder" },
 ];
 
 const discoverItems: NavItem[] = [
