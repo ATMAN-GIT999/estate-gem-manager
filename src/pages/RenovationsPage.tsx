@@ -4,8 +4,9 @@ import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Lightbulb, Calculator, HardHat, Package, Palette, Camera, TrendingUp } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
+import PageWrapper from "@/components/PageWrapper";
 
-const RenovationsPage = () => {
+const RenovationsPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Timeless Mediterranean Interiors. Elevated Asset Value.");
   const [pageSubtitle, setPageSubtitle] = useState("Our renovation and design team transforms properties into refined, contemporary Mediterranean spaces. We oversee the entire process with a focus on craftsmanship, functionality, and increased rental performance.");
   const [servicesTitle, setServicesTitle] = useState("What We Handle");
@@ -105,4 +106,5 @@ const RenovationsPage = () => {
   );
 };
 
+const RenovationsPage = () => (<PageWrapper slug="site--renovations"><RenovationsPageContent /></PageWrapper>);
 export default RenovationsPage;

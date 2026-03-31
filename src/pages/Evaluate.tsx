@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, TrendingUp, Home, DollarSign, Calendar, Percent, CheckCircle2, BarChart3, Sun, Cloud, Snowflake } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import PageWrapper from "@/components/PageWrapper";
 
 interface PropertyAnalysis {
   monthlyIncome: number;
@@ -59,7 +60,7 @@ interface PropertyAnalysis {
   marketInsights: string;
 }
 
-const Evaluate = () => {
+const EvaluateContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -507,4 +508,5 @@ const Evaluate = () => {
   );
 };
 
+const Evaluate = () => (<PageWrapper slug="site--evaluate"><EvaluateContent /></PageWrapper>);
 export default Evaluate;

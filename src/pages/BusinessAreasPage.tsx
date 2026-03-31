@@ -3,8 +3,9 @@ import Footer from "@/components/Footer";
 import BusinessAreas from "@/components/BusinessAreas";
 import { useState } from "react";
 import EditableText from "@/components/admin/EditableText";
+import PageWrapper from "@/components/PageWrapper";
 
-const BusinessAreasPage = () => {
+const BusinessAreasPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Our Business Areas");
   const [pageSubtitle, setPageSubtitle] = useState("Comprehensive services designed to maximize your property's potential and deliver exceptional results");
 
@@ -42,4 +43,5 @@ const BusinessAreasPage = () => {
   );
 };
 
+const BusinessAreasPage = () => (<PageWrapper slug="site--business-areas"><BusinessAreasPageContent /></PageWrapper>);
 export default BusinessAreasPage;

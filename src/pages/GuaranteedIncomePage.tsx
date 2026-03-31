@@ -4,8 +4,9 @@ import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Wallet, ShieldCheck, Wrench, Paintbrush, Cpu, Check } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
+import PageWrapper from "@/components/PageWrapper";
 
-const GuaranteedIncomePage = () => {
+const GuaranteedIncomePageContent = () => {
   const [pageTitle, setPageTitle] = useState("Effortless Ownership. Guaranteed Monthly Income.");
   const [pageSubtitle, setPageSubtitle] = useState("Our Guaranteed Income Program is ideal for homeowners seeking financial stability. We lease your property long-term, guaranteeing a fixed monthly payment — regardless of occupancy.");
   const [contentText, setContentText] = useState("Frontier Residences manages, maintains, and enhances your property while you enjoy stress-free income.");
@@ -88,4 +89,5 @@ const GuaranteedIncomePage = () => {
   );
 };
 
+const GuaranteedIncomePage = () => (<PageWrapper slug="site--guaranteed-income"><GuaranteedIncomePageContent /></PageWrapper>);
 export default GuaranteedIncomePage;
