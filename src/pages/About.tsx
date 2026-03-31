@@ -6,7 +6,6 @@ import { CheckCircle2 } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 
 const About = () => {
-  // Editable content state
   const [pageTitle, setPageTitle] = useState("About Frontier Residences");
   const [pageSubtitle, setPageSubtitle] = useState("Premier property management across Europe's most desirable locations");
   const [missionTitle, setMissionTitle] = useState("Our Mission");
@@ -27,147 +26,72 @@ const About = () => {
     "Hotel-level hospitality with real estate expertise",
   ]);
 
-  const teamMembers = [
-    {
-      name: "Alejandro Marinetto Rohr",
-      role: "Founder & CEO",
-      description: "Real estate strategy, marketing, and design leadership.",
-    },
-    {
-      name: "Lorenz Aschbacher",
-      role: "Co-Founder",
-      description: "International hospitality and real estate expertise.",
-    },
-    {
-      name: "Olek",
-      role: "Partner",
-      description: "Strategic partnerships and business development.",
-    },
-    {
-      name: "Julien",
-      role: "Partner",
-      description: "Investment strategy and client relations.",
-    },
-    {
-      name: "Carlos",
-      role: "Technology Lead",
-      description: "Digital innovation and platform development.",
-    },
-  ];
+  const [teamMembers, setTeamMembers] = useState([
+    { name: "Alejandro Marinetto Rohr", role: "Founder & CEO", description: "Real estate strategy, marketing, and design leadership." },
+    { name: "Lorenz Aschbacher", role: "Co-Founder", description: "International hospitality and real estate expertise." },
+    { name: "Olek", role: "Partner", description: "Strategic partnerships and business development." },
+    { name: "Julien", role: "Partner", description: "Investment strategy and client relations." },
+    { name: "Carlos", role: "Technology Lead", description: "Digital innovation and platform development." },
+  ]);
 
-  const processSteps = [
+  const [processSteps, setProcessSteps] = useState([
     { step: "1", title: "Assessment", description: "Property evaluation and strategy." },
     { step: "2", title: "Preparation", description: "Photography and listing optimization." },
     { step: "3", title: "Launch", description: "Multi-platform listing and marketing." },
     { step: "4", title: "Management", description: "Guest service and maintenance." },
     { step: "5", title: "Reporting", description: "Transparent performance updates." },
-  ];
+  ]);
+
+  const updateTeamMember = (index: number, field: string, value: string) => {
+    const updated = [...teamMembers];
+    updated[index] = { ...updated[index], [field]: value };
+    setTeamMembers(updated);
+  };
+
+  const updateProcessStep = (index: number, field: string, value: string) => {
+    const updated = [...processSteps];
+    updated[index] = { ...updated[index], [field]: value };
+    setProcessSteps(updated);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
       <main className="flex-1">
-        {/* Hero Section with Glowing Background */}
+        {/* Hero Section */}
         <div className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-beige via-secondary to-beige-dark">
             <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM1YTY5NTkiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzRjMC0yLjIxIDEuNzktNCA0LTRzNCAxLjc5IDQgNC0xLjc5IDQtNCA0LTQtMS43OS00LTR6bTAtMTBjMC0yLjIxIDEuNzktNCA0LTRzNCAxLjc5IDQgNC0xLjc5IDQtNCA0LTQtMS43OS00LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] animate-pulse"></div>
           </div>
           <div className="relative z-10 max-w-4xl mx-auto text-center px-4 animate-fade-in">
-            <EditableText
-              id="about-page-title"
-              value={pageTitle}
-              onChange={setPageTitle}
-              as="h1"
-              className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6"
-            >
-              {pageTitle}
-            </EditableText>
-            <EditableText
-              id="about-page-subtitle"
-              value={pageSubtitle}
-              onChange={setPageSubtitle}
-              as="p"
-              className="text-xl md:text-2xl text-foreground/80 leading-relaxed"
-            >
-              {pageSubtitle}
-            </EditableText>
+            <EditableText id="about-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6">{pageTitle}</EditableText>
+            <EditableText id="about-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" className="text-xl md:text-2xl text-foreground/80 leading-relaxed">{pageSubtitle}</EditableText>
           </div>
         </div>
 
         <div className="container mx-auto px-4 py-12">
-
           {/* Mission */}
           <div className="max-w-5xl mx-auto mb-16">
             <Card className="shadow-elegant border-primary/20">
               <CardContent className="pt-6">
-                <EditableText
-                  id="about-mission-title"
-                  value={missionTitle}
-                  onChange={setMissionTitle}
-                  as="h2"
-                  className="font-playfair text-3xl font-semibold text-primary mb-6 text-center"
-                >
-                  {missionTitle}
-                </EditableText>
-                <EditableText
-                  id="about-mission-text"
-                  value={missionText}
-                  onChange={setMissionText}
-                  as="p"
-                  multiline
-                  className="text-lg text-foreground/80 leading-relaxed text-center max-w-3xl mx-auto"
-                >
-                  {missionText}
-                </EditableText>
+                <EditableText id="about-mission-title" value={missionTitle} onChange={setMissionTitle} as="h2" className="font-playfair text-3xl font-semibold text-primary mb-6 text-center">{missionTitle}</EditableText>
+                <EditableText id="about-mission-text" value={missionText} onChange={setMissionText} as="p" multiline className="text-lg text-foreground/80 leading-relaxed text-center max-w-3xl mx-auto">{missionText}</EditableText>
               </CardContent>
             </Card>
           </div>
 
           {/* Our Story */}
           <div className="max-w-5xl mx-auto mb-16">
-            <EditableText
-              id="about-story-title"
-              value={storyTitle}
-              onChange={setStoryTitle}
-              as="h2"
-              className="font-playfair text-3xl font-semibold text-primary mb-8 text-center"
-            >
-              {storyTitle}
-            </EditableText>
+            <EditableText id="about-story-title" value={storyTitle} onChange={setStoryTitle} as="h2" className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">{storyTitle}</EditableText>
             <div className="prose prose-lg max-w-none text-foreground/80 text-center">
-              <EditableText
-                id="about-story-text1"
-                value={storyText1}
-                onChange={setStoryText1}
-                as="p"
-                multiline
-                className="mb-4"
-              >
-                {storyText1}
-              </EditableText>
-              <EditableText
-                id="about-story-text2"
-                value={storyText2}
-                onChange={setStoryText2}
-                as="p"
-                multiline
-              >
-                {storyText2}
-              </EditableText>
+              <EditableText id="about-story-text1" value={storyText1} onChange={setStoryText1} as="p" multiline className="mb-4">{storyText1}</EditableText>
+              <EditableText id="about-story-text2" value={storyText2} onChange={setStoryText2} as="p" multiline>{storyText2}</EditableText>
             </div>
           </div>
 
           {/* Why Choose Us */}
           <div className="max-w-4xl mx-auto mb-16">
-            <EditableText
-              id="about-why-choose-title"
-              value={whyChooseTitle}
-              onChange={setWhyChooseTitle}
-              as="h2"
-              className="font-playfair text-3xl font-semibold text-primary mb-8 text-center"
-            >
-              {whyChooseTitle}
-            </EditableText>
+            <EditableText id="about-why-choose-title" value={whyChooseTitle} onChange={setWhyChooseTitle} as="h2" className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">{whyChooseTitle}</EditableText>
             <div className="grid md:grid-cols-2 gap-4">
               {whyChooseItems.map((item, index) => (
                 <div key={index} className="flex items-start gap-3 p-5 bg-card rounded-lg shadow-sm hover:shadow-elegant transition-all">
@@ -182,9 +106,7 @@ const About = () => {
                     }}
                     as="p"
                     className="text-base text-foreground"
-                  >
-                    {item}
-                  </EditableText>
+                  >{item}</EditableText>
                 </div>
               ))}
             </div>
@@ -192,36 +114,34 @@ const About = () => {
 
           {/* Team Section */}
           <div className="max-w-5xl mx-auto mb-16">
-            <EditableText
-              id="about-team-title"
-              value={teamTitle}
-              onChange={setTeamTitle}
-              as="h2"
-              className="font-playfair text-3xl font-semibold text-primary mb-4 text-center"
-            >
-              {teamTitle}
-            </EditableText>
-            <EditableText
-              id="about-team-subtitle"
-              value={teamSubtitle}
-              onChange={setTeamSubtitle}
-              as="p"
-              className="text-lg text-foreground/70 text-center mb-12 max-w-2xl mx-auto"
-            >
-              {teamSubtitle}
-            </EditableText>
+            <EditableText id="about-team-title" value={teamTitle} onChange={setTeamTitle} as="h2" className="font-playfair text-3xl font-semibold text-primary mb-4 text-center">{teamTitle}</EditableText>
+            <EditableText id="about-team-subtitle" value={teamSubtitle} onChange={setTeamSubtitle} as="p" className="text-lg text-foreground/70 text-center mb-12 max-w-2xl mx-auto">{teamSubtitle}</EditableText>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {teamMembers.map((member, index) => (
                 <Card key={index} className="shadow-elegant hover:shadow-soft transition-all">
                   <CardContent className="pt-6">
                     <div className="w-20 h-20 bg-gradient-sage rounded-full mx-auto mb-4"></div>
-                    <h3 className="font-playfair text-xl font-semibold text-primary text-center mb-1">
-                      {member.name}
-                    </h3>
-                    <p className="text-primary/80 font-medium text-center text-sm mb-3">{member.role}</p>
-                    <p className="text-foreground/70 text-sm leading-relaxed text-center">
-                      {member.description}
-                    </p>
+                    <EditableText
+                      id={`about-team-name-${index}`}
+                      value={member.name}
+                      onChange={(v) => updateTeamMember(index, "name", v)}
+                      as="h3"
+                      className="font-playfair text-xl font-semibold text-primary text-center mb-1"
+                    >{member.name}</EditableText>
+                    <EditableText
+                      id={`about-team-role-${index}`}
+                      value={member.role}
+                      onChange={(v) => updateTeamMember(index, "role", v)}
+                      as="p"
+                      className="text-primary/80 font-medium text-center text-sm mb-3"
+                    >{member.role}</EditableText>
+                    <EditableText
+                      id={`about-team-desc-${index}`}
+                      value={member.description}
+                      onChange={(v) => updateTeamMember(index, "description", v)}
+                      as="p"
+                      className="text-foreground/70 text-sm leading-relaxed text-center"
+                    >{member.description}</EditableText>
                   </CardContent>
                 </Card>
               ))}
@@ -230,15 +150,7 @@ const About = () => {
 
           {/* The Listing Process */}
           <div className="max-w-4xl mx-auto">
-            <EditableText
-              id="about-how-it-works-title"
-              value={howItWorksTitle}
-              onChange={setHowItWorksTitle}
-              as="h2"
-              className="font-playfair text-3xl font-semibold text-primary mb-8 text-center"
-            >
-              {howItWorksTitle}
-            </EditableText>
+            <EditableText id="about-how-it-works-title" value={howItWorksTitle} onChange={setHowItWorksTitle} as="h2" className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">{howItWorksTitle}</EditableText>
             <div className="grid md:grid-cols-3 gap-6">
               {processSteps.map((item, index) => (
                 <Card key={index} className="shadow-sm hover:shadow-elegant transition-all">
@@ -246,8 +158,20 @@ const About = () => {
                     <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-4">
                       {item.step}
                     </div>
-                    <h3 className="font-semibold text-lg text-primary mb-2">{item.title}</h3>
-                    <p className="text-sm text-foreground/80">{item.description}</p>
+                    <EditableText
+                      id={`about-step-title-${index}`}
+                      value={item.title}
+                      onChange={(v) => updateProcessStep(index, "title", v)}
+                      as="h3"
+                      className="font-semibold text-lg text-primary mb-2"
+                    >{item.title}</EditableText>
+                    <EditableText
+                      id={`about-step-desc-${index}`}
+                      value={item.description}
+                      onChange={(v) => updateProcessStep(index, "description", v)}
+                      as="p"
+                      className="text-sm text-foreground/80"
+                    >{item.description}</EditableText>
                   </CardContent>
                 </Card>
               ))}
