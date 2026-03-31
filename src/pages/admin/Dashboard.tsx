@@ -65,14 +65,14 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [propertyView, setPropertyView] = useState<"grid" | "list">("grid");
   const [dailyTasks, setDailyTasks] = useState([
-    { id: 1, task: "Check new booking inquiries", completed: false, priority: "high" },
-    { id: 2, task: "Respond to guest messages (< 1 hour)", completed: false, priority: "high" },
-    { id: 3, task: "Review today's check-ins/check-outs", completed: false, priority: "high" },
-    { id: 4, task: "Update property availability calendars", completed: false, priority: "medium" },
-    { id: 5, task: "Post on Instagram (property showcase)", completed: false, priority: "medium" },
-    { id: 6, task: "Review and respond to new reviews", completed: false, priority: "medium" },
-    { id: 7, task: "Check cleaning team schedule", completed: false, priority: "low" },
-    { id: 8, task: "Scrape 10 new potential owner contacts", completed: false, priority: "low" },
+    { id: 1, task: "Find Leads: Identify 10–20 new property owners online", completed: false, priority: "high" },
+    { id: 2, task: "Outreach: Send personalized messages via email, WhatsApp, Instagram, or SMS", completed: false, priority: "high" },
+    { id: 3, task: "Follow-Up: Check responses, prioritize hot leads, log in Universal Inbox", completed: false, priority: "high" },
+    { id: 4, task: "Qualify Leads: Score properties by size, location & owner interest; schedule calls/demos", completed: false, priority: "high" },
+    { id: 5, task: "Marketing: Post property showcases or success stories on social media", completed: false, priority: "medium" },
+    { id: 6, task: "AI Assistance: Use AI to engage leads and notify hot prospects", completed: false, priority: "medium" },
+    { id: 7, task: "Pipeline Update: Move leads through stages (New → Contacted → Qualified → Presentation → Contract → Active)", completed: false, priority: "medium" },
+    { id: 8, task: "Review: Track top-performing channels and adjust outreach strategy", completed: false, priority: "low" },
   ]);
 
   useEffect(() => {
@@ -296,8 +296,8 @@ const AdminDashboard = () => {
                             <ClipboardList className="h-5 w-5 text-primary" />
                           </div>
                           <div>
-                            <CardTitle className="text-lg">Daily SOP Checklist</CardTitle>
-                            <CardDescription>Standard operating procedures for growth</CardDescription>
+                            <CardTitle className="text-lg">Daily SOP – Acquire New Listings</CardTitle>
+                            <CardDescription>Standard operating procedures for listing acquisition</CardDescription>
                           </div>
                         </div>
                         <Badge variant="outline" className="text-sm">
