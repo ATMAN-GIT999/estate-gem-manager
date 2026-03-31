@@ -9,21 +9,36 @@ declare global {
 }
 
 const GuestySearchWidget = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const scriptLoaded = useRef(false);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    if (scriptLoaded.current) return;
-    scriptLoaded.current = true;
+    if (initialized.current) return;
+    initialized.current = true;
 
+    const config = {
+      siteUrl: "frontierresidences.guestybookings.com",
+      color: "#5a6959",
+    };
+
+    // Load CSS
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.type = "text/css";
+    link.href =
+      "https://s3.amazonaws.com/guesty-frontend-production/search-bar-production.css";
+    link.media = "all";
+    document.getElementsByTagName("head")[0].appendChild(link);
+
+    // Init function
     const initWidget = () => {
-      if (window.GuestySearchBarWidget) {
-        window.GuestySearchBarWidget.create({
-          siteUrl: "frontierresidences.guestybookings.com",
-          color: "#5a6959",
-        }).catch((err: Error) =>
-          console.error("[Guesty Embedded Widget]:", err.message)
-        );
+      try {
+        if (window.GuestySearchBarWidget) {
+          window.GuestySearchBarWidget.create(config).catch((err: Error) =>
+            console.error("[Guesty Embedded Widget]:", err.message)
+          );
+        }
+      } catch (e: any) {
+        console.error("[Guesty Embedded Widget]:", e.message);
       }
     };
 
@@ -33,17 +48,20 @@ const GuestySearchWidget = () => {
       return;
     }
 
+    // Load JS
     const script = document.createElement("script");
+    script.type = "text/javascript";
     script.src =
       "https://s3.amazonaws.com/guesty-frontend-production/search-bar-production.js";
     script.async = true;
-    script.onload = initWidget;
-    document.head.appendChild(script);
+    script.onload = () => initWidget();
+    const firstScript = document.getElementsByTagName("script")[0];
+    firstScript?.parentNode?.insertBefore(script, firstScript);
   }, []);
 
   return (
     <div className="w-full">
-      <div id="search-widget_IO312PWQ" ref={containerRef} />
+      <div id="search-widget_IO312PWQ" />
     </div>
   );
 };
