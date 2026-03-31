@@ -54,13 +54,7 @@ const GuestySearchWidget = () => {
     script.src =
       "https://s3.amazonaws.com/guesty-frontend-production/search-bar-production.js";
     script.async = true;
-    let done = false;
-    script.onload = script.onreadystatechange = function () {
-      if (!done && (!this.readyState || this.readyState === "complete")) {
-        done = true;
-        initWidget();
-      }
-    };
+    script.onload = () => initWidget();
     const firstScript = document.getElementsByTagName("script")[0];
     firstScript?.parentNode?.insertBefore(script, firstScript);
   }, []);
