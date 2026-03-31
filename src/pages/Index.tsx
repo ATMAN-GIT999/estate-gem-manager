@@ -170,4 +170,10 @@ const IndexContent = () => {
   );
 };
 
+const Index = () => (
+  <PageWrapper slug="site--home">
+    <IndexContent />
+  </PageWrapper>
+);
+
 export default Index;
