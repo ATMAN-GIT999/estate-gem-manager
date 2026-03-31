@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 
 interface InlineEditContextType {
@@ -15,6 +15,14 @@ export const InlineEditProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [editMode, setEditMode] = useState(false);
   const [isEditing, setIsEditing] = useState<string | null>(null);
 
+  // Auto-enable edit mode when loaded inside builder iframe with ?edit=true
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('edit') === 'true' && isAdmin) {
+      setEditMode(true);
+    }
+  }, [isAdmin]);
+
   const toggleEditMode = () => {
     if (isAdmin) {
       setEditMode(!editMode);
@@ -22,7 +30,6 @@ export const InlineEditProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
-  // Only provide edit capabilities to admins
   const value = {
     editMode: isAdmin && editMode,
     toggleEditMode,
