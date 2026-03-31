@@ -296,8 +296,8 @@ const AdminDashboard = () => {
                             <ClipboardList className="h-5 w-5 text-primary" />
                           </div>
                           <div>
-                            <CardTitle className="text-lg">Daily SOP Checklist</CardTitle>
-                            <CardDescription>Standard operating procedures for growth</CardDescription>
+                            <CardTitle className="text-lg">Daily SOP – Acquire New Listings</CardTitle>
+                            <CardDescription>Standard operating procedures for listing acquisition</CardDescription>
                           </div>
                         </div>
                         <Badge variant="outline" className="text-sm">
