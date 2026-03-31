@@ -12,20 +12,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Save, Plus, FileText, Eye, Globe } from "lucide-react";
+import { ArrowLeft, Save, Plus, FileText, Eye, Globe, Layout, ExternalLink } from "lucide-react";
 import grapesjs, { Editor } from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
 import gjsPresetWebpage from "grapesjs-preset-webpage";
 import gjsBlocksBasic from "grapesjs-blocks-basic";
+
+// Existing site pages that can be edited via iframe
+const SITE_PAGES = [
+  { name: "Homepage", route: "/" },
+  { name: "About Us", route: "/about" },
+  { name: "Properties", route: "/properties" },
+  { name: "Projects", route: "/projects" },
+  { name: "Property Management", route: "/property-management" },
+  { name: "Guaranteed Income", route: "/guaranteed-income" },
+  { name: "Renovations", route: "/renovations" },
+  { name: "Investments", route: "/investments" },
+  { name: "Business Areas", route: "/business-areas" },
+  { name: "Evaluate", route: "/evaluate" },
+  { name: "Book", route: "/book" },
+];
 
 interface PageData {
   id: string;
@@ -38,6 +46,8 @@ interface PageData {
   is_published: boolean;
 }
 
+type EditorMode = "none" | "site-page" | "custom-page";
+
 export default function BuilderPage() {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -47,13 +57,15 @@ export default function BuilderPage() {
 
   const [pages, setPages] = useState<PageData[]>([]);
   const [currentPage, setCurrentPage] = useState<PageData | null>(null);
+  const [currentSiteRoute, setCurrentSiteRoute] = useState<string | null>(null);
+  const [editorMode, setEditorMode] = useState<EditorMode>("none");
   const [saving, setSaving] = useState(false);
   const [newPageName, setNewPageName] = useState("");
   const [newPageSlug, setNewPageSlug] = useState("");
   const [newPageOpen, setNewPageOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<"site" | "custom">("site");
 
-  // Fetch pages
   const fetchPages = useCallback(async () => {
     const { data } = await supabase
       .from("pages")
@@ -82,9 +94,7 @@ export default function BuilderPage() {
       storageManager: false,
       plugins: [gjsPresetWebpage, gjsBlocksBasic],
       pluginsOpts: {
-        [gjsPresetWebpage as any]: {
-          blocksBasicOpts: { flexGrid: true },
-        },
+        [gjsPresetWebpage as any]: { blocksBasicOpts: { flexGrid: true } },
         [gjsBlocksBasic as any]: { flexGrid: true },
       },
       canvas: {
@@ -101,126 +111,8 @@ export default function BuilderPage() {
       },
     });
 
-    // Add Frontier Residences branded blocks
-    const bm = editor.Blocks;
+    addBrandedBlocks(editor);
 
-    bm.add("fr-hero", {
-      label: "Hero Section",
-      category: "Frontier Residences",
-      content: `<section style="background: linear-gradient(135deg, #efe6d9 0%, #e5dace 100%); padding: 100px 40px; text-align: center;">
-        <h1 style="font-family: 'Playfair Display', serif; font-size: 48px; color: #546458; margin-bottom: 16px;">Your Headline Here</h1>
-        <p style="font-family: 'Lato', sans-serif; font-size: 20px; color: #5a6959; max-width: 600px; margin: 0 auto 32px;">Subtitle text goes here with a brief description.</p>
-        <a href="#" style="display: inline-block; background: #546458; color: #fff; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-family: 'Lato', sans-serif; font-weight: 700;">Call to Action</a>
-      </section>`,
-    });
-
-    bm.add("fr-stats", {
-      label: "Stats Row",
-      category: "Frontier Residences",
-      content: `<section style="padding: 60px 40px; background: linear-gradient(135deg, #efe6d9 0%, #e5dace 100%);">
-        <div style="display: flex; gap: 24px; max-width: 1000px; margin: 0 auto; flex-wrap: wrap; justify-content: center;">
-          <div style="flex: 1; min-width: 200px; background: #fff; border-radius: 12px; padding: 32px; text-align: center; box-shadow: 0 4px 20px rgba(84,100,88,0.1);">
-            <div style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700; color: #5a6959;">34</div>
-            <div style="font-family: 'Lato', sans-serif; color: #5a6959;">Properties Managed</div>
-          </div>
-          <div style="flex: 1; min-width: 200px; background: #fff; border-radius: 12px; padding: 32px; text-align: center; box-shadow: 0 4px 20px rgba(84,100,88,0.1);">
-            <div style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700; color: #5a6959;">570+</div>
-            <div style="font-family: 'Lato', sans-serif; color: #5a6959;">Reservations</div>
-          </div>
-          <div style="flex: 1; min-width: 200px; background: #fff; border-radius: 12px; padding: 32px; text-align: center; box-shadow: 0 4px 20px rgba(84,100,88,0.1);">
-            <div style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700; color: #5a6959;">8</div>
-            <div style="font-family: 'Lato', sans-serif; color: #5a6959;">Destinations</div>
-          </div>
-        </div>
-      </section>`,
-    });
-
-    bm.add("fr-text-section", {
-      label: "Text Section",
-      category: "Frontier Residences",
-      content: `<section style="padding: 80px 40px; background: #fff;">
-        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
-          <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; color: #546458; margin-bottom: 20px;">Section Title</h2>
-          <p style="font-family: 'Lato', sans-serif; font-size: 18px; line-height: 1.8; color: #5a6959;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-        </div>
-      </section>`,
-    });
-
-    bm.add("fr-two-col", {
-      label: "Two Columns",
-      category: "Frontier Residences",
-      content: `<section style="padding: 80px 40px; background: #efe6d9;">
-        <div style="display: flex; gap: 40px; max-width: 1100px; margin: 0 auto; flex-wrap: wrap;">
-          <div style="flex: 1; min-width: 300px;">
-            <h3 style="font-family: 'Playfair Display', serif; font-size: 28px; color: #546458; margin-bottom: 16px;">Left Column</h3>
-            <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.8;">Content for the left side of this two-column layout.</p>
-          </div>
-          <div style="flex: 1; min-width: 300px;">
-            <h3 style="font-family: 'Playfair Display', serif; font-size: 28px; color: #546458; margin-bottom: 16px;">Right Column</h3>
-            <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.8;">Content for the right side of this two-column layout.</p>
-          </div>
-        </div>
-      </section>`,
-    });
-
-    bm.add("fr-cta", {
-      label: "CTA Banner",
-      category: "Frontier Residences",
-      content: `<section style="padding: 80px 40px; background: linear-gradient(135deg, #546458 0%, #3d4d40 100%); text-align: center;">
-        <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; color: #fff; margin-bottom: 16px;">Ready to Get Started?</h2>
-        <p style="font-family: 'Lato', sans-serif; font-size: 18px; color: rgba(255,255,255,0.85); margin-bottom: 32px;">Contact us today for a free consultation.</p>
-        <a href="/evaluate" style="display: inline-block; background: #efe6d9; color: #546458; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-family: 'Lato', sans-serif; font-weight: 700;">Get in Touch</a>
-      </section>`,
-    });
-
-    bm.add("fr-image-text", {
-      label: "Image + Text",
-      category: "Frontier Residences",
-      content: `<section style="padding: 80px 40px; background: #fff;">
-        <div style="display: flex; gap: 40px; max-width: 1100px; margin: 0 auto; align-items: center; flex-wrap: wrap;">
-          <div style="flex: 1; min-width: 300px;">
-            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);" alt="Property image"/>
-          </div>
-          <div style="flex: 1; min-width: 300px;">
-            <h3 style="font-family: 'Playfair Display', serif; font-size: 28px; color: #546458; margin-bottom: 16px;">Beautiful Properties</h3>
-            <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.8;">Describe your properties, services, or any content alongside an image.</p>
-            <a href="#" style="display: inline-block; margin-top: 20px; color: #546458; font-family: 'Lato', sans-serif; font-weight: 700; text-decoration: underline;">Learn More →</a>
-          </div>
-        </div>
-      </section>`,
-    });
-
-    bm.add("fr-cards", {
-      label: "Card Grid",
-      category: "Frontier Residences",
-      content: `<section style="padding: 80px 40px; background: #efe6d9;">
-        <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; color: #546458; text-align: center; margin-bottom: 40px;">Our Services</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto;">
-          <div style="background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(84,100,88,0.08);">
-            <h4 style="font-family: 'Playfair Display', serif; font-size: 22px; color: #546458; margin-bottom: 12px;">Service One</h4>
-            <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.7;">Description of the first service or feature you offer.</p>
-          </div>
-          <div style="background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(84,100,88,0.08);">
-            <h4 style="font-family: 'Playfair Display', serif; font-size: 22px; color: #546458; margin-bottom: 12px;">Service Two</h4>
-            <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.7;">Description of the second service or feature you offer.</p>
-          </div>
-          <div style="background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(84,100,88,0.08);">
-            <h4 style="font-family: 'Playfair Display', serif; font-size: 22px; color: #546458; margin-bottom: 12px;">Service Three</h4>
-            <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.7;">Description of the third service or feature you offer.</p>
-          </div>
-        </div>
-      </section>`,
-    });
-
-    bm.add("fr-footer", {
-      label: "Footer",
-      category: "Frontier Residences",
-      content: `<footer style="padding: 40px; background: #546458; text-align: center;">
-        <p style="font-family: 'Lato', sans-serif; color: rgba(255,255,255,0.7); margin: 0;">© 2026 Frontier Residences. All rights reserved.</p>
-      </footer>`,
-    });
-
-    // Style the GrapesJS UI to match brand
     const gjsEl = containerRef.current;
     if (gjsEl) {
       gjsEl.style.setProperty("--gjs-primary-color", "#546458");
@@ -237,8 +129,28 @@ export default function BuilderPage() {
     };
   }, []);
 
-  // Load page into editor
-  const loadPage = useCallback(
+  // Auto-load from URL params
+  useEffect(() => {
+    if (!loaded) return;
+    const route = searchParams.get("route");
+    const pageId = searchParams.get("page");
+
+    if (route) {
+      selectSitePage(route);
+    } else if (pageId && pages.length > 0) {
+      loadCustomPage(pageId);
+    }
+  }, [loaded, pages, searchParams]);
+
+  const selectSitePage = (route: string) => {
+    setEditorMode("site-page");
+    setCurrentSiteRoute(route);
+    setCurrentPage(null);
+    setSelectedTab("site");
+    setSearchParams({ route });
+  };
+
+  const loadCustomPage = useCallback(
     async (pageId: string) => {
       const { data } = await supabase
         .from("pages")
@@ -248,6 +160,9 @@ export default function BuilderPage() {
       if (!data) return;
       const page = data as PageData;
       setCurrentPage(page);
+      setCurrentSiteRoute(null);
+      setEditorMode("custom-page");
+      setSelectedTab("custom");
       setSearchParams({ page: page.id });
 
       const editor = editorRef.current;
@@ -272,46 +187,27 @@ export default function BuilderPage() {
     [setSearchParams]
   );
 
-  // Auto-load page from URL param
-  useEffect(() => {
-    if (!loaded || pages.length === 0) return;
-    const pageId = searchParams.get("page");
-    if (pageId) {
-      loadPage(pageId);
-    }
-  }, [loaded, pages, searchParams, loadPage]);
-
-  // Save
   const handleSave = async () => {
     if (!currentPage || !editorRef.current) return;
     setSaving(true);
     const editor = editorRef.current;
 
-    const html = editor.getHtml();
-    const css = editor.getCss();
-    const components = JSON.stringify(editor.getComponents());
-    const styles = JSON.stringify(editor.getStyle());
-
     const { error } = await supabase
       .from("pages")
       .update({
-        content_html: html,
-        content_css: css,
-        content_components: components,
-        content_styles: styles,
+        content_html: editor.getHtml(),
+        content_css: editor.getCss(),
+        content_components: JSON.stringify(editor.getComponents()),
+        content_styles: JSON.stringify(editor.getStyle()),
         updated_at: new Date().toISOString(),
       })
       .eq("id", currentPage.id);
 
     setSaving(false);
-    if (error) {
-      toast.error("Failed to save: " + error.message);
-    } else {
-      toast.success("Page saved!");
-    }
+    if (error) toast.error("Failed to save: " + error.message);
+    else toast.success("Page saved!");
   };
 
-  // Create new page
   const handleCreatePage = async () => {
     if (!newPageName || !newPageSlug) return;
     const slug = newPageSlug.startsWith("/") ? newPageSlug.slice(1) : newPageSlug;
@@ -332,17 +228,13 @@ export default function BuilderPage() {
     setNewPageOpen(false);
     toast.success("Page created!");
     await fetchPages();
-    if (data) loadPage((data as PageData).id);
+    if (data) loadCustomPage((data as PageData).id);
   };
 
-  // Toggle published
   const togglePublished = async () => {
     if (!currentPage) return;
     const newVal = !currentPage.is_published;
-    await supabase
-      .from("pages")
-      .update({ is_published: newVal })
-      .eq("id", currentPage.id);
+    await supabase.from("pages").update({ is_published: newVal }).eq("id", currentPage.id);
     setCurrentPage({ ...currentPage, is_published: newVal });
     toast.success(newVal ? "Page published!" : "Page unpublished");
   };
@@ -351,118 +243,305 @@ export default function BuilderPage() {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Toolbar */}
+      {/* Top toolbar */}
       <div className="h-14 border-b border-border bg-card flex items-center px-4 gap-3 shrink-0 z-50">
         <Button variant="ghost" size="sm" onClick={() => navigate("/admin/dashboard")}>
           <ArrowLeft className="h-4 w-4 mr-1" /> Back
         </Button>
-
         <div className="h-6 w-px bg-border" />
 
-        {/* Page selector */}
-        <Select
-          value={currentPage?.id || ""}
-          onValueChange={(id) => loadPage(id)}
-        >
-          <SelectTrigger className="w-[200px] h-9">
-            <SelectValue placeholder="Select a page..." />
-          </SelectTrigger>
-          <SelectContent>
-            {pages.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                <span className="flex items-center gap-2">
-                  <FileText className="h-3 w-3" />
-                  {p.name}
-                  {p.is_published && <Globe className="h-3 w-3 text-green-600" />}
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* New Page */}
-        <Dialog open={newPageOpen} onOpenChange={setNewPageOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Plus className="h-4 w-4 mr-1" /> New Page
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Page</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 pt-4">
-              <div>
-                <Label>Page Name</Label>
-                <Input
-                  value={newPageName}
-                  onChange={(e) => {
-                    setNewPageName(e.target.value);
-                    setNewPageSlug(
-                      e.target.value
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, "-")
-                        .replace(/^-|-$/g, "")
-                    );
-                  }}
-                  placeholder="e.g. Our Services"
-                />
-              </div>
-              <div>
-                <Label>URL Slug</Label>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm text-muted-foreground">/p/</span>
-                  <Input
-                    value={newPageSlug}
-                    onChange={(e) => setNewPageSlug(e.target.value)}
-                    placeholder="our-services"
-                  />
-                </div>
-              </div>
-              <Button onClick={handleCreatePage} className="w-full">
-                Create Page
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* Tab switcher */}
+        <div className="flex bg-muted rounded-lg p-0.5">
+          <button
+            onClick={() => setSelectedTab("site")}
+            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              selectedTab === "site"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Layout className="h-3.5 w-3.5 inline mr-1.5" />
+            Site Pages
+          </button>
+          <button
+            onClick={() => setSelectedTab("custom")}
+            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              selectedTab === "custom"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <FileText className="h-3.5 w-3.5 inline mr-1.5" />
+            Custom Pages
+          </button>
+        </div>
 
         <div className="flex-1" />
 
-        {/* Publish toggle */}
-        {currentPage && (
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={currentPage.is_published}
-              onCheckedChange={togglePublished}
-            />
-            <Label className="text-sm">
-              {currentPage.is_published ? "Published" : "Draft"}
-            </Label>
-          </div>
+        {/* Custom page controls */}
+        {editorMode === "custom-page" && currentPage && (
+          <>
+            <div className="flex items-center gap-2">
+              <Switch checked={currentPage.is_published} onCheckedChange={togglePublished} />
+              <Label className="text-sm">{currentPage.is_published ? "Published" : "Draft"}</Label>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => window.open(`/p/${currentPage.slug}`, "_blank")}>
+              <Eye className="h-4 w-4 mr-1" /> Preview
+            </Button>
+            <Button onClick={handleSave} disabled={saving} size="sm">
+              <Save className="h-4 w-4 mr-1" /> {saving ? "Saving..." : "Save"}
+            </Button>
+          </>
         )}
 
-        {currentPage && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.open(`/p/${currentPage.slug}`, "_blank")}
-          >
-            <Eye className="h-4 w-4 mr-1" /> Preview
+        {/* Site page controls */}
+        {editorMode === "site-page" && currentSiteRoute && (
+          <Button variant="ghost" size="sm" onClick={() => window.open(currentSiteRoute, "_blank")}>
+            <ExternalLink className="h-4 w-4 mr-1" /> Open Page
           </Button>
         )}
-
-        <Button
-          onClick={handleSave}
-          disabled={saving || !currentPage}
-          size="sm"
-        >
-          <Save className="h-4 w-4 mr-1" />
-          {saving ? "Saving..." : "Save"}
-        </Button>
       </div>
 
-      {/* GrapesJS Editor */}
-      <div ref={containerRef} className="flex-1 overflow-hidden" />
+      {/* Main content area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left sidebar - page list */}
+        <div className="w-56 border-r border-border bg-card shrink-0 overflow-y-auto">
+          {selectedTab === "site" ? (
+            <div className="p-3 space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-2">
+                Site Pages
+              </p>
+              {SITE_PAGES.map((p) => (
+                <button
+                  key={p.route}
+                  onClick={() => selectSitePage(p.route)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
+                    currentSiteRoute === p.route
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <Layout className="h-3.5 w-3.5 shrink-0" />
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="p-3 space-y-1">
+              <div className="flex items-center justify-between px-2 mb-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Custom Pages
+                </p>
+                <Dialog open={newPageOpen} onOpenChange={setNewPageOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Plus className="h-3.5 w-3.5" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Create New Page</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-4">
+                      <div>
+                        <Label>Page Name</Label>
+                        <Input
+                          value={newPageName}
+                          onChange={(e) => {
+                            setNewPageName(e.target.value);
+                            setNewPageSlug(
+                              e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+                            );
+                          }}
+                          placeholder="e.g. Our Services"
+                        />
+                      </div>
+                      <div>
+                        <Label>URL Slug</Label>
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm text-muted-foreground">/p/</span>
+                          <Input value={newPageSlug} onChange={(e) => setNewPageSlug(e.target.value)} placeholder="our-services" />
+                        </div>
+                      </div>
+                      <Button onClick={handleCreatePage} className="w-full">Create Page</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              {pages.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => loadCustomPage(p.id)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
+                    currentPage?.id === p.id
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <FileText className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate flex-1">{p.name}</span>
+                  {p.is_published && <Globe className="h-3 w-3 text-green-600 shrink-0" />}
+                </button>
+              ))}
+              {pages.length === 0 && (
+                <p className="text-sm text-muted-foreground px-2 py-4 text-center">
+                  No custom pages yet. Click + to create one.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Editor / iframe area */}
+        <div className="flex-1 relative overflow-hidden">
+          {editorMode === "none" && (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              <div className="text-center space-y-3">
+                <Layout className="h-12 w-12 mx-auto opacity-40" />
+                <p className="text-lg font-medium">Select a page to start editing</p>
+                <p className="text-sm">Choose a site page or custom page from the sidebar</p>
+              </div>
+            </div>
+          )}
+
+          {/* Site page iframe editor */}
+          {editorMode === "site-page" && currentSiteRoute && (
+            <iframe
+              key={currentSiteRoute}
+              src={currentSiteRoute + "?edit=true"}
+              className="w-full h-full border-0"
+              title="Page Editor"
+            />
+          )}
+
+          {/* GrapesJS editor for custom pages */}
+          <div
+            ref={containerRef}
+            className="w-full h-full"
+            style={{ display: editorMode === "custom-page" ? "block" : "none" }}
+          />
+        </div>
+      </div>
     </div>
   );
+}
+
+function addBrandedBlocks(editor: Editor) {
+  const bm = editor.Blocks;
+
+  bm.add("fr-hero", {
+    label: "Hero Section",
+    category: "Frontier Residences",
+    content: `<section style="background: linear-gradient(135deg, #efe6d9 0%, #e5dace 100%); padding: 100px 40px; text-align: center;">
+      <h1 style="font-family: 'Playfair Display', serif; font-size: 48px; color: #546458; margin-bottom: 16px;">Your Headline Here</h1>
+      <p style="font-family: 'Lato', sans-serif; font-size: 20px; color: #5a6959; max-width: 600px; margin: 0 auto 32px;">Subtitle text goes here.</p>
+      <a href="#" style="display: inline-block; background: #546458; color: #fff; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-family: 'Lato', sans-serif; font-weight: 700;">Call to Action</a>
+    </section>`,
+  });
+
+  bm.add("fr-stats", {
+    label: "Stats Row",
+    category: "Frontier Residences",
+    content: `<section style="padding: 60px 40px; background: linear-gradient(135deg, #efe6d9 0%, #e5dace 100%);">
+      <div style="display: flex; gap: 24px; max-width: 1000px; margin: 0 auto; flex-wrap: wrap; justify-content: center;">
+        <div style="flex: 1; min-width: 200px; background: #fff; border-radius: 12px; padding: 32px; text-align: center; box-shadow: 0 4px 20px rgba(84,100,88,0.1);">
+          <div style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700; color: #5a6959;">34</div>
+          <div style="font-family: 'Lato', sans-serif; color: #5a6959;">Properties Managed</div>
+        </div>
+        <div style="flex: 1; min-width: 200px; background: #fff; border-radius: 12px; padding: 32px; text-align: center; box-shadow: 0 4px 20px rgba(84,100,88,0.1);">
+          <div style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700; color: #5a6959;">570+</div>
+          <div style="font-family: 'Lato', sans-serif; color: #5a6959;">Reservations</div>
+        </div>
+        <div style="flex: 1; min-width: 200px; background: #fff; border-radius: 12px; padding: 32px; text-align: center; box-shadow: 0 4px 20px rgba(84,100,88,0.1);">
+          <div style="font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700; color: #5a6959;">8</div>
+          <div style="font-family: 'Lato', sans-serif; color: #5a6959;">Destinations</div>
+        </div>
+      </div>
+    </section>`,
+  });
+
+  bm.add("fr-text-section", {
+    label: "Text Section",
+    category: "Frontier Residences",
+    content: `<section style="padding: 80px 40px; background: #fff;">
+      <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; color: #546458; margin-bottom: 20px;">Section Title</h2>
+        <p style="font-family: 'Lato', sans-serif; font-size: 18px; line-height: 1.8; color: #5a6959;">Lorem ipsum dolor sit amet.</p>
+      </div>
+    </section>`,
+  });
+
+  bm.add("fr-two-col", {
+    label: "Two Columns",
+    category: "Frontier Residences",
+    content: `<section style="padding: 80px 40px; background: #efe6d9;">
+      <div style="display: flex; gap: 40px; max-width: 1100px; margin: 0 auto; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px;">
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 28px; color: #546458; margin-bottom: 16px;">Left Column</h3>
+          <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.8;">Content for the left side.</p>
+        </div>
+        <div style="flex: 1; min-width: 300px;">
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 28px; color: #546458; margin-bottom: 16px;">Right Column</h3>
+          <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.8;">Content for the right side.</p>
+        </div>
+      </div>
+    </section>`,
+  });
+
+  bm.add("fr-cta", {
+    label: "CTA Banner",
+    category: "Frontier Residences",
+    content: `<section style="padding: 80px 40px; background: linear-gradient(135deg, #546458 0%, #3d4d40 100%); text-align: center;">
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; color: #fff; margin-bottom: 16px;">Ready to Get Started?</h2>
+      <p style="font-family: 'Lato', sans-serif; font-size: 18px; color: rgba(255,255,255,0.85); margin-bottom: 32px;">Contact us today.</p>
+      <a href="/evaluate" style="display: inline-block; background: #efe6d9; color: #546458; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-family: 'Lato', sans-serif; font-weight: 700;">Get in Touch</a>
+    </section>`,
+  });
+
+  bm.add("fr-image-text", {
+    label: "Image + Text",
+    category: "Frontier Residences",
+    content: `<section style="padding: 80px 40px; background: #fff;">
+      <div style="display: flex; gap: 40px; max-width: 1100px; margin: 0 auto; align-items: center; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px;">
+          <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);" alt="Property image"/>
+        </div>
+        <div style="flex: 1; min-width: 300px;">
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 28px; color: #546458; margin-bottom: 16px;">Beautiful Properties</h3>
+          <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.8;">Describe your content here.</p>
+          <a href="#" style="display: inline-block; margin-top: 20px; color: #546458; font-family: 'Lato', sans-serif; font-weight: 700; text-decoration: underline;">Learn More →</a>
+        </div>
+      </div>
+    </section>`,
+  });
+
+  bm.add("fr-cards", {
+    label: "Card Grid",
+    category: "Frontier Residences",
+    content: `<section style="padding: 80px 40px; background: #efe6d9;">
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; color: #546458; text-align: center; margin-bottom: 40px;">Our Services</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto;">
+        <div style="background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(84,100,88,0.08);">
+          <h4 style="font-family: 'Playfair Display', serif; font-size: 22px; color: #546458; margin-bottom: 12px;">Service One</h4>
+          <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.7;">Description here.</p>
+        </div>
+        <div style="background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(84,100,88,0.08);">
+          <h4 style="font-family: 'Playfair Display', serif; font-size: 22px; color: #546458; margin-bottom: 12px;">Service Two</h4>
+          <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.7;">Description here.</p>
+        </div>
+        <div style="background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(84,100,88,0.08);">
+          <h4 style="font-family: 'Playfair Display', serif; font-size: 22px; color: #546458; margin-bottom: 12px;">Service Three</h4>
+          <p style="font-family: 'Lato', sans-serif; color: #5a6959; line-height: 1.7;">Description here.</p>
+        </div>
+      </div>
+    </section>`,
+  });
+
+  bm.add("fr-footer", {
+    label: "Footer",
+    category: "Frontier Residences",
+    content: `<footer style="padding: 40px; background: #546458; text-align: center;">
+      <p style="font-family: 'Lato', sans-serif; color: rgba(255,255,255,0.7); margin: 0;">© 2026 Frontier Residences. All rights reserved.</p>
+    </footer>`,
+  });
 }
