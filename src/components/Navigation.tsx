@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, ExternalLink } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/frontier-logo.png";
+import EditableText from "./admin/EditableText";
 
 const GUESTY_BOOKING_URL = "https://booking.guesty.com/properties?brandId=67471cfce5b88600014f0647";
 
@@ -13,25 +14,32 @@ const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [navLabel1, setNavLabel1] = useState("Our Business Areas");
+  const [navLabel2, setNavLabel2] = useState("Projects");
+  const [navLabel3, setNavLabel3] = useState("About Us");
+  const [navLabel4, setNavLabel4] = useState("Book Your Stay");
+  const [navLabel5, setNavLabel5] = useState("Property Evaluation");
+  const [signInLabel, setSignInLabel] = useState("Sign In");
+  const [dashboardLabel, setDashboardLabel] = useState("Dashboard");
+  const [myBookingsLabel, setMyBookingsLabel] = useState("My Bookings");
+
   const handleEvaluationClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (location.pathname === "/") {
-      // Already on homepage, scroll to section
       const element = document.getElementById("property-evaluation");
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }
     } else {
-      // Navigate to homepage with hash
       navigate("/#property-evaluation");
     }
     setIsOpen(false);
   };
 
   const navLinks = [
-    { href: "/business-areas", label: "Our Business Areas" },
-    { href: "/projects", label: "Projects" },
-    { href: "/about", label: "About Us" },
+    { href: "/business-areas", label: navLabel1, setLabel: setNavLabel1, id: "nav-1" },
+    { href: "/projects", label: navLabel2, setLabel: setNavLabel2, id: "nav-2" },
+    { href: "/about", label: navLabel3, setLabel: setNavLabel3, id: "nav-3" },
   ];
 
   return (
@@ -50,31 +58,31 @@ const Navigation = () => {
                 to={link.href}
                 className="text-primary-foreground hover:text-secondary transition-colors font-medium"
               >
-                {link.label}
+                <EditableText id={link.id} value={link.label} onChange={link.setLabel} as="span" className="text-primary-foreground">{link.label}</EditableText>
               </Link>
             ))}
             <Link
               to="/properties"
               className="text-primary-foreground hover:text-secondary transition-colors font-medium"
             >
-              Book Your Stay
+              <EditableText id="nav-4" value={navLabel4} onChange={setNavLabel4} as="span" className="text-primary-foreground">{navLabel4}</EditableText>
             </Link>
             <button
               onClick={handleEvaluationClick}
               className="text-primary-foreground hover:text-secondary transition-colors font-medium"
             >
-              Property Evaluation
+              <EditableText id="nav-5" value={navLabel5} onChange={setNavLabel5} as="span" className="text-primary-foreground">{navLabel5}</EditableText>
             </button>
             {user ? (
               <Link to={isAdmin ? "/admin/dashboard" : "/book"}>
                 <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary shadow-gold">
-                  {isAdmin ? "Dashboard" : "My Bookings"}
+                  <EditableText id="nav-auth-btn" value={isAdmin ? dashboardLabel : myBookingsLabel} onChange={isAdmin ? setDashboardLabel : setMyBookingsLabel} as="span">{isAdmin ? dashboardLabel : myBookingsLabel}</EditableText>
                 </Button>
               </Link>
             ) : (
               <Link to="/auth">
                 <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary shadow-gold">
-                  Sign In
+                  <EditableText id="nav-signin-btn" value={signInLabel} onChange={setSignInLabel} as="span">{signInLabel}</EditableText>
                 </Button>
               </Link>
             )}
@@ -108,24 +116,24 @@ const Navigation = () => {
                 className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2"
                 onClick={() => setIsOpen(false)}
               >
-                Book Your Stay
+                {navLabel4}
               </Link>
               <button
                 onClick={handleEvaluationClick}
                 className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2 text-left"
               >
-                Property Evaluation
+                {navLabel5}
               </button>
               {user ? (
                 <Link to={isAdmin ? "/admin/dashboard" : "/book"} className="w-full">
                   <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary w-full">
-                    {isAdmin ? "Dashboard" : "My Bookings"}
+                    {isAdmin ? dashboardLabel : myBookingsLabel}
                   </Button>
                 </Link>
               ) : (
                 <Link to="/auth" className="w-full">
                   <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary w-full">
-                    Sign In
+                    {signInLabel}
                   </Button>
                 </Link>
               )}

@@ -13,12 +13,48 @@ const PropertyManagement = () => {
   const [sectionSubtitle, setSectionSubtitle] = useState("We manage while you relax");
   const [listingTitle, setListingTitle] = useState("Listing management");
   const [listingDesc, setListingDesc] = useState("Your property advertised on all major platforms. We keep listings updated for maximum visibility.");
+  const [listingBadge, setListingBadge] = useState("Listings that stand out");
   const [guestTitle, setGuestTitle] = useState("Guest management");
   const [guestDesc, setGuestDesc] = useState("We ensure satisfied guests and provide support whenever needed. Your guests can contact us 24/7 with any questions or problems.");
+  const [guestBadge, setGuestBadge] = useState("Stays that impress");
   const [propertyTitle, setPropertyTitle] = useState("Property management");
   const [propertyDesc1, setPropertyDesc1] = useState("Your home will be thoroughly inspected and cleaned after each stay. We take great care of your property.");
   const [propertyDesc2, setPropertyDesc2] = useState("Once guests have checked out, we will conduct a thorough inspection of your property to detect any damage.");
+  const [propertyBadge, setPropertyBadge] = useState("Homes in good hands");
   const [platformImage, setPlatformImage] = useState(platformConnections);
+  const [contactBtnText, setContactBtnText] = useState("→ Contact us");
+  const [listingMgmtLabel, setListingMgmtLabel] = useState("→ Listing management");
+  const [guestMgmtLabel, setGuestMgmtLabel] = useState("→ Guest management");
+  const [propertyMgmtLabel, setPropertyMgmtLabel] = useState("→ Property management");
+
+  const [listingManagement, setListingManagement] = useState([
+    { icon: "Monitor", title: "Optimal listing", description: "Your home will be advertised with inviting, clear photos and clear text." },
+    { icon: "BookOpen", title: "Your house rules", description: "The house rules are communicated through the advertisement to avoid misunderstandings and to prevent any damage." },
+    { icon: "DollarSign", title: "Dynamic pricing", description: "Prices are adjusted based on location, amenities, and time of year. Certain cancellation policies are also determined." },
+    { icon: "Package", title: "Admin assistance", description: "We advise you on insurance and legislation relating to the home." },
+  ]);
+
+  const [guestManagement, setGuestManagement] = useState([
+    { icon: "Shield", title: "Guest screening", description: "Before a booking is accepted, we review the terms and conditions to avoid unwanted guests." },
+    { icon: "Key", title: "Self check-in", description: "Guests receive a personal code to retrieve the key to your home from a key box." },
+    { icon: "Clock", title: "24/7 availability", description: "If guests have any questions, they can contact us at any time. We are responsible for all communication with guests." },
+    { icon: "BookOpen", title: "Survival guide", description: "A customized handbook will be created to guide guests during their stay. This will include any house rules, Wi-Fi code and activities nearby." },
+  ]);
+
+  const [propertyManagement, setPropertyManagement] = useState([
+    { icon: "Sparkles", title: "House cleaning", description: "Your home will be thoroughly cleaned after each stay, so that everything is perfect again for the next guests." },
+    { icon: "Shirt", title: "Laundry service", description: "Sheets and towels are washed and ironed after each stay. A set of towels is provided for each guest." },
+    { icon: "Wrench", title: "Repair service", description: "Our handyman service is responsible for repairs and any maintenance issues according to the vacation home." },
+    { icon: "Package", title: "Facilities", description: "We always provide some basic amenities: toilet paper, garbage bags, cleaning products, coffee/tea, soap, shampoo, etc." },
+  ]);
+
+  const iconMap: Record<string, any> = { Monitor, Home, Users, DollarSign, CheckCircle2, Shield, Key, Clock, BookOpen, Sparkles, Shirt, Wrench, Package };
+
+  const updateItem = (setter: any, items: any[], index: number, field: string, value: string) => {
+    const updated = [...items];
+    updated[index] = { ...updated[index], [field]: value };
+    setter(updated);
+  };
 
   const achievements = [
     { label: "Properties Managed", value: 34, suffix: "", icon: Home },
@@ -29,73 +65,58 @@ const PropertyManagement = () => {
 
   const AnimatedNumber = ({ value, suffix }: { value: number; suffix: string }) => {
     const [count, setCount] = useState(0);
-
     useEffect(() => {
       const duration = 2000;
       const steps = 60;
       const increment = value / steps;
       let currentStep = 0;
-
       const timer = setInterval(() => {
         currentStep++;
-        if (currentStep >= steps) {
-          setCount(value);
-          clearInterval(timer);
-        } else {
-          setCount(Math.floor(increment * currentStep));
-        }
+        if (currentStep >= steps) { setCount(value); clearInterval(timer); }
+        else { setCount(Math.floor(increment * currentStep)); }
       }, duration / steps);
-
       return () => clearInterval(timer);
     }, [value]);
-
     return <span>{count}{suffix}</span>;
   };
 
-  const listingManagement = [
-    { icon: Monitor, title: "Optimal listing", description: "Your home will be advertised with inviting, clear photos and clear text." },
-    { icon: BookOpen, title: "Your house rules", description: "The house rules are communicated through the advertisement to avoid misunderstandings and to prevent any damage." },
-    { icon: DollarSign, title: "Dynamic pricing", description: "Prices are adjusted based on location, amenities, and time of year. Certain cancellation policies are also determined." },
-    { icon: Package, title: "Admin assistance", description: "We advise you on insurance and legislation relating to the home." },
-  ];
+  const renderItemGrid = (items: any[], setter: any, prefix: string) => (
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {items.map((item, index) => {
+        const Icon = iconMap[item.icon] || Package;
+        return (
+          <div key={index} className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20" style={{ animationDelay: `${index * 100}ms` }}>
+            <Icon className="w-10 h-10 text-secondary mb-4" />
+            <EditableText id={`${prefix}-title-${index}`} value={item.title} onChange={(v) => updateItem(setter, items, index, "title", v)} as="h4" className="text-lg font-semibold text-primary-foreground mb-2">{item.title}</EditableText>
+            <EditableText id={`${prefix}-desc-${index}`} value={item.description} onChange={(v) => updateItem(setter, items, index, "description", v)} as="p" className="text-sm text-primary-foreground/80 leading-relaxed">{item.description}</EditableText>
+          </div>
+        );
+      })}
+    </div>
+  );
 
-  const guestManagement = [
-    { icon: Shield, title: "Guest screening", description: "Before a booking is accepted, we review the terms and conditions to avoid unwanted guests." },
-    { icon: Key, title: "Self check-in", description: "Guests receive a personal code to retrieve the key to your home from a key box." },
-    { icon: Clock, title: "24/7 availability", description: "If guests have any questions, they can contact us at any time. We are responsible for all communication with guests." },
-    { icon: BookOpen, title: "Survival guide", description: "A customized handbook will be created to guide guests during their stay. This will include any house rules, Wi-Fi code and activities nearby." },
-  ];
-
-  const propertyManagement = [
-    { icon: Sparkles, title: "House cleaning", description: "Your home will be thoroughly cleaned after each stay, so that everything is perfect again for the next guests." },
-    { icon: Shirt, title: "Laundry service", description: "Sheets and towels are washed and ironed after each stay. A set of towels is provided for each guest." },
-    { icon: Wrench, title: "Repair service", description: "Our handyman service is responsible for repairs and any maintenance issues according to the vacation home." },
-    { icon: Package, title: "Facilities", description: "We always provide some basic amenities: toilet paper, garbage bags, cleaning products, coffee/tea, soap, shampoo, etc." },
-  ];
+  const renderListingItemGrid = (items: any[], setter: any, prefix: string) => (
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {items.map((item, index) => {
+        const Icon = iconMap[item.icon] || Package;
+        return (
+          <div key={index} className="bg-muted/50 backdrop-blur-sm rounded-lg p-6 hover:bg-muted transition-all duration-300 animate-fade-in border border-border" style={{ animationDelay: `${index * 100}ms` }}>
+            <Icon className="w-10 h-10 text-primary mb-4" />
+            <EditableText id={`${prefix}-title-${index}`} value={item.title} onChange={(v) => updateItem(setter, items, index, "title", v)} as="h4" className="text-lg font-semibold text-foreground mb-2">{item.title}</EditableText>
+            <EditableText id={`${prefix}-desc-${index}`} value={item.description} onChange={(v) => updateItem(setter, items, index, "description", v)} as="p" className="text-sm text-foreground/70 leading-relaxed">{item.description}</EditableText>
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <section className="py-20 bg-gradient-to-br from-beige via-background to-beige-dark">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16 animate-fade-in">
-          <EditableText
-            id="pm-section-title"
-            value={sectionTitle}
-            onChange={setSectionTitle}
-            as="h2"
-            className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-6"
-          >
-            {sectionTitle}
-          </EditableText>
-          <EditableText
-            id="pm-section-subtitle"
-            value={sectionSubtitle}
-            onChange={setSectionSubtitle}
-            as="p"
-            className="text-xl text-foreground/70 max-w-3xl mx-auto"
-          >
-            {sectionSubtitle}
-          </EditableText>
+          <EditableText id="pm-section-title" value={sectionTitle} onChange={setSectionTitle} as="h2" className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-6">{sectionTitle}</EditableText>
+          <EditableText id="pm-section-subtitle" value={sectionSubtitle} onChange={setSectionSubtitle} as="p" className="text-xl text-foreground/70 max-w-3xl mx-auto">{sectionSubtitle}</EditableText>
         </div>
 
         {/* Listing Management Section */}
@@ -110,62 +131,21 @@ const PropertyManagement = () => {
                     </div>
                     <div>
                       <div className="bg-primary text-secondary px-6 py-2 rounded-full inline-block font-semibold">
-                        Listings that stand out
+                        <EditableText id="pm-listing-badge" value={listingBadge} onChange={setListingBadge} as="span">{listingBadge}</EditableText>
                       </div>
                     </div>
                   </div>
-                  
-                  <EditableText
-                    id="pm-listing-title"
-                    value={listingTitle}
-                    onChange={setListingTitle}
-                    as="h3"
-                    className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-6"
-                  >
-                    {listingTitle}
-                  </EditableText>
-                  <EditableText
-                    id="pm-listing-desc"
-                    value={listingDesc}
-                    onChange={setListingDesc}
-                    as="p"
-                    className="text-lg text-foreground/80 leading-relaxed"
-                  >
-                    {listingDesc}
-                  </EditableText>
+                  <EditableText id="pm-listing-title" value={listingTitle} onChange={setListingTitle} as="h3" className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-6">{listingTitle}</EditableText>
+                  <EditableText id="pm-listing-desc" value={listingDesc} onChange={setListingDesc} as="p" className="text-lg text-foreground/80 leading-relaxed">{listingDesc}</EditableText>
                 </div>
-                
                 <div className="flex justify-center">
-                  <EditableImage
-                    id="pm-platforms-image"
-                    src={platformImage}
-                    alt="Connected booking platforms"
-                    onChange={setPlatformImage}
-                    className="w-full max-w-md animate-fade-in"
-                  />
+                  <EditableImage id="pm-platforms-image" src={platformImage} alt="Connected booking platforms" onChange={setPlatformImage} className="w-full max-w-md animate-fade-in" />
                 </div>
               </div>
-
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {listingManagement.map((item, index) => {
-                  const Icon = item.icon;
-                  return (
-                    <div 
-                      key={index} 
-                      className="bg-muted/50 backdrop-blur-sm rounded-lg p-6 hover:bg-muted transition-all duration-300 animate-fade-in border border-border"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <Icon className="w-10 h-10 text-primary mb-4" />
-                      <h4 className="text-lg font-semibold text-foreground mb-2">{item.title}</h4>
-                      <p className="text-sm text-foreground/70 leading-relaxed">{item.description}</p>
-                    </div>
-                  );
-                })}
-              </div>
-
+              {renderListingItemGrid(listingManagement, setListingManagement, "pm-listing")}
               <Link to="/book">
                 <Button className="bg-secondary hover:bg-secondary/90 text-primary shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
-                  → Contact us
+                  <EditableText id="pm-contact-btn-1" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
                 </Button>
               </Link>
             </div>
@@ -183,60 +163,20 @@ const PropertyManagement = () => {
                   </div>
                   <div>
                     <div className="bg-secondary text-primary px-6 py-2 rounded-full inline-block mb-4 font-semibold">
-                      Stays that impress
+                      <EditableText id="pm-guest-badge" value={guestBadge} onChange={setGuestBadge} as="span">{guestBadge}</EditableText>
                     </div>
                   </div>
                 </div>
-                
-                <EditableText
-                  id="pm-guest-title"
-                  value={guestTitle}
-                  onChange={setGuestTitle}
-                  as="h3"
-                  className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6"
-                >
-                  {guestTitle}
-                </EditableText>
-                <EditableText
-                  id="pm-guest-desc"
-                  value={guestDesc}
-                  onChange={setGuestDesc}
-                  as="p"
-                  multiline
-                  className="text-xl text-primary-foreground/90 mb-8 leading-relaxed"
-                >
-                  {guestDesc}
-                </EditableText>
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  {guestManagement.map((item, index) => {
-                    const Icon = item.icon;
-                    return (
-                      <div 
-                        key={index} 
-                        className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20"
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        <Icon className="w-10 h-10 text-secondary mb-4" />
-                        <h4 className="text-lg font-semibold text-primary-foreground mb-2">{item.title}</h4>
-                        <p className="text-sm text-primary-foreground/80 leading-relaxed">{item.description}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-
+                <EditableText id="pm-guest-title" value={guestTitle} onChange={setGuestTitle} as="h3" className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">{guestTitle}</EditableText>
+                <EditableText id="pm-guest-desc" value={guestDesc} onChange={setGuestDesc} as="p" multiline className="text-xl text-primary-foreground/90 mb-8 leading-relaxed">{guestDesc}</EditableText>
+                {renderItemGrid(guestManagement, setGuestManagement, "pm-guest")}
                 <div className="flex flex-wrap gap-4 mb-8">
-                  <div className="text-secondary text-lg font-medium flex items-center gap-2">
-                    → Listing management
-                  </div>
-                  <div className="text-secondary text-lg font-medium flex items-center gap-2">
-                    → Property management
-                  </div>
+                  <EditableText id="pm-listing-mgmt-label" value={listingMgmtLabel} onChange={setListingMgmtLabel} as="span" className="text-secondary text-lg font-medium">{listingMgmtLabel}</EditableText>
+                  <EditableText id="pm-property-mgmt-label" value={propertyMgmtLabel} onChange={setPropertyMgmtLabel} as="span" className="text-secondary text-lg font-medium">{propertyMgmtLabel}</EditableText>
                 </div>
-
                 <Link to="/book">
                   <Button className="bg-secondary hover:bg-secondary/90 text-primary shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
-                    → Contact us
+                    <EditableText id="pm-contact-btn-2" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
                   </Button>
                 </Link>
               </CardContent>
@@ -255,70 +195,23 @@ const PropertyManagement = () => {
                   </div>
                   <div>
                     <div className="bg-secondary text-primary px-6 py-2 rounded-full inline-block mb-4 font-semibold">
-                      Homes in good hands
+                      <EditableText id="pm-property-badge" value={propertyBadge} onChange={setPropertyBadge} as="span">{propertyBadge}</EditableText>
                     </div>
                   </div>
                 </div>
-                
-                <EditableText
-                  id="pm-property-title"
-                  value={propertyTitle}
-                  onChange={setPropertyTitle}
-                  as="h3"
-                  className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6"
-                >
-                  {propertyTitle}
-                </EditableText>
+                <EditableText id="pm-property-title" value={propertyTitle} onChange={setPropertyTitle} as="h3" className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">{propertyTitle}</EditableText>
                 <div className="space-y-4 mb-8">
-                  <EditableText
-                    id="pm-property-desc1"
-                    value={propertyDesc1}
-                    onChange={setPropertyDesc1}
-                    as="p"
-                    className="text-xl text-primary-foreground/90 leading-relaxed"
-                  >
-                    {propertyDesc1}
-                  </EditableText>
-                  <EditableText
-                    id="pm-property-desc2"
-                    value={propertyDesc2}
-                    onChange={setPropertyDesc2}
-                    as="p"
-                    className="text-xl text-primary-foreground/90 leading-relaxed"
-                  >
-                    {propertyDesc2}
-                  </EditableText>
+                  <EditableText id="pm-property-desc1" value={propertyDesc1} onChange={setPropertyDesc1} as="p" className="text-xl text-primary-foreground/90 leading-relaxed">{propertyDesc1}</EditableText>
+                  <EditableText id="pm-property-desc2" value={propertyDesc2} onChange={setPropertyDesc2} as="p" className="text-xl text-primary-foreground/90 leading-relaxed">{propertyDesc2}</EditableText>
                 </div>
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  {propertyManagement.map((item, index) => {
-                    const Icon = item.icon;
-                    return (
-                      <div 
-                        key={index} 
-                        className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20"
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        <Icon className="w-10 h-10 text-secondary mb-4" />
-                        <h4 className="text-lg font-semibold text-primary-foreground mb-2">{item.title}</h4>
-                        <p className="text-sm text-primary-foreground/80 leading-relaxed">{item.description}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-
+                {renderItemGrid(propertyManagement, setPropertyManagement, "pm-prop")}
                 <div className="flex flex-wrap gap-4 mb-8">
-                  <div className="text-secondary text-lg font-medium flex items-center gap-2">
-                    → Listing management
-                  </div>
-                  <div className="text-secondary text-lg font-medium flex items-center gap-2">
-                    → Guest management
-                  </div>
+                  <EditableText id="pm-listing-mgmt-label2" value={listingMgmtLabel} onChange={setListingMgmtLabel} as="span" className="text-secondary text-lg font-medium">{listingMgmtLabel}</EditableText>
+                  <EditableText id="pm-guest-mgmt-label" value={guestMgmtLabel} onChange={setGuestMgmtLabel} as="span" className="text-secondary text-lg font-medium">{guestMgmtLabel}</EditableText>
                 </div>
-
                 <Link to="/book">
                   <Button className="bg-secondary hover:bg-secondary/90 text-primary shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
-                    → Contact us
+                    <EditableText id="pm-contact-btn-3" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
                   </Button>
                 </Link>
               </CardContent>
