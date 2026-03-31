@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import EditableText from "@/components/admin/EditableText";
 
-const Index = () => {
+const IndexContent = () => {
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [gridLayout, setGridLayout] = useState(3);
