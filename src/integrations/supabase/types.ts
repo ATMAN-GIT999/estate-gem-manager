@@ -666,6 +666,45 @@ export type Database = {
         }
         Relationships: []
       }
+      pages: {
+        Row: {
+          content_components: string | null
+          content_css: string | null
+          content_html: string | null
+          content_styles: string | null
+          created_at: string
+          id: string
+          is_published: boolean | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          content_components?: string | null
+          content_css?: string | null
+          content_html?: string | null
+          content_styles?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          content_components?: string | null
+          content_css?: string | null
+          content_html?: string | null
+          content_styles?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

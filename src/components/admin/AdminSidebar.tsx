@@ -17,6 +17,7 @@ import {
   PlusSquare,
   Users,
   MessageSquare,
+  Paintbrush,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ const mainNavItems: NavItem[] = [
   { label: "Blog", icon: FileText, href: "/admin/blog" },
   { label: "Notifications", icon: Heart, href: "/admin/notifications" },
   { label: "Create", icon: PlusSquare, href: "/admin/create" },
+  { label: "Page Builder", icon: Paintbrush, href: "/admin/builder" },
 ];
 
 const discoverItems: NavItem[] = [
