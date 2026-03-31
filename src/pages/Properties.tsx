@@ -6,8 +6,9 @@ import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import EditableText from "@/components/admin/EditableText";
 import GuestySearchWidget from "@/components/GuestySearchWidget";
+import PageWrapper from "@/components/PageWrapper";
 
-const Properties = () => {
+const PropertiesContent = () => {
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageTitle, setPageTitle] = useState("All Properties");
@@ -87,4 +88,5 @@ const Properties = () => {
   );
 };
 
+const Properties = () => (<PageWrapper slug="site--properties"><PropertiesContent /></PageWrapper>);
 export default Properties;

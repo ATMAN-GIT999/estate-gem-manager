@@ -4,8 +4,9 @@ import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck, Cpu, Check } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
+import PageWrapper from "@/components/PageWrapper";
 
-const PropertyManagementPage = () => {
+const PropertyManagementPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Luxury Property Management Designed for Exceptional Homes");
   const [pageSubtitle, setPageSubtitle] = useState("We deliver a personalised management plan for every property — combining hotel-level hospitality with advanced AI-driven systems to maximise revenue, elevate guest satisfaction, and protect the long-term value of your home.");
   const [servicesTitle, setServicesTitle] = useState("Our Services");
@@ -144,4 +145,5 @@ const PropertyManagementPage = () => {
   );
 };
 
+const PropertyManagementPage = () => (<PageWrapper slug="site--property-management"><PropertyManagementPageContent /></PageWrapper>);
 export default PropertyManagementPage;

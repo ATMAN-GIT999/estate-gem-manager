@@ -15,8 +15,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import EditableText from "@/components/admin/EditableText";
+import PageWrapper from "@/components/PageWrapper";
 
-const Index = () => {
+const IndexContent = () => {
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [gridLayout, setGridLayout] = useState(3);
@@ -169,5 +170,11 @@ const Index = () => {
     </div>
   );
 };
+
+const Index = () => (
+  <PageWrapper slug="site--home">
+    <IndexContent />
+  </PageWrapper>
+);
 
 export default Index;

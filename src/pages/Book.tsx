@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Bed, Bath, Users, Star } from "lucide-react";
+import PageWrapper from "@/components/PageWrapper";
 
-const Book = () => {
+const BookContent = () => {
   const properties = [
     {
       id: 1,
@@ -167,4 +168,5 @@ const Book = () => {
   );
 };
 
+const Book = () => (<PageWrapper slug="site--book"><BookContent /></PageWrapper>);
 export default Book;

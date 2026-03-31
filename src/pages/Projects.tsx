@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { MapPin, TrendingUp, Home, Star } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
+import PageWrapper from "@/components/PageWrapper";
 
-const Projects = () => {
+const ProjectsContent = () => {
   const [pageTitle, setPageTitle] = useState("Our Work: Precision, Performance, and Mediterranean Craftsmanship");
   const [pageSubtitle, setPageSubtitle] = useState("Showcasing properties by country with before/after transformations, renovation stories, revenue improvements, and occupancy results.");
   const [destinationsTitle, setDestinationsTitle] = useState("Our Destinations");
@@ -173,4 +174,5 @@ const Projects = () => {
   );
 };
 
+const Projects = () => (<PageWrapper slug="site--projects"><ProjectsContent /></PageWrapper>);
 export default Projects;

@@ -4,8 +4,9 @@ import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Search, BarChart3, Handshake, HardHat, Settings, MapPin } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
+import PageWrapper from "@/components/PageWrapper";
 
-const InvestmentsPage = () => {
+const InvestmentsPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Curated Real Estate Investments Across Europe");
   const [pageSubtitle, setPageSubtitle] = useState("We connect investors with high-performing opportunities in Spain, Austria, and Croatia. Frontier Residences manages every step: acquisition, evaluation, renovation, and turnkey rental operations.");
   const [servicesTitle, setServicesTitle] = useState("Our Investment Services");
@@ -117,4 +118,5 @@ const InvestmentsPage = () => {
   );
 };
 
+const InvestmentsPage = () => (<PageWrapper slug="site--investments"><InvestmentsPageContent /></PageWrapper>);
 export default InvestmentsPage;
