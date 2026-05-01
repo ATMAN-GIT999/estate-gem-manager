@@ -29,6 +29,8 @@ interface QuoteData {
   currency: string;
   ratePlanId?: string;
   cancellationPolicy?: string;
+  discount?: number;
+  appliedCoupon?: string;
 }
 
 const BookingSummary = ({
@@ -46,6 +48,8 @@ const BookingSummary = ({
   const [quote, setQuote] = useState<QuoteData | null>(null);
   const [showCoupon, setShowCoupon] = useState(false);
   const [couponCode, setCouponCode] = useState("");
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [guestInfo, setGuestInfo] = useState({
     firstName: "",
     lastName: "",
@@ -60,7 +64,7 @@ const BookingSummary = ({
     fetchQuote();
   }, []);
 
-  const fetchQuote = async () => {
+  const fetchQuote = async (coupon?: string) => {
     setLoading(true);
     try {
       if (property.guesty_listing_id) {
@@ -70,6 +74,7 @@ const BookingSummary = ({
             checkIn,
             checkOut,
             guests: { adults: guests },
+            couponCode: coupon || undefined,
           },
         });
 
@@ -85,15 +90,23 @@ const BookingSummary = ({
           const ratePlan = quoteData.ratePlans?.[0] || quoteData;
           const subtotal = ratePlan.totalPrice || ratePlan.basePrice || property.price_per_night * nights;
           const fees = ratePlan.fees?.total || ratePlan.serviceFee || 0;
-          
+          const discount =
+            ratePlan.discount?.total ||
+            ratePlan.couponDiscount ||
+            quoteData.discount?.total ||
+            quoteData.couponDiscount ||
+            0;
+
           setQuote({
             quoteId: quoteData.quoteId || quoteData._id,
             subtotal: subtotal - fees,
             fees: fees,
-            total: subtotal,
+            total: subtotal - (discount || 0),
             currency: quoteData.currency || 'EUR',
             ratePlanId: ratePlan.ratePlanId || ratePlan._id,
             cancellationPolicy: ratePlan.cancellationPolicy || 'Non-refundable',
+            discount: discount || 0,
+            appliedCoupon: coupon || undefined,
           });
         } else {
           // Fallback calculation
@@ -121,6 +134,14 @@ const BookingSummary = ({
       }
     } catch (error: any) {
       console.error('Error fetching quote:', error);
+      if (coupon) {
+        toast({
+          variant: "destructive",
+          title: "Coupon failed",
+          description: error.message || "Could not apply coupon",
+        });
+        setAppliedCoupon(null);
+      }
       // Fallback to local calculation
       const subtotal = property.price_per_night * nights;
       const fees = Math.round(subtotal * 0.1);
@@ -135,6 +156,35 @@ const BookingSummary = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleApplyCoupon = async () => {
+    const code = couponCode.trim();
+    if (!code) {
+      toast({
+        variant: "destructive",
+        title: "Enter a code",
+        description: "Please enter a coupon code first.",
+      });
+      return;
+    }
+    setApplyingCoupon(true);
+    try {
+      await fetchQuote(code);
+      setAppliedCoupon(code);
+      toast({
+        title: "Coupon applied",
+        description: `Code "${code}" applied to your booking.`,
+      });
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = async () => {
+    setCouponCode("");
+    setAppliedCoupon(null);
+    await fetchQuote();
   };
 
   const handleCheckout = async () => {
@@ -164,6 +214,7 @@ const BookingSummary = ({
           body: {
             quoteId: quote.quoteId,
             ratePlanId: quote.ratePlanId,
+            couponCode: appliedCoupon || undefined,
             guest: {
               firstName: guestInfo.firstName,
               lastName: guestInfo.lastName,
@@ -298,9 +349,32 @@ const BookingSummary = ({
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
                 className="flex-1"
+                disabled={!!appliedCoupon || applyingCoupon}
               />
-              <Button variant="outline" size="sm">Apply</Button>
+              {appliedCoupon ? (
+                <Button variant="outline" size="sm" onClick={handleRemoveCoupon}>
+                  Remove
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleApplyCoupon}
+                  disabled={applyingCoupon}
+                >
+                  {applyingCoupon ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Apply"
+                  )}
+                </Button>
+              )}
             </div>
+          )}
+          {appliedCoupon && (
+            <p className="mt-2 text-xs text-primary">
+              Coupon “{appliedCoupon}” applied
+            </p>
           )}
         </div>
 
@@ -316,6 +390,12 @@ const BookingSummary = ({
             <span className="text-muted-foreground">Fees</span>
             <span>€{quote?.fees?.toFixed(2)}</span>
           </div>
+          {quote?.discount && quote.discount > 0 ? (
+            <div className="flex justify-between text-sm text-primary">
+              <span>Discount{appliedCoupon ? ` (${appliedCoupon})` : ""}</span>
+              <span>-€{quote.discount.toFixed(2)}</span>
+            </div>
+          ) : null}
           <Separator />
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>

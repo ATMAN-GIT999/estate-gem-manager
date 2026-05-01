@@ -12,6 +12,7 @@ interface QuoteRequest {
     children?: number;
     pets?: number;
   };
+  couponCode?: string;
 }
 
 Deno.serve(async (req) => {
@@ -20,7 +21,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { listingId, checkIn, checkOut, guests }: QuoteRequest = await req.json();
+    const { listingId, checkIn, checkOut, guests, couponCode }: QuoteRequest = await req.json();
     
     if (!listingId || !checkIn || !checkOut || !guests) {
       return new Response(
@@ -49,7 +50,7 @@ Deno.serve(async (req) => {
     // Using the Reservation Quote Flow as recommended in the docs
     const quoteUrl = 'https://booking.guesty.com/api/v1/reservations/quotes';
     
-    const quotePayload = {
+    const quotePayload: Record<string, unknown> = {
       listingId,
       checkIn,
       checkOut,
@@ -57,6 +58,12 @@ Deno.serve(async (req) => {
       adults: guests.adults,
       children: guests.children || 0,
     };
+
+    if (couponCode && couponCode.trim()) {
+      quotePayload.coupon = couponCode.trim();
+      quotePayload.couponCode = couponCode.trim();
+      quotePayload.promoCode = couponCode.trim();
+    }
 
     console.log('Requesting quote with payload:', quotePayload);
 
@@ -73,6 +80,13 @@ Deno.serve(async (req) => {
     if (!quoteResponse.ok) {
       const errorText = await quoteResponse.text();
       console.error('Failed to get quote:', quoteResponse.status, errorText);
+      // Surface coupon-specific errors clearly
+      if (couponCode && /coupon|promo|invalid/i.test(errorText)) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid or expired coupon code', details: errorText }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
       throw new Error(`Failed to get quote: ${errorText}`);
     }
 

@@ -18,6 +18,7 @@ interface ReservationRequest {
   };
   paymentToken?: string; // For instant booking
   type: 'instant' | 'inquiry';
+  couponCode?: string;
 }
 
 Deno.serve(async (req) => {
@@ -33,6 +34,7 @@ Deno.serve(async (req) => {
       policy,
       paymentToken,
       type,
+      couponCode,
     }: ReservationRequest = await req.json();
     
     if (!quoteId || !guest || !policy || !type) {
@@ -84,6 +86,12 @@ Deno.serve(async (req) => {
     // Add payment token for instant bookings
     if (type === 'instant' && paymentToken) {
       reservationPayload.paymentToken = paymentToken;
+    }
+
+    // Pass coupon code through if provided
+    if (couponCode && couponCode.trim()) {
+      reservationPayload.coupon = couponCode.trim();
+      reservationPayload.couponCode = couponCode.trim();
     }
 
     // Set reservation type
