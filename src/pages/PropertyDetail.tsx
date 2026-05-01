@@ -312,14 +312,16 @@ const PropertyDetail = () => {
       <Dialog open={showBookingSummary} onOpenChange={setShowBookingSummary}>
         <DialogContent className="sm:max-w-md p-0 overflow-hidden">
           <DialogTitle className="sr-only">Booking Summary</DialogTitle>
-          <BookingSummary
-            property={property}
-            checkIn={booking.checkIn}
-            checkOut={booking.checkOut}
-            guests={booking.guests}
-            onClose={() => setShowBookingSummary(false)}
-            onSuccess={handleBookingSuccess}
-          />
+          {showBookingSummary && booking.checkIn && booking.checkOut && (
+            <BookingSummary
+              property={property}
+              checkIn={booking.checkIn}
+              checkOut={booking.checkOut}
+              guests={booking.guests}
+              onClose={() => setShowBookingSummary(false)}
+              onSuccess={handleBookingSuccess}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
