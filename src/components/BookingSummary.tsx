@@ -349,9 +349,32 @@ const BookingSummary = ({
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
                 className="flex-1"
+                disabled={!!appliedCoupon || applyingCoupon}
               />
-              <Button variant="outline" size="sm">Apply</Button>
+              {appliedCoupon ? (
+                <Button variant="outline" size="sm" onClick={handleRemoveCoupon}>
+                  Remove
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleApplyCoupon}
+                  disabled={applyingCoupon}
+                >
+                  {applyingCoupon ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Apply"
+                  )}
+                </Button>
+              )}
             </div>
+          )}
+          {appliedCoupon && (
+            <p className="mt-2 text-xs text-primary">
+              Coupon “{appliedCoupon}” applied
+            </p>
           )}
         </div>
 
@@ -367,6 +390,12 @@ const BookingSummary = ({
             <span className="text-muted-foreground">Fees</span>
             <span>€{quote?.fees?.toFixed(2)}</span>
           </div>
+          {quote?.discount && quote.discount > 0 ? (
+            <div className="flex justify-between text-sm text-primary">
+              <span>Discount{appliedCoupon ? ` (${appliedCoupon})` : ""}</span>
+              <span>-€{quote.discount.toFixed(2)}</span>
+            </div>
+          ) : null}
           <Separator />
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
