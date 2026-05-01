@@ -72,18 +72,24 @@ const PropertyDetail = () => {
   }, [slug, navigate, toast]);
 
   const handleBookNow = () => {
-    // Redirect to Guesty Booking Engine for real-time availability & payment
-    const guestyBaseUrl = "https://frontierresidences.guestybookings.com";
-
-    // Use root booking engine URL with query params to avoid invalid listing-level deep links
-    const params = new URLSearchParams();
-    if (booking.checkIn) params.set("checkIn", booking.checkIn);
-    if (booking.checkOut) params.set("checkOut", booking.checkOut);
-    if (booking.guests) params.set("guests", booking.guests.toString());
-    if (property.guesty_listing_id) params.set("listingId", property.guesty_listing_id);
-
-    const bookingUrl = `${guestyBaseUrl}/${params.toString() ? `?${params.toString()}` : ""}`;
-    window.open(bookingUrl, "_blank", "noopener,noreferrer");
+    // Open in-app booking flow powered by the Guesty Booking API
+    if (!booking.checkIn || !booking.checkOut) {
+      toast({
+        variant: "destructive",
+        title: "Select your dates",
+        description: "Please choose check-in and check-out dates to continue.",
+      });
+      return;
+    }
+    if (new Date(booking.checkOut) <= new Date(booking.checkIn)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid dates",
+        description: "Check-out must be after check-in.",
+      });
+      return;
+    }
+    setShowBookingSummary(true);
   };
 
   const handleBookingSuccess = () => {
