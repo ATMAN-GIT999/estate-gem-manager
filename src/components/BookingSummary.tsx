@@ -490,6 +490,33 @@ const BookingSummary = ({
           </label>
         </div>
 
+        {/* Payment - Stripe Card */}
+        {property.guesty_listing_id && (
+          <div className="space-y-2">
+            <h3 className="font-semibold flex items-center gap-2">
+              <CreditCard className="w-4 h-4" /> Payment
+            </h3>
+            {stripePromise ? (
+              <Elements stripe={stripePromise}>
+                <StripeCardCapture
+                  onReady={(stripe, element) => {
+                    setStripeInstance(stripe);
+                    setCardElement(element);
+                    setCardReady(true);
+                  }}
+                />
+              </Elements>
+            ) : (
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                <Loader2 className="w-3 h-3 animate-spin" /> Loading secure payment form...
+              </div>
+            )}
+            <p className="text-[10px] text-muted-foreground">
+              Your card is processed securely by Stripe via Guesty. We never store card details.
+            </p>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex gap-3 pt-2">
           <Button variant="outline" onClick={onClose} className="flex-1">
@@ -497,7 +524,7 @@ const BookingSummary = ({
           </Button>
           <Button
             onClick={handleCheckout}
-            disabled={submitting}
+            disabled={submitting || (!!property.guesty_listing_id && !cardReady)}
             className="flex-1"
           >
             {submitting ? (
