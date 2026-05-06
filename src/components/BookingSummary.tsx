@@ -223,6 +223,20 @@ const BookingSummary = ({
     setSubmitting(true);
     try {
       if (property.guesty_listing_id && quote?.quoteId) {
+        // Tokenize card with Stripe for instant booking
+        let paymentToken: string | undefined;
+        if (stripeInstance && cardElement) {
+          const { token, error: stripeError } = await stripeInstance.createToken(cardElement, {
+            name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+          });
+          if (stripeError || !token) {
+            throw new Error(stripeError?.message || 'Card tokenization failed');
+          }
+          paymentToken = token.id;
+        } else {
+          throw new Error('Payment form not ready. Please enter card details.');
+        }
+
         // Create reservation via Guesty API
         const response = await supabase.functions.invoke('guesty-create-reservation', {
           body: {
@@ -239,7 +253,8 @@ const BookingSummary = ({
               terms: true,
               cancellation: true,
             },
-            type: 'inquiry',
+            type: 'instant',
+            paymentToken,
           },
         });
 
