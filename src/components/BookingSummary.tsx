@@ -10,7 +10,41 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Tag, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Tag, ChevronDown, ChevronUp, CreditCard } from "lucide-react";
+import { loadStripe, Stripe, StripeCardElement } from "@stripe/stripe-js";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+
+const StripeCardCapture = ({
+  onReady,
+}: {
+  onReady: (stripe: Stripe, element: StripeCardElement) => void;
+}) => {
+  const stripe = useStripe();
+  const elements = useElements();
+
+  return (
+    <div className="border border-input rounded-md p-3 bg-background">
+      <CardElement
+        options={{
+          style: {
+            base: {
+              fontSize: '14px',
+              color: '#1a1a1a',
+              '::placeholder': { color: '#9ca3af' },
+            },
+            invalid: { color: '#dc2626' },
+          },
+        }}
+        onReady={() => {
+          if (stripe && elements) {
+            const el = elements.getElement(CardElement);
+            if (el) onReady(stripe, el);
+          }
+        }}
+      />
+    </div>
+  );
+};
 
 interface BookingSummaryProps {
   property: any;
@@ -57,11 +91,23 @@ const BookingSummary = ({
     phone: "",
   });
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
+  const [cardReady, setCardReady] = useState(false);
+  const [cardElement, setCardElement] = useState<StripeCardElement | null>(null);
+  const [stripeInstance, setStripeInstance] = useState<Stripe | null>(null);
 
   const nights = differenceInDays(new Date(checkOut), new Date(checkIn));
 
   useEffect(() => {
     fetchQuote();
+    // Load Stripe publishable key from edge function
+    supabase.functions.invoke('guesty-stripe-config').then(({ data, error }) => {
+      if (error || !data?.publishableKey) {
+        console.error('Failed to load Stripe config:', error);
+        return;
+      }
+      setStripePromise(loadStripe(data.publishableKey));
+    });
   }, []);
 
   const fetchQuote = async (coupon?: string) => {
@@ -209,6 +255,20 @@ const BookingSummary = ({
     setSubmitting(true);
     try {
       if (property.guesty_listing_id && quote?.quoteId) {
+        // Tokenize card with Stripe for instant booking
+        let paymentToken: string | undefined;
+        if (stripeInstance && cardElement) {
+          const { token, error: stripeError } = await stripeInstance.createToken(cardElement, {
+            name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+          });
+          if (stripeError || !token) {
+            throw new Error(stripeError?.message || 'Card tokenization failed');
+          }
+          paymentToken = token.id;
+        } else {
+          throw new Error('Payment form not ready. Please enter card details.');
+        }
+
         // Create reservation via Guesty API
         const response = await supabase.functions.invoke('guesty-create-reservation', {
           body: {
@@ -225,7 +285,8 @@ const BookingSummary = ({
               terms: true,
               cancellation: true,
             },
-            type: 'inquiry',
+            type: 'instant',
+            paymentToken,
           },
         });
 
@@ -461,6 +522,33 @@ const BookingSummary = ({
           </label>
         </div>
 
+        {/* Payment - Stripe Card */}
+        {property.guesty_listing_id && (
+          <div className="space-y-2">
+            <h3 className="font-semibold flex items-center gap-2">
+              <CreditCard className="w-4 h-4" /> Payment
+            </h3>
+            {stripePromise ? (
+              <Elements stripe={stripePromise}>
+                <StripeCardCapture
+                  onReady={(stripe, element) => {
+                    setStripeInstance(stripe);
+                    setCardElement(element);
+                    setCardReady(true);
+                  }}
+                />
+              </Elements>
+            ) : (
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                <Loader2 className="w-3 h-3 animate-spin" /> Loading secure payment form...
+              </div>
+            )}
+            <p className="text-[10px] text-muted-foreground">
+              Your card is processed securely by Stripe via Guesty. We never store card details.
+            </p>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex gap-3 pt-2">
           <Button variant="outline" onClick={onClose} className="flex-1">
@@ -468,7 +556,7 @@ const BookingSummary = ({
           </Button>
           <Button
             onClick={handleCheckout}
-            disabled={submitting}
+            disabled={submitting || (!!property.guesty_listing_id && !cardReady)}
             className="flex-1"
           >
             {submitting ? (
