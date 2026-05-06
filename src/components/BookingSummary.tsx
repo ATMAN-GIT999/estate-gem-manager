@@ -14,6 +14,38 @@ import { Loader2, Tag, ChevronDown, ChevronUp, CreditCard } from "lucide-react";
 import { loadStripe, Stripe, StripeCardElement } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
+const StripeCardCapture = ({
+  onReady,
+}: {
+  onReady: (stripe: Stripe, element: StripeCardElement) => void;
+}) => {
+  const stripe = useStripe();
+  const elements = useElements();
+
+  return (
+    <div className="border border-input rounded-md p-3 bg-background">
+      <CardElement
+        options={{
+          style: {
+            base: {
+              fontSize: '14px',
+              color: '#1a1a1a',
+              '::placeholder': { color: '#9ca3af' },
+            },
+            invalid: { color: '#dc2626' },
+          },
+        }}
+        onReady={() => {
+          if (stripe && elements) {
+            const el = elements.getElement(CardElement);
+            if (el) onReady(stripe, el);
+          }
+        }}
+      />
+    </div>
+  );
+};
+
 interface BookingSummaryProps {
   property: any;
   checkIn: string;
