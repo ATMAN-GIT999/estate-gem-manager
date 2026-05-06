@@ -10,7 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Tag, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Tag, ChevronDown, ChevronUp, CreditCard } from "lucide-react";
+import { loadStripe, Stripe, StripeCardElement } from "@stripe/stripe-js";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
 interface BookingSummaryProps {
   property: any;
@@ -57,11 +59,23 @@ const BookingSummary = ({
     phone: "",
   });
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
+  const [cardReady, setCardReady] = useState(false);
+  const [cardElement, setCardElement] = useState<StripeCardElement | null>(null);
+  const [stripeInstance, setStripeInstance] = useState<Stripe | null>(null);
 
   const nights = differenceInDays(new Date(checkOut), new Date(checkIn));
 
   useEffect(() => {
     fetchQuote();
+    // Load Stripe publishable key from edge function
+    supabase.functions.invoke('guesty-stripe-config').then(({ data, error }) => {
+      if (error || !data?.publishableKey) {
+        console.error('Failed to load Stripe config:', error);
+        return;
+      }
+      setStripePromise(loadStripe(data.publishableKey));
+    });
   }, []);
 
   const fetchQuote = async (coupon?: string) => {
