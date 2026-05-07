@@ -152,17 +152,19 @@ const AvailabilityCalendar = ({
     const price = day?.price;
     const booked = isBooked(props.date);
     return (
-      <div className="flex flex-col items-center justify-center leading-tight gap-0.5 w-full h-full">
+      <div className="flex flex-col items-center justify-center leading-none gap-1 w-full h-full py-1">
         <span className="text-sm sm:text-base font-semibold">{props.date.getDate()}</span>
-        {typeof price === "number" && (
+        {typeof price === "number" ? (
           <span
             className={cn(
-              "text-[10px] sm:text-[11px] tabular-nums font-medium",
+              "text-[10px] sm:text-xs tabular-nums font-medium",
               booked ? "opacity-40 line-through" : "opacity-80"
             )}
           >
             {fmtPrice(price)}
           </span>
+        ) : (
+          <span className="text-[10px] opacity-30">—</span>
         )}
       </div>
     );
