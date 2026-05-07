@@ -161,9 +161,9 @@ const PropertyDetail = () => {
             ))}
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-5 gap-8">
             {/* Property Details */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-3 space-y-6">
               <div>
                 <div className="flex items-start justify-between mb-4">
                   <div>
@@ -247,7 +247,7 @@ const PropertyDetail = () => {
             </div>
 
             {/* Booking Card */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-2">
               <Card className="sticky top-24">
                 <CardContent className="p-6">
                   <div className="mb-6">
