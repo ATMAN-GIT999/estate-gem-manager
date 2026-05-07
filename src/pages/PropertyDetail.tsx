@@ -274,7 +274,7 @@ const PropertyDetail = () => {
                       listingId={property.guesty_listing_id}
                       range={range}
                       onRangeChange={handleRangeChange}
-                      numberOfMonths={2}
+                      numberOfMonths={1}
                       onValidityChange={({ valid }) => setDatesValid(valid)}
                     />
 
