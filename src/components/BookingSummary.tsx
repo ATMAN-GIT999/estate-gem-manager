@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Tag, ChevronDown, ChevronUp, CreditCard } from "lucide-react";
+import { z } from "zod";
 import { loadStripe, Stripe, StripeCardElement } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import InstantBookFallbackDialog, {
@@ -305,11 +306,45 @@ const BookingSummary = ({
   };
 
   const handleCheckout = async () => {
-    if (!guestInfo.firstName || !guestInfo.lastName || !guestInfo.email) {
+    const guestSchema = z.object({
+      firstName: z.string().trim().min(1, "First name required").max(100),
+      lastName: z.string().trim().min(1, "Last name required").max(100),
+      email: z.string().trim().email("Valid email required").max(255),
+      phone: z
+        .string()
+        .trim()
+        .regex(/^\+?[0-9\s\-()]{6,20}$/, "Valid phone required")
+        .optional()
+        .or(z.literal("")),
+    });
+    const parsed = guestSchema.safeParse(guestInfo);
+    if (!parsed.success) {
       toast({
         variant: "destructive",
-        title: "Missing information",
-        description: "Please fill in all required fields",
+        title: "Check your details",
+        description: parsed.error.issues[0]?.message || "Please review the form.",
+      });
+      return;
+    }
+
+    // Date sanity checks
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const ci = new Date(checkIn);
+    const co = new Date(checkOut);
+    if (isNaN(ci.getTime()) || isNaN(co.getTime()) || ci < today || co <= ci) {
+      toast({
+        variant: "destructive",
+        title: "Invalid dates",
+        description: "Please choose valid check-in and check-out dates.",
+      });
+      return;
+    }
+    if (!Number.isInteger(guests) || guests < 1 || guests > 50) {
+      toast({
+        variant: "destructive",
+        title: "Invalid guest count",
+        description: "Guest count must be between 1 and 50.",
       });
       return;
     }
