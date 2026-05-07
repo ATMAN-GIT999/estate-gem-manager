@@ -82,6 +82,37 @@ Deno.serve(async (req) => {
     if (!quoteResponse.ok) {
       const errorText = await quoteResponse.text();
       console.error('Failed to get quote:', quoteResponse.status, errorText);
+
+      // Try to parse Guesty's structured error and translate to a friendly message
+      let parsed: any = null;
+      try { parsed = JSON.parse(errorText); } catch { /* not JSON */ }
+      const guestyErr = parsed?.error || parsed;
+      const code = guestyErr?.code || '';
+      const notApplicable =
+        guestyErr?.data?.moreDetails?.notApplicableRatePlans?.[0]?.notApplicable || {};
+
+      if (code === 'LISTING_IS_NOT_AVAILABLE' || Object.values(notApplicable).some(Boolean)) {
+        const reasons: string[] = [];
+        if (notApplicable.minNights) reasons.push('your stay is shorter than the minimum nights allowed');
+        if (notApplicable.maxNights) reasons.push('your stay exceeds the maximum nights allowed');
+        if (notApplicable.advanceNotice) reasons.push('the check-in is too soon (advance notice required)');
+        if (notApplicable.bookingWindow) reasons.push('the dates fall outside the booking window');
+        if (notApplicable.closed || notApplicable.hardBlocked || notApplicable.manual)
+          reasons.push('the dates are not available');
+        if (notApplicable.cta) reasons.push('check-in is not allowed on the selected day');
+        if (notApplicable.ctd) reasons.push('check-out is not allowed on the selected day');
+        if (notApplicable.preparationTime) reasons.push('preparation time between bookings is required');
+        const reason = reasons[0] || 'these dates are not available for this property';
+        return new Response(
+          JSON.stringify({
+            error: `These dates can't be booked — ${reason}. Please choose different dates.`,
+            code: 'DATES_NOT_AVAILABLE',
+            details: notApplicable,
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       // Surface coupon-specific errors clearly
       if (couponCode && /coupon|promo|invalid/i.test(errorText)) {
         return new Response(
