@@ -104,7 +104,9 @@ export type Database = {
           guest_name: string
           guest_phone: string | null
           guests: number
+          guesty_reservation_id: string | null
           id: string
+          payment_status: string | null
           property_id: string
           special_requests: string | null
           status: string | null
@@ -120,7 +122,9 @@ export type Database = {
           guest_name: string
           guest_phone?: string | null
           guests: number
+          guesty_reservation_id?: string | null
           id?: string
+          payment_status?: string | null
           property_id: string
           special_requests?: string | null
           status?: string | null
@@ -136,7 +140,9 @@ export type Database = {
           guest_name?: string
           guest_phone?: string | null
           guests?: number
+          guesty_reservation_id?: string | null
           id?: string
+          payment_status?: string | null
           property_id?: string
           special_requests?: string | null
           status?: string | null
@@ -562,6 +568,36 @@ export type Database = {
           expires_at?: string
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      guesty_webhook_events: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed: boolean
+          reservation_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          processed?: boolean
+          reservation_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed?: boolean
+          reservation_id?: string | null
         }
         Relationships: []
       }
