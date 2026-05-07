@@ -18,6 +18,7 @@ import {
   Users,
   MessageSquare,
   Paintbrush,
+  Beaker,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,7 @@ const discoverItems: NavItem[] = [
 
 const communityItems: NavItem[] = [
   { label: "Tasks", icon: ListTodo, href: "/admin/tasks" },
+  { label: "Test Harness", icon: Beaker, href: "/admin/test-harness" },
 ];
 
 export default function AdminSidebar() {
