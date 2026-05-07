@@ -225,7 +225,7 @@ const AvailabilityCalendar = ({
         )}
       </div>
 
-      <div className="relative rounded-xl border bg-card/50 backdrop-blur-sm p-2 sm:p-4">
+      <div className="relative rounded-xl border bg-card/50 backdrop-blur-sm p-2 sm:p-3">
         {loading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 rounded-xl">
             <Loader2 className="w-5 h-5 animate-spin text-primary" />
@@ -244,7 +244,7 @@ const AvailabilityCalendar = ({
             booked:
               "line-through text-destructive/70 bg-destructive/10 hover:bg-destructive/10 cursor-not-allowed",
           }}
-          className={cn("p-2 pointer-events-auto")}
+          className={cn("p-1 sm:p-2 pointer-events-auto")}
           classNames={{
             months: "flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center",
             month: "space-y-3 w-full",
@@ -262,7 +262,7 @@ const AvailabilityCalendar = ({
             head_cell:
               "text-muted-foreground rounded-md flex-1 font-medium text-[10px] sm:text-xs uppercase",
             row: "flex w-full mt-1",
-            cell: "flex-1 h-16 sm:h-20 text-center text-sm p-0.5 relative [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+            cell: "flex-1 h-11 sm:h-12 lg:h-14 text-center text-sm p-0.5 relative [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
             day: "h-full w-full p-0 font-normal rounded-md aria-selected:opacity-100 transition-colors hover:bg-accent hover:text-accent-foreground inline-flex items-stretch justify-stretch overflow-hidden",
             day_selected:
               "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary",
