@@ -3,6 +3,9 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import BookingSummary from "@/components/BookingSummary";
+import AvailabilityCalendar from "@/components/AvailabilityCalendar";
+import type { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { MapPin, Bed, Bath, Users, ArrowLeft } from "lucide-react";
@@ -45,6 +48,21 @@ const PropertyDetail = () => {
     checkOut: searchParams.get('checkOut') || "",
     guests: parseInt(searchParams.get('guests') || "1"),
   });
+
+  const range: DateRange | undefined = booking.checkIn
+    ? {
+        from: new Date(booking.checkIn + "T00:00:00"),
+        to: booking.checkOut ? new Date(booking.checkOut + "T00:00:00") : undefined,
+      }
+    : undefined;
+
+  const handleRangeChange = (r: DateRange | undefined) => {
+    setBooking((b) => ({
+      ...b,
+      checkIn: r?.from ? format(r.from, "yyyy-MM-dd") : "",
+      checkOut: r?.to ? format(r.to, "yyyy-MM-dd") : "",
+    }));
+  };
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -143,9 +161,9 @@ const PropertyDetail = () => {
             ))}
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-5 gap-8">
             {/* Property Details */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-3 space-y-6">
               <div>
                 <div className="flex items-start justify-between mb-4">
                   <div>
@@ -229,7 +247,7 @@ const PropertyDetail = () => {
             </div>
 
             {/* Booking Card */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-2">
               <Card className="sticky top-24">
                 <CardContent className="p-6">
                   <div className="mb-6">
@@ -251,32 +269,12 @@ const PropertyDetail = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="checkIn">Check-in</Label>
-                        <Input
-                          id="checkIn"
-                          type="date"
-                          value={booking.checkIn}
-                          onChange={(e) =>
-                            setBooking({ ...booking, checkIn: e.target.value })
-                          }
-                          min={new Date().toISOString().split('T')[0]}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="checkOut">Check-out</Label>
-                        <Input
-                          id="checkOut"
-                          type="date"
-                          value={booking.checkOut}
-                          onChange={(e) =>
-                            setBooking({ ...booking, checkOut: e.target.value })
-                          }
-                          min={booking.checkIn || new Date().toISOString().split('T')[0]}
-                        />
-                      </div>
-                    </div>
+                    <AvailabilityCalendar
+                      listingId={property.guesty_listing_id}
+                      range={range}
+                      onRangeChange={handleRangeChange}
+                      numberOfMonths={2}
+                    />
 
                     <div className="space-y-2">
                       <Label htmlFor="guests">Guests</Label>
