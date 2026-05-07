@@ -41,6 +41,7 @@ const PropertyDetail = () => {
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showBookingSummary, setShowBookingSummary] = useState(false);
+  const [datesValid, setDatesValid] = useState(false);
   
   // Initialize booking state with URL params if available
   const [booking, setBooking] = useState({
@@ -274,6 +275,7 @@ const PropertyDetail = () => {
                       range={range}
                       onRangeChange={handleRangeChange}
                       numberOfMonths={2}
+                      onValidityChange={({ valid }) => setDatesValid(valid)}
                     />
 
                     <div className="space-y-2">
@@ -294,6 +296,7 @@ const PropertyDetail = () => {
                       onClick={handleBookNow}
                       className="w-full"
                       size="lg"
+                      disabled={!datesValid}
                     >
                       Book Now
                     </Button>
