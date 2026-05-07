@@ -96,26 +96,27 @@ const EvaluateContent = () => {
           });
         }, 1500);
 
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-property`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            },
-            body: JSON.stringify({ propertyData }),
-          }
-        );
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) {
+          clearInterval(stepInterval);
+          toast({
+            title: "Sign in required",
+            description: "Please sign in to run a property analysis.",
+            variant: "destructive",
+          });
+          navigate("/auth");
+          return;
+        }
+
+        const { data, error } = await supabase.functions.invoke("analyze-property", {
+          body: { propertyData },
+        });
 
         clearInterval(stepInterval);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Analysis failed");
+        if (error) {
+          throw new Error(error.message || "Analysis failed");
         }
-
-        const data = await response.json();
         setAnalysis(data.analysis);
         setProgress(100);
       } catch (error) {
