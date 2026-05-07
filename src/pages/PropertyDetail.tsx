@@ -254,12 +254,12 @@ const PropertyDetail = () => {
             {/* Booking Card */}
             <div className="lg:col-span-2">
               <Card className="sticky top-24">
-                <CardContent className="p-6">
-                  <div className="mb-6">
+                <CardContent className="p-4">
+                  <div className="mb-3">
                     {property.guesty_listing_id ? (
                       <div>
-                        <span className="text-2xl font-bold text-primary">Live pricing</span>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <span className="text-lg font-bold text-primary">Live pricing</span>
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           Rates are calculated in real-time in the booking engine.
                         </p>
                       </div>
@@ -273,7 +273,7 @@ const PropertyDetail = () => {
                     )}
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <AvailabilityCalendar
                       listingId={property.guesty_listing_id}
                       range={range}
@@ -282,8 +282,8 @@ const PropertyDetail = () => {
                       onValidityChange={({ valid }) => setDatesValid(valid)}
                     />
 
-                    <div className="space-y-2">
-                      <Label htmlFor="guests">Guests</Label>
+                    <div className="flex items-center gap-3">
+                      <Label htmlFor="guests" className="shrink-0">Guests</Label>
                       <Input
                         id="guests"
                         type="number"
@@ -293,13 +293,13 @@ const PropertyDetail = () => {
                         onChange={(e) =>
                           setBooking({ ...booking, guests: parseInt(e.target.value) || 1 })
                         }
+                        className="h-9"
                       />
                     </div>
 
                     <Button
                       onClick={handleBookNow}
                       className="w-full"
-                      size="lg"
                       disabled={!datesValid}
                     >
                       Book Now
