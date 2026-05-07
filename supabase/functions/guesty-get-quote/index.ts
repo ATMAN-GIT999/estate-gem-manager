@@ -48,21 +48,23 @@ Deno.serve(async (req) => {
 
     // Get reservation quote from Guesty Booking Engine API v1
     // Using the Reservation Quote Flow as recommended in the docs
-    const quoteUrl = 'https://booking.guesty.com/api/v1/reservations/quotes';
-    
+    // Correct Booking Engine endpoint: /api/reservations/quotes (no /v1)
+    const quoteUrl = 'https://booking.guesty.com/api/reservations/quotes';
+
     const quotePayload: Record<string, unknown> = {
       listingId,
-      checkIn,
-      checkOut,
-      guests: guests.adults + (guests.children || 0),
-      adults: guests.adults,
-      children: guests.children || 0,
+      checkInDateLocalized: checkIn,
+      checkOutDateLocalized: checkOut,
+      guestsCount: guests.adults + (guests.children || 0),
+      numberOfGuests: {
+        numberOfAdults: guests.adults,
+        numberOfChildren: guests.children || 0,
+      },
     };
 
     if (couponCode && couponCode.trim()) {
-      quotePayload.coupon = couponCode.trim();
-      quotePayload.couponCode = couponCode.trim();
-      quotePayload.promoCode = couponCode.trim();
+      // Guesty expects a comma-joined string under `coupons`
+      quotePayload.coupons = couponCode.trim();
     }
 
     console.log('Requesting quote with payload:', quotePayload);
