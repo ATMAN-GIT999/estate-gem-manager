@@ -297,6 +297,10 @@ const BookingSummary = ({
         }
 
         // Also save to local database
+        const reservationData = response.data?.reservation || {};
+        const guestyReservationId =
+          reservationData._id || reservationData.id || reservationData.reservationId || null;
+
         await supabase.from("bookings").insert({
           property_id: property.id,
           user_id: user?.id || null,
@@ -308,6 +312,8 @@ const BookingSummary = ({
           guests,
           total_price: quote.total,
           status: "confirmed",
+          payment_status: "paid",
+          guesty_reservation_id: guestyReservationId,
         });
 
         toast({
