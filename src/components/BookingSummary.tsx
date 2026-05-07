@@ -135,7 +135,21 @@ const BookingSummary = ({
         });
 
         if (response.error) {
-          throw new Error(response.error.message);
+          // Try to extract structured error body (e.g. DATES_NOT_AVAILABLE)
+          let body: any = null;
+          try {
+            const ctx: any = (response.error as any).context;
+            if (ctx?.body && typeof ctx.body.getReader === 'function') {
+              const txt = await new Response(ctx.body).text();
+              body = JSON.parse(txt);
+            } else if (typeof ctx === 'object' && ctx?.error) {
+              body = ctx;
+            }
+          } catch { /* ignore */ }
+          const err: any = new Error(body?.error || response.error.message);
+          err.code = body?.code;
+          err.minNights = body?.details?.minNights;
+          throw err;
         }
 
         const quoteData = response.data?.quote;
@@ -205,6 +219,17 @@ const BookingSummary = ({
       }
     } catch (error: any) {
       console.error('Error fetching quote:', error);
+      const isDatesError = error?.code === 'DATES_NOT_AVAILABLE';
+      if (isDatesError) {
+        toast({
+          variant: "destructive",
+          title: "Dates unavailable",
+          description: error.message,
+        });
+        setAppliedCoupon(null);
+        setLoading(false);
+        return null;
+      }
       if (coupon) {
         toast({
           variant: "destructive",
