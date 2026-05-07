@@ -505,6 +505,7 @@ const BookingSummary = ({
   }
 
   return (
+    <>
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="pb-4">
         <h2 className="font-playfair text-2xl font-bold text-primary">{property.name}</h2>
