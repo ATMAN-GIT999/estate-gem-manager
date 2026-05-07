@@ -152,10 +152,15 @@ const AvailabilityCalendar = ({
     const price = day?.price;
     const booked = isBooked(props.date);
     return (
-      <div className="flex flex-col items-center justify-center leading-none gap-0.5">
-        <span className="text-xs sm:text-sm font-medium">{props.date.getDate()}</span>
-        {price && !booked && (
-          <span className="text-[9px] sm:text-[10px] tabular-nums opacity-75">
+      <div className="flex flex-col items-center justify-center leading-tight gap-0.5 w-full h-full">
+        <span className="text-sm sm:text-base font-semibold">{props.date.getDate()}</span>
+        {typeof price === "number" && (
+          <span
+            className={cn(
+              "text-[10px] sm:text-[11px] tabular-nums font-medium",
+              booked ? "opacity-40 line-through" : "opacity-80"
+            )}
+          >
             {fmtPrice(price)}
           </span>
         )}
@@ -165,6 +170,19 @@ const AvailabilityCalendar = ({
 
   const nights = range?.from && range?.to ? differenceInCalendarDays(range.to, range.from) : 0;
   const meetsMin = nights === 0 || nights >= minNights;
+
+  const total = useMemo(() => {
+    if (!range?.from || !range?.to) return 0;
+    let sum = 0;
+    let cursor = range.from;
+    while (cursor < range.to) {
+      const key = format(cursor, "yyyy-MM-dd");
+      const p = days[key]?.price;
+      if (typeof p === "number") sum += p;
+      cursor = addDays(cursor, 1);
+    }
+    return sum;
+  }, [range, days]);
 
   return (
     <div className="space-y-3">
@@ -223,7 +241,7 @@ const AvailabilityCalendar = ({
             head_cell:
               "text-muted-foreground rounded-md flex-1 font-medium text-[10px] sm:text-xs uppercase",
             row: "flex w-full mt-1",
-            cell: "flex-1 aspect-square text-center text-sm p-0.5 relative [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+            cell: "flex-1 h-14 sm:h-16 text-center text-sm p-0.5 relative [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
             day: cn(
               buttonVariants({ variant: "ghost" }),
               "h-full w-full p-0 font-normal rounded-md aria-selected:opacity-100 transition-colors"
@@ -248,7 +266,7 @@ const AvailabilityCalendar = ({
       {range?.from && range?.to && (
         <div
           className={cn(
-            "rounded-lg border p-3 text-sm flex items-center justify-between",
+            "rounded-lg border p-3 text-sm flex flex-wrap items-center justify-between gap-2",
             meetsMin
               ? "bg-primary/5 border-primary/20"
               : "bg-destructive/5 border-destructive/30 text-destructive"
@@ -258,7 +276,18 @@ const AvailabilityCalendar = ({
             {format(range.from, "MMM d")} → {format(range.to, "MMM d, yyyy")} · {nights} night
             {nights !== 1 ? "s" : ""}
           </span>
-          {!meetsMin && <span className="font-medium">Min {minNights} nights required</span>}
+          {meetsMin ? (
+            total > 0 && (
+              <span className="font-semibold">
+                Total: {fmtPrice(total)}{" "}
+                <span className="opacity-60 font-normal">
+                  ({fmtPrice(Math.round(total / nights))}/night avg)
+                </span>
+              </span>
+            )
+          ) : (
+            <span className="font-medium">Min {minNights} nights required</span>
+          )}
         </div>
       )}
 
