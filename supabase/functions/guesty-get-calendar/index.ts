@@ -65,36 +65,77 @@ Deno.serve(async (req) => {
     // Check if all days are available
     const calendarData = calendar.calendar || calendar.data || calendar;
 
-    // Enrich with real nightly rates from the search/listings endpoint
-    // (the calendar endpoint does not return prices)
+    // Enrich with real nightly rates. The /listings search endpoint only
+    // returns nightlyRates if the FULL checkIn→checkOut window is available,
+    // so we walk the calendar, find each contiguous run of available days,
+    // and request rates per range. Then merge them all together.
     let nightlyRates: Record<string, number> = {};
     let currency: string | undefined;
-    try {
-      const ratesUrl =
+
+    const isAvail = (d: any) => {
+      if (!d) return false;
+      if (d.status && d.status !== 'available') return false;
+      const b = d.blocks || {};
+      return !(b.b || b.r || b.o || b.m || b.bd);
+    };
+
+    const addDay = (iso: string, n: number) => {
+      const dt = new Date(iso + 'T00:00:00Z');
+      dt.setUTCDate(dt.getUTCDate() + n);
+      return dt.toISOString().slice(0, 10);
+    };
+
+    const fetchRates = async (from: string, toExclusive: string) => {
+      const url =
         `https://booking.guesty.com/api/listings` +
         `?fields=${encodeURIComponent('_id nightlyRates prices.currency')}` +
-        `&checkIn=${checkIn}&checkOut=${checkOut}&limit=100`;
-      console.log('Fetching nightly rates from:', ratesUrl);
-      const ratesRes = await fetch(ratesUrl, {
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'accept': 'application/json',
-        },
-      });
-      if (ratesRes.ok) {
-        const ratesJson = await ratesRes.json();
-        const list = ratesJson?.results || ratesJson?.data || [];
-        const first = Array.isArray(list)
+        `&checkIn=${from}&checkOut=${toExclusive}&limit=100`;
+      try {
+        const r = await fetch(url, {
+          headers: { Authorization: `Bearer ${access_token}`, accept: 'application/json' },
+        });
+        if (!r.ok) {
+          console.warn('Rates fetch failed', r.status, from, toExclusive);
+          return;
+        }
+        const json = await r.json();
+        const list = json?.results || json?.data || [];
+        const item = Array.isArray(list)
           ? list.find((l: any) => l._id === listingId) || list[0]
           : list;
-        if (first?.nightlyRates) nightlyRates = first.nightlyRates;
-        currency = first?.prices?.currency || first?.currency;
-        console.log('Got nightly rates count:', Object.keys(nightlyRates).length, 'currency:', currency);
-      } else {
-        console.warn('Rates fetch failed:', ratesRes.status, await ratesRes.text());
+        if (item?.nightlyRates) {
+          for (const [k, v] of Object.entries(item.nightlyRates)) {
+            nightlyRates[k] = v as number;
+          }
+        }
+        currency = currency || item?.prices?.currency || item?.currency;
+      } catch (e) {
+        console.warn('Rates fetch error:', e);
       }
-    } catch (e) {
-      console.warn('Rates enrichment failed:', e);
+    };
+
+    if (Array.isArray(calendarData) && calendarData.length) {
+      // Build contiguous available ranges (min 1 night)
+      const ranges: Array<[string, string]> = []; // [checkIn, checkOutExclusive]
+      let runStart: string | null = null;
+      let lastDate: string | null = null;
+      for (const d of calendarData) {
+        if (isAvail(d)) {
+          if (runStart === null) runStart = d.date;
+          lastDate = d.date;
+        } else if (runStart !== null && lastDate) {
+          ranges.push([runStart, addDay(lastDate, 1)]);
+          runStart = null;
+          lastDate = null;
+        }
+      }
+      if (runStart !== null && lastDate) ranges.push([runStart, addDay(lastDate, 1)]);
+
+      console.log('Available rate ranges:', ranges.length);
+      // Fetch in parallel, but cap to avoid rate-limit explosion
+      const capped = ranges.slice(0, 12);
+      await Promise.all(capped.map(([a, b]) => fetchRates(a, b)));
+      console.log('Total nightly rates merged:', Object.keys(nightlyRates).length, 'currency:', currency);
     }
 
     // Merge nightly rates into calendar days
