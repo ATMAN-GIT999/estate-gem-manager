@@ -24,6 +24,7 @@ interface AvailabilityCalendarProps {
   range: DateRange | undefined;
   onRangeChange: (r: DateRange | undefined) => void;
   numberOfMonths?: number;
+  onValidityChange?: (info: { valid: boolean; nights: number; minNights: number }) => void;
 }
 
 const AvailabilityCalendar = ({
@@ -31,6 +32,7 @@ const AvailabilityCalendar = ({
   range,
   onRangeChange,
   numberOfMonths,
+  onValidityChange,
 }: AvailabilityCalendarProps) => {
   const isMobile = useIsMobile();
   const months = numberOfMonths ?? (isMobile ? 1 : 2);
@@ -181,6 +183,14 @@ const AvailabilityCalendar = ({
 
   const nights = range?.from && range?.to ? differenceInCalendarDays(range.to, range.from) : 0;
   const meetsMin = nights === 0 || nights >= minNights;
+
+  useEffect(() => {
+    onValidityChange?.({
+      valid: nights > 0 && nights >= minNights,
+      nights,
+      minNights,
+    });
+  }, [nights, minNights, onValidityChange]);
 
   const total = useMemo(() => {
     if (!range?.from || !range?.to) return 0;
