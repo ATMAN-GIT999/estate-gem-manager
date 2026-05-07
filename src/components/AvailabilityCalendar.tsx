@@ -154,7 +154,7 @@ const AvailabilityCalendar = ({
     return (
       <div className="flex flex-col items-center justify-center leading-none gap-1 w-full h-full py-1">
         <span className="text-sm sm:text-base font-semibold">{props.date.getDate()}</span>
-        {typeof price === "number" ? (
+        {typeof price === "number" && (
           <span
             className={cn(
               "text-[10px] sm:text-xs tabular-nums font-medium",
@@ -163,8 +163,6 @@ const AvailabilityCalendar = ({
           >
             {fmtPrice(price)}
           </span>
-        ) : (
-          <span className="text-[10px] opacity-30">—</span>
         )}
       </div>
     );
