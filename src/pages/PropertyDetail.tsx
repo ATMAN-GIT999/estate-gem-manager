@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { MapPin, Bed, Bath, Users, ArrowLeft } from "lucide-react";
+import { getAmenityIcon } from "@/lib/amenityIcons";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -219,12 +220,15 @@ const PropertyDetail = () => {
                     Amenities
                   </h2>
                   <div className="grid md:grid-cols-2 gap-3">
-                    {property.amenities.map((amenity: string, idx: number) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-primary" />
-                        <span className="text-foreground/80">{amenity}</span>
-                      </div>
-                    ))}
+                    {property.amenities.map((amenity: string, idx: number) => {
+                      const Icon = getAmenityIcon(amenity);
+                      return (
+                        <div key={idx} className="flex items-center gap-3">
+                          <Icon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.5} />
+                          <span className="text-foreground/80">{amenity}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
