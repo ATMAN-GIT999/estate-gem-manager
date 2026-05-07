@@ -65,12 +65,23 @@ const AvailabilityCalendar = ({
     fetchCal();
     }, [listingId, month, months]);
 
-  const minNights = useMemo(() => {
+  // Global fallback minimum across all loaded days
+  const globalMinNights = useMemo(() => {
     const vals = Object.values(days)
       .map((d) => d.minNights)
       .filter((n): n is number => typeof n === "number" && n > 0);
     return vals.length ? Math.min(...vals) : 1;
   }, [days]);
+
+  // Min-nights specific to the selected check-in date (Guesty enforces this).
+  const minNights = useMemo(() => {
+    if (range?.from) {
+      const key = format(range.from, "yyyy-MM-dd");
+      const m = days[key]?.minNights;
+      if (typeof m === "number" && m > 0) return m;
+    }
+    return globalMinNights;
+  }, [range, days, globalMinNights]);
 
   const isBooked = (d: Date) => {
     const key = format(d, "yyyy-MM-dd");
