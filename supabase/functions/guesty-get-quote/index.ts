@@ -57,8 +57,8 @@ Deno.serve(async (req) => {
       checkOutDateLocalized: checkOut,
       guestsCount: guests.adults + (guests.children || 0),
       numberOfGuests: {
-        adults: guests.adults,
-        children: guests.children || 0,
+        numberOfAdults: guests.adults,
+        numberOfChildren: guests.children || 0,
       },
     };
 
