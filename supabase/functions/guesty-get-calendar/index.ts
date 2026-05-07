@@ -71,9 +71,9 @@ Deno.serve(async (req) => {
     let currency: string | undefined;
     try {
       const ratesUrl =
-        `https://booking.guesty.com/api/listings?ids=${listingId}` +
-        `&fields=${encodeURIComponent('_id nightlyRates prices.currency')}` +
-        `&checkIn=${checkIn}&checkOut=${checkOut}&limit=1`;
+        `https://booking.guesty.com/api/listings/${listingId}` +
+        `?fields=${encodeURIComponent('_id nightlyRates prices.currency')}` +
+        `&checkIn=${checkIn}&checkOut=${checkOut}`;
       console.log('Fetching nightly rates from:', ratesUrl);
       const ratesRes = await fetch(ratesUrl, {
         headers: {
@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
       });
       if (ratesRes.ok) {
         const ratesJson = await ratesRes.json();
-        const first = ratesJson?.results?.[0] || ratesJson?.data?.[0];
+        const first = ratesJson?.results?.[0] || ratesJson?.data || ratesJson;
         if (first?.nightlyRates) nightlyRates = first.nightlyRates;
         currency = first?.prices?.currency || first?.currency;
         console.log('Got nightly rates count:', Object.keys(nightlyRates).length, 'currency:', currency);
