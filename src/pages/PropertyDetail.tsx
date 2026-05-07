@@ -3,6 +3,9 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import BookingSummary from "@/components/BookingSummary";
+import AvailabilityCalendar from "@/components/AvailabilityCalendar";
+import type { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { MapPin, Bed, Bath, Users, ArrowLeft } from "lucide-react";
@@ -45,6 +48,21 @@ const PropertyDetail = () => {
     checkOut: searchParams.get('checkOut') || "",
     guests: parseInt(searchParams.get('guests') || "1"),
   });
+
+  const range: DateRange | undefined = booking.checkIn
+    ? {
+        from: new Date(booking.checkIn + "T00:00:00"),
+        to: booking.checkOut ? new Date(booking.checkOut + "T00:00:00") : undefined,
+      }
+    : undefined;
+
+  const handleRangeChange = (r: DateRange | undefined) => {
+    setBooking((b) => ({
+      ...b,
+      checkIn: r?.from ? format(r.from, "yyyy-MM-dd") : "",
+      checkOut: r?.to ? format(r.to, "yyyy-MM-dd") : "",
+    }));
+  };
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -251,32 +269,12 @@ const PropertyDetail = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="checkIn">Check-in</Label>
-                        <Input
-                          id="checkIn"
-                          type="date"
-                          value={booking.checkIn}
-                          onChange={(e) =>
-                            setBooking({ ...booking, checkIn: e.target.value })
-                          }
-                          min={new Date().toISOString().split('T')[0]}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="checkOut">Check-out</Label>
-                        <Input
-                          id="checkOut"
-                          type="date"
-                          value={booking.checkOut}
-                          onChange={(e) =>
-                            setBooking({ ...booking, checkOut: e.target.value })
-                          }
-                          min={booking.checkIn || new Date().toISOString().split('T')[0]}
-                        />
-                      </div>
-                    </div>
+                    <AvailabilityCalendar
+                      listingId={property.guesty_listing_id}
+                      range={range}
+                      onRangeChange={handleRangeChange}
+                      numberOfMonths={2}
+                    />
 
                     <div className="space-y-2">
                       <Label htmlFor="guests">Guests</Label>
