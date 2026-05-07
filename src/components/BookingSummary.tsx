@@ -141,27 +141,39 @@ const BookingSummary = ({
         console.log('Quote data:', quoteData);
 
         if (quoteData) {
-          // Parse Guesty quote response
-          const ratePlan = quoteData.ratePlans?.[0] || quoteData;
-          const subtotal = ratePlan.totalPrice || ratePlan.basePrice || property.price_per_night * nights;
-          const fees = ratePlan.fees?.total || ratePlan.serviceFee || 0;
-          const discount =
-            ratePlan.discount?.total ||
-            ratePlan.couponDiscount ||
-            quoteData.discount?.total ||
-            quoteData.couponDiscount ||
-            0;
+          // Parse Guesty Booking Engine quote response
+          const ratePlanWrap = quoteData.rates?.ratePlans?.[0] || quoteData.ratePlans?.[0] || {};
+          const ratePlan = ratePlanWrap.ratePlan || ratePlanWrap;
+          const money = ratePlan.money || ratePlanWrap.money || {};
+          const items: any[] = money.invoiceItems || [];
+          const accommodation = money.fareAccommodation || 0;
+          const fees = money.totalFees || items
+            .filter((i) => /FEE|TAX/i.test(i.type || i.normalType || ''))
+            .reduce((s, i) => s + (i.amount || 0), 0);
+          const discount = Math.abs(
+            items
+              .filter((i) => /DISCOUNT|^CO$/i.test(i.type || i.normalType || ''))
+              .reduce((s, i) => s + (i.amount || 0), 0) ||
+              (quoteData.coupons || []).reduce(
+                (s: number, c: any) => s + (c.adjustment || 0),
+                0,
+              ),
+          );
+          const subtotal = accommodation || (property.price_per_night * nights);
+          const total = money.subTotalPrice ?? Math.max(0, subtotal + fees - discount);
+          const appliedCouponName =
+            quoteData.coupons?.[0]?.couponCode || quoteData.coupons?.[0]?.code || coupon;
 
           setQuote({
-            quoteId: quoteData.quoteId || quoteData._id,
-            subtotal: subtotal - fees,
-            fees: fees,
-            total: subtotal - (discount || 0),
-            currency: quoteData.currency || 'EUR',
-            ratePlanId: ratePlan.ratePlanId || ratePlan._id,
+            quoteId: quoteData._id || quoteData.quoteId,
+            subtotal,
+            fees,
+            total,
+            currency: money.currency || quoteData.currency || 'EUR',
+            ratePlanId: ratePlan._id || ratePlan.ratePlanId,
             cancellationPolicy: ratePlan.cancellationPolicy || 'Non-refundable',
-            discount: discount || 0,
-            appliedCoupon: coupon || undefined,
+            discount,
+            appliedCoupon: discount > 0 ? appliedCouponName : undefined,
           });
         } else {
           // Fallback calculation
