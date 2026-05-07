@@ -121,6 +121,7 @@ const BookingSummary = ({
 
   const fetchQuote = async (coupon?: string) => {
     setLoading(true);
+    let resultQuote: QuoteData | null = null;
     try {
       if (property.guesty_listing_id) {
         const response = await supabase.functions.invoke('guesty-get-quote', {
@@ -164,7 +165,7 @@ const BookingSummary = ({
           const appliedCouponName =
             quoteData.coupons?.[0]?.couponCode || quoteData.coupons?.[0]?.code || coupon;
 
-          setQuote({
+          resultQuote = {
             quoteId: quoteData._id || quoteData.quoteId,
             subtotal,
             fees,
@@ -174,30 +175,33 @@ const BookingSummary = ({
             cancellationPolicy: ratePlan.cancellationPolicy || 'Non-refundable',
             discount,
             appliedCoupon: discount > 0 ? appliedCouponName : undefined,
-          });
+          };
+          setQuote(resultQuote);
         } else {
           // Fallback calculation
-          setQuote({
+          resultQuote = {
             quoteId: '',
             subtotal: property.price_per_night * nights,
             fees: Math.round(property.price_per_night * nights * 0.1),
             total: Math.round(property.price_per_night * nights * 1.1),
             currency: 'EUR',
             cancellationPolicy: 'Non-refundable',
-          });
+          };
+          setQuote(resultQuote);
         }
       } else {
         // No Guesty - use local calculation
         const subtotal = property.price_per_night * nights;
         const fees = Math.round(subtotal * 0.1);
-        setQuote({
+        resultQuote = {
           quoteId: '',
           subtotal,
           fees,
           total: subtotal + fees,
           currency: 'EUR',
           cancellationPolicy: 'Non-refundable',
-        });
+        };
+        setQuote(resultQuote);
       }
     } catch (error: any) {
       console.error('Error fetching quote:', error);
@@ -212,17 +216,19 @@ const BookingSummary = ({
       // Fallback to local calculation
       const subtotal = property.price_per_night * nights;
       const fees = Math.round(subtotal * 0.1);
-      setQuote({
+      resultQuote = {
         quoteId: '',
         subtotal,
         fees,
         total: subtotal + fees,
         currency: 'EUR',
         cancellationPolicy: 'Non-refundable',
-      });
+      };
+      setQuote(resultQuote);
     } finally {
       setLoading(false);
     }
+    return resultQuote;
   };
 
   const handleApplyCoupon = async () => {
@@ -246,25 +252,21 @@ const BookingSummary = ({
     }
     setApplyingCoupon(true);
     try {
-      await fetchQuote(code);
-      // Only mark as applied if the quote actually returned a discount
-      setQuote((prev) => {
-        if (prev && prev.discount && prev.discount > 0) {
-          setAppliedCoupon(prev.appliedCoupon || code);
-          toast({
-            title: "Coupon applied",
-            description: `Code "${code}" applied — you saved €${prev.discount.toFixed(2)}.`,
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Coupon not valid",
-            description:
-              "Guesty did not apply a discount for this code. Check the code, dates, or property eligibility.",
-          });
-        }
-        return prev;
-      });
+      const result = await fetchQuote(code);
+      if (result?.discount && result.discount > 0) {
+        setAppliedCoupon(result.appliedCoupon || code);
+        toast({
+          title: "Coupon applied",
+          description: `Code "${code}" applied — you saved €${result.discount.toFixed(2)}.`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Coupon not valid",
+          description:
+            "Guesty did not apply a discount for this code. Check the code, dates, or property eligibility.",
+        });
+      }
     } finally {
       setApplyingCoupon(false);
     }
