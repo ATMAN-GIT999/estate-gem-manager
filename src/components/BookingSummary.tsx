@@ -235,13 +235,35 @@ const BookingSummary = ({
       });
       return;
     }
+    if (!property.guesty_listing_id) {
+      toast({
+        variant: "destructive",
+        title: "Coupons unavailable",
+        description:
+          "This property is not yet connected to our live booking system, so coupon codes can't be validated. Please contact support to complete the booking with a discount.",
+      });
+      return;
+    }
     setApplyingCoupon(true);
     try {
       await fetchQuote(code);
-      setAppliedCoupon(code);
-      toast({
-        title: "Coupon applied",
-        description: `Code "${code}" applied to your booking.`,
+      // Only mark as applied if the quote actually returned a discount
+      setQuote((prev) => {
+        if (prev && prev.discount && prev.discount > 0) {
+          setAppliedCoupon(prev.appliedCoupon || code);
+          toast({
+            title: "Coupon applied",
+            description: `Code "${code}" applied — you saved €${prev.discount.toFixed(2)}.`,
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Coupon not valid",
+            description:
+              "Guesty did not apply a discount for this code. Check the code, dates, or property eligibility.",
+          });
+        }
+        return prev;
       });
     } finally {
       setApplyingCoupon(false);
