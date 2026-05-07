@@ -64,6 +64,48 @@ Deno.serve(async (req) => {
     
     // Check if all days are available
     const calendarData = calendar.calendar || calendar.data || calendar;
+
+    // Enrich with real nightly rates from the search/listings endpoint
+    // (the calendar endpoint does not return prices)
+    let nightlyRates: Record<string, number> = {};
+    let currency: string | undefined;
+    try {
+      const ratesUrl =
+        `https://booking.guesty.com/api/listings` +
+        `?fields=${encodeURIComponent('_id nightlyRates prices.currency')}` +
+        `&checkIn=${checkIn}&checkOut=${checkOut}&limit=100`;
+      console.log('Fetching nightly rates from:', ratesUrl);
+      const ratesRes = await fetch(ratesUrl, {
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'accept': 'application/json',
+        },
+      });
+      if (ratesRes.ok) {
+        const ratesJson = await ratesRes.json();
+        const list = ratesJson?.results || ratesJson?.data || [];
+        const first = Array.isArray(list)
+          ? list.find((l: any) => l._id === listingId) || list[0]
+          : list;
+        if (first?.nightlyRates) nightlyRates = first.nightlyRates;
+        currency = first?.prices?.currency || first?.currency;
+        console.log('Got nightly rates count:', Object.keys(nightlyRates).length, 'currency:', currency);
+      } else {
+        console.warn('Rates fetch failed:', ratesRes.status, await ratesRes.text());
+      }
+    } catch (e) {
+      console.warn('Rates enrichment failed:', e);
+    }
+
+    // Merge nightly rates into calendar days
+    const enriched = Array.isArray(calendarData)
+      ? calendarData.map((d: any) => ({
+          ...d,
+          price: d.price ?? nightlyRates[d.date],
+          currency: d.currency ?? currency,
+        }))
+      : calendarData;
+
     const isAvailable = Array.isArray(calendarData) 
       ? calendarData.every((day: any) => day.status === 'available' || day.available === true)
       : true;
@@ -71,7 +113,7 @@ Deno.serve(async (req) => {
     console.log(`Listing ${listingId}: ${isAvailable ? 'available' : 'not available'}`);
 
     return new Response(
-      JSON.stringify({ calendar: calendarData, isAvailable }),
+      JSON.stringify({ calendar: enriched, isAvailable, currency }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
