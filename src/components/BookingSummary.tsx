@@ -718,6 +718,15 @@ const BookingSummary = ({
         </div>
       </CardContent>
     </Card>
+    <InstantBookFallbackDialog
+      open={instantBookFallback.open}
+      onOpenChange={(open) => setInstantBookFallback({ open, rawError: instantBookFallback.rawError })}
+      propertyName={property.name}
+      rawError={instantBookFallback.rawError}
+      submitting={submitting}
+      onSwitchToInquiry={handleSwitchToInquiry}
+    />
+    </>
   );
 };
 
