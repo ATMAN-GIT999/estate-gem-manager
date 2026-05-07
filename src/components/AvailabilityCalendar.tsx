@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { DayPicker, DateRange } from "react-day-picker";
+import { DayPicker, DateRange, DayContentProps } from "react-day-picker";
 import { ChevronLeft, ChevronRight, Loader2, Info } from "lucide-react";
 import { addDays, addMonths, differenceInCalendarDays, format } from "date-fns";
 import { supabase } from "@/lib/supabaseClient";
@@ -14,6 +14,8 @@ interface CalendarDay {
   maxNights?: number;
   cta?: boolean;
   ctd?: boolean;
+  price?: number;
+  currency?: string;
   blocks?: Record<string, boolean>;
 }
 
@@ -101,20 +103,64 @@ const AvailabilityCalendar = ({
       onRangeChange(r);
       return;
     }
-    // Block ranges that span a booked night
+    // If range spans a booked night, restart selection from the newly clicked date
     if (r.from && r.to) {
+      let spansBooked = false;
       let cursor = r.from;
       while (cursor < r.to) {
         if (isBooked(cursor)) {
-          onRangeChange({ from: r.from, to: undefined });
-          setError("Selection includes unavailable dates. Pick a shorter range.");
-          return;
+          spansBooked = true;
+          break;
         }
         cursor = addDays(cursor, 1);
+      }
+      if (spansBooked) {
+        // Determine which end was the newly clicked date and reset from there
+        const prevFrom = range?.from?.getTime();
+        const prevTo = range?.to?.getTime();
+        const fromChanged = !prevFrom || r.from.getTime() !== prevFrom;
+        const newAnchor = fromChanged ? r.from : r.to;
+        setError("That range crosses booked nights — starting a new selection.");
+        onRangeChange({ from: newAnchor, to: undefined });
+        return;
       }
     }
     setError(null);
     onRangeChange(r);
+  };
+
+  const currency = useMemo(() => {
+    const first = Object.values(days).find((d) => d.currency);
+    return first?.currency || "EUR";
+  }, [days]);
+
+  const fmtPrice = (n: number) => {
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency,
+        maximumFractionDigits: 0,
+      }).format(n);
+    } catch {
+      return `${Math.round(n)}`;
+    }
+  };
+
+  const DayContent = (props: DayContentProps) => {
+    const key = format(props.date, "yyyy-MM-dd");
+    const day = days[key];
+    const price = day?.price;
+    const booked = isBooked(props.date);
+    return (
+      <div className="flex flex-col items-center justify-center leading-none">
+        <span className="text-xs sm:text-sm">{props.date.getDate()}</span>
+        {price && !booked && (
+          <span className="hidden sm:block text-[9px] mt-0.5 opacity-70">
+            {fmtPrice(price)}
+          </span>
+        )}
+      </div>
+    );
   };
 
   const nights = range?.from && range?.to ? differenceInCalendarDays(range.to, range.from) : 0;
@@ -177,10 +223,10 @@ const AvailabilityCalendar = ({
             head_cell:
               "text-muted-foreground rounded-md flex-1 font-medium text-[10px] sm:text-xs uppercase",
             row: "flex w-full mt-1",
-            cell: "flex-1 aspect-square text-center text-sm p-0 relative [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+            cell: "flex-1 aspect-square text-center text-sm p-0.5 relative [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
             day: cn(
               buttonVariants({ variant: "ghost" }),
-              "h-full w-full p-0 font-normal rounded-md aria-selected:opacity-100 transition-colors text-xs sm:text-sm"
+              "h-full w-full p-0 font-normal rounded-md aria-selected:opacity-100 transition-colors"
             ),
             day_selected:
               "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary",
@@ -194,6 +240,7 @@ const AvailabilityCalendar = ({
           components={{
             IconLeft: () => <ChevronLeft className="h-4 w-4" />,
             IconRight: () => <ChevronRight className="h-4 w-4" />,
+            DayContent,
           }}
         />
       </div>
