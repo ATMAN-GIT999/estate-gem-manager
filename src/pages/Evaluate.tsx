@@ -9,6 +9,7 @@ import { Loader2, TrendingUp, Home, DollarSign, Calendar, Percent, CheckCircle2,
 import { useToast } from "@/components/ui/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import PageWrapper from "@/components/PageWrapper";
+import { supabase } from "@/lib/supabaseClient";
 
 interface PropertyAnalysis {
   monthlyIncome: number;
