@@ -14,6 +14,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Tag, ChevronDown, ChevronUp, CreditCard } from "lucide-react";
 import { loadStripe, Stripe, StripeCardElement } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import InstantBookFallbackDialog, {
+  isInstantBookDisabledError,
+} from "@/components/InstantBookFallbackDialog";
 
 const StripeCardCapture = ({
   onReady,
@@ -97,6 +100,10 @@ const BookingSummary = ({
   const [cardReady, setCardReady] = useState(false);
   const [cardElement, setCardElement] = useState<StripeCardElement | null>(null);
   const [stripeInstance, setStripeInstance] = useState<Stripe | null>(null);
+  const [instantBookFallback, setInstantBookFallback] = useState<{
+    open: boolean;
+    rawError?: string;
+  }>({ open: false });
 
   const nights = differenceInDays(new Date(checkOut), new Date(checkIn));
 
@@ -295,6 +302,10 @@ const BookingSummary = ({
         if (response.error) {
           throw new Error(response.error.message);
         }
+        // Some Guesty deployments return 200 with an inline error payload
+        if (response.data?.error && isInstantBookDisabledError(response.data.error)) {
+          throw new Error(response.data.error);
+        }
 
         // Also save to local database
         const reservationData = response.data?.reservation || {};
@@ -379,10 +390,103 @@ const BookingSummary = ({
       onSuccess();
     } catch (error: any) {
       console.error('Checkout error:', error);
+      if (isInstantBookDisabledError(error?.message)) {
+        setInstantBookFallback({ open: true, rawError: error?.message });
+        setSubmitting(false);
+        return;
+      }
       toast({
         variant: "destructive",
         title: "Booking failed",
         description: error.message || "Could not complete booking",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Switch the booking to a non-charging inquiry and submit it
+  const handleSwitchToInquiry = async () => {
+    setSubmitting(true);
+    try {
+      if (property.guesty_listing_id && quote?.quoteId) {
+        const response = await supabase.functions.invoke('guesty-create-reservation', {
+          body: {
+            quoteId: quote.quoteId,
+            ratePlanId: quote.ratePlanId,
+            couponCode: appliedCoupon || undefined,
+            guest: {
+              firstName: guestInfo.firstName,
+              lastName: guestInfo.lastName,
+              email: guestInfo.email,
+              phone: guestInfo.phone,
+            },
+            policy: { terms: true, cancellation: true },
+            type: 'inquiry',
+          },
+        });
+        if (response.error) throw new Error(response.error.message);
+
+        const reservationData = response.data?.reservation || {};
+        const guestyReservationId =
+          reservationData._id || reservationData.id || reservationData.reservationId || null;
+
+        await supabase.from("bookings").insert({
+          property_id: property.id,
+          user_id: user?.id || null,
+          guest_name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+          guest_email: guestInfo.email,
+          guest_phone: guestInfo.phone,
+          check_in: checkIn,
+          check_out: checkOut,
+          guests,
+          total_price: quote.total,
+          status: "pending",
+          payment_status: "awaiting_confirmation",
+          guesty_reservation_id: guestyReservationId,
+        });
+      } else {
+        await supabase.from("bookings").insert({
+          property_id: property.id,
+          user_id: user?.id || null,
+          guest_name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+          guest_email: guestInfo.email,
+          guest_phone: guestInfo.phone,
+          check_in: checkIn,
+          check_out: checkOut,
+          guests,
+          total_price: quote?.total || property.price_per_night * nights,
+          status: "pending",
+        });
+      }
+
+      toast({
+        title: "Booking request sent",
+        description: "Our team will confirm your reservation shortly.",
+      });
+      setInstantBookFallback({ open: false });
+      navigate("/booking-confirmation", {
+        state: {
+          status: "Pending",
+          paymentStatus: "Awaiting confirmation",
+          total: quote?.total || property.price_per_night * nights,
+          currency: quote?.currency || "EUR",
+          propertyName: property.name,
+          checkIn,
+          checkOut,
+          guests,
+          guestName: `${guestInfo.firstName} ${guestInfo.lastName}`,
+          guestEmail: guestInfo.email,
+          type: "inquiry",
+        },
+      });
+      onSuccess();
+    } catch (err: any) {
+      console.error("Inquiry fallback error:", err);
+      toast({
+        variant: "destructive",
+        title: "Could not send request",
+        description: err?.message || "Please contact us directly.",
       });
     } finally {
       setSubmitting(false);
