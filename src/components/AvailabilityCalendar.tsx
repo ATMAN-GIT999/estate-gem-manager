@@ -241,11 +241,8 @@ const AvailabilityCalendar = ({
             head_cell:
               "text-muted-foreground rounded-md flex-1 font-medium text-[10px] sm:text-xs uppercase",
             row: "flex w-full mt-1",
-            cell: "flex-1 h-14 sm:h-16 text-center text-sm p-0.5 relative [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-            day: cn(
-              buttonVariants({ variant: "ghost" }),
-              "h-full w-full p-0 font-normal rounded-md aria-selected:opacity-100 transition-colors"
-            ),
+            cell: "flex-1 h-16 sm:h-20 text-center text-sm p-0.5 relative [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+            day: "h-full w-full p-0 font-normal rounded-md aria-selected:opacity-100 transition-colors hover:bg-accent hover:text-accent-foreground inline-flex items-stretch justify-stretch overflow-hidden",
             day_selected:
               "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary",
             day_today: "ring-1 ring-primary/40",
