@@ -5,7 +5,6 @@ import { addDays, addMonths, differenceInCalendarDays, format } from "date-fns";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CalendarDay {
   date: string;
