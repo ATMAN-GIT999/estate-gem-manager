@@ -5,6 +5,7 @@ import { addDays, addMonths, differenceInCalendarDays, format } from "date-fns";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CalendarDay {
   date: string;
@@ -27,8 +28,10 @@ const AvailabilityCalendar = ({
   listingId,
   range,
   onRangeChange,
-  numberOfMonths = 2,
+  numberOfMonths,
 }: AvailabilityCalendarProps) => {
+  const isMobile = useIsMobile();
+  const months = numberOfMonths ?? (isMobile ? 1 : 2);
   const [days, setDays] = useState<Record<string, CalendarDay>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +43,7 @@ const AvailabilityCalendar = ({
       setLoading(true);
       setError(null);
       const from = format(month, "yyyy-MM-dd");
-      const to = format(addMonths(month, numberOfMonths + 1), "yyyy-MM-dd");
+      const to = format(addMonths(month, months + 1), "yyyy-MM-dd");
       try {
         const { data, error } = await supabase.functions.invoke("guesty-get-calendar", {
           body: { listingId, checkIn: from, checkOut: to },
@@ -58,7 +61,7 @@ const AvailabilityCalendar = ({
       }
     };
     fetchCal();
-  }, [listingId, month, numberOfMonths]);
+    }, [listingId, month, months]);
 
   const minNights = useMemo(() => {
     const vals = Object.values(days)
