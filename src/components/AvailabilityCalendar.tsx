@@ -152,7 +152,7 @@ const AvailabilityCalendar = ({
           onSelect={handleSelect}
           month={month}
           onMonthChange={setMonth}
-          numberOfMonths={numberOfMonths}
+          numberOfMonths={months}
           disabled={disabled}
           modifiers={{ booked: bookedDates }}
           modifiersClassNames={{
@@ -161,8 +161,8 @@ const AvailabilityCalendar = ({
           }}
           className={cn("p-2 pointer-events-auto")}
           classNames={{
-            months: "flex flex-col md:flex-row gap-6",
-            month: "space-y-3",
+            months: "flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center",
+            month: "space-y-3 w-full",
             caption: "flex justify-center pt-1 relative items-center",
             caption_label: "text-base font-semibold tracking-wide",
             nav: "space-x-1 flex items-center",
@@ -172,14 +172,15 @@ const AvailabilityCalendar = ({
             ),
             nav_button_previous: "absolute left-1",
             nav_button_next: "absolute right-1",
-            table: "w-full border-collapse",
-            head_row: "flex",
-            head_cell: "text-muted-foreground rounded-md w-10 font-medium text-xs uppercase",
+            table: "w-full border-collapse table-fixed",
+            head_row: "flex w-full",
+            head_cell:
+              "text-muted-foreground rounded-md flex-1 font-medium text-[10px] sm:text-xs uppercase",
             row: "flex w-full mt-1",
-            cell: "h-10 w-10 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+            cell: "flex-1 aspect-square text-center text-sm p-0 relative [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
             day: cn(
               buttonVariants({ variant: "ghost" }),
-              "h-10 w-10 p-0 font-normal rounded-md aria-selected:opacity-100 transition-colors"
+              "h-full w-full p-0 font-normal rounded-md aria-selected:opacity-100 transition-colors text-xs sm:text-sm"
             ),
             day_selected:
               "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary",
