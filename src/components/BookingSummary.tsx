@@ -139,10 +139,11 @@ const BookingSummary = ({
           let body: any = null;
           try {
             const ctx: any = (response.error as any).context;
-            if (ctx?.body && typeof ctx.body.getReader === 'function') {
-              const txt = await new Response(ctx.body).text();
-              body = JSON.parse(txt);
-            } else if (typeof ctx === 'object' && ctx?.error) {
+            if (ctx && typeof ctx.json === 'function') {
+              body = await ctx.clone().json();
+            } else if (ctx && typeof ctx.text === 'function') {
+              body = JSON.parse(await ctx.clone().text());
+            } else if (ctx?.error) {
               body = ctx;
             }
           } catch { /* ignore */ }
