@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { format, differenceInDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -77,6 +78,7 @@ const BookingSummary = ({
 }: BookingSummaryProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [quote, setQuote] = useState<QuoteData | null>(null);
@@ -312,6 +314,25 @@ const BookingSummary = ({
           title: "Booking confirmed!",
           description: "Your reservation has been created. Check your email for details.",
         });
+
+        const reservation = response.data?.reservation || {};
+        navigate("/booking-confirmation", {
+          state: {
+            reservationId: reservation._id || reservation.id || reservation.reservationId,
+            confirmationCode: reservation.confirmationCode || reservation.code,
+            status: reservation.status || "Confirmed",
+            paymentStatus: reservation.paymentStatus || reservation.money?.balanceDue === 0 ? "Paid" : "Paid",
+            total: quote.total,
+            currency: quote.currency,
+            propertyName: property.name,
+            checkIn,
+            checkOut,
+            guests,
+            guestName: `${guestInfo.firstName} ${guestInfo.lastName}`,
+            guestEmail: guestInfo.email,
+            type: "instant",
+          },
+        });
       } else {
         // Save to local database only
         await supabase.from("bookings").insert({
@@ -330,6 +351,22 @@ const BookingSummary = ({
         toast({
           title: "Booking request sent!",
           description: "We'll contact you shortly to confirm your booking.",
+        });
+
+        navigate("/booking-confirmation", {
+          state: {
+            status: "Pending",
+            paymentStatus: "Awaiting confirmation",
+            total: quote?.total || property.price_per_night * nights,
+            currency: quote?.currency || "EUR",
+            propertyName: property.name,
+            checkIn,
+            checkOut,
+            guests,
+            guestName: `${guestInfo.firstName} ${guestInfo.lastName}`,
+            guestEmail: guestInfo.email,
+            type: "inquiry",
+          },
         });
       }
 

@@ -16,6 +16,7 @@ import Auth from "./pages/Auth";
 import PropertyDetail from "./pages/PropertyDetail";
 import Properties from "./pages/Properties";
 import Book from "./pages/Book";
+import BookingConfirmation from "./pages/BookingConfirmation";
 import PropertyManagementPage from "./pages/PropertyManagementPage";
 import GuaranteedIncomePage from "./pages/GuaranteedIncomePage";
 import RenovationsPage from "./pages/RenovationsPage";
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/update-password" element={<UpdatePassword />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/book" element={<Book />} />
+            <Route path="/booking-confirmation" element={<BookingConfirmation />} />
             <Route path="/property/:slug" element={<PropertyDetail />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
