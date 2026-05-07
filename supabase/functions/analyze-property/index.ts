@@ -59,7 +59,49 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Require authenticated caller (JWT validation)
+    const authHeader = req.headers.get("Authorization") || "";
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    if (!token) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    try {
+      const verifyRes = await fetch(`${Deno.env.get("SUPABASE_URL")}/auth/v1/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          apikey: Deno.env.get("SUPABASE_ANON_KEY") || "",
+        },
+      });
+      if (!verifyRes.ok) {
+        return new Response(
+          JSON.stringify({ error: "Unauthorized" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { propertyData } = await req.json();
+    // Basic input validation
+    if (
+      !propertyData ||
+      typeof propertyData !== "object" ||
+      typeof propertyData.address !== "string" ||
+      propertyData.address.length === 0 ||
+      propertyData.address.length > 500
+    ) {
+      return new Response(
+        JSON.stringify({ error: "Invalid propertyData" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
