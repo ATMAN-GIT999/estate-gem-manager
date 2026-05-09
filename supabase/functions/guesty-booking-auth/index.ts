@@ -37,8 +37,9 @@ Deno.serve(async (req) => {
       const expiresAt = new Date(cachedToken.expires_at);
       const now = new Date();
       
-      // If token is still valid (with 1 hour buffer), return it
-      if (expiresAt > new Date(now.getTime() + 3600000)) {
+      // If token is still valid (with 5 min buffer), return it.
+      // Guesty has a strict 3-tokens/24h rate limit, so reuse aggressively.
+      if (expiresAt > new Date(now.getTime() + 300000)) {
         console.log('Using cached token (expires:', expiresAt.toISOString(), ')');
         return new Response(
           JSON.stringify({
@@ -85,13 +86,15 @@ Deno.serve(async (req) => {
       const errorText = await authResponse.text();
       console.error('Guesty Booking Engine auth failed:', errorText);
       
-      // If rate limited, check if we have ANY cached token (even slightly expired)
-      if (errorText.includes('TOO_MANY_REQUESTS') && cachedToken) {
-        console.log('Rate limited, using slightly expired cached token as fallback');
+      // If rate limited and cached token is NOT fully expired, use it.
+      // Never return an already-expired token (Guesty will reject as Not Authorized).
+      if (errorText.includes('TOO_MANY_REQUESTS') && cachedToken && new Date(cachedToken.expires_at) > new Date()) {
+        console.log('Rate limited, falling back to still-valid cached token');
+        const remainingMs = new Date(cachedToken.expires_at).getTime() - Date.now();
         return new Response(
           JSON.stringify({
             access_token: cachedToken.access_token,
-            expires_in: 3600,
+            expires_in: Math.floor(remainingMs / 1000),
             token_type: 'Bearer',
             cached: true,
             warning: 'Using cached token due to rate limit',
