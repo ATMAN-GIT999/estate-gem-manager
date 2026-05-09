@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
     const { access_token } = await authResponse.json();
 
     // Guesty Booking Engine calendar endpoint
-    const calendarUrl = `https://booking.guesty.com/api/listings/${listingId}/calendar?from=${checkIn}&to=${checkOut}`;
+    const calendarUrl = `https://booking.guesty.com/api/v1/listings/${listingId}/calendar?from=${checkIn}&to=${checkOut}`;
     
     console.log('Fetching calendar from:', calendarUrl);
 
@@ -87,7 +87,7 @@ Deno.serve(async (req) => {
 
     const fetchRates = async (from: string, toExclusive: string) => {
       const url =
-        `https://booking.guesty.com/api/listings` +
+        `https://booking.guesty.com/api/v1/listings` +
         `?fields=${encodeURIComponent('_id nightlyRates prices.currency')}` +
         `&checkIn=${from}&checkOut=${toExclusive}&limit=100`;
       try {
