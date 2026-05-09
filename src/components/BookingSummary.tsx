@@ -603,11 +603,11 @@ const BookingSummary = ({
 
   return (
     <>
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="pb-4">
-        <h2 className="font-playfair text-2xl font-bold text-primary">{property.name}</h2>
+    <Card className="w-full max-w-md mx-auto border-0 shadow-none sm:border sm:shadow-sm">
+      <CardHeader className="pb-3 px-4 pt-4 sm:px-6 sm:pt-6">
+        <h2 className="font-playfair text-xl sm:text-2xl font-bold text-primary">{property.name}</h2>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6">
         {/* Booking Details */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
