@@ -253,7 +253,7 @@ const PropertyDetail = () => {
 
             {/* Booking Card */}
             <div className="lg:col-span-2">
-              <Card className="sticky top-24">
+              <Card className="lg:sticky lg:top-24">
                 <CardContent className="p-4">
                   <div className="mb-3">
                     {property.guesty_listing_id ? (
@@ -315,7 +315,7 @@ const PropertyDetail = () => {
 
       {/* Booking Summary Dialog */}
       <Dialog open={showBookingSummary} onOpenChange={setShowBookingSummary}>
-        <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-md p-0 overflow-y-auto max-h-[95vh] w-[calc(100vw-1rem)] sm:w-full rounded-lg">
           <DialogTitle className="sr-only">Booking Summary</DialogTitle>
           {showBookingSummary && booking.checkIn && booking.checkOut && (
             <BookingSummary
