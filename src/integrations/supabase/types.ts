@@ -547,6 +547,39 @@ export type Database = {
           },
         ]
       }
+      guesty_calendar_cache: {
+        Row: {
+          created_at: string
+          expires_at: string
+          fetched_at: string
+          id: string
+          listing_id: string
+          payload: Json
+          range_from: string
+          range_to: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          fetched_at?: string
+          id?: string
+          listing_id: string
+          payload: Json
+          range_from: string
+          range_to: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          fetched_at?: string
+          id?: string
+          listing_id?: string
+          payload?: Json
+          range_from?: string
+          range_to?: string
+        }
+        Relationships: []
+      }
       guesty_token_cache: {
         Row: {
           access_token: string
