@@ -115,6 +115,22 @@ Deno.serve(async (req) => {
     reservation?.reservationId ||
     payload?.reservationId;
 
+  // Cache invalidation — any calendar or reservation event should wipe the
+  // affected listing's cached availability so the next page load pulls fresh data.
+  const listingId: string | undefined =
+    reservation?.listingId ||
+    reservation?.listing?._id ||
+    payload?.listingId ||
+    payload?.data?.listingId;
+  if (listingId) {
+    const { error: cacheErr } = await supabase
+      .from('guesty_calendar_cache')
+      .delete()
+      .eq('listing_id', listingId);
+    if (cacheErr) console.warn('Cache invalidation failed:', cacheErr.message);
+    else console.log('Invalidated calendar cache for listing', listingId);
+  }
+
   // Always log the event for audit/replay
   const { data: eventRow } = await supabase
     .from("guesty_webhook_events")
