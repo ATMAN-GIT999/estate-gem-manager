@@ -30,8 +30,10 @@ Deno.serve(async (req) => {
     // Check for cached token first
     const { data: cachedToken, error: cacheError } = await supabase
       .from('guesty_token_cache')
-      .select('*')
-      .single();
+      .select('id, access_token, expires_at')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     if (!cacheError && cachedToken) {
       const expiresAt = new Date(cachedToken.expires_at);
@@ -115,16 +117,23 @@ Deno.serve(async (req) => {
     // Cache the new token
     const expiresAt = new Date(Date.now() + (authData.expires_in * 1000));
     
-    await supabase
+    const tokenPayload = {
+      id: cachedToken?.id,
+      access_token: authData.access_token,
+      expires_at: expiresAt.toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error: upsertError } = await supabase
       .from('guesty_token_cache')
-      .upsert({
-        access_token: authData.access_token,
-        expires_at: expiresAt.toISOString(),
-        updated_at: new Date().toISOString(),
-      }, {
+      .upsert(tokenPayload, {
         onConflict: 'id',
         ignoreDuplicates: false,
       });
+
+    if (upsertError) {
+      console.error('Failed to cache Guesty token:', upsertError.message);
+    }
 
     console.log('Token cached until:', expiresAt.toISOString());
 
