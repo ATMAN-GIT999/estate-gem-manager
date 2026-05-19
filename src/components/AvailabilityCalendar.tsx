@@ -90,7 +90,8 @@ const AvailabilityCalendar = ({
         });
         loadedRangeRef.current = { from: fetchFrom, to: fetchTo };
       } catch (e: any) {
-        setError(e.message || "Failed to load availability");
+        console.error("Calendar availability load failed:", e);
+        setError("Live availability is temporarily unavailable. You can still choose dates and continue booking.");
       } finally {
         setLoading(false);
       }
@@ -214,14 +215,15 @@ const AvailabilityCalendar = ({
 
   const nights = range?.from && range?.to ? differenceInCalendarDays(range.to, range.from) : 0;
   const meetsMin = nights === 0 || nights >= minNights;
+  const calendarReady = !listingId || Object.keys(days).length > 0 || Boolean(error);
 
   useEffect(() => {
     onValidityChange?.({
-      valid: nights > 0 && nights >= minNights,
+      valid: calendarReady && nights > 0 && nights >= minNights,
       nights,
       minNights,
     });
-  }, [nights, minNights, onValidityChange]);
+  }, [calendarReady, nights, minNights, onValidityChange]);
 
   const total = useMemo(() => {
     if (!range?.from || !range?.to) return 0;
