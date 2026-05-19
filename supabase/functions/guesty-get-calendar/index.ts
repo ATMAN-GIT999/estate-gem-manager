@@ -80,7 +80,34 @@ Deno.serve(async (req) => {
     const authResponse = await fetch(authUrl, {
       headers: { 'apikey': Deno.env.get('SUPABASE_ANON_KEY')! },
     });
-    if (!authResponse.ok) throw new Error('Failed to get authentication token');
+
+    if (!authResponse.ok) {
+      const authErrorText = await authResponse.text();
+      console.error('Failed to get authentication token:', authErrorText);
+
+      const { data: staleCoveringCache } = await supabase
+        .from('guesty_calendar_cache')
+        .select('payload')
+        .eq('listing_id', listingId)
+        .lte('range_from', checkIn)
+        .gte('range_to', checkOut)
+        .order('fetched_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (staleCoveringCache?.payload) {
+        return new Response(
+          JSON.stringify({ ...(staleCoveringCache.payload as any), cached: true, stale: true, degraded: true }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ calendar: [], isAvailable: true, degraded: true, error: 'Live availability is temporarily unavailable' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { access_token } = await authResponse.json();
 
     // 3. Fetch calendar with backoff
