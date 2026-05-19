@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DayPicker, DateRange, DayContentProps } from "react-day-picker";
 import { ChevronLeft, ChevronRight, Loader2, Info } from "lucide-react";
-import { addDays, addMonths, differenceInCalendarDays, format } from "date-fns";
+import { addDays, addMonths, differenceInCalendarDays, format, startOfMonth } from "date-fns";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -40,24 +40,55 @@ const AvailabilityCalendar = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [month, setMonth] = useState<Date>(new Date());
+  // Track the date window already fetched so we don't refetch (or overwrite) on every month change
+  const loadedRangeRef = useRef<{ from: Date; to: Date } | null>(null);
+
+  // Reset cache if the listing changes
+  useEffect(() => {
+    loadedRangeRef.current = null;
+    setDays({});
+  }, [listingId]);
 
   useEffect(() => {
     if (!listingId) return;
+
+    // Always keep the cache extending forward from today, in 12-month chunks.
+    // We only fetch when the currently visible window (month .. month + months + 1)
+    // goes BEYOND what we've already loaded.
+    const visibleFrom = startOfMonth(month);
+    const visibleTo = addMonths(visibleFrom, months + 1);
+
+    const existing = loadedRangeRef.current;
+    if (existing && visibleTo <= existing.to && visibleFrom >= existing.from) {
+      // Already covered — no fetch needed
+      return;
+    }
+
+    // Fetch a wide window: from today (or earlier of existing.from) through
+    // at least 12 months past the requested visible end.
+    const fetchFrom = existing ? existing.from : startOfMonth(new Date());
+    const fetchTo = addMonths(visibleTo, 12);
+
     const fetchCal = async () => {
       setLoading(true);
       setError(null);
-      const from = format(month, "yyyy-MM-dd");
-      const to = format(addMonths(month, months + 1), "yyyy-MM-dd");
+      const from = format(fetchFrom, "yyyy-MM-dd");
+      const to = format(fetchTo, "yyyy-MM-dd");
       try {
         const { data, error } = await supabase.functions.invoke("guesty-get-calendar", {
           body: { listingId, checkIn: from, checkOut: to },
         });
         if (error) throw new Error(error.message);
-        const map: Record<string, CalendarDay> = {};
-        (data?.calendar || []).forEach((d: CalendarDay) => {
-          map[d.date] = d;
+        // MERGE into existing days instead of replacing, so selections and prior
+        // months remain populated when navigating between months.
+        setDays((prev) => {
+          const next = { ...prev };
+          (data?.calendar || []).forEach((d: CalendarDay) => {
+            next[d.date] = d;
+          });
+          return next;
         });
-        setDays(map);
+        loadedRangeRef.current = { from: fetchFrom, to: fetchTo };
       } catch (e: any) {
         setError(e.message || "Failed to load availability");
       } finally {
@@ -65,7 +96,7 @@ const AvailabilityCalendar = ({
       }
     };
     fetchCal();
-    }, [listingId, month, months]);
+  }, [listingId, month, months]);
 
   // Global fallback minimum across all loaded days
   const globalMinNights = useMemo(() => {
@@ -227,8 +258,8 @@ const AvailabilityCalendar = ({
 
       <div className="relative rounded-xl border bg-card/50 backdrop-blur-sm p-2 sm:p-3">
         {loading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 rounded-xl">
-            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          <div className="absolute top-2 right-2 z-10 pointer-events-none">
+            <Loader2 className="w-4 h-4 animate-spin text-primary" />
           </div>
         )}
         <DayPicker
