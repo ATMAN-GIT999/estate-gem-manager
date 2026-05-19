@@ -25,6 +25,8 @@ interface AvailabilityCalendarProps {
   onRangeChange: (r: DateRange | undefined) => void;
   numberOfMonths?: number;
   onValidityChange?: (info: { valid: boolean; nights: number; minNights: number }) => void;
+  fallbackNightlyRate?: number;
+  fallbackCurrency?: string;
 }
 
 const AvailabilityCalendar = ({
@@ -33,6 +35,8 @@ const AvailabilityCalendar = ({
   onRangeChange,
   numberOfMonths,
   onValidityChange,
+  fallbackNightlyRate,
+  fallbackCurrency = "EUR",
 }: AvailabilityCalendarProps) => {
   const isMobile = useIsMobile();
   const months = numberOfMonths ?? (isMobile ? 1 : 2);
@@ -176,8 +180,8 @@ const AvailabilityCalendar = ({
 
   const currency = useMemo(() => {
     const first = Object.values(days).find((d) => d.currency);
-    return first?.currency || "EUR";
-  }, [days]);
+    return first?.currency || fallbackCurrency;
+  }, [days, fallbackCurrency]);
 
   const fmtPrice = (n: number) => {
     try {
@@ -194,7 +198,7 @@ const AvailabilityCalendar = ({
   const DayContent = (props: DayContentProps) => {
     const key = format(props.date, "yyyy-MM-dd");
     const day = days[key];
-    const price = day?.price;
+    const price = day?.price ?? fallbackNightlyRate;
     const booked = isBooked(props.date);
     return (
       <div className="flex flex-col items-center justify-center leading-none gap-0.5 w-full h-full py-0.5">
@@ -231,7 +235,7 @@ const AvailabilityCalendar = ({
     let cursor = range.from;
     while (cursor < range.to) {
       const key = format(cursor, "yyyy-MM-dd");
-      const p = days[key]?.price;
+        const p = days[key]?.price ?? fallbackNightlyRate;
       if (typeof p === "number") sum += p;
       cursor = addDays(cursor, 1);
     }
