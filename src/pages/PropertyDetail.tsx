@@ -280,6 +280,8 @@ const PropertyDetail = () => {
                       onRangeChange={handleRangeChange}
                       numberOfMonths={1}
                       onValidityChange={({ valid }) => setDatesValid(valid)}
+                      fallbackNightlyRate={property.price_per_night}
+                      fallbackCurrency="EUR"
                     />
 
                     <div className="flex items-center gap-3">

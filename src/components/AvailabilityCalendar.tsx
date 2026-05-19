@@ -240,7 +240,7 @@ const AvailabilityCalendar = ({
       cursor = addDays(cursor, 1);
     }
     return sum;
-  }, [range, days]);
+    }, [range, days, fallbackNightlyRate]);
 
   return (
     <div className="space-y-3">
