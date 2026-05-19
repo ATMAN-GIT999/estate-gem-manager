@@ -77,46 +77,54 @@ const PropertiesContent = () => {
     const check = async () => {
       setCheckingAvailability(true);
       const eligible = properties.filter((p) => p.guesty_listing_id);
-      const results = await Promise.all(
-        eligible.map(async (p) => {
-          try {
-            const { data, error } = await supabase.functions.invoke("guesty-get-calendar", {
-              body: {
-                listingId: p.guesty_listing_id,
-                checkIn: activeCheckIn,
-                checkOut: activeCheckOut,
-              },
-            });
-            if (error || !data?.calendar) return { id: p.id, available: true };
-            const start = parseISO(activeCheckIn);
-            const end = parseISO(activeCheckOut);
-            let cursor = start;
-            let allFree = true;
-            const byDate: Record<string, any> = {};
-            (data.calendar as any[]).forEach((d) => (byDate[d.date] = d));
-            while (cursor < end) {
-              const key = format(cursor, "yyyy-MM-dd");
-              const day = byDate[key];
-              if (day) {
-                const blocked =
-                  (day.status && day.status !== "available") ||
-                  Boolean(
-                    day.blocks &&
-                      (day.blocks.b || day.blocks.r || day.blocks.o || day.blocks.m || day.blocks.bd)
-                  );
-                if (blocked) {
-                  allFree = false;
-                  break;
-                }
-              }
-              cursor = addDays(cursor, 1);
-            }
-            return { id: p.id, available: allFree };
-          } catch {
-            return { id: p.id, available: true };
+      // IMPORTANT: run sequentially, not in parallel. Guesty caps token requests
+      // at 3/24h — parallel invocations all try to refresh the token at once
+      // and get rate-limited. Sequential calls let the first request populate
+      // the token cache that the rest reuse.
+      const results: { id: string; available: boolean }[] = [];
+      for (const p of eligible) {
+        if (cancelled) return;
+        try {
+          const { data, error } = await supabase.functions.invoke("guesty-get-calendar", {
+            body: {
+              listingId: p.guesty_listing_id,
+              checkIn: activeCheckIn,
+              checkOut: activeCheckOut,
+            },
+          });
+          if (error || !data?.calendar) {
+            // On failure (e.g. rate-limited), don't hide the property.
+            results.push({ id: p.id, available: true });
+            continue;
           }
-        })
-      );
+          const start = parseISO(activeCheckIn);
+          const end = parseISO(activeCheckOut);
+          const byDate: Record<string, any> = {};
+          (data.calendar as any[]).forEach((d) => (byDate[d.date] = d));
+          let cursor = start;
+          let allFree = true;
+          while (cursor < end) {
+            const key = format(cursor, "yyyy-MM-dd");
+            const day = byDate[key];
+            if (day) {
+              const blocked =
+                (day.status && day.status !== "available") ||
+                Boolean(
+                  day.blocks &&
+                    (day.blocks.b || day.blocks.r || day.blocks.o || day.blocks.m || day.blocks.bd)
+                );
+              if (blocked) {
+                allFree = false;
+                break;
+              }
+            }
+            cursor = addDays(cursor, 1);
+          }
+          results.push({ id: p.id, available: allFree });
+        } catch {
+          results.push({ id: p.id, available: true });
+        }
+      }
       if (cancelled) return;
       setAvailabilityFilter(new Set(results.filter((r) => r.available).map((r) => r.id)));
       setCheckingAvailability(false);
