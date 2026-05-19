@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InlineEditProvider } from "./contexts/InlineEditContext";
 import EditModeToggle from "./components/admin/EditModeToggle";
+import WhatsAppButton from "./components/WhatsAppButton";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
@@ -48,6 +49,7 @@ const App = () => (
         <AuthProvider>
           <InlineEditProvider>
             <EditModeToggle />
+            <WhatsAppButton />
             <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
