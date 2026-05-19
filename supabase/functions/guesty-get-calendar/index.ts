@@ -40,6 +40,18 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const degradedResponse = (extra: Record<string, unknown> = {}) =>
+      new Response(
+        JSON.stringify({
+          calendar: [],
+          isAvailable: true,
+          degraded: true,
+          error: 'Live availability is temporarily unavailable',
+          ...extra,
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+
     const { listingId, checkIn, checkOut, bypassCache }: CalendarRequest = await req.json();
 
     if (!listingId || !checkIn || !checkOut) {
@@ -77,35 +89,42 @@ Deno.serve(async (req) => {
 
     // 2. Get auth token
     const authUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/guesty-booking-auth`;
-    const authResponse = await fetch(authUrl, {
-      headers: { 'apikey': Deno.env.get('SUPABASE_ANON_KEY')! },
-    });
+    let authResponse: Response;
+    try {
+      authResponse = await fetch(authUrl, {
+        headers: { 'apikey': Deno.env.get('SUPABASE_ANON_KEY')! },
+      });
+    } catch (authRequestError) {
+      console.error('Auth function request failed:', authRequestError);
+      return degradedResponse();
+    }
 
     if (!authResponse.ok) {
       const authErrorText = await authResponse.text();
       console.error('Failed to get authentication token:', authErrorText);
 
-      const { data: staleCoveringCache } = await supabase
-        .from('guesty_calendar_cache')
-        .select('payload')
-        .eq('listing_id', listingId)
-        .lte('range_from', checkIn)
-        .gte('range_to', checkOut)
-        .order('fetched_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      try {
+        const { data: staleCoveringCache } = await supabase
+          .from('guesty_calendar_cache')
+          .select('payload')
+          .eq('listing_id', listingId)
+          .lte('range_from', checkIn)
+          .gte('range_to', checkOut)
+          .order('fetched_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-      if (staleCoveringCache?.payload) {
-        return new Response(
-          JSON.stringify({ ...(staleCoveringCache.payload as any), cached: true, stale: true, degraded: true }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        if (staleCoveringCache?.payload) {
+          return new Response(
+            JSON.stringify({ ...(staleCoveringCache.payload as any), cached: true, stale: true, degraded: true }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      } catch (staleCacheError) {
+        console.error('Stale cache fallback failed:', staleCacheError);
       }
 
-      return new Response(
-        JSON.stringify({ calendar: [], isAvailable: true, degraded: true, error: 'Live availability is temporarily unavailable' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return degradedResponse();
     }
 
     const { access_token } = await authResponse.json();
