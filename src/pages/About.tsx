@@ -29,7 +29,7 @@ const AboutContent = () => {
 
   const [teamMembers, setTeamMembers] = useState([
     { name: "Alejandro Marinetto Rohr", role: "Co-Founder", description: "Real estate strategy, marketing, and design leadership." },
-    { name: "Lorenz Aschbacher", role: "Co-Founder", description: "Investment strategy and client relations." },
+    { name: "Lorenz Aschbacher", role: "Co-Founder", description: "Business Development, Investment strategy and client Relations, Scale & Growth." },
     { name: "Olek", role: "Marketing", description: "Brand strategy, digital marketing, and demand generation." },
     { name: "Julien", role: "Partner", description: "Business Development and Operations Manager, Scale & Growth" },
   ]);
