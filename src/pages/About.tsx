@@ -32,7 +32,6 @@ const AboutContent = () => {
     { name: "Lorenz Aschbacher", role: "Co-Founder", description: "International hospitality and real estate expertise." },
     { name: "Olek", role: "Partner", description: "Strategic partnerships and business development." },
     { name: "Julien", role: "Partner", description: "Investment strategy and client relations." },
-    { name: "Carlos", role: "Technology Lead", description: "Digital innovation and platform development." },
   ]);
 
   const [processSteps, setProcessSteps] = useState([
