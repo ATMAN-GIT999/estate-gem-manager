@@ -29,9 +29,9 @@ const AboutContent = () => {
 
   const [teamMembers, setTeamMembers] = useState([
     { name: "Alejandro Marinetto Rohr", role: "Co-Founder", description: "Real estate strategy, marketing, and design leadership." },
-    { name: "Lorenz Aschbacher", role: "Co-Founder", description: "Business Development, Investment strategy and client Relations, Scale & Growth." },
+    { name: "Lorenz Aschbacher", role: "Co-Founder", description: "Business development, investment strategy, client relations, and scale & growth." },
     { name: "Olek", role: "Marketing", description: "Brand strategy, digital marketing, and demand generation." },
-    { name: "Julien", role: "Partner", description: "Business Development and Operations Manager, Scale & Growth" },
+    { name: "Julien", role: "Guest Manager", description: "Guest experience, hospitality operations, and end-to-end stay management." },
   ]);
 
   const [processSteps, setProcessSteps] = useState([
