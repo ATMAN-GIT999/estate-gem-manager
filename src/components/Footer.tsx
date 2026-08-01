@@ -18,6 +18,7 @@ const Footer = () => {
   const [aboutLink, setAboutLink] = useState("About Us");
   const [projectsLink, setProjectsLink] = useState("Projects");
   const [evalLink, setEvalLink] = useState("Property Evaluation");
+  const [avisoLegalLink, setAvisoLegalLink] = useState("Aviso Legal");
   const [copyright, setCopyright] = useState("Frontier Residences. All rights reserved.");
 
   return (
@@ -159,6 +160,19 @@ const Footer = () => {
                     className="text-primary-foreground/80"
                   >
                     {evalLink}
+                  </EditableText>
+                </Link>
+              </li>
+              <li>
+                <Link to="/aviso-legal" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                  <EditableText
+                    id="footer-aviso-legal-link"
+                    value={avisoLegalLink}
+                    onChange={setAvisoLegalLink}
+                    as="span"
+                    className="text-primary-foreground/80"
+                  >
+                    {avisoLegalLink}
                   </EditableText>
                 </Link>
               </li>

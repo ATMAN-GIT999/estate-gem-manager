@@ -36,6 +36,7 @@ import AdminCreate from "./pages/admin/Create";
 import AdminBuilder from "./pages/admin/Builder";
 import AdminTestHarness from "./pages/admin/TestHarness";
 import DynamicPage from "./pages/DynamicPage";
+import AvisoLegal from "./pages/AvisoLegal";
 import UpdatePassword from "./pages/UpdatePassword";
 
 const queryClient = new QueryClient();
@@ -80,6 +81,7 @@ const App = () => (
             <Route path="/admin/create" element={<AdminCreate />} />
             <Route path="/admin/builder" element={<AdminBuilder />} />
             <Route path="/admin/test-harness" element={<AdminTestHarness />} />
+            <Route path="/aviso-legal" element={<AvisoLegal />} />
             <Route path="/p/:slug" element={<DynamicPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
