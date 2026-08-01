@@ -163,6 +163,19 @@ const Footer = () => {
                   </EditableText>
                 </Link>
               </li>
+              <li>
+                <Link to="/aviso-legal" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                  <EditableText
+                    id="footer-aviso-legal-link"
+                    value={avisoLegalLink}
+                    onChange={setAvisoLegalLink}
+                    as="span"
+                    className="text-primary-foreground/80"
+                  >
+                    {avisoLegalLink}
+                  </EditableText>
+                </Link>
+              </li>
             </ul>
           </div>
 
