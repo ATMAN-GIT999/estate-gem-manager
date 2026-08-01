@@ -18,6 +18,7 @@ const Footer = () => {
   const [aboutLink, setAboutLink] = useState("About Us");
   const [projectsLink, setProjectsLink] = useState("Projects");
   const [evalLink, setEvalLink] = useState("Property Evaluation");
+  const [avisoLegalLink, setAvisoLegalLink] = useState("Aviso Legal");
   const [copyright, setCopyright] = useState("Frontier Residences. All rights reserved.");
 
   return (
