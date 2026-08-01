@@ -8,8 +8,8 @@ const Stats = () => {
   const [regions, setRegions] = useState("Costa del Sol • Vienna & Carinthia • Istria");
 
   const stats = [
-    { number: "34", label: "Properties Managed" },
-    { number: "570+", label: "Successful Reservations" },
+    { number: "41", label: "Properties Managed" },
+    { number: "1500+", label: "Successful Reservations" },
     { number: "8", label: "Destinations" },
     { number: "50+", label: "Collaborators" },
   ];
