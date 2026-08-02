@@ -415,12 +415,17 @@ const BookingSummary = ({
           },
         });
 
-        if (response.error) {
-          throw new Error(response.error.message);
-        }
-        // Some Guesty deployments return 200 with an inline error payload
-        if (response.data?.error && isInstantBookDisabledError(response.data.error)) {
-          throw new Error(response.data.error);
+        const fnError = await extractFunctionError(response);
+        if (fnError) {
+          if (
+            INSTANT_FALLBACK_CODES.includes(fnError.code || "") ||
+            isInstantBookDisabledError(fnError.error)
+          ) {
+            setInstantBookFallback({ open: true, rawError: fnError.error });
+            setSubmitting(false);
+            return;
+          }
+          throw new Error(fnError.error);
         }
 
         // Also save to local database
@@ -540,7 +545,8 @@ const BookingSummary = ({
             bookingType: 'inquiry',
           },
         });
-        if (response.error) throw new Error(response.error.message);
+        const fnError = await extractFunctionError(response);
+        if (fnError) throw new Error(fnError.error);
 
         const reservationData = response.data?.reservation || {};
         const guestyReservationId =
