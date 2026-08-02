@@ -72,6 +72,38 @@ interface QuoteData {
   appliedCoupon?: string;
 }
 
+/** Edge-function error codes that should trigger the inquiry fallback dialog. */
+const INSTANT_FALLBACK_CODES = [
+  "WRONG_PAYMENT_CONFIG",
+  "INSTANT_BOOK_DISABLED",
+  "MISSING_RATE_PLAN",
+];
+
+/**
+ * Extracts a `{ error, code }` payload from a supabase.functions.invoke result,
+ * including non-2xx responses where the body is attached to the thrown context.
+ */
+async function extractFunctionError(
+  response: { data?: any; error?: any },
+): Promise<{ error: string; code?: string } | null> {
+  if (response.data?.error) {
+    return { error: String(response.data.error), code: response.data.code };
+  }
+  if (response.error) {
+    const ctx = (response.error as any)?.context;
+    if (ctx && typeof ctx.json === "function") {
+      try {
+        const body = await ctx.json();
+        if (body?.error) return { error: String(body.error), code: body.code };
+      } catch {
+        // fall through to the generic message
+      }
+    }
+    return { error: response.error.message || "Reservation request failed" };
+  }
+  return null;
+}
+
 const BookingSummary = ({
   property,
   checkIn,
@@ -361,26 +393,46 @@ const BookingSummary = ({
     setSubmitting(true);
     try {
       if (property.guesty_listing_id && quote?.quoteId) {
-        // Tokenize card with Stripe for instant booking
-        let paymentToken: string | undefined;
-        if (stripeInstance && cardElement) {
-          const { token, error: stripeError } = await stripeInstance.createToken(cardElement, {
-            name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+        // Instant booking requires a rate plan from the quote — otherwise fall back to inquiry
+        if (!quote.ratePlanId) {
+          toast({
+            variant: "destructive",
+            title: "Instant booking unavailable",
+            description:
+              "This property has no bookable rate plan for these dates. We'll send a booking request instead.",
           });
-          if (stripeError || !token) {
-            throw new Error(stripeError?.message || 'Card tokenization failed');
-          }
-          paymentToken = token.id;
-        } else {
+          setSubmitting(false);
+          setInstantBookFallback({
+            open: true,
+            rawError: "Missing ratePlanId on quote — instant booking not possible.",
+          });
+          return;
+        }
+
+        // Create an SCA-compatible Stripe PaymentMethod (pm_...) for instant booking
+        if (!stripeInstance || !cardElement) {
           throw new Error('Payment form not ready. Please enter card details.');
         }
+        const { paymentMethod, error: stripeError } = await stripeInstance.createPaymentMethod({
+          type: 'card',
+          card: cardElement,
+          billing_details: {
+            name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+            email: guestInfo.email,
+            phone: guestInfo.phone,
+          },
+        });
+        if (stripeError || !paymentMethod?.id) {
+          throw new Error(stripeError?.message || 'Card could not be processed. Please check your card details.');
+        }
+        const ccToken = paymentMethod.id;
 
         // Create reservation via Guesty API
         const response = await supabase.functions.invoke('guesty-create-reservation', {
           body: {
             quoteId: quote.quoteId,
             ratePlanId: quote.ratePlanId,
-            couponCode: appliedCoupon || undefined,
+            ccToken,
             guest: {
               firstName: guestInfo.firstName,
               lastName: guestInfo.lastName,
@@ -391,17 +443,21 @@ const BookingSummary = ({
               terms: true,
               cancellation: true,
             },
-            type: 'instant',
-            paymentToken,
+            bookingType: 'instant',
           },
         });
 
-        if (response.error) {
-          throw new Error(response.error.message);
-        }
-        // Some Guesty deployments return 200 with an inline error payload
-        if (response.data?.error && isInstantBookDisabledError(response.data.error)) {
-          throw new Error(response.data.error);
+        const fnError = await extractFunctionError(response);
+        if (fnError) {
+          if (
+            INSTANT_FALLBACK_CODES.includes(fnError.code || "") ||
+            isInstantBookDisabledError(fnError.error)
+          ) {
+            setInstantBookFallback({ open: true, rawError: fnError.error });
+            setSubmitting(false);
+            return;
+          }
+          throw new Error(fnError.error);
         }
 
         // Also save to local database
@@ -511,7 +567,6 @@ const BookingSummary = ({
           body: {
             quoteId: quote.quoteId,
             ratePlanId: quote.ratePlanId,
-            couponCode: appliedCoupon || undefined,
             guest: {
               firstName: guestInfo.firstName,
               lastName: guestInfo.lastName,
@@ -519,10 +574,11 @@ const BookingSummary = ({
               phone: guestInfo.phone,
             },
             policy: { terms: true, cancellation: true },
-            type: 'inquiry',
+            bookingType: 'inquiry',
           },
         });
-        if (response.error) throw new Error(response.error.message);
+        const fnError = await extractFunctionError(response);
+        if (fnError) throw new Error(fnError.error);
 
         const reservationData = response.data?.reservation || {};
         const guestyReservationId =
