@@ -72,6 +72,38 @@ interface QuoteData {
   appliedCoupon?: string;
 }
 
+/** Edge-function error codes that should trigger the inquiry fallback dialog. */
+const INSTANT_FALLBACK_CODES = [
+  "WRONG_PAYMENT_CONFIG",
+  "INSTANT_BOOK_DISABLED",
+  "MISSING_RATE_PLAN",
+];
+
+/**
+ * Extracts a `{ error, code }` payload from a supabase.functions.invoke result,
+ * including non-2xx responses where the body is attached to the thrown context.
+ */
+async function extractFunctionError(
+  response: { data?: any; error?: any },
+): Promise<{ error: string; code?: string } | null> {
+  if (response.data?.error) {
+    return { error: String(response.data.error), code: response.data.code };
+  }
+  if (response.error) {
+    const ctx = (response.error as any)?.context;
+    if (ctx && typeof ctx.json === "function") {
+      try {
+        const body = await ctx.json();
+        if (body?.error) return { error: String(body.error), code: body.code };
+      } catch {
+        // fall through to the generic message
+      }
+    }
+    return { error: response.error.message || "Reservation request failed" };
+  }
+  return null;
+}
+
 const BookingSummary = ({
   property,
   checkIn,
