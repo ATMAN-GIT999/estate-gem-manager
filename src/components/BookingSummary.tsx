@@ -361,26 +361,46 @@ const BookingSummary = ({
     setSubmitting(true);
     try {
       if (property.guesty_listing_id && quote?.quoteId) {
-        // Tokenize card with Stripe for instant booking
-        let paymentToken: string | undefined;
-        if (stripeInstance && cardElement) {
-          const { token, error: stripeError } = await stripeInstance.createToken(cardElement, {
-            name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+        // Instant booking requires a rate plan from the quote — otherwise fall back to inquiry
+        if (!quote.ratePlanId) {
+          toast({
+            variant: "destructive",
+            title: "Instant booking unavailable",
+            description:
+              "This property has no bookable rate plan for these dates. We'll send a booking request instead.",
           });
-          if (stripeError || !token) {
-            throw new Error(stripeError?.message || 'Card tokenization failed');
-          }
-          paymentToken = token.id;
-        } else {
+          setSubmitting(false);
+          setInstantBookFallback({
+            open: true,
+            rawError: "Missing ratePlanId on quote — instant booking not possible.",
+          });
+          return;
+        }
+
+        // Create an SCA-compatible Stripe PaymentMethod (pm_...) for instant booking
+        if (!stripeInstance || !cardElement) {
           throw new Error('Payment form not ready. Please enter card details.');
         }
+        const { paymentMethod, error: stripeError } = await stripeInstance.createPaymentMethod({
+          type: 'card',
+          card: cardElement,
+          billing_details: {
+            name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+            email: guestInfo.email,
+            phone: guestInfo.phone,
+          },
+        });
+        if (stripeError || !paymentMethod?.id) {
+          throw new Error(stripeError?.message || 'Card could not be processed. Please check your card details.');
+        }
+        const ccToken = paymentMethod.id;
 
         // Create reservation via Guesty API
         const response = await supabase.functions.invoke('guesty-create-reservation', {
           body: {
             quoteId: quote.quoteId,
             ratePlanId: quote.ratePlanId,
-            couponCode: appliedCoupon || undefined,
+            ccToken,
             guest: {
               firstName: guestInfo.firstName,
               lastName: guestInfo.lastName,
@@ -391,8 +411,7 @@ const BookingSummary = ({
               terms: true,
               cancellation: true,
             },
-            type: 'instant',
-            paymentToken,
+            bookingType: 'instant',
           },
         });
 
@@ -511,7 +530,6 @@ const BookingSummary = ({
           body: {
             quoteId: quote.quoteId,
             ratePlanId: quote.ratePlanId,
-            couponCode: appliedCoupon || undefined,
             guest: {
               firstName: guestInfo.firstName,
               lastName: guestInfo.lastName,
@@ -519,7 +537,7 @@ const BookingSummary = ({
               phone: guestInfo.phone,
             },
             policy: { terms: true, cancellation: true },
-            type: 'inquiry',
+            bookingType: 'inquiry',
           },
         });
         if (response.error) throw new Error(response.error.message);
