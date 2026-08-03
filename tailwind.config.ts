@@ -66,8 +66,23 @@ export default {
           light: "hsl(133, 11%, 50%)",
           dark: "hsl(100, 10%, 38%)", /* #5a6959 */
         },
+        gold: {
+          DEFAULT: "hsl(40 42% 52%)",
+          light: "hsl(42 48% 62%)",
+          dark: "hsl(38 42% 44%)",
+        },
         white: "hsl(0, 0%, 100%)", /* #ffffff */
         black: "hsl(0, 0%, 0%)", /* #000000 */
+      },
+      backgroundImage: {
+        "gradient-hero": "var(--gradient-hero)",
+        "gradient-sage": "var(--gradient-sage)",
+        "gradient-gold": "var(--gradient-gold)",
+      },
+      boxShadow: {
+        elegant: "var(--shadow-elegant)",
+        soft: "var(--shadow-soft)",
+        gold: "var(--shadow-gold)",
       },
       fontFamily: {
         playfair: ["Playfair Display", "serif"],
