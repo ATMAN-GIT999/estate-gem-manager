@@ -7,10 +7,16 @@ import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
-import { Input } from "@/components/ui/input";
+import SearchBar from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar as CalendarIcon, Users, Search, Loader2 } from "lucide-react";
-import { format, addDays, parseISO } from "date-fns";
+import { Loader2 } from "lucide-react";
+import { format, addDays, parseISO, isValid } from "date-fns";
+
+const parseDateParam = (value: string | null) => {
+  if (!value) return undefined;
+  const date = parseISO(value);
+  return isValid(date) ? date : undefined;
+};
 
 const PropertiesContent = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,8 +27,8 @@ const PropertiesContent = () => {
   const [checkingAvailability, setCheckingAvailability] = useState(false);
 
   const [locationInput, setLocationInput] = useState(searchParams.get("location") || "");
-  const [checkInInput, setCheckInInput] = useState(searchParams.get("checkIn") || "");
-  const [checkOutInput, setCheckOutInput] = useState(searchParams.get("checkOut") || "");
+  const [checkInInput, setCheckInInput] = useState<Date | undefined>(() => parseDateParam(searchParams.get("checkIn")));
+  const [checkOutInput, setCheckOutInput] = useState<Date | undefined>(() => parseDateParam(searchParams.get("checkOut")));
   const [guestsInput, setGuestsInput] = useState(searchParams.get("guests") || "");
 
   const activeLocation = searchParams.get("location") || "";
@@ -135,25 +141,22 @@ const PropertiesContent = () => {
     };
   }, [activeCheckIn, activeCheckOut, properties]);
 
-  const applySearch = (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const applySearch = () => {
     const next = new URLSearchParams(searchParams);
     locationInput ? next.set("location", locationInput) : next.delete("location");
-    checkInInput ? next.set("checkIn", checkInInput) : next.delete("checkIn");
-    checkOutInput ? next.set("checkOut", checkOutInput) : next.delete("checkOut");
+    checkInInput ? next.set("checkIn", format(checkInInput, "yyyy-MM-dd")) : next.delete("checkIn");
+    checkOutInput ? next.set("checkOut", format(checkOutInput, "yyyy-MM-dd")) : next.delete("checkOut");
     guestsInput ? next.set("guests", guestsInput) : next.delete("guests");
     setSearchParams(next);
   };
 
   const clearSearch = () => {
     setLocationInput("");
-    setCheckInInput("");
-    setCheckOutInput("");
+    setCheckInInput(undefined);
+    setCheckOutInput(undefined);
     setGuestsInput("");
     setSearchParams(new URLSearchParams());
   };
-
-  const today = format(new Date(), "yyyy-MM-dd");
 
   return (
     <div className="min-h-screen">
@@ -161,70 +164,19 @@ const PropertiesContent = () => {
       
       <main className="pt-24 pb-12">
         {/* Local search / filter bar */}
-        <div className="border-b border-border bg-background sticky top-20 z-40 shadow-sm">
+        <div className="border-b border-border bg-background sticky top-20 z-40 shadow-sm overflow-visible">
           <div className="container mx-auto px-4 py-4">
-            <form
-              onSubmit={applySearch}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end"
-            >
-              <div className="lg:col-span-2">
-                <label className="block text-xs text-muted-foreground mb-1">Destination</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    value={locationInput}
-                    onChange={(e) => setLocationInput(e.target.value)}
-                    placeholder="e.g. Malaga, Marbella"
-                    className="pl-9 h-11"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">Check in</label>
-                <div className="relative">
-                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    type="date"
-                    min={today}
-                    value={checkInInput}
-                    onChange={(e) => setCheckInInput(e.target.value)}
-                    className="pl-9 h-11"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">Check out</label>
-                <div className="relative">
-                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    type="date"
-                    min={checkInInput || today}
-                    value={checkOutInput}
-                    onChange={(e) => setCheckOutInput(e.target.value)}
-                    className="pl-9 h-11"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="block text-xs text-muted-foreground mb-1">Guests</label>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="number"
-                      min={1}
-                      value={guestsInput}
-                      onChange={(e) => setGuestsInput(e.target.value)}
-                      placeholder="1"
-                      className="pl-9 h-11"
-                    />
-                  </div>
-                </div>
-                <Button type="submit" className="h-11 self-end gap-2">
-                  <Search className="w-4 h-4" /> Search
-                </Button>
-              </div>
-            </form>
+            <SearchBar
+              location={locationInput}
+              checkInDate={checkInInput}
+              checkOutDate={checkOutInput}
+              guests={guestsInput}
+              onLocationChange={setLocationInput}
+              onCheckInChange={setCheckInInput}
+              onCheckOutChange={setCheckOutInput}
+              onGuestsChange={setGuestsInput}
+              onSearch={applySearch}
+            />
             {(activeLocation || activeCheckIn || activeCheckOut || activeGuests > 0) && (
               <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                 <span>Filtering active</span>

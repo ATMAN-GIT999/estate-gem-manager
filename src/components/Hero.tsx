@@ -1,13 +1,7 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { CalendarIcon, Search, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { addDays, format } from "date-fns";
-import LocationAutocomplete from "./LocationAutocomplete";
+import { format } from "date-fns";
+import SearchBar from "./SearchBar";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
 
@@ -17,8 +11,6 @@ const Hero = () => {
   const [checkOutDate, setCheckOutDate] = useState<Date>();
   const [guests, setGuests] = useState<string>("");
   const [location, setLocation] = useState<string>("");
-  const [checkInOpen, setCheckInOpen] = useState(false);
-  const [checkOutOpen, setCheckOutOpen] = useState(false);
   const navigate = useNavigate();
 
   // Editable content state
@@ -32,20 +24,6 @@ const Hero = () => {
     }, 500);
     return () => clearTimeout(timer);
   }, []);
-
-  const handleCheckInSelect = (date: Date | undefined) => {
-    setCheckInDate(date);
-    if (date && checkOutDate && checkOutDate <= date) {
-      setCheckOutDate(undefined);
-    }
-    setCheckInOpen(false);
-    setTimeout(() => setCheckOutOpen(true), 100);
-  };
-
-  const handleCheckOutSelect = (date: Date | undefined) => {
-    setCheckOutDate(date);
-    setCheckOutOpen(false);
-  };
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -108,86 +86,17 @@ const Hero = () => {
         {/* Compact Search Bar */}
         {showBooking && (
           <div className="mt-12 max-w-5xl mx-auto animate-slide-in-right">
-            <Card className="p-3 shadow-elegant bg-card/95 backdrop-blur">
-              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2">
-                {/* Location */}
-                <div className="flex-1 border-r border-border">
-                  <LocationAutocomplete
-                    value={location}
-                    onChange={setLocation}
-                    placeholder="Where to?"
-                  />
-                </div>
-                
-                {/* Check-in */}
-                <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
-                  <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
-                  <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 font-normal justify-start text-left hover:bg-transparent"
-                      >
-                        {checkInDate ? format(checkInDate, "PPP") : "Check-in"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={checkInDate}
-                        onSelect={handleCheckInSelect}
-                        disabled={(date) => date < new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                {/* Check-out */}
-                <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
-                  <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
-                  <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 font-normal justify-start text-left hover:bg-transparent"
-                      >
-                        {checkOutDate ? format(checkOutDate, "PPP") : "Check-out"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={checkOutDate}
-                        onSelect={handleCheckOutSelect}
-                        defaultMonth={checkInDate ? addDays(checkInDate, 1) : undefined}
-                        disabled={(date) => date < new Date() || (checkInDate && date <= checkInDate)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                {/* Guests */}
-                <div className="flex-1 flex items-center gap-3 px-4 py-2">
-                  <Users className="w-5 h-5 text-primary shrink-0" />
-                  <Input
-                    type="number"
-                    min="1"
-                    placeholder="Guests"
-                    value={guests}
-                    onChange={(e) => setGuests(e.target.value)}
-                    className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
-                </div>
-                <Button 
-                  onClick={handleSearch}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft h-12 px-8 rounded-full"
-                >
-                  <Search className="h-5 w-5" />
-                </Button>
-              </div>
-            </Card>
+             <SearchBar
+               location={location}
+               checkInDate={checkInDate}
+               checkOutDate={checkOutDate}
+               guests={guests}
+               onLocationChange={setLocation}
+               onCheckInChange={setCheckInDate}
+               onCheckOutChange={setCheckOutDate}
+               onGuestsChange={setGuests}
+               onSearch={handleSearch}
+             />
           </div>
         )}
       </div>
