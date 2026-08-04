@@ -51,7 +51,7 @@ const InvestmentsPageContent = () => {
                   return (
                     <Card key={index} className="p-6 hover:shadow-elegant transition-all duration-300">
                       <div className="w-14 h-14 bg-accent/20 rounded-lg flex items-center justify-center mb-4">
-                        <Icon className="w-7 h-7 text-accent" />
+                        <Icon className="w-7 h-7 text-accent-strong" />
                       </div>
                       <EditableText
                         id={`inv-service-title-${index}`}
@@ -83,7 +83,7 @@ const InvestmentsPageContent = () => {
                 {locations.map((location, index) => (
                   <Card key={index} className="p-8 bg-primary-foreground/10 border-primary-foreground/20 text-center">
                     <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <MapPin className="w-6 h-6 text-accent" />
+                      <MapPin className="w-6 h-6 text-accent-on-primary" />
                     </div>
                     <EditableText
                       id={`inv-loc-country-${index}`}
@@ -97,7 +97,7 @@ const InvestmentsPageContent = () => {
                       value={location.region}
                       onChange={(v) => { const u = [...locations]; u[index] = { ...u[index], region: v }; setLocations(u); }}
                       as="p"
-                      className="text-accent font-medium mb-4"
+                      className="text-accent-on-primary font-medium mb-4"
                     >{location.region}</EditableText>
                     <EditableText
                       id={`inv-loc-desc-${index}`}

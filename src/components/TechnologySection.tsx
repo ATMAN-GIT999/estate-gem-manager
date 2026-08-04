@@ -34,7 +34,7 @@ const TechnologySection = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-accent/20 rounded-full mb-6">
-              <Cpu className="w-8 h-8 text-accent" />
+              <Cpu className="w-8 h-8 text-accent-on-primary" />
             </div>
             <EditableText id="tech-title" value={title} onChange={setTitle} as="h2" className="font-playfair text-4xl md:text-5xl font-bold mb-6">{title}</EditableText>
             <EditableText id="tech-description" value={description} onChange={setDescription} as="p" multiline className="text-lg text-primary-foreground/80 max-w-3xl mx-auto leading-relaxed">{description}</EditableText>

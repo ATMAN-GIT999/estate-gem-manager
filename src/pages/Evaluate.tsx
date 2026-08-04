@@ -160,7 +160,7 @@ const EvaluateContent = () => {
                       <>
                         {(() => {
                           const StepIcon = loadingSteps[loadingStep].icon;
-                          return <StepIcon className="w-16 h-16 text-accent mx-auto mb-4 animate-pulse" />;
+                          return <StepIcon className="w-16 h-16 text-accent-strong mx-auto mb-4 animate-pulse" />;
                         })()}
                         <h2 className="font-playfair text-3xl font-bold text-primary mb-2">
                           {loadingSteps[loadingStep].text}
@@ -179,12 +179,12 @@ const EvaluateContent = () => {
                           key={index}
                           className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
                             index <= loadingStep
-                              ? "bg-accent/10 text-accent"
+                              ? "bg-accent/10 text-accent-strong"
                               : "text-foreground/40"
                           }`}
                         >
                           {index < loadingStep ? (
-                            <CheckCircle2 className="w-5 h-5 text-accent" />
+                            <CheckCircle2 className="w-5 h-5 text-accent-strong" />
                           ) : (
                             <StepIcon className={`w-5 h-5 ${index === loadingStep ? "animate-pulse" : ""}`} />
                           )}
@@ -198,7 +198,7 @@ const EvaluateContent = () => {
             ) : analysis ? (
               <>
                 <div className="text-center mb-12">
-                  <TrendingUp className="w-16 h-16 text-accent mx-auto mb-4" />
+                  <TrendingUp className="w-16 h-16 text-accent-strong mx-auto mb-4" />
                   <h1 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">
                     Cash Flow Analysis
                   </h1>
@@ -210,22 +210,22 @@ const EvaluateContent = () => {
                 {/* Property Details */}
                 <div className="grid md:grid-cols-4 gap-4 mb-12">
                   <Card className="p-6 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-shadow">
-                    <Home className="w-8 h-8 text-accent mx-auto mb-2" />
+                    <Home className="w-8 h-8 text-accent-strong mx-auto mb-2" />
                     <div className="text-3xl font-bold text-primary">{propertyData?.bedrooms}</div>
                     <div className="text-sm text-foreground/70">Bedrooms</div>
                   </Card>
                   <Card className="p-6 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-shadow">
-                    <Home className="w-8 h-8 text-accent mx-auto mb-2" />
+                    <Home className="w-8 h-8 text-accent-strong mx-auto mb-2" />
                     <div className="text-3xl font-bold text-primary">{propertyData?.bathrooms}</div>
                     <div className="text-sm text-foreground/70">Bathrooms</div>
                   </Card>
                   <Card className="p-6 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-shadow">
-                    <DollarSign className="w-8 h-8 text-accent mx-auto mb-2" />
+                    <DollarSign className="w-8 h-8 text-accent-strong mx-auto mb-2" />
                     <div className="text-2xl font-bold text-primary">{propertyData?.propertyType || "N/A"}</div>
                     <div className="text-sm text-foreground/70">Type</div>
                   </Card>
                   <Card className="p-6 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-shadow">
-                    <Home className="w-8 h-8 text-accent mx-auto mb-2" />
+                    <Home className="w-8 h-8 text-accent-strong mx-auto mb-2" />
                     <div className="text-3xl font-bold text-primary">{propertyData?.size || "N/A"}</div>
                     <div className="text-sm text-foreground/70">sqm</div>
                   </Card>
@@ -234,7 +234,7 @@ const EvaluateContent = () => {
                 {/* Key Metrics */}
                 <div className="grid md:grid-cols-3 gap-6 mb-12">
                   <Card className="p-6 bg-gradient-to-br from-accent/20 to-accent/5 border-accent/20 backdrop-blur-sm">
-                    <DollarSign className="w-10 h-10 text-accent mb-3" />
+                    <DollarSign className="w-10 h-10 text-accent-strong mb-3" />
                     <h3 className="text-lg font-semibold text-foreground/70 mb-2">Monthly Income</h3>
                     <div className="text-4xl font-bold text-primary mb-1">{formatCurrency(analysis.monthlyIncome)}</div>
                     <p className="text-sm text-foreground/60">Average net income</p>
@@ -256,7 +256,7 @@ const EvaluateContent = () => {
                 {/* Seasonal Breakdown */}
                 <Card className="p-8 bg-card/80 backdrop-blur-sm border-border shadow-elegant mb-12">
                   <h2 className="font-playfair text-2xl font-bold text-primary mb-6 flex items-center gap-3">
-                    <Calendar className="w-6 h-6 text-accent" />
+                    <Calendar className="w-6 h-6 text-accent-strong" />
                     Seasonal Analysis
                   </h2>
                   <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -278,7 +278,7 @@ const EvaluateContent = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Monthly Income:</span>
-                          <span className="font-bold text-accent">{formatCurrency(analysis.peakSeason.monthlyIncome)}</span>
+                          <span className="font-bold text-accent-strong">{formatCurrency(analysis.peakSeason.monthlyIncome)}</span>
                         </div>
                       </div>
                     </div>
@@ -300,7 +300,7 @@ const EvaluateContent = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Monthly Income:</span>
-                          <span className="font-bold text-accent">{formatCurrency(analysis.midSeason.monthlyIncome)}</span>
+                          <span className="font-bold text-accent-strong">{formatCurrency(analysis.midSeason.monthlyIncome)}</span>
                         </div>
                       </div>
                     </div>
@@ -322,7 +322,7 @@ const EvaluateContent = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Monthly Income:</span>
-                          <span className="font-bold text-accent">{formatCurrency(analysis.lowSeason.monthlyIncome)}</span>
+                          <span className="font-bold text-accent-strong">{formatCurrency(analysis.lowSeason.monthlyIncome)}</span>
                         </div>
                       </div>
                     </div>
@@ -357,7 +357,7 @@ const EvaluateContent = () => {
                   {/* Rental Rates */}
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <DollarSign className="w-5 h-5 text-accent" />
+                      <DollarSign className="w-5 h-5 text-accent-strong" />
                       Estimated Nightly Rental Rates
                     </h3>
                     <div className="grid md:grid-cols-3 gap-4">
@@ -388,7 +388,7 @@ const EvaluateContent = () => {
                   {/* Operating Expenses */}
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <BarChart3 className="w-5 h-5 text-accent" />
+                      <BarChart3 className="w-5 h-5 text-accent-strong" />
                       Annual Operating Expenses
                     </h3>
                     <div className="grid md:grid-cols-2 gap-4">
@@ -436,7 +436,7 @@ const EvaluateContent = () => {
                   {/* Short-term vs Long-term Comparison */}
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-accent" />
+                      <TrendingUp className="w-5 h-5 text-accent-strong" />
                       Short-term vs Long-term Rental Comparison
                     </h3>
                     <div className="grid md:grid-cols-2 gap-4">

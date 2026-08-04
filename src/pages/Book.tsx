@@ -106,8 +106,8 @@ const BookContent = () => {
                       <div className="flex items-start justify-between mb-2">
                         <CardTitle className="font-playfair text-2xl text-primary">{property.name}</CardTitle>
                         <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-accent text-accent" />
-                          <span className="font-semibold text-accent">{property.rating}</span>
+                          <Star className="w-4 h-4 fill-accent text-accent-strong" />
+                          <span className="font-semibold text-accent-strong">{property.rating}</span>
                         </div>
                       </div>
                       <CardDescription className="flex items-center gap-2 text-base">

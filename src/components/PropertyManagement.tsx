@@ -86,7 +86,7 @@ const PropertyManagement = () => {
         const Icon = iconMap[item.icon] || Package;
         return (
           <div key={index} className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20" style={{ animationDelay: `${index * 100}ms` }}>
-            <Icon className="w-10 h-10 text-secondary mb-4" />
+            <Icon className="w-10 h-10 text-accent-on-primary mb-4" />
             <EditableText id={`${prefix}-title-${index}`} value={item.title} onChange={(v) => updateItem(setter, items, index, "title", v)} as="h4" className="text-lg font-semibold text-primary-foreground mb-2">{item.title}</EditableText>
             <EditableText id={`${prefix}-desc-${index}`} value={item.description} onChange={(v) => updateItem(setter, items, index, "description", v)} as="p" className="text-sm text-primary-foreground/80 leading-relaxed">{item.description}</EditableText>
           </div>
@@ -127,10 +127,10 @@ const PropertyManagement = () => {
                 <div>
                   <div className="flex items-start gap-4 mb-6">
                     <div className="bg-primary rounded-full p-3">
-                      <Home className="w-6 h-6 text-secondary" />
+                      <Home className="w-6 h-6 text-accent-on-primary" />
                     </div>
                     <div>
-                      <div className="bg-primary text-secondary px-6 py-2 rounded-full inline-block font-semibold">
+                      <div className="bg-primary text-accent-on-primary px-6 py-2 rounded-full inline-block font-semibold">
                         <EditableText id="pm-listing-badge" value={listingBadge} onChange={setListingBadge} as="span">{listingBadge}</EditableText>
                       </div>
                     </div>
@@ -144,7 +144,7 @@ const PropertyManagement = () => {
               </div>
               {renderListingItemGrid(listingManagement, setListingManagement, "pm-listing")}
               <Link to="/book">
-                <Button className="bg-secondary hover:bg-secondary/90 text-primary shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
+                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
                   <EditableText id="pm-contact-btn-1" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
                 </Button>
               </Link>
@@ -158,11 +158,11 @@ const PropertyManagement = () => {
             <Card className="bg-primary border-none shadow-elegant overflow-hidden">
               <CardContent className="p-8 md:p-12">
                 <div className="flex items-start gap-4 mb-8">
-                  <div className="bg-secondary rounded-full p-3">
-                    <Users className="w-6 h-6 text-primary" />
+                  <div className="bg-accent rounded-full p-3">
+                    <Users className="w-6 h-6 text-accent-foreground" />
                   </div>
                   <div>
-                    <div className="bg-secondary text-primary px-6 py-2 rounded-full inline-block mb-4 font-semibold">
+                    <div className="bg-accent text-accent-foreground px-6 py-2 rounded-full inline-block mb-4 font-semibold">
                       <EditableText id="pm-guest-badge" value={guestBadge} onChange={setGuestBadge} as="span">{guestBadge}</EditableText>
                     </div>
                   </div>
@@ -171,11 +171,11 @@ const PropertyManagement = () => {
                 <EditableText id="pm-guest-desc" value={guestDesc} onChange={setGuestDesc} as="p" multiline className="text-xl text-primary-foreground/90 mb-8 leading-relaxed">{guestDesc}</EditableText>
                 {renderItemGrid(guestManagement, setGuestManagement, "pm-guest")}
                 <div className="flex flex-wrap gap-4 mb-8">
-                  <EditableText id="pm-listing-mgmt-label" value={listingMgmtLabel} onChange={setListingMgmtLabel} as="span" className="text-secondary text-lg font-medium">{listingMgmtLabel}</EditableText>
-                  <EditableText id="pm-property-mgmt-label" value={propertyMgmtLabel} onChange={setPropertyMgmtLabel} as="span" className="text-secondary text-lg font-medium">{propertyMgmtLabel}</EditableText>
+                  <EditableText id="pm-listing-mgmt-label" value={listingMgmtLabel} onChange={setListingMgmtLabel} as="span" className="text-accent-on-primary text-lg font-medium">{listingMgmtLabel}</EditableText>
+                  <EditableText id="pm-property-mgmt-label" value={propertyMgmtLabel} onChange={setPropertyMgmtLabel} as="span" className="text-accent-on-primary text-lg font-medium">{propertyMgmtLabel}</EditableText>
                 </div>
                 <Link to="/book">
-                  <Button className="bg-secondary hover:bg-secondary/90 text-primary shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
+                  <Button className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
                     <EditableText id="pm-contact-btn-2" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
                   </Button>
                 </Link>
@@ -190,11 +190,11 @@ const PropertyManagement = () => {
             <Card className="bg-primary border-none shadow-elegant overflow-hidden">
               <CardContent className="p-8 md:p-12">
                 <div className="flex items-start gap-4 mb-8">
-                  <div className="bg-secondary rounded-full p-3">
-                    <Home className="w-6 h-6 text-primary" />
+                  <div className="bg-accent rounded-full p-3">
+                    <Home className="w-6 h-6 text-accent-foreground" />
                   </div>
                   <div>
-                    <div className="bg-secondary text-primary px-6 py-2 rounded-full inline-block mb-4 font-semibold">
+                    <div className="bg-accent text-accent-foreground px-6 py-2 rounded-full inline-block mb-4 font-semibold">
                       <EditableText id="pm-property-badge" value={propertyBadge} onChange={setPropertyBadge} as="span">{propertyBadge}</EditableText>
                     </div>
                   </div>
@@ -206,11 +206,11 @@ const PropertyManagement = () => {
                 </div>
                 {renderItemGrid(propertyManagement, setPropertyManagement, "pm-prop")}
                 <div className="flex flex-wrap gap-4 mb-8">
-                  <EditableText id="pm-listing-mgmt-label2" value={listingMgmtLabel} onChange={setListingMgmtLabel} as="span" className="text-secondary text-lg font-medium">{listingMgmtLabel}</EditableText>
-                  <EditableText id="pm-guest-mgmt-label" value={guestMgmtLabel} onChange={setGuestMgmtLabel} as="span" className="text-secondary text-lg font-medium">{guestMgmtLabel}</EditableText>
+                  <EditableText id="pm-listing-mgmt-label2" value={listingMgmtLabel} onChange={setListingMgmtLabel} as="span" className="text-accent-on-primary text-lg font-medium">{listingMgmtLabel}</EditableText>
+                  <EditableText id="pm-guest-mgmt-label" value={guestMgmtLabel} onChange={setGuestMgmtLabel} as="span" className="text-accent-on-primary text-lg font-medium">{guestMgmtLabel}</EditableText>
                 </div>
                 <Link to="/book">
-                  <Button className="bg-secondary hover:bg-secondary/90 text-primary shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
+                  <Button className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
                     <EditableText id="pm-contact-btn-3" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
                   </Button>
                 </Link>

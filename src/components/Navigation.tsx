@@ -56,32 +56,32 @@ const Navigation = () => {
               <Link
                 key={link.href}
                 to={link.href}
-                className="text-primary-foreground hover:text-secondary transition-colors font-medium"
+                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
               >
                 <EditableText id={link.id} value={link.label} onChange={link.setLabel} as="span" className="text-primary-foreground">{link.label}</EditableText>
               </Link>
             ))}
             <Link
               to="/properties"
-              className="text-primary-foreground hover:text-secondary transition-colors font-medium"
+              className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
             >
               <EditableText id="nav-4" value={navLabel4} onChange={setNavLabel4} as="span" className="text-primary-foreground">{navLabel4}</EditableText>
             </Link>
             <button
               onClick={handleEvaluationClick}
-              className="text-primary-foreground hover:text-secondary transition-colors font-medium"
+              className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
             >
               <EditableText id="nav-5" value={navLabel5} onChange={setNavLabel5} as="span" className="text-primary-foreground">{navLabel5}</EditableText>
             </button>
             {user ? (
               <Link to={isAdmin ? "/admin/dashboard" : "/book"}>
-                <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary shadow-gold">
+                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
                   <EditableText id="nav-auth-btn" value={isAdmin ? dashboardLabel : myBookingsLabel} onChange={isAdmin ? setDashboardLabel : setMyBookingsLabel} as="span">{isAdmin ? dashboardLabel : myBookingsLabel}</EditableText>
                 </Button>
               </Link>
             ) : (
               <Link to="/auth">
-                <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary shadow-gold">
+                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
                   <EditableText id="nav-signin-btn" value={signInLabel} onChange={setSignInLabel} as="span">{signInLabel}</EditableText>
                 </Button>
               </Link>
@@ -91,7 +91,7 @@ const Navigation = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 text-primary-foreground hover:text-secondary transition-colors"
+            className="lg:hidden p-2 text-primary-foreground hover:text-accent-on-primary transition-colors"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -105,7 +105,7 @@ const Navigation = () => {
                 <Link
                   key={link.href}
                   to={link.href}
-                  className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2"
+                  className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.label}
@@ -113,26 +113,26 @@ const Navigation = () => {
               ))}
               <Link
                 to="/properties"
-                className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2"
+                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
                 onClick={() => setIsOpen(false)}
               >
                 {navLabel4}
               </Link>
               <button
                 onClick={handleEvaluationClick}
-                className="text-primary-foreground hover:text-secondary transition-colors font-medium py-2 text-left"
+                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2 text-left"
               >
                 {navLabel5}
               </button>
               {user ? (
                 <Link to={isAdmin ? "/admin/dashboard" : "/book"} className="w-full">
-                  <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary w-full">
+                  <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
                     {isAdmin ? dashboardLabel : myBookingsLabel}
                   </Button>
                 </Link>
               ) : (
                 <Link to="/auth" className="w-full">
-                  <Button variant="default" className="bg-secondary hover:bg-secondary/90 text-primary w-full">
+                  <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
                     {signInLabel}
                   </Button>
                 </Link>

@@ -70,7 +70,7 @@ const PropertyManagementPageContent = () => {
                     <Card key={index} className="p-6 hover:shadow-elegant transition-all duration-300">
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center shrink-0">
-                          <Icon className="w-6 h-6 text-accent" />
+                          <Icon className="w-6 h-6 text-accent-strong" />
                         </div>
                         <EditableText
                           id={`pmp-service-${index}`}
@@ -93,7 +93,7 @@ const PropertyManagementPageContent = () => {
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-12">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-accent/20 rounded-full mb-6">
-                  <Cpu className="w-8 h-8 text-accent" />
+                  <Cpu className="w-8 h-8 text-accent-on-primary" />
                 </div>
                 <EditableText id="pmp-ai-title" value={aiTitle} onChange={setAiTitle} as="h2" className="font-playfair text-3xl md:text-4xl font-bold mb-6">{aiTitle}</EditableText>
                 <EditableText id="pmp-ai-subtitle" value={aiSubtitle} onChange={setAiSubtitle} as="p" className="text-lg text-primary-foreground/80 max-w-3xl mx-auto">{aiSubtitle}</EditableText>
@@ -101,11 +101,11 @@ const PropertyManagementPageContent = () => {
 
               <div className="grid lg:grid-cols-2 gap-12 mt-12">
                 <div>
-                  <EditableText id="pmp-systems-title" value={systemsTitle} onChange={setSystemsTitle} as="h3" className="text-xl font-semibold mb-6 text-accent">{systemsTitle}</EditableText>
+                  <EditableText id="pmp-systems-title" value={systemsTitle} onChange={setSystemsTitle} as="h3" className="text-xl font-semibold mb-6 text-accent-on-primary">{systemsTitle}</EditableText>
                   <ul className="space-y-4">
                     {aiFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-3">
-                        <span className="text-accent mt-1">•</span>
+                        <span className="text-accent-on-primary mt-1">•</span>
                         <EditableText
                           id={`pmp-ai-feature-${index}`}
                           value={feature}
@@ -119,11 +119,11 @@ const PropertyManagementPageContent = () => {
                 </div>
 
                 <div>
-                  <EditableText id="pmp-ensures-title" value={ensuresTitle} onChange={setEnsuresTitle} as="h3" className="text-xl font-semibold mb-6 text-accent">{ensuresTitle}</EditableText>
+                  <EditableText id="pmp-ensures-title" value={ensuresTitle} onChange={setEnsuresTitle} as="h3" className="text-xl font-semibold mb-6 text-accent-on-primary">{ensuresTitle}</EditableText>
                   <ul className="space-y-4">
                     {benefits.map((benefit, index) => (
                       <li key={index} className="flex items-center gap-3">
-                        <Check className="w-5 h-5 text-accent shrink-0" />
+                        <Check className="w-5 h-5 text-accent-on-primary shrink-0" />
                         <EditableText
                           id={`pmp-benefit-${index}`}
                           value={benefit}

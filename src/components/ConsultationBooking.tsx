@@ -80,7 +80,7 @@ const ConsultationBooking = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <CalendarIcon className="w-16 h-16 text-accent mx-auto mb-6" />
+            <CalendarIcon className="w-16 h-16 text-accent-strong mx-auto mb-6" />
             <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">
               Ready to List Your Property?
             </h2>
@@ -95,7 +95,7 @@ const ConsultationBooking = () => {
               <div className="space-y-4">
                 <Card className="p-4 bg-accent/10 border-accent/20">
                   <div className="flex gap-3">
-                    <AlertCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="w-5 h-5 text-accent-strong flex-shrink-0 mt-0.5" />
                     <div className="space-y-2 text-sm">
                       <p className="font-semibold">Selective Property Portfolio</p>
                       <p className="text-foreground/80">
@@ -192,7 +192,7 @@ const ConsultationBooking = () => {
                 <Label className="mb-3 block">Property Images * (Max 10)</Label>
                 <Card className="p-6 bg-card border-border border-dashed">
                   <div className="text-center">
-                    <Upload className="w-12 h-12 text-accent mx-auto mb-4" />
+                    <Upload className="w-12 h-12 text-accent-strong mx-auto mb-4" />
                     <label htmlFor="images" className="cursor-pointer">
                       <div className="text-sm text-foreground/70 mb-2">
                         Click to upload or drag and drop

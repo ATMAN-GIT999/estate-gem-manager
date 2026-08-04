@@ -112,7 +112,7 @@ const AnimatedStatCard = ({ stat, index, hasAnimated }: { stat: { number: string
 
   return (
     <Card className="p-8 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-all duration-300 hover:scale-105">
-      <div className="font-playfair text-4xl md:text-5xl font-bold text-accent mb-2">
+      <div className="font-playfair text-4xl md:text-5xl font-bold text-accent-strong mb-2">
         {displayNumber}
       </div>
       <div className="text-foreground/70 font-medium">{stat.label}</div>

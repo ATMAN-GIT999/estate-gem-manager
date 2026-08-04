@@ -51,7 +51,7 @@ const GuaranteedIncomePageContent = () => {
                   return (
                     <Card key={index} className="p-8 hover:shadow-elegant transition-all duration-300 text-center">
                       <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Icon className="w-8 h-8 text-accent" />
+                        <Icon className="w-8 h-8 text-accent-strong" />
                       </div>
                       <EditableText
                         id={`gip-benefit-title-${index}`}

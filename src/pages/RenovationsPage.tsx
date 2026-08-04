@@ -51,7 +51,7 @@ const RenovationsPageContent = () => {
                     <Card key={index} className="p-6 hover:shadow-elegant transition-all duration-300">
                       <div className="flex items-start gap-4">
                         <div className="w-14 h-14 bg-accent/20 rounded-lg flex items-center justify-center shrink-0">
-                          <Icon className="w-7 h-7 text-accent" />
+                          <Icon className="w-7 h-7 text-accent-strong" />
                         </div>
                         <div>
                           <EditableText
@@ -90,9 +90,9 @@ const RenovationsPageContent = () => {
                       value={step}
                       onChange={(v) => { const u = [...processSteps]; u[index] = v; setProcessSteps(u); }}
                       as="span"
-                      className="font-semibold text-accent"
+                      className="font-semibold text-accent-strong"
                     >{step}</EditableText>
-                    {index < processSteps.length - 1 && <span className="text-accent">→</span>}
+                    {index < processSteps.length - 1 && <span className="text-accent-strong">→</span>}
                   </span>
                 ))}
               </div>

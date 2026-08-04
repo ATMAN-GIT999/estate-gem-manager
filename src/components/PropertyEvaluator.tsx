@@ -90,7 +90,7 @@ const PropertyEvaluator = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <TrendingUp className="w-16 h-16 text-accent mx-auto mb-6" />
+            <TrendingUp className="w-16 h-16 text-accent-strong mx-auto mb-6" />
             <EditableText
               id="pe-section-title"
               value={sectionTitle}

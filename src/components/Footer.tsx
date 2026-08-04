@@ -59,7 +59,7 @@ const Footer = () => {
             </EditableText>
             <ul className="space-y-2">
               <li>
-                <Link to="/business-areas" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <Link to="/business-areas" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-pm-link"
                     value={pmLink}
@@ -72,7 +72,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/business-areas" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <Link to="/business-areas" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-gi-link"
                     value={giLink}
@@ -85,7 +85,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/business-areas" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <Link to="/business-areas" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-renovations-link"
                     value={renovationsLink}
@@ -98,7 +98,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/business-areas" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <Link to="/business-areas" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-investments-link"
                     value={investmentsLink}
@@ -125,7 +125,7 @@ const Footer = () => {
             </EditableText>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <Link to="/about" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-about-link"
                     value={aboutLink}
@@ -138,7 +138,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/projects" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <Link to="/projects" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-projects-link"
                     value={projectsLink}
@@ -151,7 +151,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/evaluate" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <Link to="/evaluate" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-eval-link"
                     value={evalLink}
@@ -164,7 +164,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/aviso-legal" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <Link to="/aviso-legal" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-aviso-legal-link"
                     value={avisoLegalLink}
@@ -216,13 +216,13 @@ const Footer = () => {
               </li>
             </ul>
             <div className="flex gap-4 mt-4">
-              <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
+              <a href="#" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
+              <a href="#" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
+              <a href="#" className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>
