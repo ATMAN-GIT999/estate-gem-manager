@@ -57,10 +57,10 @@ interface TeamMember {
 }
 
 const statusColumns = [
-  { id: "todo", label: "To Do", color: "bg-slate-100 dark:bg-slate-800" },
-  { id: "in_progress", label: "In Progress", color: "bg-blue-50 dark:bg-blue-900/20" },
-  { id: "review", label: "Review", color: "bg-amber-50 dark:bg-amber-900/20" },
-  { id: "done", label: "Done", color: "bg-green-50 dark:bg-green-900/20" },
+  { id: "todo", label: "To Do", color: "bg-slate-100" },
+  { id: "in_progress", label: "In Progress", color: "bg-blue-50" },
+  { id: "review", label: "Review", color: "bg-amber-50" },
+  { id: "done", label: "Done", color: "bg-green-50" },
 ];
 
 const categoryConfig: Record<string, { icon: React.ElementType; color: string; label: string }> = {

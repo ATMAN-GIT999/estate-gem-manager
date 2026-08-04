@@ -253,8 +253,8 @@ const AdminBlog = () => {
                           <CardTitle className="text-xl">{post.title}</CardTitle>
                           <span className={`px-2 py-0.5 text-xs rounded-full ${
                             post.published 
-                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
-                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                              ? "bg-green-100 text-green-700" 
+                              : "bg-yellow-100 text-yellow-700"
                           }`}>
                             {post.published ? "Published" : "Draft"}
                           </span>

@@ -251,7 +251,7 @@ export default function ChannelSettingsDialog({ open, onOpenChange }: ChannelSet
         </DialogHeader>
 
         {/* API Credentials Container - Glassmorphic */}
-        <Card className="mx-0 my-4 p-4 bg-gradient-to-r from-slate-50/80 via-white/90 to-slate-50/80 dark:from-slate-900/80 dark:via-slate-800/90 dark:to-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl">
+        <Card className="mx-0 my-4 p-4 bg-gradient-to-r from-slate-50/80 via-white/90 to-slate-50/80 backdrop-blur-xl border border-white/20 shadow-xl">
           <div className="flex items-center gap-3 mb-2">
             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
               <Key className="h-4 w-4 text-white" />
@@ -282,8 +282,7 @@ export default function ChannelSettingsDialog({ open, onOpenChange }: ChannelSet
                   className={cn(
                     "p-4 transition-all duration-300",
                     "bg-gradient-to-r from-white/80 via-white/90 to-white/80",
-                    "dark:from-slate-900/80 dark:via-slate-800/90 dark:to-slate-900/80",
-                    "backdrop-blur-xl border border-white/20 dark:border-white/10",
+                    "backdrop-blur-xl border border-white/20",
                     isConnected && "ring-2 ring-green-500/30 border-green-500/50"
                   )}
                 >
@@ -333,7 +332,7 @@ export default function ChannelSettingsDialog({ open, onOpenChange }: ChannelSet
 
                   {/* Credential Fields - Glassmorphic Input Container */}
                   <div className="grid gap-3 pl-12">
-                    <div className="p-3 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50">
+                    <div className="p-3 rounded-lg bg-slate-50/50 backdrop-blur-sm border border-slate-200/50">
                       <div className="grid gap-3">
                         {config.fields.map((field) => (
                           <div key={field.key} className="grid gap-1.5">
@@ -347,7 +346,7 @@ export default function ChannelSettingsDialog({ open, onOpenChange }: ChannelSet
                               value={formData[key]?.[field.key] || ""}
                               onChange={(e) => handleFieldChange(key, field.key, e.target.value)}
                               disabled={saving === key}
-                              className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+                              className="bg-white border-slate-200"
                             />
                           </div>
                         ))}

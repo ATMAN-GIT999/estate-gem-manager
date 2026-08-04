@@ -1,6 +1,10 @@
 import type { Config } from "tailwindcss";
 
 export default {
+  // The site is light-only and never sets the `dark` class (see src/index.css).
+  // Keep the class strategy anyway — it renders any stray `dark:` utility inert.
+  // Dropping this line would revert Tailwind to the `media` strategy and let
+  // those utilities fire based on the visitor's OS setting.
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",

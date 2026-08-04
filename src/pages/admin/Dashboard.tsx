@@ -127,18 +127,18 @@ const AdminDashboard = () => {
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'confirmed': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'pending': return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300';
-      case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+      case 'confirmed': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-amber-100 text-amber-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-muted text-muted-foreground';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600 dark:text-red-400';
-      case 'medium': return 'text-amber-600 dark:text-amber-400';
-      case 'low': return 'text-green-600 dark:text-green-400';
+      case 'high': return 'text-red-600';
+      case 'medium': return 'text-amber-600';
+      case 'low': return 'text-green-600';
       default: return 'text-muted-foreground';
     }
   };
@@ -214,11 +214,11 @@ const AdminDashboard = () => {
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Bookings</p>
                       {loading ? <Skeleton className="h-8 w-16 mt-1" /> : (
-                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats?.bookingCount}</p>
+                        <p className="text-3xl font-bold text-blue-600">{stats?.bookingCount}</p>
                       )}
                     </div>
                     <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                      <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                      <Calendar className="h-6 w-6 text-blue-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -230,13 +230,13 @@ const AdminDashboard = () => {
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
                       {loading ? <Skeleton className="h-8 w-24 mt-1" /> : (
-                        <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">
+                        <p className="text-3xl font-bold text-amber-600">
                           {formatCurrency(stats?.totalRevenue || 0)}
                         </p>
                       )}
                     </div>
                     <div className="h-12 w-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                      <DollarSign className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                      <DollarSign className="h-6 w-6 text-amber-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -248,11 +248,11 @@ const AdminDashboard = () => {
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Page Views</p>
                       {loading ? <Skeleton className="h-8 w-16 mt-1" /> : (
-                        <p className="text-3xl font-bold text-violet-600 dark:text-violet-400">{stats?.weeklyEvents}</p>
+                        <p className="text-3xl font-bold text-violet-600">{stats?.weeklyEvents}</p>
                       )}
                     </div>
                     <div className="h-12 w-12 rounded-full bg-violet-500/10 flex items-center justify-center">
-                      <Eye className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+                      <Eye className="h-6 w-6 text-violet-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -338,28 +338,28 @@ const AdminDashboard = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-4 space-y-4">
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-green-50">
                         <div className="flex items-center gap-3">
                           <CheckCircle2 className="h-5 w-5 text-green-600" />
                           <span>Confirmed Bookings</span>
                         </div>
                         <span className="font-bold text-green-600">{stats?.confirmedBookings || 0}</span>
                       </div>
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-amber-50">
                         <div className="flex items-center gap-3">
                           <Clock className="h-5 w-5 text-amber-600" />
                           <span>Pending Bookings</span>
                         </div>
                         <span className="font-bold text-amber-600">{stats?.pendingBookings || 0}</span>
                       </div>
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50">
                         <div className="flex items-center gap-3">
                           <FileText className="h-5 w-5 text-blue-600" />
                           <span>Blog Posts</span>
                         </div>
                         <span className="font-bold text-blue-600">{stats?.blogCount || 0}</span>
                       </div>
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-violet-50 dark:bg-violet-900/20">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-violet-50">
                         <div className="flex items-center gap-3">
                           <Eye className="h-5 w-5 text-violet-600" />
                           <span>Page Views</span>
@@ -496,10 +496,10 @@ const AdminDashboard = () => {
                     <Badge variant="outline" className="px-3 py-1.5">
                       All: {bookings.length}
                     </Badge>
-                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 px-3 py-1.5">
+                    <Badge className="bg-green-100 text-green-800 px-3 py-1.5">
                       Confirmed: {bookings.filter(b => b.status === 'confirmed').length}
                     </Badge>
-                    <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300 px-3 py-1.5">
+                    <Badge className="bg-amber-100 text-amber-800 px-3 py-1.5">
                       Pending: {bookings.filter(b => b.status === 'pending').length}
                     </Badge>
                   </div>
@@ -700,7 +700,7 @@ const AdminDashboard = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Content Actions */}
                   <Card className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="border-b bg-orange-50 dark:bg-orange-900/20">
+                    <CardHeader className="border-b bg-orange-50">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <PenSquare className="h-5 w-5 text-orange-600" />
                         Content Creation
@@ -726,7 +726,7 @@ const AdminDashboard = () => {
 
                   {/* Marketing Actions */}
                   <Card className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="border-b bg-pink-50 dark:bg-pink-900/20">
+                    <CardHeader className="border-b bg-pink-50">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Megaphone className="h-5 w-5 text-pink-600" />
                         Marketing
@@ -752,7 +752,7 @@ const AdminDashboard = () => {
 
                   {/* Sales Actions */}
                   <Card className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="border-b bg-green-50 dark:bg-green-900/20">
+                    <CardHeader className="border-b bg-green-50">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <UserPlus className="h-5 w-5 text-green-600" />
                         Lead Generation
@@ -776,7 +776,7 @@ const AdminDashboard = () => {
 
                   {/* Operations Actions */}
                   <Card className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="border-b bg-blue-50 dark:bg-blue-900/20">
+                    <CardHeader className="border-b bg-blue-50">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Calendar className="h-5 w-5 text-blue-600" />
                         Operations
@@ -806,7 +806,7 @@ const AdminDashboard = () => {
 
                   {/* Property Actions */}
                   <Card className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="border-b bg-violet-50 dark:bg-violet-900/20">
+                    <CardHeader className="border-b bg-violet-50">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Building className="h-5 w-5 text-violet-600" />
                         Properties
@@ -832,7 +832,7 @@ const AdminDashboard = () => {
 
                   {/* Settings Actions */}
                   <Card className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="border-b bg-slate-50 dark:bg-slate-900/20">
+                    <CardHeader className="border-b bg-slate-50">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Settings className="h-5 w-5 text-slate-600" />
                         Settings

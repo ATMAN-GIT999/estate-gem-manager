@@ -1,14 +1,15 @@
-import { useTheme } from "next-themes";
 import { Toaster as Sonner, toast } from "sonner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
+// This site is light-only (see src/index.css). The stock shadcn version reads
+// the theme from next-themes, which — with no ThemeProvider mounted — falls
+// back to "system" and renders dark toasts for visitors whose OS is set to
+// dark. Pinned to "light" so toasts match the rest of the site.
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme();
-
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme="light"
       className="toaster group"
       toastOptions={{
         classNames: {

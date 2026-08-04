@@ -192,15 +192,15 @@ const Marketing = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 70) return "text-green-600 dark:text-green-400";
-    if (score >= 40) return "text-amber-600 dark:text-amber-400";
-    return "text-red-600 dark:text-red-400";
+    if (score >= 70) return "text-green-600";
+    if (score >= 40) return "text-amber-600";
+    return "text-red-600";
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 70) return { label: "Excellent", icon: CheckCircle, color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" };
-    if (score >= 40) return { label: "Good", icon: AlertTriangle, color: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300" };
-    return { label: "Needs Work", icon: XCircle, color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300" };
+    if (score >= 70) return { label: "Excellent", icon: CheckCircle, color: "bg-green-100 text-green-800" };
+    if (score >= 40) return { label: "Good", icon: AlertTriangle, color: "bg-amber-100 text-amber-800" };
+    return { label: "Needs Work", icon: XCircle, color: "bg-red-100 text-red-800" };
   };
 
   const formatCurrency = (amount: number) => 
@@ -211,10 +211,10 @@ const Marketing = () => {
 
   const getPlatformColor = (platform: string) => {
     const colors: Record<string, string> = {
-      google: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      meta: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300",
-      tiktok: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300",
-      linkedin: "bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-300",
+      google: "bg-blue-100 text-blue-800",
+      meta: "bg-indigo-100 text-indigo-800",
+      tiktok: "bg-pink-100 text-pink-800",
+      linkedin: "bg-sky-100 text-sky-800",
     };
     return colors[platform] || "bg-muted text-muted-foreground";
   };
@@ -333,7 +333,7 @@ const Marketing = () => {
                     )}
                   </div>
                   <div className="h-10 w-10 rounded-full bg-red-500/10 flex items-center justify-center">
-                    <DollarSign className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    <DollarSign className="h-5 w-5 text-red-600" />
                   </div>
                 </div>
               </CardContent>
@@ -345,13 +345,13 @@ const Marketing = () => {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Revenue</p>
                     {loading ? <Skeleton className="h-8 w-20 mt-1" /> : (
-                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      <p className="text-2xl font-bold text-green-600">
                         {formatCurrency(aggregated?.totalRevenue || 0)}
                       </p>
                     )}
                   </div>
                   <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                    <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <TrendingUp className="h-5 w-5 text-green-600" />
                   </div>
                 </div>
               </CardContent>
@@ -363,7 +363,7 @@ const Marketing = () => {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">ROAS</p>
                     {loading ? <Skeleton className="h-8 w-16 mt-1" /> : (
-                      <p className={`text-2xl font-bold ${(aggregated?.avgRoas || 0) >= 1 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                      <p className={`text-2xl font-bold ${(aggregated?.avgRoas || 0) >= 1 ? 'text-green-600' : 'text-red-600'}`}>
                         {(aggregated?.avgRoas || 0).toFixed(2)}x
                       </p>
                     )}
@@ -385,7 +385,7 @@ const Marketing = () => {
                     )}
                   </div>
                   <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <Target className="h-5 w-5 text-blue-600" />
                   </div>
                 </div>
               </CardContent>
@@ -401,7 +401,7 @@ const Marketing = () => {
                     )}
                   </div>
                   <div className="h-10 w-10 rounded-full bg-violet-500/10 flex items-center justify-center">
-                    <MousePointer className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                    <MousePointer className="h-5 w-5 text-violet-600" />
                   </div>
                 </div>
               </CardContent>
@@ -575,7 +575,7 @@ const Marketing = () => {
                             <td className="text-right py-3 px-2">{formatCurrency(Number(m.cpc))}</td>
                             <td className="text-right py-3 px-2">{m.bookings}</td>
                             <td className="text-right py-3 px-2">{formatCurrency(Number(m.cpa))}</td>
-                            <td className="text-right py-3 px-2 text-green-600 dark:text-green-400">{formatCurrency(Number(m.revenue))}</td>
+                            <td className="text-right py-3 px-2 text-green-600">{formatCurrency(Number(m.revenue))}</td>
                             <td className="text-right py-3 px-2 font-semibold">{Number(m.roas).toFixed(2)}x</td>
                           </tr>
                         ))}
@@ -644,25 +644,25 @@ const Marketing = () => {
                   <div className="mt-8 pt-6 border-t">
                     <h4 className="font-semibold mb-4">Score Interpretation</h4>
                     <div className="grid sm:grid-cols-3 gap-4">
-                      <div className="flex items-center gap-3 p-4 rounded-lg bg-green-50 dark:bg-green-950/30">
+                      <div className="flex items-center gap-3 p-4 rounded-lg bg-green-50">
                         <CheckCircle className="h-8 w-8 text-green-600" />
                         <div>
-                          <p className="font-semibold text-green-800 dark:text-green-300">70-100: Excellent</p>
-                          <p className="text-sm text-green-700 dark:text-green-400">Scale this campaign</p>
+                          <p className="font-semibold text-green-800">70-100: Excellent</p>
+                          <p className="text-sm text-green-700">Scale this campaign</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30">
+                      <div className="flex items-center gap-3 p-4 rounded-lg bg-amber-50">
                         <AlertTriangle className="h-8 w-8 text-amber-600" />
                         <div>
-                          <p className="font-semibold text-amber-800 dark:text-amber-300">40-69: Good</p>
-                          <p className="text-sm text-amber-700 dark:text-amber-400">Optimize & monitor</p>
+                          <p className="font-semibold text-amber-800">40-69: Good</p>
+                          <p className="text-sm text-amber-700">Optimize & monitor</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-950/30">
+                      <div className="flex items-center gap-3 p-4 rounded-lg bg-red-50">
                         <XCircle className="h-8 w-8 text-red-600" />
                         <div>
-                          <p className="font-semibold text-red-800 dark:text-red-300">0-39: Needs Work</p>
-                          <p className="text-sm text-red-700 dark:text-red-400">Review or pause</p>
+                          <p className="font-semibold text-red-800">0-39: Needs Work</p>
+                          <p className="text-sm text-red-700">Review or pause</p>
                         </div>
                       </div>
                     </div>

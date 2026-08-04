@@ -266,7 +266,7 @@ export default function CalendarIntegration() {
                         {events.tasks.slice(0, 2).map((task) => (
                           <div
                             key={task.id}
-                            className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 truncate"
+                            className="px-1 py-0.5 rounded bg-blue-100 text-blue-800 truncate"
                           >
                             {task.title}
                           </div>
@@ -274,7 +274,7 @@ export default function CalendarIntegration() {
                         {events.bookings.slice(0, 1).map((booking) => (
                           <div
                             key={booking.id}
-                            className="px-1 py-0.5 rounded bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 truncate"
+                            className="px-1 py-0.5 rounded bg-green-100 text-green-800 truncate"
                           >
                             {booking.guest_name}
                           </div>
