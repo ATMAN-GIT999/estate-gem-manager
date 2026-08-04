@@ -19,6 +19,21 @@ import InstantBookFallbackDialog, {
   isInstantBookDisabledError,
 } from "@/components/InstantBookFallbackDialog";
 
+/**
+ * Stripe renders CardElement inside its own iframe, so it can't inherit our
+ * Tailwind classes — it only accepts literal colour strings. Read the design
+ * token off :root instead of hardcoding hex values, so the card field keeps
+ * matching the rest of the form if the palette changes.
+ *
+ * Tokens are stored as bare HSL triplets ("133 14% 22%"); Stripe wants a full
+ * CSS colour, and the comma form is the most broadly accepted.
+ */
+const tokenColor = (name: string, fallback: string) => {
+  if (typeof window === 'undefined') return fallback;
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return raw ? `hsl(${raw.split(/\s+/).join(', ')})` : fallback;
+};
+
 const StripeCardCapture = ({
   onReady,
 }: {
@@ -34,10 +49,10 @@ const StripeCardCapture = ({
           style: {
             base: {
               fontSize: '14px',
-              color: '#1a1a1a',
-              '::placeholder': { color: '#9ca3af' },
+              color: tokenColor('--foreground', '#1a1a1a'),
+              '::placeholder': { color: tokenColor('--muted-foreground', '#9ca3af') },
             },
-            invalid: { color: '#dc2626' },
+            invalid: { color: tokenColor('--destructive', '#dc2626') },
           },
         }}
         onReady={() => {

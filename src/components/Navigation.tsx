@@ -42,6 +42,11 @@ const Navigation = () => {
     { href: "/about", label: navLabel3, setLabel: setNavLabel3, id: "nav-3" },
   ];
 
+  // The bar is fixed, so it sits outside the document flow: h-20 (5rem) of page
+  // content would be hidden underneath it. Content pages clear it with `pt-24`
+  // on their <main> — the 5rem of header plus 1rem of breathing room. Anchor
+  // targets use `scroll-mt-20` and the sticky filter bar on /properties uses
+  // `top-20` for the same reason. Change all four together.
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-primary backdrop-blur-sm border-b border-primary-foreground/10">
       <div className="container mx-auto px-4">

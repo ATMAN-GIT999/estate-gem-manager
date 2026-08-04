@@ -34,8 +34,8 @@ const InstantBookFallbackDialog = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <div className="flex items-start gap-3">
-            <div className="rounded-full bg-amber-100 p-2 shrink-0">
-              <AlertTriangle className="h-5 w-5 text-amber-700" />
+            <div className="rounded-full bg-accent/15 p-2 shrink-0">
+              <AlertTriangle className="h-5 w-5 text-accent-strong" />
             </div>
             <div>
               <DialogTitle className="font-playfair">

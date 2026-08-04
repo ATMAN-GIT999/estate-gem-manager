@@ -125,7 +125,7 @@ export default function EditableText({
         <Button
           size="icon"
           onClick={handleSave}
-          className="h-7 w-7 rounded-full bg-green-500 hover:bg-green-600 shadow-lg"
+          className="h-7 w-7 rounded-full shadow-lg"
         >
           <Check className="h-3.5 w-3.5" />
         </Button>

@@ -62,7 +62,7 @@ export default function DynamicPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      <main className="flex-1 pt-20">
+      <main className="flex-1 pt-24">
         {css && <style dangerouslySetInnerHTML={{ __html: css }} />}
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </main>

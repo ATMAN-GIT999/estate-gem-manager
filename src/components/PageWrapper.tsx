@@ -59,7 +59,7 @@ export default function PageWrapper({ slug, children }: PageWrapperProps) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navigation />
-        <main className="flex-1 pt-20">
+        <main className="flex-1 pt-24">
           {override.css && <style dangerouslySetInnerHTML={{ __html: override.css }} />}
           <div dangerouslySetInnerHTML={{ __html: override.html }} />
         </main>

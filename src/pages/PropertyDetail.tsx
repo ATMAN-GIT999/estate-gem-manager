@@ -138,7 +138,7 @@ const PropertyDetail = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      <main className="flex-1 pt-20 pb-12">
+      <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">
           {/* Back Button */}
           <Button

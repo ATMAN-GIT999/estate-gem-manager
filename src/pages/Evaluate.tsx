@@ -149,7 +149,7 @@ const EvaluateContent = () => {
     <div className="min-h-screen">
       <Navigation />
       
-      <section className="py-20 bg-background">
+      <section className="pt-24 pb-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             {loading ? (
@@ -245,8 +245,8 @@ const EvaluateContent = () => {
                     <div className="text-4xl font-bold text-primary mb-1">{formatCurrency(analysis.annualRevenue)}</div>
                     <p className="text-sm text-foreground/60">Projected yearly</p>
                   </Card>
-                  <Card className="p-6 bg-gradient-to-br from-green-500/20 to-green-500/5 border-green-500/20 backdrop-blur-sm">
-                    <Percent className="w-10 h-10 text-green-500 mb-3" />
+                  <Card className="p-6 bg-gradient-to-br from-primary/20 to-primary/5 border-primary/20 backdrop-blur-sm">
+                    <Percent className="w-10 h-10 text-primary mb-3" />
                     <h3 className="text-lg font-semibold text-foreground/70 mb-2">Occupancy Rate</h3>
                     <div className="text-4xl font-bold text-primary mb-1">{formatOccupancy(analysis.occupancyRate)}%</div>
                     <p className="text-sm text-foreground/60">Average year-round</p>
@@ -270,7 +270,7 @@ const EvaluateContent = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Occupancy:</span>
-                          <span className="font-bold text-green-500">{formatOccupancy(analysis.peakSeason.occupancy)}%</span>
+                          <span className="font-bold text-primary">{formatOccupancy(analysis.peakSeason.occupancy)}%</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-foreground/70">Nightly Rate:</span>
@@ -484,7 +484,7 @@ const EvaluateContent = () => {
                     <h3 className="text-lg font-semibold mb-4">Market Insights & Recommendation</h3>
                     <p className="text-foreground/80 mb-4">{analysis.marketInsights}</p>
                     <div className="flex gap-3 items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
                         <div className="font-medium mb-1">Our Recommendation</div>
                         <div className="text-sm text-foreground/70">{analysis.comparison.recommendation}</div>

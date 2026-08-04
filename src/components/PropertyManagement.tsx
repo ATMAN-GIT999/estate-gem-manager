@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Monitor, Home, Users, DollarSign, CheckCircle2, Shield, Key, Clock, BookOpen, Sparkles, Shirt, Wrench, Package, MapPin, Briefcase } from "lucide-react";
+import { Monitor, Home, Users, DollarSign, CheckCircle2, Shield, Key, Clock, BookOpen, Sparkles, Shirt, Wrench, Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
 import platformConnections from "@/assets/platform-connections.png";
 import EditableText from "./admin/EditableText";
 import EditableImage from "./admin/EditableImage";
@@ -54,30 +53,6 @@ const PropertyManagement = () => {
     const updated = [...items];
     updated[index] = { ...updated[index], [field]: value };
     setter(updated);
-  };
-
-  const achievements = [
-    { label: "Properties Managed", value: 34, suffix: "", icon: Home },
-    { label: "Successful Reservations", value: 570, suffix: "+", icon: CheckCircle2 },
-    { label: "Destinations", value: 8, suffix: "", icon: MapPin },
-    { label: "Collaborators", value: 50, suffix: "+", icon: Briefcase },
-  ];
-
-  const AnimatedNumber = ({ value, suffix }: { value: number; suffix: string }) => {
-    const [count, setCount] = useState(0);
-    useEffect(() => {
-      const duration = 2000;
-      const steps = 60;
-      const increment = value / steps;
-      let currentStep = 0;
-      const timer = setInterval(() => {
-        currentStep++;
-        if (currentStep >= steps) { setCount(value); clearInterval(timer); }
-        else { setCount(Math.floor(increment * currentStep)); }
-      }, duration / steps);
-      return () => clearInterval(timer);
-    }, [value]);
-    return <span>{count}{suffix}</span>;
   };
 
   const renderItemGrid = (items: any[], setter: any, prefix: string) => (
