@@ -4,9 +4,12 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
+import EditableImage from "@/components/admin/EditableImage";
 import PageWrapper from "@/components/PageWrapper";
+import aboutHero from "@/assets/about-hero.webp";
 
 const AboutContent = () => {
+  const [heroImage, setHeroImage] = useState(aboutHero);
   const [pageTitle, setPageTitle] = useState("About Frontier Residences");
   const [pageSubtitle, setPageSubtitle] = useState("Premier property management across Europe's most desirable locations");
   const [missionTitle, setMissionTitle] = useState("Our Mission");
@@ -58,14 +61,25 @@ const AboutContent = () => {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       <main className="flex-1">
-        {/* Hero Section */}
-        <div className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-beige via-secondary to-beige-dark">
-            <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM1YTY5NTkiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzRjMC0yLjIxIDEuNzktNCA0LTRzNCAxLjc5IDQgNC0xLjc5IDQtNCA0LTQtMS43OS00LTR6bTAtMTBjMC0yLjIxIDEuNzktNCA0LTRzNCAxLjc5IDQgNC0xLjc5IDQtNCA0LTQtMS43OS00LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] animate-pulse"></div>
+        {/* Hero Section — pt-20 and safe centring keep the headline clear of the
+            fixed header on short viewports, same as the home page hero. */}
+        <div className="relative min-h-[60vh] flex items-center [align-items:safe_center] justify-center overflow-hidden pt-20">
+          <div className="absolute inset-0">
+            <EditableImage
+              id="about-hero-image"
+              src={heroImage}
+              alt="A Frontier Residences property"
+              onChange={setHeroImage}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            {/* Scrim. Darkest at the bottom, where the subheading sits, so the
+                text stays legible even if the photo is swapped for a brighter
+                one. Paired with the drop shadows below. */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/55 to-black/65" />
           </div>
-          <div className="relative z-10 max-w-4xl mx-auto text-center px-4 animate-fade-in">
-            <EditableText id="about-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6">{pageTitle}</EditableText>
-            <EditableText id="about-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" className="text-xl md:text-2xl text-foreground/80 leading-relaxed">{pageSubtitle}</EditableText>
+          <div className="relative z-10 max-w-4xl mx-auto text-center px-4 py-12 animate-fade-in">
+            <EditableText id="about-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="font-playfair text-4xl md:text-6xl font-bold text-white mb-6 text-balance drop-shadow-2xl">{pageTitle}</EditableText>
+            <EditableText id="about-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" className="text-xl md:text-2xl text-white/90 leading-relaxed drop-shadow-lg">{pageSubtitle}</EditableText>
           </div>
         </div>
 

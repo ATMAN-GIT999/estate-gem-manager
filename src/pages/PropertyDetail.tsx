@@ -20,7 +20,6 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
-import property1 from "@/assets/property-1.png";
 import property2 from "@/assets/property-2.png";
 import property3 from "@/assets/property-3.png";
 import property4 from "@/assets/property-4.png";
@@ -133,7 +132,7 @@ const PropertyDetail = () => {
 
   // Use Guesty images if available, otherwise fall back to hardcoded images
   const guestyImages = property.images?.map((img: any) => img.url) || [];
-  const images = guestyImages.length > 0 ? guestyImages : (propertyImages[property.slug] || [property1]);
+  const images = guestyImages.length > 0 ? guestyImages : (propertyImages[property.slug] || [property3]);
 
   return (
     <div className="min-h-screen flex flex-col">

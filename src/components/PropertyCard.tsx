@@ -2,7 +2,6 @@ import { Link, useSearchParams } from "react-router-dom";
 import { MapPin, Bed, Bath, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import property1 from "@/assets/property-1.png";
 import property2 from "@/assets/property-2.png";
 import property3 from "@/assets/property-3.png";
 import property4 from "@/assets/property-4.png";
@@ -38,7 +37,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   
   // Use Guesty images if available, otherwise fall back to hardcoded images
   const guestyImage = property.images?.[0]?.url;
-  const imageUrl = guestyImage || propertyImages[property.slug] || property1;
+  const imageUrl = guestyImage || propertyImages[property.slug] || property3;
 
   // Build link with search params if they exist
   const buildLink = () => {
