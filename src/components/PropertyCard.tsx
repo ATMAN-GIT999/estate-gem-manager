@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { MapPin, Bed, Bath, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import property1 from "@/assets/property-1.png";
 import property2 from "@/assets/property-2.png";
 import property3 from "@/assets/property-3.png";
@@ -59,7 +60,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
       to={buildLink()} 
       className="group block"
     >
-      <div className="overflow-hidden transition-all duration-300 hover:shadow-2xl border border-border bg-card">
+      <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant">
         {/* Image */}
         <div className="aspect-[4/3] overflow-hidden relative">
           <img 
@@ -108,7 +109,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             <span className="text-sm text-primary group-hover:underline">View Details →</span>
           </div>
         </div>
-      </div>
+      </Card>
     </Link>
   );
 };
