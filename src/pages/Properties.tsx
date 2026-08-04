@@ -159,15 +159,18 @@ const PropertiesContent = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    // flex-col + flex-1 keeps the footer at the bottom when a search returns
+    // only one or two listings; without it the footer rode up into view.
+    <div className="min-h-screen flex flex-col">
       <Navigation />
-      
-      <main className="pt-24 pb-12">
+
+      <main className="flex-1 pt-24 pb-12">
         {/* Local search / filter bar */}
         <div className="border-b border-border bg-background sticky top-20 z-40 shadow-sm overflow-visible">
-          <div className="container mx-auto px-4 py-4">
+          <div className="container mx-auto px-4 py-3 md:py-4">
             <SearchBar
               variant="inline"
+              collapsible
               location={locationInput}
               checkInDate={checkInInput}
               checkOutDate={checkOutInput}

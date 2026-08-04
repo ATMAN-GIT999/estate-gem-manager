@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addDays, format, startOfDay } from "date-fns";
-import { CalendarIcon, Minus, Plus, Search, Users } from "lucide-react";
+import { CalendarIcon, Minus, Plus, Search, SlidersHorizontal, Users } from "lucide-react";
 import LocationAutocomplete from "@/components/LocationAutocomplete";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+
+/** Scroll offset at which the collapsible bar folds into its summary chip. */
+const COLLAPSE_AT = 80;
 
 /** Upper bound for the guest stepper. The largest villas sleep well under this. */
 const MAX_GUESTS = 20;
@@ -30,6 +34,14 @@ interface SearchBarProps extends SearchBarValues {
    *              background, border and shadow.
    */
   variant?: "floating" | "inline";
+  /**
+   * Fold the bar into a one-line summary chip on mobile once the user scrolls
+   * past the results, and after a search is submitted. Stacked on a phone the
+   * full form is ~310px tall, which together with the header swallows about
+   * half the viewport — the listings underneath were barely reachable.
+   * Desktop is unaffected, where the bar is a single row anyway.
+   */
+  collapsible?: boolean;
 }
 
 /** Shared styling for the three popover triggers, so they line up exactly. */
@@ -48,11 +60,36 @@ const SearchBar = ({
   onGuestsChange,
   onSearch,
   variant = "floating",
+  collapsible = false,
 }: SearchBarProps) => {
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [checkOutOpen, setCheckOutOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [manualExpand, setManualExpand] = useState(false);
+  const isMobile = useIsMobile();
   const today = startOfDay(new Date());
+
+  const canCollapse = collapsible && isMobile;
+  // Derived from the live scroll position rather than from threshold
+  // *crossings*: collapsing removes ~215px of layout, which can drop the page
+  // back to the top on its own. A crossing-based rule then waits forever for an
+  // upward crossing that never happens, and the bar stays folded at the top.
+  const isCollapsed = canCollapse && scrolled && !manualExpand;
+
+  useEffect(() => {
+    if (!canCollapse) return;
+    const onScroll = () => {
+      const isScrolled = window.scrollY > COLLAPSE_AT;
+      setScrolled(isScrolled);
+      // Back at the top the bar is open anyway, so drop the manual override —
+      // scrolling down again should fold it like the first time.
+      if (!isScrolled) setManualExpand(false);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [canCollapse]);
 
   // 0 means "not set" — the Properties page treats a missing/0 guest count as
   // "don't filter", so the stepper has to be able to get back down to it.
@@ -79,6 +116,52 @@ const SearchBar = ({
     setCheckOutOpen(false);
   };
 
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    onSearch();
+    // On a phone the expanded bar plus the header cover roughly half the
+    // screen, so submitting from the top would leave the results almost
+    // out of sight. Nudging past the threshold both folds the bar and brings
+    // the listings up — one gesture instead of asking the user to scroll.
+    if (canCollapse && window.scrollY <= COLLAPSE_AT) {
+      window.scrollTo({ top: COLLAPSE_AT + 40, behavior: "smooth" });
+    }
+  };
+
+  /** Human-readable digest of the current criteria, shown while collapsed. */
+  const summary = () => {
+    const dates = checkInDate
+      ? checkOutDate
+        ? `${format(checkInDate, "d MMM")} – ${format(checkOutDate, "d MMM")}`
+        : `from ${format(checkInDate, "d MMM")}`
+      : null;
+    const rest = [dates, guestCount > 0 ? `${guestCount} guests` : null].filter(Boolean);
+    return {
+      primary: location || "Anywhere",
+      secondary: rest.length ? rest.join(" · ") : "Any dates · Any guests",
+    };
+  };
+
+  if (isCollapsed) {
+    const { primary, secondary } = summary();
+    return (
+      <button
+        type="button"
+        onClick={() => setManualExpand(true)}
+        aria-label="Edit search"
+        aria-expanded={false}
+        className="flex w-full items-center gap-3 rounded-full border border-border bg-card px-4 py-2.5 text-left shadow-sm animate-fade-in"
+      >
+        <Search className="h-4 w-4 shrink-0 text-primary" />
+        <span className="min-w-0 flex-1 truncate text-sm">
+          <span className="font-medium text-foreground">{primary}</span>
+          <span className="text-muted-foreground"> · {secondary}</span>
+        </span>
+        <SlidersHorizontal className="h-4 w-4 shrink-0 text-muted-foreground" />
+      </button>
+    );
+  }
+
   // Stacked on mobile, so the dividers have to run horizontally there and
   // switch to vertical only once the fields sit side by side.
   const fieldDivider = "border-b md:border-b-0 md:border-r border-border";
@@ -93,10 +176,7 @@ const SearchBar = ({
       )}
     >
       <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSearch();
-        }}
+        onSubmit={handleSubmit}
         className="flex flex-col md:flex-row items-stretch md:items-center gap-2"
       >
         <div className={cn("flex-1", fieldDivider)}>
