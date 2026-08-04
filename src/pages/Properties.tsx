@@ -167,6 +167,7 @@ const PropertiesContent = () => {
         <div className="border-b border-border bg-background sticky top-20 z-40 shadow-sm overflow-visible">
           <div className="container mx-auto px-4 py-4">
             <SearchBar
+              variant="inline"
               location={locationInput}
               checkInDate={checkInInput}
               checkOutDate={checkOutInput}
