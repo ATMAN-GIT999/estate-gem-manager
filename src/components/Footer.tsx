@@ -3,6 +3,17 @@ import { Link } from "react-router-dom";
 import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react";
 import EditableText from "./admin/EditableText";
 
+/**
+ * Only networks with a real profile are rendered. Facebook and LinkedIn are
+ * listed here so adding them later is a one-line change — until then they stay
+ * out of the markup rather than linking to "#", which reads as a broken link.
+ */
+const SOCIAL_LINKS: { label: string; href: string; Icon: typeof Instagram }[] = [
+  { label: "Instagram", href: "https://www.instagram.com/frontier.residences/", Icon: Instagram },
+  // { label: "Facebook", href: "", Icon: Facebook },
+  // { label: "LinkedIn", href: "", Icon: Linkedin },
+];
+
 const Footer = () => {
   const [tagline, setTagline] = useState("Bespoke property management and investment solutions for exclusive properties.");
   const [email, setEmail] = useState("Hello@frontier-residences.com");
@@ -216,15 +227,18 @@ const Footer = () => {
               </li>
             </ul>
             <div className="flex gap-4 mt-4">
-              <a href="#" aria-label="Social media" className="inline-block p-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" aria-label="Social media" className="inline-block p-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" aria-label="Social media" className="inline-block p-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
-                <Linkedin className="w-5 h-5" />
-              </a>
+              {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Frontier Residences on ${label}`}
+                  className="inline-block p-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors"
+                >
+                  <Icon className="w-5 h-5" />
+                </a>
+              ))}
             </div>
           </div>
         </div>
