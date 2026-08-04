@@ -41,7 +41,12 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    // pt-20 keeps the centring area below the fixed 80px header, so the
+    // headline can never drift underneath it on short viewports. `safe center`
+    // then falls back to top-alignment if the block still doesn't fit (very
+    // small phones, or a headline that wraps to three lines) instead of
+    // overflowing equally in both directions the way plain centring does.
+    <div className="relative min-h-screen flex items-center [align-items:safe_center] justify-center overflow-hidden pt-20">
       {/* Video Background */}
       <EditableVideo
         id="hero-video"
@@ -61,7 +66,7 @@ const Hero = () => {
       </EditableVideo>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-20">
+      <div className="relative z-10 container mx-auto px-4 py-12 sm:py-20">
         <div className="max-w-5xl mx-auto text-center animate-fade-in">
           <EditableText
             id="hero-headline"
@@ -77,7 +82,7 @@ const Hero = () => {
             value={subheadline}
             onChange={setSubheadline}
             as="p"
-            className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-lg"
+            className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-lg"
           >
             {subheadline}
           </EditableText>
@@ -85,7 +90,7 @@ const Hero = () => {
 
         {/* Compact Search Bar */}
         {showBooking && (
-          <div className="mt-12 max-w-5xl mx-auto animate-slide-in-right">
+          <div className="mt-6 sm:mt-12 max-w-5xl mx-auto animate-slide-in-right">
              <SearchBar
                location={location}
                checkInDate={checkInDate}
@@ -101,8 +106,10 @@ const Hero = () => {
         )}
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+      {/* Scroll Indicator — hidden on short viewports, where it would sit on
+          top of the search bar rather than below it. Height-based rather than
+          width-based: a wide-but-short window has the same problem. */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce [@media(max-height:700px)]:hidden">
         <div className="w-6 h-10 border-2 border-white rounded-full flex items-start justify-center p-2">
           <div className="w-1.5 h-3 bg-white rounded-full"></div>
         </div>

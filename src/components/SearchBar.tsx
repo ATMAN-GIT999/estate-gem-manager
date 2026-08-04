@@ -44,10 +44,17 @@ interface SearchBarProps extends SearchBarValues {
   collapsible?: boolean;
 }
 
-/** Shared styling for the three popover triggers, so they line up exactly. */
+/**
+ * Shared styling for the three popover triggers, so they line up exactly.
+ * The label itself is only ~20px tall, well under the 24px WCAG 2.5.8 minimum,
+ * so `after:inset-0` stretches an invisible hit area across the whole field row
+ * (its `relative` parent). Tapping the icon or the padding opens the popover
+ * too, without making the bar any taller.
+ */
 const triggerClass =
   "border-0 bg-transparent p-0 h-auto font-normal justify-start text-left " +
-  "hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0";
+  "hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 " +
+  "after:absolute after:inset-0 after:content-['']";
 
 const SearchBar = ({
   location,
@@ -183,7 +190,7 @@ const SearchBar = ({
           <LocationAutocomplete value={location} onChange={onLocationChange} placeholder="Where to?" />
         </div>
 
-        <div className={cn("flex-1 flex items-center gap-3 px-4 py-2", fieldDivider)}>
+        <div className={cn("relative flex-1 flex items-center gap-3 px-4 py-2", fieldDivider)}>
           <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
           <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
             <PopoverTrigger asChild>
@@ -203,7 +210,7 @@ const SearchBar = ({
           </Popover>
         </div>
 
-        <div className={cn("flex-1 flex items-center gap-3 px-4 py-2", fieldDivider)}>
+        <div className={cn("relative flex-1 flex items-center gap-3 px-4 py-2", fieldDivider)}>
           <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
           <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
             <PopoverTrigger asChild>
@@ -224,7 +231,7 @@ const SearchBar = ({
           </Popover>
         </div>
 
-        <div className="flex-1 flex items-center gap-3 px-4 py-2">
+        <div className="relative flex-1 flex items-center gap-3 px-4 py-2">
           <Users className="w-5 h-5 text-primary shrink-0" />
           <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
             <PopoverTrigger asChild>
