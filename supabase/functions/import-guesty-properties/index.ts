@@ -160,7 +160,7 @@ serve(async (req) => {
           type: guestyProperty.propertyType || 'apartment',
           description: guestyProperty.publicDescription?.summary || guestyProperty.nickname || null,
           bedrooms: guestyProperty.bedrooms || 0,
-          bathrooms: guestyProperty.bathrooms || 0,
+          bathrooms: Number.parseFloat(String(guestyProperty.bathrooms ?? 0)) || 0,
           guests: guestyProperty.accommodates || 0,
           price_per_night: guestyProperty.prices?.basePrice || 0,
           amenities: guestyProperty.amenities || [],

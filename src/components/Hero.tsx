@@ -6,7 +6,7 @@ import { CalendarIcon, Search, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import LocationAutocomplete from "./LocationAutocomplete";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
@@ -35,6 +35,9 @@ const Hero = () => {
 
   const handleCheckInSelect = (date: Date | undefined) => {
     setCheckInDate(date);
+    if (date && checkOutDate && checkOutDate <= date) {
+      setCheckOutDate(undefined);
+    }
     setCheckInOpen(false);
     setTimeout(() => setCheckOutOpen(true), 100);
   };
@@ -157,6 +160,7 @@ const Hero = () => {
                         mode="single"
                         selected={checkOutDate}
                         onSelect={handleCheckOutSelect}
+                        defaultMonth={checkInDate ? addDays(checkInDate, 1) : undefined}
                         disabled={(date) => date < new Date() || (checkInDate && date <= checkInDate)}
                         initialFocus
                       />
