@@ -8,6 +8,11 @@ import { InlineEditProvider } from "./contexts/InlineEditContext";
 import EditModeToggle from "./components/admin/EditModeToggle";
 import WhatsAppButton from "./components/WhatsAppButton";
 import Index from "./pages/Index";
+import About from "./pages/About";
+import Projects from "./pages/Projects";
+import GuaranteedIncomePage from "./pages/GuaranteedIncomePage";
+import RenovationsPage from "./pages/RenovationsPage";
+import InvestmentsPage from "./pages/InvestmentsPage";
 import NotFound from "./pages/NotFound";
 import Evaluate from "./pages/Evaluate";
 import Auth from "./pages/Auth";
@@ -47,18 +52,23 @@ const App = () => (
             <Routes>
             <Route path="/" element={<Index />} />
 
-            {/* The seven former info routes now live as sections of the
-                one-pager. They redirect rather than 404, so existing links,
-                bookmarks and anything already indexed keep working. The page
-                components are still in src/pages/ but are no longer imported —
-                delete them once the experiment is settled. */}
-            <Route path="/about" element={<Navigate to="/#about" replace />} />
-            <Route path="/projects" element={<Navigate to="/#projects" replace />} />
-            <Route path="/business-areas" element={<Navigate to="/#business-areas" replace />} />
-            <Route path="/property-management" element={<Navigate to="/#business-areas" replace />} />
-            <Route path="/guaranteed-income" element={<Navigate to="/#business-areas" replace />} />
-            <Route path="/renovations" element={<Navigate to="/#business-areas" replace />} />
-            <Route path="/investments" element={<Navigate to="/#business-areas" replace />} />
+            {/* Five of the former info routes are pages again. Folding all
+                seven into the one-pager made the scroll carry every audience
+                and every level of detail at once; these five answer questions
+                a reader only asks after the argument on "/" has landed, so
+                they live one click away, linked from the footer.
+
+                The remaining two stay redirects: the core management offer IS
+                a section of the one-pager now, so /business-areas and
+                /property-management point at it rather than 404, keeping old
+                links, bookmarks and anything indexed working. */}
+            <Route path="/about" element={<About />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/guaranteed-income" element={<GuaranteedIncomePage />} />
+            <Route path="/renovations" element={<RenovationsPage />} />
+            <Route path="/investments" element={<InvestmentsPage />} />
+            <Route path="/business-areas" element={<Navigate to="/#property-management" replace />} />
+            <Route path="/property-management" element={<Navigate to="/#property-management" replace />} />
 
             <Route path="/evaluate" element={<Evaluate />} />
             <Route path="/auth" element={<Auth />} />

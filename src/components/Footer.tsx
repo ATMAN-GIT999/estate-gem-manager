@@ -85,9 +85,13 @@ const Footer = () => {
             >
               {servicesTitle}
             </EditableText>
+            {/* The core offer is a section of the one-pager, so it stays an
+                anchor. The three specialist services are pages again — the
+                footer is how they stay reachable without loading detail into
+                a scroll that has one argument to make. */}
             <ul className="space-y-2">
               <li>
-                <a href="/#business-areas" onClick={handleAnchorClick("business-areas")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <a href="/#property-management" onClick={handleAnchorClick("property-management")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-pm-link"
                     value={pmLink}
@@ -100,7 +104,7 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="/#business-areas" onClick={handleAnchorClick("business-areas")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <Link to="/guaranteed-income" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-gi-link"
                     value={giLink}
@@ -110,10 +114,10 @@ const Footer = () => {
                   >
                     {giLink}
                   </EditableText>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/#business-areas" onClick={handleAnchorClick("business-areas")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <Link to="/renovations" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-renovations-link"
                     value={renovationsLink}
@@ -123,10 +127,10 @@ const Footer = () => {
                   >
                     {renovationsLink}
                   </EditableText>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/#business-areas" onClick={handleAnchorClick("business-areas")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <Link to="/investments" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-investments-link"
                     value={investmentsLink}
@@ -136,7 +140,7 @@ const Footer = () => {
                   >
                     {investmentsLink}
                   </EditableText>
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -153,7 +157,7 @@ const Footer = () => {
             </EditableText>
             <ul className="space-y-2">
               <li>
-                <a href="/#about" onClick={handleAnchorClick("about")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <Link to="/about" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-about-link"
                     value={aboutLink}
@@ -163,10 +167,10 @@ const Footer = () => {
                   >
                     {aboutLink}
                   </EditableText>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/#projects" onClick={handleAnchorClick("projects")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <Link to="/projects" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-projects-link"
                     value={projectsLink}
@@ -176,7 +180,7 @@ const Footer = () => {
                   >
                     {projectsLink}
                   </EditableText>
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="/#property-evaluation" onClick={handleAnchorClick("property-evaluation")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
