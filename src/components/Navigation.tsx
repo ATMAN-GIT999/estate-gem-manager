@@ -1,59 +1,135 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 import logo from "@/assets/frontier-logo.png";
 import EditableText from "./admin/EditableText";
+
+/**
+ * The header splits the site's two audiences before a visitor has scrolled a
+ * pixel: guests go down the Vacation Rental branch, owners down Property
+ * Management, and the primary button is the owner's entry point.
+ *
+ * It used to be a flat row of in-page anchors, which only worked while every
+ * audience lived in one scroll. Anchors are gone from here entirely — each
+ * item is a real route now.
+ *
+ * Dropdown entries are `<a>` elements (NavigationMenuLink asChild + react-router
+ * Link), not JS-only handlers, so they carry anchor text. Radix mounts panel
+ * content on open, so a crawler that never hovers won't see them — every
+ * destination in here is therefore also linked from the footer.
+ */
+
+/** The green header needs the inverse of the default trigger palette: no fill, white text, gold on hover. */
+const headerItemStyle =
+  "bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent " +
+  "text-primary-foreground hover:text-accent-on-primary focus:text-accent-on-primary " +
+  "data-[state=open]:text-accent-on-primary text-base font-medium px-3";
+
+type DropdownItem = { title: string; description: string; to: string };
+
+/**
+ * Module scope on purpose: defined inside Navigation this would be a new
+ * component type on every render, so an EditableText would lose focus after
+ * each keystroke in admin edit mode.
+ */
+const DropdownLink = ({
+  item,
+  idPrefix,
+  index,
+  onChange,
+  onNavigate,
+}: {
+  item: DropdownItem;
+  idPrefix: string;
+  index: number;
+  onChange: (index: number, field: "title" | "description", value: string) => void;
+  onNavigate?: () => void;
+}) => (
+  <li>
+    <NavigationMenuLink asChild>
+      <Link
+        to={item.to}
+        onClick={onNavigate}
+        className="block rounded-lg p-3 transition-colors hover:bg-muted focus:bg-muted"
+      >
+        <EditableText
+          id={`${idPrefix}-title-${index}`}
+          value={item.title}
+          onChange={(v) => onChange(index, "title", v)}
+          as="span"
+          className="block font-semibold text-primary"
+        >
+          {item.title}
+        </EditableText>
+        <EditableText
+          id={`${idPrefix}-desc-${index}`}
+          value={item.description}
+          onChange={(v) => onChange(index, "description", v)}
+          as="span"
+          className="mt-0.5 block text-sm text-foreground/70"
+        >
+          {item.description}
+        </EditableText>
+      </Link>
+    </NavigationMenuLink>
+  </li>
+);
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  const [navLabel1, setNavLabel1] = useState("Property Management");
-  const [navLabel2, setNavLabel2] = useState("Projects");
-  const [navLabel3, setNavLabel3] = useState("About Us");
-  const [navLabel4, setNavLabel4] = useState("Book Your Stay");
-  const [navLabel5, setNavLabel5] = useState("Property Evaluation");
-  const [signInLabel, setSignInLabel] = useState("Sign In");
-  const [dashboardLabel, setDashboardLabel] = useState("Dashboard");
-  const [myBookingsLabel, setMyBookingsLabel] = useState("My Bookings");
+  const [rentalLabel, setRentalLabel] = useState("Vacation Rental");
+  const [managementLabel, setManagementLabel] = useState("Property Management");
+  const [aboutLabel, setAboutLabel] = useState("About Us");
+  const [portalLabel, setPortalLabel] = useState("Homeowner Portal");
+  const [ctaLabel, setCtaLabel] = useState("List your property");
 
-  /**
-   * The site is a one-pager now, so the content links are in-page anchors.
-   * Generalised from what used to be a bespoke handler for Property Evaluation
-   * — the same two cases apply to every section: scroll if we are already on
-   * the landing page, otherwise navigate there and let Index's hash effect do
-   * the scrolling once it has mounted.
-   */
-  const handleAnchorClick = (anchor: string) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (location.pathname === "/") {
-      document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth" });
-    } else {
-      navigate(`/#${anchor}`);
-    }
-    setIsOpen(false);
-  };
+  const [rentalItems, setRentalItems] = useState<DropdownItem[]>([
+    {
+      title: "Properties",
+      description: "Browse every villa and apartment we manage.",
+      to: "/properties",
+    },
+  ]);
 
-  const handleEvaluationClick = handleAnchorClick("property-evaluation");
+  const [managementItems, setManagementItems] = useState<DropdownItem[]>([
+    {
+      title: "Property Management",
+      description: "Full-service management for villas and apartments.",
+      to: "/property-management",
+    },
+    {
+      title: "Property Evaluator",
+      description: "See what your home could earn — free, no commitment.",
+      to: "/property-management#property-evaluation",
+    },
+  ]);
 
-  /**
-   * Only the owner offer is still an in-page section; Projects and About are
-   * pages again. Leaving these as #projects / #about anchors after the
-   * one-pager was restructured would have given the header three links that
-   * scroll nowhere.
-   */
-  const anchorLinks = [
-    { anchor: "property-management", label: navLabel1, setLabel: setNavLabel1, id: "nav-1" },
-  ];
+  const updateItem =
+    (items: DropdownItem[], setItems: (next: DropdownItem[]) => void) =>
+    (index: number, field: "title" | "description", value: string) => {
+      const next = [...items];
+      next[index] = { ...next[index], [field]: value };
+      setItems(next);
+    };
 
-  const routeLinks = [
-    { to: "/projects", label: navLabel2, setLabel: setNavLabel2, id: "nav-2" },
-    { to: "/about", label: navLabel3, setLabel: setNavLabel3, id: "nav-3" },
-  ];
+  /** Signed-in owners land in their own area rather than back at the login form. */
+  const portalTo = user ? (isAdmin ? "/admin/dashboard" : "/book") : "/auth";
+
+  const closeMobile = () => setIsOpen(false);
 
   // The bar is fixed, so it sits outside the document flow: h-20 (5rem) of page
   // content would be hidden underneath it. Content pages clear it with `pt-24`
@@ -69,112 +145,151 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
-            {anchorLinks.map((link) => (
-              <a
-                key={link.anchor}
-                href={`/#${link.anchor}`}
-                onClick={handleAnchorClick(link.anchor)}
-                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
-              >
-                <EditableText id={link.id} value={link.label} onChange={link.setLabel} as="span" className="text-primary-foreground">{link.label}</EditableText>
-              </a>
-            ))}
-            {routeLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
-              >
-                <EditableText id={link.id} value={link.label} onChange={link.setLabel} as="span" className="text-primary-foreground">{link.label}</EditableText>
-              </Link>
-            ))}
-            <Link
-              to="/properties"
-              className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
-            >
-              <EditableText id="nav-4" value={navLabel4} onChange={setNavLabel4} as="span" className="text-primary-foreground">{navLabel4}</EditableText>
+          <div className="hidden lg:flex items-center gap-4">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className={headerItemStyle}>
+                    <EditableText
+                      id="nav-rental-label"
+                      value={rentalLabel}
+                      onChange={setRentalLabel}
+                      as="span"
+                    >
+                      {rentalLabel}
+                    </EditableText>
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="w-[320px] p-3">
+                      {rentalItems.map((item, index) => (
+                        <DropdownLink
+                          key={item.to}
+                          item={item}
+                          idPrefix="nav-rental-item"
+                          index={index}
+                          onChange={updateItem(rentalItems, setRentalItems)}
+                        />
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className={headerItemStyle}>
+                    <EditableText
+                      id="nav-management-label"
+                      value={managementLabel}
+                      onChange={setManagementLabel}
+                      as="span"
+                    >
+                      {managementLabel}
+                    </EditableText>
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="w-[340px] p-3">
+                      {managementItems.map((item, index) => (
+                        <DropdownLink
+                          key={item.to}
+                          item={item}
+                          idPrefix="nav-management-item"
+                          index={index}
+                          onChange={updateItem(managementItems, setManagementItems)}
+                        />
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to="/about"
+                      className={cn(navigationMenuTriggerStyle(), headerItemStyle)}
+                    >
+                      <EditableText
+                        id="nav-about-label"
+                        value={aboutLabel}
+                        onChange={setAboutLabel}
+                        as="span"
+                      >
+                        {aboutLabel}
+                      </EditableText>
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to={portalTo}
+                      className={cn(navigationMenuTriggerStyle(), headerItemStyle)}
+                    >
+                      <EditableText
+                        id="nav-portal-label"
+                        value={portalLabel}
+                        onChange={setPortalLabel}
+                        as="span"
+                      >
+                        {portalLabel}
+                      </EditableText>
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+
+            <Link to="/property-management">
+              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold font-semibold">
+                <EditableText
+                  id="nav-cta-label"
+                  value={ctaLabel}
+                  onChange={setCtaLabel}
+                  as="span"
+                >
+                  {ctaLabel}
+                </EditableText>
+              </Button>
             </Link>
-            <button
-              onClick={handleEvaluationClick}
-              className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
-            >
-              <EditableText id="nav-5" value={navLabel5} onChange={setNavLabel5} as="span" className="text-primary-foreground">{navLabel5}</EditableText>
-            </button>
-            {user ? (
-              <Link to={isAdmin ? "/admin/dashboard" : "/book"}>
-                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
-                  <EditableText id="nav-auth-btn" value={isAdmin ? dashboardLabel : myBookingsLabel} onChange={isAdmin ? setDashboardLabel : setMyBookingsLabel} as="span">{isAdmin ? dashboardLabel : myBookingsLabel}</EditableText>
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/auth">
-                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
-                  <EditableText id="nav-signin-btn" value={signInLabel} onChange={setSignInLabel} as="span">{signInLabel}</EditableText>
-                </Button>
-              </Link>
-            )}
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
             className="lg:hidden p-2 text-primary-foreground hover:text-accent-on-primary transition-colors"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation — the same destinations, flattened. A dropdown
+            inside a burger menu is two taps to reach what one tap can show. */}
         {isOpen && (
           <div className="lg:hidden py-4 border-t border-primary-foreground/10 animate-fade-in bg-primary">
-            <div className="flex flex-col gap-4">
-              {anchorLinks.map((link) => (
-                <a
-                  key={link.anchor}
-                  href={`/#${link.anchor}`}
-                  onClick={handleAnchorClick(link.anchor)}
-                  className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
-                >
-                  {link.label}
-                </a>
-              ))}
-              {routeLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
+            <div className="flex flex-col gap-1">
+              <MobileGroup label={rentalLabel} items={rentalItems} onNavigate={closeMobile} />
+              <MobileGroup label={managementLabel} items={managementItems} onNavigate={closeMobile} />
+
               <Link
-                to="/properties"
-                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
-                onClick={() => setIsOpen(false)}
+                to="/about"
+                onClick={closeMobile}
+                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2.5"
               >
-                {navLabel4}
+                {aboutLabel}
               </Link>
-              <button
-                onClick={handleEvaluationClick}
-                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2 text-left"
+              <Link
+                to={portalTo}
+                onClick={closeMobile}
+                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2.5"
               >
-                {navLabel5}
-              </button>
-              {user ? (
-                <Link to={isAdmin ? "/admin/dashboard" : "/book"} className="w-full">
-                  <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
-                    {isAdmin ? dashboardLabel : myBookingsLabel}
-                  </Button>
-                </Link>
-              ) : (
-                <Link to="/auth" className="w-full">
-                  <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
-                    {signInLabel}
-                  </Button>
-                </Link>
-              )}
+                {portalLabel}
+              </Link>
+
+              <Link to="/property-management" onClick={closeMobile} className="mt-3">
+                <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
+                  {ctaLabel}
+                </Button>
+              </Link>
             </div>
           </div>
         )}
@@ -182,5 +297,31 @@ const Navigation = () => {
     </nav>
   );
 };
+
+const MobileGroup = ({
+  label,
+  items,
+  onNavigate,
+}: {
+  label: string;
+  items: DropdownItem[];
+  onNavigate: () => void;
+}) => (
+  <div className="py-1">
+    <p className="text-xs uppercase tracking-widest text-accent-on-primary/70 pt-2 pb-1">
+      {label}
+    </p>
+    {items.map((item) => (
+      <Link
+        key={item.to}
+        to={item.to}
+        onClick={onNavigate}
+        className="block text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2.5"
+      >
+        {item.title}
+      </Link>
+    ))}
+  </div>
+);
 
 export default Navigation;
