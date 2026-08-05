@@ -1,0 +1,25 @@
+# Preview deployment for the one-pager experiment.
+#
+# Only the frontend is deployed here. Supabase and the Guesty edge functions
+# stay where they are — this build talks to the same backend the Lovable
+# preview does, so the deployed site shows real listings and live availability.
+# The VITE_ variables it needs are committed in .env, so nothing has to be
+# configured in the Netlify UI.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Matches the version the build was verified on. Vite 5 needs 18+.
+  NODE_VERSION = "22"
+
+# react-router resolves every route in the browser, but the server only has
+# index.html to serve. Without this rule a direct hit on /properties — or a
+# /property/<slug> link shared with the client — returns 404, and only the bare
+# "/" would work. status 200 rewrites rather than redirects, so the URL stays
+# intact for the router to read.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
