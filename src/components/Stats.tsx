@@ -1,31 +1,31 @@
-import { Card } from "@/components/ui/card";
 import { useEffect, useRef, useState } from "react";
 import EditableText from "./admin/EditableText";
 import { COUNTRIES, SITE_FIGURES } from "@/lib/siteFigures";
 
 /**
- * Compact trust band. Not a chapter of its own — it backs up the positioning
- * line above it and hands straight over to the services section.
+ * A trust strip, not a chapter.
  *
- * The regions line ("Costa del Sol • Vienna & Carinthia • Istria") used to sit
- * under the countries line saying the same thing twice; the regions are told
- * properly, with context, by the country cards in the projects section.
+ * It sits directly under the hero, between the search bar and the first real
+ * section, and it has one job: tell a visitor who has never heard of us how
+ * much there is behind the search they just used. That job needs four numbers
+ * and a line of geography — no heading, no cards, no section padding, or it
+ * becomes a chapter of its own and pushes the first real one below the fold.
+ *
+ * Figures come from siteFigures.ts so they can never drift apart from the rest
+ * of the page again.
  */
 const Stats = () => {
-  const [sectionTitle, setSectionTitle] = useState("A Portfolio Built on Precision & Performance");
   const [locations, setLocations] = useState(COUNTRIES);
 
-  // Sourced from siteFigures so these can never drift out of step with the
-  // rest of the page again.
   const stats = [
-    { number: SITE_FIGURES.propertiesManaged, label: "Properties Managed" },
-    { number: SITE_FIGURES.reservations, label: "Successful Reservations" },
+    { number: SITE_FIGURES.propertiesManaged, label: "Properties managed" },
+    { number: SITE_FIGURES.reservations, label: "Successful reservations" },
     { number: SITE_FIGURES.destinations, label: "Destinations" },
     { number: SITE_FIGURES.collaborators, label: "Collaborators" },
   ];
 
   const [hasAnimated, setHasAnimated] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -45,31 +45,15 @@ const Stats = () => {
   }, [hasAnimated]);
 
   return (
-    <section id="stats" ref={sectionRef} className="py-20 bg-gradient-hero scroll-mt-20">
+    <section
+      id="stats"
+      ref={sectionRef}
+      className="py-12 bg-gradient-hero border-b border-border scroll-mt-20"
+    >
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <EditableText
-            id="stats-title"
-            value={sectionTitle}
-            onChange={setSectionTitle}
-            as="h2"
-            className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4"
-          >
-            {sectionTitle}
-          </EditableText>
-          <EditableText
-            id="stats-locations"
-            value={locations}
-            onChange={setLocations}
-            as="p"
-            className="text-lg text-foreground/70"
-          >
-            {locations}
-          </EditableText>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
           {stats.map((stat, index) => (
-            <AnimatedStatCard
+            <AnimatedStat
               key={index}
               stat={stat}
               index={index}
@@ -77,12 +61,29 @@ const Stats = () => {
             />
           ))}
         </div>
+        <EditableText
+          id="stats-locations"
+          value={locations}
+          onChange={setLocations}
+          as="p"
+          className="mt-10 text-center text-sm uppercase tracking-widest text-foreground/50"
+        >
+          {locations}
+        </EditableText>
       </div>
     </section>
   );
 };
 
-const AnimatedStatCard = ({ stat, index, hasAnimated }: { stat: { number: string; label: string }; index: number; hasAnimated: boolean }) => {
+const AnimatedStat = ({
+  stat,
+  index,
+  hasAnimated,
+}: {
+  stat: { number: string; label: string };
+  index: number;
+  hasAnimated: boolean;
+}) => {
   const [displayNumber, setDisplayNumber] = useState("0");
 
   useEffect(() => {
@@ -112,12 +113,12 @@ const AnimatedStatCard = ({ stat, index, hasAnimated }: { stat: { number: string
   }, [hasAnimated, stat.number, index]);
 
   return (
-    <Card className="p-8 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-all duration-300 hover:scale-105">
-      <div className="font-playfair text-4xl md:text-5xl font-bold text-accent-strong mb-2">
+    <div className="text-center">
+      <div className="font-playfair text-3xl md:text-4xl font-bold text-accent-strong">
         {displayNumber}
       </div>
-      <div className="text-foreground/70 font-medium">{stat.label}</div>
-    </Card>
+      <div className="mt-1 text-sm text-foreground/60">{stat.label}</div>
+    </div>
   );
 };
 
