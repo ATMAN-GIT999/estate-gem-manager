@@ -31,6 +31,7 @@ const PropertyEvaluator = () => {
   const { toast } = useToast();
 
   // Editable content state
+  const [eyebrow, setEyebrow] = useState("Owner toolkit");
   const [sectionTitle, setSectionTitle] = useState("Property Cashflow Analysis");
   const [sectionSubtitle, setSectionSubtitle] = useState("Find out your property's short term and long term rental income potential using live market data");
   const [buttonText, setButtonText] = useState("Get Free Cash Flow Analysis");
@@ -90,7 +91,21 @@ const PropertyEvaluator = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <TrendingUp className="w-16 h-16 text-accent-strong mx-auto mb-6" />
+            <div className="w-12 h-12 rounded-full bg-accent/15 flex items-center justify-center mx-auto mb-6">
+              <TrendingUp className="w-6 h-6 text-accent-strong" />
+            </div>
+            {/* Same eyebrow / sentence-headline pattern as every other section
+                — this one is the second engine on the page, so it has to read
+                as part of the owner chapter rather than a bolted-on form. */}
+            <EditableText
+              id="pe-eyebrow"
+              value={eyebrow}
+              onChange={setEyebrow}
+              as="span"
+              className="block text-sm font-medium uppercase tracking-widest text-accent-strong mb-4"
+            >
+              {eyebrow}
+            </EditableText>
             <EditableText
               id="pe-section-title"
               value={sectionTitle}

@@ -13,9 +13,16 @@ const Hero = () => {
   const [location, setLocation] = useState<string>("");
   const navigate = useNavigate();
 
-  // Editable content state
-  const [headline, setHeadline] = useState("Bespoke Property Management");
-  const [subheadline, setSubheadline] = useState("Private, tailored management for exceptional properties");
+  // Editable content state.
+  //
+  // The headline used to read "Bespoke Property Management" — an owner message
+  // sitting directly on top of a guest search bar. The hero has one job, and it
+  // is the job of the engine inside it: find a stay. The owner story starts at
+  // RevealBand, further down.
+  const [headline, setHeadline] = useState("Curated stays on the Costa del Sol.");
+  const [subheadline, setSubheadline] = useState(
+    "Hand-picked villas and apartments across Southern Spain, Austria & Croatia — booked direct, with five-star hospitality built in."
+  );
   const [videoId, setVideoId] = useState("tqmWpFCv_1M");
 
   useEffect(() => {
