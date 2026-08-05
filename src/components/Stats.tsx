@@ -3,18 +3,24 @@ import EditableText from "./admin/EditableText";
 import { COUNTRIES, SITE_FIGURES } from "@/lib/siteFigures";
 
 /**
- * A trust strip, not a chapter.
+ * The trust band that closes the hero.
  *
- * It sits directly under the hero, between the search bar and the first real
- * section, and it has one job: tell a visitor who has never heard of us how
- * much there is behind the search they just used. That job needs four numbers
- * and a line of geography — no heading, no cards, no section padding, or it
- * becomes a chapter of its own and pushes the first real one below the fold.
+ * It sits between the search bar and the first real section, and it has one
+ * job: tell a visitor who has never heard of us how much sits behind the
+ * search they just used. A heading, four numbers, a line of geography.
+ *
+ * Everything about its weight is tuned to stay under the sections below it —
+ * a smaller heading, plain figures instead of the elevated cards it used to
+ * render, less vertical padding. It is the last beat of the hero, not the
+ * page's first chapter.
  *
  * Figures come from siteFigures.ts so they can never drift apart from the rest
  * of the page again.
  */
 const Stats = () => {
+  const [sectionTitle, setSectionTitle] = useState(
+    "A Portfolio Built on Precision & Performance"
+  );
   const [locations, setLocations] = useState(COUNTRIES);
 
   const stats = [
@@ -48,9 +54,22 @@ const Stats = () => {
     <section
       id="stats"
       ref={sectionRef}
-      className="py-12 bg-gradient-hero border-b border-border scroll-mt-20"
+      className="py-16 bg-gradient-hero border-b border-border scroll-mt-20"
     >
       <div className="container mx-auto px-4">
+        {/* One step down from the section headings below (text-4xl md:text-5xl)
+            on purpose — the hierarchy is what keeps this reading as a band
+            closing the hero rather than the page's first chapter. */}
+        <EditableText
+          id="stats-title"
+          value={sectionTitle}
+          onChange={setSectionTitle}
+          as="h2"
+          className="font-playfair text-3xl md:text-4xl font-bold text-primary text-center text-balance mb-12"
+        >
+          {sectionTitle}
+        </EditableText>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
           {stats.map((stat, index) => (
             <AnimatedStat
