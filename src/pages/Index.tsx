@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
+import Stats from "@/components/Stats";
 import WhereWeHost from "@/components/WhereWeHost";
 import FeaturedProperties from "@/components/FeaturedProperties";
 import StayValue from "@/components/StayValue";
@@ -28,10 +29,8 @@ import PageWrapper from "@/components/PageWrapper";
  * because they answer questions a reader only asks after the argument lands.
  * All five component files are still in the repo, just not rendered here.
  *
- * Stats is deliberately absent: its figures are flagged UNVERIFIED in
- * src/lib/siteFigures.ts, and a trust band nobody has confirmed is a liability
- * rather than proof. Drop <Stats /> back in under the hero once the client
- * signs off on the numbers.
+ * Stats is the one thing between the hero and the story: a thin confirmed
+ * trust strip, deliberately not a section of its own.
  *
  * Every section owns its `id` and `scroll-mt-20` (the fixed header is 80px,
  * matching the convention in Navigation.tsx), so the header links and the
@@ -65,6 +64,7 @@ const IndexContent = () => {
       {/* 🔒 Hero's video, SearchBar and scroll indicator are untouched — only
           the headline and subheadline copy changed. */}
       <Hero />
+      <Stats />
       <WhereWeHost />
       <FeaturedProperties />
       <StayValue />
