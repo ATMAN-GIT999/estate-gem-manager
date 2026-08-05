@@ -5,28 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
 import EditableText from "@/components/admin/EditableText";
+import SectionIntro from "@/components/SectionIntro";
 
 /**
- * The guest branch, and the last thing on the page.
+ * The portfolio itself, and the evidence the rest of the page leans on.
  *
- * It used to sit directly under the intro, which meant a visiting owner hit a
- * grid of holiday rentals before reading a single word about management. Down
- * here it does two jobs at once: it hands guests over to the booking flow, and
- * it proves to owners that the portfolio is real — the cards are live rows from
- * Guesty, not illustrations.
- *
- * The heading deliberately switches who it is talking to; the reader has been
- * addressed as an owner for six sections by this point.
+ * It sits high in the scroll now, still inside the guest half: a visitor who
+ * has just read where we host wants to see the homes next. It is also what
+ * makes RevealBand work a moment later — "every home you just saw is managed
+ * by Frontier" only lands if the reader has actually just seen them. The cards
+ * are live rows from Guesty, not illustrations.
  */
 const FeaturedProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [gridLayout, setGridLayout] = useState(3);
 
-  const [featuredTitle, setFeaturedTitle] = useState("Looking for a Place to Stay?");
-  const [featuredSubtitle, setFeaturedSubtitle] = useState(
-    "The same homes we manage are yours to book — a curated collection of luxury villas and apartments."
-  );
   const [viewAllText, setViewAllText] = useState("View All Properties");
 
   useEffect(() => {
@@ -72,25 +66,12 @@ const FeaturedProperties = () => {
   return (
     <section id="stay" className="py-20 bg-background scroll-mt-20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <EditableText
-            id="index-featured-title"
-            value={featuredTitle}
-            onChange={setFeaturedTitle}
-            as="h2"
-            className="font-playfair text-4xl font-bold text-primary mb-4"
-          >
-            {featuredTitle}
-          </EditableText>
-          <EditableText
-            id="index-featured-subtitle"
-            value={featuredSubtitle}
-            onChange={setFeaturedSubtitle}
-            as="p"
-            className="text-xl text-foreground/80 max-w-2xl mx-auto"
-          >
-            {featuredSubtitle}
-          </EditableText>
+        <div className="mb-16">
+          <SectionIntro
+            idPrefix="fp"
+            eyebrow="The collection"
+            heading="Homes we'd stay in ourselves."
+          />
         </div>
 
         {loading ? (
