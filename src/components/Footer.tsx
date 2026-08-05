@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react";
 import EditableText from "./admin/EditableText";
 
@@ -15,6 +15,23 @@ const SOCIAL_LINKS: { label: string; href: string; Icon: typeof Instagram }[] = 
 ];
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  /**
+   * Same in-page anchor behaviour as the header. Without it every footer link
+   * to a retired info route would bounce through a redirect on its way back to
+   * the section it was already pointing at.
+   */
+  const handleAnchorClick = (anchor: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname === "/") {
+      document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate(`/#${anchor}`);
+    }
+  };
+
   const [tagline, setTagline] = useState("Bespoke property management and investment solutions for exclusive properties.");
   const [email, setEmail] = useState("Hello@frontier-residences.com");
   const [phone, setPhone] = useState("+34 665 51 18 53");
@@ -70,7 +87,7 @@ const Footer = () => {
             </EditableText>
             <ul className="space-y-2">
               <li>
-                <Link to="/business-areas" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <a href="/#business-areas" onClick={handleAnchorClick("business-areas")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-pm-link"
                     value={pmLink}
@@ -80,10 +97,10 @@ const Footer = () => {
                   >
                     {pmLink}
                   </EditableText>
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/business-areas" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <a href="/#business-areas" onClick={handleAnchorClick("business-areas")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-gi-link"
                     value={giLink}
@@ -93,10 +110,10 @@ const Footer = () => {
                   >
                     {giLink}
                   </EditableText>
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/business-areas" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <a href="/#business-areas" onClick={handleAnchorClick("business-areas")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-renovations-link"
                     value={renovationsLink}
@@ -106,10 +123,10 @@ const Footer = () => {
                   >
                     {renovationsLink}
                   </EditableText>
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/business-areas" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <a href="/#business-areas" onClick={handleAnchorClick("business-areas")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-investments-link"
                     value={investmentsLink}
@@ -119,7 +136,7 @@ const Footer = () => {
                   >
                     {investmentsLink}
                   </EditableText>
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -136,7 +153,7 @@ const Footer = () => {
             </EditableText>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <a href="/#about" onClick={handleAnchorClick("about")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-about-link"
                     value={aboutLink}
@@ -146,10 +163,10 @@ const Footer = () => {
                   >
                     {aboutLink}
                   </EditableText>
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/projects" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <a href="/#projects" onClick={handleAnchorClick("projects")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-projects-link"
                     value={projectsLink}
@@ -159,10 +176,10 @@ const Footer = () => {
                   >
                     {projectsLink}
                   </EditableText>
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/evaluate" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <a href="/#property-evaluation" onClick={handleAnchorClick("property-evaluation")} className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-eval-link"
                     value={evalLink}
@@ -172,7 +189,7 @@ const Footer = () => {
                   >
                     {evalLink}
                   </EditableText>
-                </Link>
+                </a>
               </li>
               <li>
                 <Link to="/aviso-legal" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">

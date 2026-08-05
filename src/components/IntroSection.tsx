@@ -1,18 +1,37 @@
 import { useState } from "react";
 import EditableText from "./admin/EditableText";
 
+/**
+ * Short bridge between the hero and the owner track. Deliberately kept to a
+ * heading plus two lines — it sets the frame, the sections below carry the
+ * argument. The heading is the point: without it the two sentences floated with
+ * no indication of what the page was about.
+ */
 const IntroSection = () => {
+  const [heading, setHeading] = useState("More Than Property Management");
   const [mainText, setMainText] = useState(
     "Your home deserves more than management — it deserves care, strategy, and master craftsmanship."
   );
+  // Condensed from a three-clause sentence whose promises (financial
+  // performance, flawless operations, curated guest experience) are all made
+  // again — with substance — in the services section below.
   const [subText, setSubText] = useState(
-    "Frontier Residences combines five-star hospitality with real estate intelligence to elevate every aspect of property ownership — ensuring financial performance, flawless operations, and a beautifully curated guest experience."
+    "Five-star hospitality and real estate intelligence, applied to every part of owning your property."
   );
 
   return (
-    <section className="py-16 bg-secondary/30">
+    <section id="intro" className="py-16 bg-secondary/30 scroll-mt-20">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
+          <EditableText
+            id="intro-heading"
+            value={heading}
+            onChange={setHeading}
+            as="h2"
+            className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-6"
+          >
+            {heading}
+          </EditableText>
           <EditableText
             id="intro-main"
             value={mainText}
