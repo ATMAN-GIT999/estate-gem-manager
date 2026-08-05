@@ -12,7 +12,7 @@ const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [navLabel1, setNavLabel1] = useState("Our Business Areas");
+  const [navLabel1, setNavLabel1] = useState("Property Management");
   const [navLabel2, setNavLabel2] = useState("Projects");
   const [navLabel3, setNavLabel3] = useState("About Us");
   const [navLabel4, setNavLabel4] = useState("Book Your Stay");
@@ -40,10 +40,19 @@ const Navigation = () => {
 
   const handleEvaluationClick = handleAnchorClick("property-evaluation");
 
-  const navLinks = [
-    { anchor: "business-areas", label: navLabel1, setLabel: setNavLabel1, id: "nav-1" },
-    { anchor: "projects", label: navLabel2, setLabel: setNavLabel2, id: "nav-2" },
-    { anchor: "about", label: navLabel3, setLabel: setNavLabel3, id: "nav-3" },
+  /**
+   * Only the owner offer is still an in-page section; Projects and About are
+   * pages again. Leaving these as #projects / #about anchors after the
+   * one-pager was restructured would have given the header three links that
+   * scroll nowhere.
+   */
+  const anchorLinks = [
+    { anchor: "property-management", label: navLabel1, setLabel: setNavLabel1, id: "nav-1" },
+  ];
+
+  const routeLinks = [
+    { to: "/projects", label: navLabel2, setLabel: setNavLabel2, id: "nav-2" },
+    { to: "/about", label: navLabel3, setLabel: setNavLabel3, id: "nav-3" },
   ];
 
   // The bar is fixed, so it sits outside the document flow: h-20 (5rem) of page
@@ -61,7 +70,7 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
+            {anchorLinks.map((link) => (
               <a
                 key={link.anchor}
                 href={`/#${link.anchor}`}
@@ -70,6 +79,15 @@ const Navigation = () => {
               >
                 <EditableText id={link.id} value={link.label} onChange={link.setLabel} as="span" className="text-primary-foreground">{link.label}</EditableText>
               </a>
+            ))}
+            {routeLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
+              >
+                <EditableText id={link.id} value={link.label} onChange={link.setLabel} as="span" className="text-primary-foreground">{link.label}</EditableText>
+              </Link>
             ))}
             <Link
               to="/properties"
@@ -111,7 +129,7 @@ const Navigation = () => {
         {isOpen && (
           <div className="lg:hidden py-4 border-t border-primary-foreground/10 animate-fade-in bg-primary">
             <div className="flex flex-col gap-4">
-              {navLinks.map((link) => (
+              {anchorLinks.map((link) => (
                 <a
                   key={link.anchor}
                   href={`/#${link.anchor}`}
@@ -120,6 +138,16 @@ const Navigation = () => {
                 >
                   {link.label}
                 </a>
+              ))}
+              {routeLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </Link>
               ))}
               <Link
                 to="/properties"
