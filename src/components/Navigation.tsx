@@ -6,8 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/frontier-logo.png";
 import EditableText from "./admin/EditableText";
 
-const GUESTY_BOOKING_URL = "https://booking.guesty.com/properties?brandId=67471cfce5b88600014f0647";
-
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAdmin } = useAuth();
@@ -23,23 +21,29 @@ const Navigation = () => {
   const [dashboardLabel, setDashboardLabel] = useState("Dashboard");
   const [myBookingsLabel, setMyBookingsLabel] = useState("My Bookings");
 
-  const handleEvaluationClick = (e: React.MouseEvent) => {
+  /**
+   * The site is a one-pager now, so the content links are in-page anchors.
+   * Generalised from what used to be a bespoke handler for Property Evaluation
+   * — the same two cases apply to every section: scroll if we are already on
+   * the landing page, otherwise navigate there and let Index's hash effect do
+   * the scrolling once it has mounted.
+   */
+  const handleAnchorClick = (anchor: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     if (location.pathname === "/") {
-      const element = document.getElementById("property-evaluation");
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
+      document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth" });
     } else {
-      navigate("/#property-evaluation");
+      navigate(`/#${anchor}`);
     }
     setIsOpen(false);
   };
 
+  const handleEvaluationClick = handleAnchorClick("property-evaluation");
+
   const navLinks = [
-    { href: "/business-areas", label: navLabel1, setLabel: setNavLabel1, id: "nav-1" },
-    { href: "/projects", label: navLabel2, setLabel: setNavLabel2, id: "nav-2" },
-    { href: "/about", label: navLabel3, setLabel: setNavLabel3, id: "nav-3" },
+    { anchor: "business-areas", label: navLabel1, setLabel: setNavLabel1, id: "nav-1" },
+    { anchor: "projects", label: navLabel2, setLabel: setNavLabel2, id: "nav-2" },
+    { anchor: "about", label: navLabel3, setLabel: setNavLabel3, id: "nav-3" },
   ];
 
   // The bar is fixed, so it sits outside the document flow: h-20 (5rem) of page
@@ -58,13 +62,14 @@ const Navigation = () => {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
+              <a
+                key={link.anchor}
+                href={`/#${link.anchor}`}
+                onClick={handleAnchorClick(link.anchor)}
                 className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
               >
                 <EditableText id={link.id} value={link.label} onChange={link.setLabel} as="span" className="text-primary-foreground">{link.label}</EditableText>
-              </Link>
+              </a>
             ))}
             <Link
               to="/properties"
@@ -107,14 +112,14 @@ const Navigation = () => {
           <div className="lg:hidden py-4 border-t border-primary-foreground/10 animate-fade-in bg-primary">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
+                <a
+                  key={link.anchor}
+                  href={`/#${link.anchor}`}
+                  onClick={handleAnchorClick(link.anchor)}
                   className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
-                  onClick={() => setIsOpen(false)}
                 >
                   {link.label}
-                </Link>
+                </a>
               ))}
               <Link
                 to="/properties"

@@ -2,26 +2,19 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InlineEditProvider } from "./contexts/InlineEditContext";
 import EditModeToggle from "./components/admin/EditModeToggle";
 import WhatsAppButton from "./components/WhatsAppButton";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import About from "./pages/About";
-import Projects from "./pages/Projects";
-import BusinessAreasPage from "./pages/BusinessAreasPage";
 import Evaluate from "./pages/Evaluate";
 import Auth from "./pages/Auth";
 import PropertyDetail from "./pages/PropertyDetail";
 import Properties from "./pages/Properties";
 import Book from "./pages/Book";
 import BookingConfirmation from "./pages/BookingConfirmation";
-import PropertyManagementPage from "./pages/PropertyManagementPage";
-import GuaranteedIncomePage from "./pages/GuaranteedIncomePage";
-import RenovationsPage from "./pages/RenovationsPage";
-import InvestmentsPage from "./pages/InvestmentsPage";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProperties from "./pages/admin/Properties";
 import AdminBookings from "./pages/admin/Bookings";
@@ -53,13 +46,20 @@ const App = () => (
             <WhatsAppButton />
             <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/business-areas" element={<BusinessAreasPage />} />
-            <Route path="/property-management" element={<PropertyManagementPage />} />
-            <Route path="/guaranteed-income" element={<GuaranteedIncomePage />} />
-            <Route path="/renovations" element={<RenovationsPage />} />
-            <Route path="/investments" element={<InvestmentsPage />} />
+
+            {/* The seven former info routes now live as sections of the
+                one-pager. They redirect rather than 404, so existing links,
+                bookmarks and anything already indexed keep working. The page
+                components are still in src/pages/ but are no longer imported —
+                delete them once the experiment is settled. */}
+            <Route path="/about" element={<Navigate to="/#about" replace />} />
+            <Route path="/projects" element={<Navigate to="/#projects" replace />} />
+            <Route path="/business-areas" element={<Navigate to="/#business-areas" replace />} />
+            <Route path="/property-management" element={<Navigate to="/#business-areas" replace />} />
+            <Route path="/guaranteed-income" element={<Navigate to="/#business-areas" replace />} />
+            <Route path="/renovations" element={<Navigate to="/#business-areas" replace />} />
+            <Route path="/investments" element={<Navigate to="/#business-areas" replace />} />
+
             <Route path="/evaluate" element={<Evaluate />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/update-password" element={<UpdatePassword />} />

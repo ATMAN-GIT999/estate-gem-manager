@@ -7,7 +7,7 @@ import property3 from "@/assets/property-3.png";
 import property4 from "@/assets/property-4.png";
 import villaHigueron from "@/assets/villa-higueron.png";
 
-interface Property {
+export interface Property {
   id: string;
   name: string;
   slug: string;

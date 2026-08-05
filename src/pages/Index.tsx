@@ -1,77 +1,44 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import IntroSection from "@/components/IntroSection";
 import Stats from "@/components/Stats";
-import Footer from "@/components/Footer";
-import PropertyCard from "@/components/PropertyCard";
-import PropertyManagement from "@/components/PropertyManagement";
-import PropertyEvaluator from "@/components/PropertyEvaluator";
 import BusinessAreas from "@/components/BusinessAreas";
-import TechnologySection from "@/components/TechnologySection";
-import { useEffect } from "react";
+import ProjectsSection from "@/components/ProjectsSection";
+import PropertyEvaluator from "@/components/PropertyEvaluator";
+import AboutSection from "@/components/AboutSection";
+import FeaturedProperties from "@/components/FeaturedProperties";
+import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabaseClient";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { Link, useLocation } from "react-router-dom";
-import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
 
+/**
+ * The one-pager. Order runs: attention → framing → trust → offer → proof →
+ * conversion → who we are → guest branch.
+ *
+ * Sections 2–8 own their own `id` and `scroll-mt-20` (the fixed header is 80px,
+ * matching the convention in Navigation.tsx), so the header links and the
+ * redirects from the retired info routes all land in the right place.
+ */
 const IndexContent = () => {
-  const [properties, setProperties] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [gridLayout, setGridLayout] = useState(3);
   const location = useLocation();
 
-  // Editable content state
-  const [featuredTitle, setFeaturedTitle] = useState("Featured Properties");
-  const [featuredSubtitle, setFeaturedSubtitle] = useState("Discover our curated collection of luxury villas and apartments");
-  const [viewAllText, setViewAllText] = useState("View All Properties");
-
-  // Handle hash navigation for Property Evaluation section
+  // Generalised from a #property-evaluation-only special case: every section
+  // anchor now works, which is what makes the redirects off /about, /projects
+  // and the four service routes land correctly.
   useEffect(() => {
-    if (location.hash === "#property-evaluation") {
-      setTimeout(() => {
-        const element = document.getElementById("property-evaluation");
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 100);
-    }
+    if (!location.hash) return;
+    const id = location.hash.slice(1);
+    // One frame is not enough — the sections below the fold mount with data
+    // still loading, so the target may not exist yet on the first tick.
+    const timer = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+    return () => clearTimeout(timer);
   }, [location.hash]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      // Fetch site settings
-      const { data: settings } = await supabase
-        .from("site_settings")
-        .select("*")
-        .single();
-
-      if (settings) {
-        setGridLayout(settings.homepage_grid_layout);
-      }
-
-      // Fetch featured properties
-      const { data, error } = await supabase
-        .from("properties")
-        .select("*")
-        .eq("available", true)
-        .eq("featured", true)
-        .order("created_at", { ascending: false })
-        .limit(settings?.homepage_properties_count || 3);
-
-      if (error) {
-        console.error("Error fetching properties:", error);
-      } else {
-        setProperties(data || []);
-      }
-      setLoading(false);
-    };
-
-    fetchData();
-
-    // Track page view
     supabase.from("analytics_events").insert({
       event_type: "page_view",
       page_path: "/",
@@ -82,90 +49,16 @@ const IndexContent = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
+      {/* 🔒 Hero is unchanged — video, headline, SearchBar and scroll indicator
+          are exactly as they were. Everything below is the restructured page. */}
       <Hero />
       <IntroSection />
-      
-      {/* Featured Properties Section */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <EditableText
-              id="index-featured-title"
-              value={featuredTitle}
-              onChange={setFeaturedTitle}
-              as="h2"
-              className="font-playfair text-4xl font-bold text-primary mb-4"
-            >
-              {featuredTitle}
-            </EditableText>
-            <EditableText
-              id="index-featured-subtitle"
-              value={featuredSubtitle}
-              onChange={setFeaturedSubtitle}
-              as="p"
-              className="text-xl text-foreground/80 max-w-2xl mx-auto"
-            >
-              {featuredSubtitle}
-            </EditableText>
-          </div>
-
-          {loading ? (
-            <div className={`grid gap-8 ${
-              gridLayout === 1 ? 'grid-cols-1' :
-              gridLayout === 2 ? 'md:grid-cols-2' :
-              gridLayout === 3 ? 'md:grid-cols-2 lg:grid-cols-3' :
-              gridLayout === 4 ? 'md:grid-cols-2 lg:grid-cols-4' :
-              gridLayout === 5 ? 'md:grid-cols-3 lg:grid-cols-5' :
-              'md:grid-cols-3 lg:grid-cols-6'
-            }`}>
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="aspect-[4/3] w-full" />
-                  <Skeleton className="h-8 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              <div className={`grid gap-8 ${
-                gridLayout === 1 ? 'grid-cols-1' :
-                gridLayout === 2 ? 'md:grid-cols-2' :
-                gridLayout === 3 ? 'md:grid-cols-2 lg:grid-cols-3' :
-                gridLayout === 4 ? 'md:grid-cols-2 lg:grid-cols-4' :
-                gridLayout === 5 ? 'md:grid-cols-3 lg:grid-cols-5' :
-                'md:grid-cols-3 lg:grid-cols-6'
-              }`}>
-                {properties.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
-              </div>
-              
-              <div className="text-center mt-12">
-                <Link to="/properties">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant">
-                    <EditableText
-                      id="index-view-all-btn"
-                      value={viewAllText}
-                      onChange={setViewAllText}
-                      as="span"
-                    >
-                      {viewAllText}
-                    </EditableText>
-                  </Button>
-                </Link>
-              </div>
-            </>
-          )}
-        </div>
-      </section>
-
       <Stats />
       <BusinessAreas />
-      <TechnologySection />
-      <PropertyManagement />
+      <ProjectsSection />
       <PropertyEvaluator />
+      <AboutSection />
+      <FeaturedProperties />
       <Footer />
     </div>
   );
