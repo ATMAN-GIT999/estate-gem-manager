@@ -8,6 +8,7 @@ import { InlineEditProvider } from "./contexts/InlineEditContext";
 import EditModeToggle from "./components/admin/EditModeToggle";
 import WhatsAppButton from "./components/WhatsAppButton";
 import Index from "./pages/Index";
+import PropertyManagementPage from "./pages/PropertyManagementPage";
 import About from "./pages/About";
 import Projects from "./pages/Projects";
 import GuaranteedIncomePage from "./pages/GuaranteedIncomePage";
@@ -52,23 +53,23 @@ const App = () => (
             <Routes>
             <Route path="/" element={<Index />} />
 
-            {/* Five of the former info routes are pages again. Folding all
-                seven into the one-pager made the scroll carry every audience
-                and every level of detail at once; these five answer questions
-                a reader only asks after the argument on "/" has landed, so
-                they live one click away, linked from the footer.
+            {/* The site serves two audiences with two different intents, so
+                they get two entry points: "/" is the guest landing page and
+                /property-management is the owner page. Folding both into one
+                scroll made a single URL compete with itself — for readers and
+                for search, where one page cannot rank for "villa rental
+                Marbella" and "property management Costa del Sol" at once.
 
-                The remaining two stay redirects: the core management offer IS
-                a section of the one-pager now, so /business-areas and
-                /property-management point at it rather than 404, keeping old
-                links, bookmarks and anything indexed working. */}
+                The remaining detail pages hang off the owner branch and the
+                footer. /business-areas is the one legacy redirect: it was the
+                old catch-all services route and now belongs to the owner page. */}
+            <Route path="/property-management" element={<PropertyManagementPage />} />
             <Route path="/about" element={<About />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/guaranteed-income" element={<GuaranteedIncomePage />} />
             <Route path="/renovations" element={<RenovationsPage />} />
             <Route path="/investments" element={<InvestmentsPage />} />
-            <Route path="/business-areas" element={<Navigate to="/#property-management" replace />} />
-            <Route path="/property-management" element={<Navigate to="/#property-management" replace />} />
+            <Route path="/business-areas" element={<Navigate to="/property-management" replace />} />
 
             <Route path="/evaluate" element={<Evaluate />} />
             <Route path="/auth" element={<Auth />} />
