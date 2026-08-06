@@ -7,12 +7,23 @@
  * two literals is what caused that, so every figure now has exactly one home
  * here and is rendered from it.
  *
- * Confirmed by the client, August 2026. Other sources in the repo disagree and
- * should be ignored rather than "corrected" back into these values: the README
- * brief is an older draft (34 properties / 570+ reservations), the `properties`
- * table only holds the 23 listings imported so far, and Guesty shows the subset
- * currently assigned. The figures below cover the whole managed portfolio,
- * which is why they are larger.
+ * ⚠️ UNVERIFIED — three of the four numbers below are contradicted by the
+ * database, and they are rendered on the landing page today. A live check on
+ * 5 August 2026 found:
+ *
+ *   propertiesManaged  41    → 23 rows in `properties`, all available
+ *   destinations        8    → 8 ✓ the one figure that checks out
+ *   reservations     1500+   → 0 locally; the real count lives in Guesty
+ *   collaborators      50+   → 0; the `team_members` table is empty
+ *
+ * These values were kept because they are what `main` already publishes, and
+ * because replacing them with a guess would be no better. But do not treat
+ * them as confirmed: quoting a portfolio three times its real size is the kind
+ * of claim a prospective owner can check, and being caught costs more than the
+ * smaller number ever would.
+ *
+ * The fix is a `stats` table synced from Guesty, not a new literal here. Once
+ * a real number is known, change it in this file and the whole page follows.
  */
 export const SITE_FIGURES = {
   propertiesManaged: "41",
