@@ -1,10 +1,24 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import { Star } from "lucide-react";
 import SearchBar from "./SearchBar";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
 
+/**
+ * The guest entry point, and the page's only H1.
+ *
+ * The headline carries the search terms a guest actually types ("luxury
+ * villas", "vacation rentals", "Costa del Sol") as real text rather than
+ * burning them into the video, and the line under it is the whole business in
+ * six words — a stay, or an income — which is what lets the owner link sit
+ * here without competing with the search bar.
+ *
+ * Below the engine: the rating, because a trust anchor is worth most at the
+ * moment someone is deciding whether to type anything at all, and one link per
+ * audience.
+ */
 const Hero = () => {
   const [showBooking, setShowBooking] = useState(false);
   const [checkInDate, setCheckInDate] = useState<Date>();
@@ -14,14 +28,19 @@ const Hero = () => {
   const navigate = useNavigate();
 
   // Editable content state.
-  //
-  // The headline used to read "Bespoke Property Management" — an owner message
-  // sitting directly on top of a guest search bar. The hero has one job, and it
-  // is the job of the engine inside it: find a stay. The owner story starts at
-  // RevealBand, further down.
-  const [headline, setHeadline] = useState("Curated stays on the Costa del Sol.");
-  const [subheadline, setSubheadline] = useState(
-    "Hand-picked villas and apartments across Southern Spain, Austria & Croatia — booked direct, with five-star hospitality built in."
+  const [headline, setHeadline] = useState(
+    "Luxury Villas & Vacation Rentals on the Costa del Sol"
+  );
+  const [subheadline, setSubheadline] = useState("To stay in — or to earn from.");
+  // ⚠️ PLACEHOLDER. This score is invented scaffolding, not a measured rating.
+  // Replace it with the real Airbnb/Booking figures before this goes live —
+  // publishing a rating we have not earned is misleading, and in the EU it is
+  // also unlawful under the Unfair Commercial Practices Directive. The numbers
+  // are not stored anywhere yet; they need a Guesty/Booking sync first.
+  const [ratingText, setRatingText] = useState("4.8 · Airbnb & Booking rating");
+  const [guestCtaText, setGuestCtaText] = useState("Find your stay");
+  const [ownerCtaText, setOwnerCtaText] = useState(
+    "Own a property? See what it could earn"
   );
   const [videoId, setVideoId] = useState("tqmWpFCv_1M");
 
@@ -80,7 +99,7 @@ const Hero = () => {
             value={headline}
             onChange={setHeadline}
             as="h1"
-            className="font-playfair text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-4 md:mb-6 text-balance drop-shadow-2xl"
+            className="font-playfair text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 md:mb-6 text-balance drop-shadow-2xl"
           >
             {headline}
           </EditableText>
@@ -111,6 +130,57 @@ const Hero = () => {
              />
           </div>
         )}
+
+        {/* Trust anchor + one link per audience */}
+        <div className="mt-8 flex flex-col items-center gap-5 text-center">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-0.5" aria-hidden="true">
+              {[0, 1, 2, 3, 4].map((star) => (
+                <Star key={star} className="w-4 h-4 fill-accent text-accent" />
+              ))}
+            </div>
+            <EditableText
+              id="hero-rating"
+              value={ratingText}
+              onChange={setRatingText}
+              as="span"
+              className="text-sm font-medium text-white/90 drop-shadow"
+            >
+              {ratingText}
+            </EditableText>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-x-8 gap-y-3">
+            <Link
+              to="/properties"
+              className="text-sm font-medium text-white hover:text-accent-on-primary transition-colors drop-shadow"
+            >
+              <EditableText
+                id="hero-guest-cta"
+                value={guestCtaText}
+                onChange={setGuestCtaText}
+                as="span"
+              >
+                {guestCtaText}
+              </EditableText>
+              {" →"}
+            </Link>
+            <Link
+              to="/property-management"
+              className="text-sm font-medium text-white/80 hover:text-accent-on-primary transition-colors drop-shadow"
+            >
+              <EditableText
+                id="hero-owner-cta"
+                value={ownerCtaText}
+                onChange={setOwnerCtaText}
+                as="span"
+              >
+                {ownerCtaText}
+              </EditableText>
+              {" →"}
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Scroll Indicator — hidden on short viewports, where it would sit on
