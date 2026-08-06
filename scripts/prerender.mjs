@@ -147,6 +147,39 @@ const renderedItsOwnPage = async (page, route) =>
     .then(() => true)
     .catch(() => false);
 
+/**
+ * The origin the canonical URLs use. Kept in step with src/components/Seo.tsx —
+ * a sitemap on one host listing URLs on another is ignored wholesale.
+ */
+const SITE_ORIGIN = "https://frontier-residences.com";
+
+/**
+ * Prerendering without a sitemap only does half the job: the pages exist, but
+ * a crawler still has to discover thirty-odd of them by following links. This
+ * lists exactly what was built, so the two can never drift — a route that
+ * failed to render is not advertised.
+ *
+ * lastmod is the build date, which is the truth for a statically rendered
+ * page: its content is whatever the build captured.
+ */
+const writeSitemap = async (routes) => {
+  const lastmod = new Date().toISOString().slice(0, 10);
+  const urls = routes
+    .map(
+      (route) =>
+        `  <url>\n    <loc>${SITE_ORIGIN}${route === "/" ? "/" : route}</loc>\n` +
+        `    <lastmod>${lastmod}</lastmod>\n  </url>`
+    )
+    .join("\n");
+
+  const xml =
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+
+  await writeFile(join(DIST, "sitemap.xml"), xml, "utf8");
+  console.log(`\n  sitemap.xml — ${routes.length} indexable URLs`);
+};
+
 const prerender = async () => {
   if (!existsSync(join(DIST, "index.html"))) {
     console.error("dist/index.html missing — run the client build first");
@@ -180,6 +213,8 @@ const prerender = async () => {
 
   let written = 0;
   const failed = [];
+  /** Routes that rendered without a noindex — the ones worth a sitemap entry. */
+  const indexable = [];
 
   for (const route of routes) {
     const page = await context.newPage();
@@ -198,11 +233,20 @@ const prerender = async () => {
       // so the property cards and team names land in the snapshot too.
       await page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
 
-      const html = await page.evaluate(() => {
+      const { html, noindex } = await page.evaluate(() => {
         // The scroll position at capture time is meaningless in a static file,
         // and a stray inline style on <html> would ship with it.
         document.documentElement.removeAttribute("style");
-        return `<!doctype html>\n${document.documentElement.outerHTML}`;
+        const robots = document
+          .querySelector('meta[name="robots"]')
+          ?.getAttribute("content");
+        return {
+          html: `<!doctype html>\n${document.documentElement.outerHTML}`,
+          // Asking the rendered page rather than keeping a second list here:
+          // add a <Seo noindex> anywhere and it drops out of the sitemap on its
+          // own, instead of quietly contradicting the page it points at.
+          noindex: /noindex/i.test(robots || ""),
+        };
       });
 
       const outPath =
@@ -211,7 +255,8 @@ const prerender = async () => {
       await writeFile(outPath, html, "utf8");
 
       written += 1;
-      console.log(`  ✓ ${route}`);
+      if (!noindex) indexable.push(route);
+      console.log(`  ✓ ${route}${noindex ? "  (noindex — not in sitemap)" : ""}`);
     } catch (error) {
       failed.push(`${route} (${error.message.split("\n")[0]})`);
     } finally {
@@ -221,6 +266,8 @@ const prerender = async () => {
 
   await browser.close();
   server.close();
+
+  await writeSitemap(indexable);
 
   console.log(`\n${written}/${routes.length} routes prerendered`);
 
