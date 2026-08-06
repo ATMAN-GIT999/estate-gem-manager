@@ -78,8 +78,15 @@ const OwnerComparison = () => {
         />
 
         {/* The table scrolls inside its own box on narrow screens rather than
-            pushing the page sideways. */}
-        <div className="mt-14 max-w-4xl mx-auto overflow-x-auto">
+            pushing the page sideways.
+
+            `relative` is load-bearing, not decoration. Each cell's screen-reader
+            label is a Tailwind `sr-only` span, which is `position: absolute` —
+            and an absolutely positioned element is only clipped by an ancestor's
+            overflow if that ancestor is itself positioned. Without this the
+            eight labels escaped the scroll box, resolved against the viewport,
+            and dragged the whole page 174px sideways on a phone. */}
+        <div className="mt-14 max-w-4xl mx-auto overflow-x-auto relative">
           <table className="w-full min-w-[600px] border-collapse bg-card rounded-2xl shadow-elegant overflow-hidden">
             <thead>
               <tr className="border-b border-border">
