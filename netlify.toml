@@ -7,7 +7,16 @@
 # configured in the Netlify UI.
 
 [build]
-  command = "npm run build"
+  # `npm run build` is a client build followed by scripts/prerender.mjs, which
+  # drives a headless Chromium over every public route and writes the rendered
+  # HTML back into dist/. Playwright's browser is not in node_modules, so it is
+  # fetched first; this adds a couple of minutes and a few hundred MB to the
+  # build, which is the price of the site being readable without JavaScript.
+  #
+  # The prerender step exits non-zero if any route fails to render, so a build
+  # that would have shipped an empty shell fails here instead of in search
+  # results.
+  command = "npx playwright install chromium && npm run build"
   publish = "dist"
 
 [build.environment]
@@ -19,6 +28,14 @@
 # /property/<slug> link shared with the client — returns 404, and only the bare
 # "/" would work. status 200 rewrites rather than redirects, so the URL stays
 # intact for the router to read.
+#
+# Prerendering does not replace this rule, and the two do not fight: Netlify
+# looks for a matching file before applying a redirect, so /property-management
+# is served from dist/property-management/index.html — the prerendered one —
+# while anything without a file still falls through to the SPA shell. That
+# ordering is what makes the whole approach work, so do not add `force = true`
+# here: it would make every request take the shell and throw away every
+# prerendered page.
 [[redirects]]
   from = "/*"
   to = "/index.html"

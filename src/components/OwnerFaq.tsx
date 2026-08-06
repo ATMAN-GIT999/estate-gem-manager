@@ -6,6 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import EditableText from "./admin/EditableText";
+import FaqJsonLd from "./FaqJsonLd";
 import SectionIntro from "./SectionIntro";
 
 /**
@@ -65,6 +66,7 @@ const OwnerFaq = () => {
 
   return (
     <section id="owner-faq" className="py-24 bg-background scroll-mt-20">
+      <FaqJsonLd items={items} />
       <div className="container mx-auto px-4">
         <SectionIntro
           idPrefix="ofaq"
