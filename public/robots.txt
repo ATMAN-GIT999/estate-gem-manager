@@ -1,3 +1,5 @@
+Sitemap: https://frontier-residences.com/sitemap.xml
+
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +14,11 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Account and transaction routes. These also carry <meta name="robots"
+# content="noindex"> and are left out of the sitemap, so this is belt and
+# braces rather than the only defence.
+Disallow: /admin/
+Disallow: /auth
+Disallow: /update-password
+Disallow: /booking-confirmation
