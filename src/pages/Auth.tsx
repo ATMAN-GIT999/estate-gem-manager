@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import Seo from "@/components/Seo";
 import { supabase } from "@/lib/supabaseClient";
 
 const Auth = () => {
@@ -65,6 +66,12 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Seo
+        path="/auth"
+        title="Sign In | Frontier Residences"
+        description="Sign in to the Frontier Residences homeowner portal."
+        noindex
+      />
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="font-playfair text-3xl text-center">Frontier Residences</CardTitle>

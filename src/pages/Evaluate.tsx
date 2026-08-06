@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, TrendingUp, Home, DollarSign, Calendar, Percent, CheckCircle2, BarChart3, Sun, Cloud, Snowflake } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import Seo from "@/components/Seo";
 import PageWrapper from "@/components/PageWrapper";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -147,6 +148,12 @@ const EvaluateContent = () => {
 
   return (
     <div className="min-h-screen">
+      <Seo
+        path="/evaluate"
+        title="Your Property Cashflow Analysis | Frontier Residences"
+        description="Your property's projected short and long-term rental income, based on live market data."
+        noindex
+      />
       <Navigation />
       
       <section className="pt-24 pb-20 bg-background">

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { MapPin, TrendingUp, Home, Star } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
+import Seo from "@/components/Seo";
 import PageWrapper from "@/components/PageWrapper";
 
 const ProjectsContent = () => {
@@ -60,6 +61,11 @@ const ProjectsContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        path="/projects"
+        title="Our Work: Renovations & Rental Results | Frontier Residences"
+        description="Properties we took over, renovated and re-positioned, with the occupancy and revenue that followed."
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">

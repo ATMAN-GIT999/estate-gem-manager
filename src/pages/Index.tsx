@@ -11,6 +11,7 @@ import RevealBand from "@/components/RevealBand";
 import GuestReviews from "@/components/GuestReviews";
 import GuestFaq from "@/components/GuestFaq";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 import { supabase } from "@/lib/supabaseClient";
 import PageWrapper from "@/components/PageWrapper";
 
@@ -71,6 +72,13 @@ const IndexContent = () => {
 
   return (
     <div className="min-h-screen">
+      {/* Written for the search a guest makes, not for the company name — the
+          owner half of the business has its own page and its own terms. */}
+      <Seo
+        path="/"
+        title="Luxury Villas & Vacation Rentals on the Costa del Sol | Frontier Residences"
+        description="Hand-picked villas and apartments on the Costa del Sol, in Austria and Croatia. Booked direct, managed by us, with 24/7 support and hotel-standard cleaning."
+      />
       <Navigation />
       {/* 🔒 Hero's video and SearchBar wiring are untouched — only copy and the
           trust/CTA block underneath the search changed. */}

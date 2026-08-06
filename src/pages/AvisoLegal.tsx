@@ -1,11 +1,18 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 import PageWrapper from "@/components/PageWrapper";
 import { MapPin, Mail, Phone, Globe } from "lucide-react";
 
 const AvisoLegalContent = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        path="/aviso-legal"
+        title="Aviso Legal | Frontier Residences"
+        description="Legal notice and company information for Frontier Residences."
+        noindex
+      />
       <Navigation />
       <main className="flex-1 pt-24">
         <div className="container mx-auto px-4 py-12">

@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Search, BarChart3, Handshake, HardHat, Settings, MapPin } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
+import Seo from "@/components/Seo";
 import PageWrapper from "@/components/PageWrapper";
 
 const InvestmentsPageContent = () => {
@@ -30,6 +31,11 @@ const InvestmentsPageContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        path="/investments"
+        title="Property Investment in Spain, Austria & Croatia | Frontier Residences"
+        description="Curated real estate opportunities with acquisition support, renovation strategy and turnkey rental operations from day one."
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <section className="py-16 bg-gradient-hero">

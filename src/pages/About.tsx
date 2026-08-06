@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import EditableImage from "@/components/admin/EditableImage";
+import Seo from "@/components/Seo";
 import PageWrapper from "@/components/PageWrapper";
 import aboutHero from "@/assets/about-hero.webp";
 
@@ -59,6 +60,11 @@ const AboutContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        path="/about"
+        title="About Frontier Residences | Property Management in Spain, Austria & Croatia"
+        description="Who we are, how we work, and the team behind every stay — hospitality, real estate and local knowledge across three countries."
+      />
       <Navigation />
       <main className="flex-1">
         {/* Hero Section — pt-20 and safe centring keep the headline clear of the
