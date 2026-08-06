@@ -30,10 +30,17 @@ const PropertyEvaluator = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Editable content state
-  const [eyebrow, setEyebrow] = useState("Owner toolkit");
+  // Editable content state.
+  //
+  // The framing is the offer: an owner arriving on this page is not looking to
+  // buy management, they are looking to find out a number. "Free" and "no
+  // commitment" are the two objections that stop them typing an address, so
+  // they are answered in the line above the form rather than further down.
+  const [eyebrow, setEyebrow] = useState("Free revenue projection");
   const [sectionTitle, setSectionTitle] = useState("Property Cashflow Analysis");
-  const [sectionSubtitle, setSectionSubtitle] = useState("Find out your property's short term and long term rental income potential using live market data");
+  const [sectionSubtitle, setSectionSubtitle] = useState(
+    "A data-driven projection of what your home could earn, from live market rates — no cost, no commitment."
+  );
   const [buttonText, setButtonText] = useState("Get Free Cash Flow Analysis");
 
   const handleSubmit = async (e: React.FormEvent) => {

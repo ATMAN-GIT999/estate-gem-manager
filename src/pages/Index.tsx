@@ -8,7 +8,6 @@ import Stats from "@/components/Stats";
 import WhatMakesUsDifferent from "@/components/WhatMakesUsDifferent";
 import AboutMini from "@/components/AboutMini";
 import RevealBand from "@/components/RevealBand";
-import PropertyEvaluator from "@/components/PropertyEvaluator";
 import GuestReviews from "@/components/GuestReviews";
 import GuestFaq from "@/components/GuestFaq";
 import Footer from "@/components/Footer";
@@ -29,13 +28,9 @@ import PageWrapper from "@/components/PageWrapper";
  *
  * Gone from here: IntroSection, BusinessAreas, TechnologySection,
  * ProjectsSection, AboutSection, WhereWeHost (absorbed into TrustStrip),
- * StayValue (grown into WhatMakesUsDifferent), PropertyManagement and
- * Testimonials (both moving to the owner page). The files stay in the repo.
- *
- * ⚠️ PropertyEvaluator is still here on purpose, and only until Phase 3. It
- * owns `id="property-evaluation"`, which the header dropdown and the owner
- * links point at; removing it before the owner page can host it would leave
- * those links dead. It moves there next, and comes out of this file then.
+ * StayValue (grown into WhatMakesUsDifferent), and — now that the owner page
+ * exists to host them — PropertyManagement, PropertyEvaluator and Testimonials.
+ * The unused files stay in the repo.
  *
  * Every section owns its `id` and `scroll-mt-20` (the fixed header is 80px,
  * matching the convention in Navigation.tsx).
@@ -86,7 +81,6 @@ const IndexContent = () => {
       <WhatMakesUsDifferent />
       <AboutMini />
       <RevealBand />
-      <PropertyEvaluator />
       <GuestReviews />
       <GuestFaq />
       <Footer />

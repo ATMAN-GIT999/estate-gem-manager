@@ -134,11 +134,14 @@ const PropertyManagement = () => {
       className="py-24 bg-background scroll-mt-20"
     >
       <div className="container mx-auto px-4">
+        {/* The page hero above carries the "boutique hotel" headline this
+            section used to open with. Two identical headings a screen apart
+            read as a page that lost its place, so this one names the work. */}
         <SectionIntro
           idPrefix="pm2"
-          eyebrow="Property management"
-          heading="Own a home here? We run it like a boutique hotel."
-          lead="Full-service management for villas and apartments — you keep the asset and the income, we handle everything else."
+          eyebrow="What we do"
+          heading="Everything a hotel does, for one house."
+          lead="Three jobs, run as one: get it let at the right price, look after the guests, and look after the building."
         />
 
         <div className="mt-20 grid gap-12 md:gap-10 md:grid-cols-3 max-w-6xl mx-auto">
