@@ -1,140 +1,172 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Card } from "@/components/ui/card";
-import { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck, Cpu, Check } from "lucide-react";
+import PropertyEvaluator from "@/components/PropertyEvaluator";
+import PropertyManagement from "@/components/PropertyManagement";
+import OwnerComparison from "@/components/OwnerComparison";
+import OwnerTestimonials from "@/components/OwnerTestimonials";
+import OwnerFaq from "@/components/OwnerFaq";
+import ConsultationBooking from "@/components/ConsultationBooking";
+import { Button } from "@/components/ui/button";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
 
+/**
+ * The owner page. One audience, one job: get a projection.
+ *
+ * The order is the order of an owner's decision, not the order of our service
+ * catalogue. The number comes first, while curiosity is at its highest and
+ * before any commitment has been asked for; the service, the comparison and
+ * the objections follow to justify it; the call is at the end, for the ones
+ * the number convinced.
+ *
+ * What it replaces: a page that opened with "Luxury Property Management
+ * Designed for Exceptional Homes", listed nine services as identical cards,
+ * explained its AI stack at length — and then simply stopped. It had no call
+ * to action anywhere. A visitor who read all of it had nothing to do next.
+ */
 const PropertyManagementPageContent = () => {
-  const [pageTitle, setPageTitle] = useState("Luxury Property Management Designed for Exceptional Homes");
-  const [pageSubtitle, setPageSubtitle] = useState("We deliver a personalised management plan for every property — combining hotel-level hospitality with advanced AI-driven systems to maximise revenue, elevate guest satisfaction, and protect the long-term value of your home.");
-  const [servicesTitle, setServicesTitle] = useState("Our Services");
-  const [aiTitle, setAiTitle] = useState("AI-Driven Hospitality & Operations");
-  const [aiSubtitle, setAiSubtitle] = useState("Frontier Residences uses state-of-the-art technology to deliver consistent, precise performance.");
-  const [systemsTitle, setSystemsTitle] = useState("Our systems use:");
-  const [ensuresTitle, setEnsuresTitle] = useState("This ensures:");
+  const location = useLocation();
 
-  const iconMap: Record<string, any> = { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck };
+  const [eyebrow, setEyebrow] = useState("Property management");
+  const [pageTitle, setPageTitle] = useState(
+    "Own a home here? We run it like a boutique hotel."
+  );
+  const [pageSubtitle, setPageSubtitle] = useState(
+    "Full-service management for villas and apartments across Southern Spain, Austria and Croatia — you keep the asset and the income, we handle everything else."
+  );
+  const [closingTitle, setClosingTitle] = useState(
+    "Start with the number."
+  );
+  const [closingText, setClosingText] = useState(
+    "Find out what your property could earn before you decide anything else. It takes a minute and costs nothing."
+  );
+  const [closingCta, setClosingCta] = useState("Get your free projection");
 
-  const [services, setServices] = useState([
-    { icon: "Camera", text: "Luxury photography & staging" },
-    { icon: "Globe", text: "Listings on top global booking channels" },
-    { icon: "MessageSquare", text: "24/7 guest communication" },
-    { icon: "Users", text: "Personal or remote check-ins" },
-    { icon: "TrendingUp", text: "Dynamic pricing algorithm" },
-    { icon: "Sparkles", text: "Professional housekeeping" },
-    { icon: "Wrench", text: "Preventive maintenance & inspections" },
-    { icon: "LayoutDashboard", text: "Owner portal with real-time reporting" },
-    { icon: "FileCheck", text: "Legal traveller registration & compliance" },
-  ]);
+  // The header dropdown links straight to #property-evaluation, and so do the
+  // CTAs on this page. Without this the hash lands on a page whose sections
+  // are still mounting and nothing scrolls.
+  useEffect(() => {
+    if (!location.hash) return;
+    const id = location.hash.slice(1);
+    const timer = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [location.hash]);
 
-  const [aiFeatures, setAiFeatures] = useState([
-    "Real-time Airbnb & hotel price analysis",
-    "Automated rate adjustments (multiple times daily)",
-    "AI-supported guest messaging in all languages",
-    "Predictive maintenance alerts",
-    "Smart cleaning and task automation",
-    "Algorithm-based reviews and feedback management",
-  ]);
-
-  const [benefits, setBenefits] = useState([
-    "Higher occupancy",
-    "Better nightly rates",
-    "Faster responses",
-    "Zero operational gaps",
-    "Increased long-term value",
-  ]);
+  const scrollToEvaluator = (e: React.MouseEvent) => {
+    e.preventDefault();
+    document
+      .getElementById("property-evaluation")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      <main className="flex-1 pt-24 pb-12">
-        <section className="py-16 bg-gradient-hero">
+      <main className="flex-1">
+        {/* Hero: the offer, then straight into the engine that delivers it. */}
+        <section className="pt-32 pb-16 bg-gradient-hero">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center animate-fade-in">
-              <EditableText id="pmp-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6">{pageTitle}</EditableText>
-              <EditableText id="pmp-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="text-xl text-foreground/80 leading-relaxed">{pageSubtitle}</EditableText>
+            <div className="max-w-3xl mx-auto text-center animate-fade-in">
+              <EditableText
+                id="pmpage-eyebrow"
+                value={eyebrow}
+                onChange={setEyebrow}
+                as="span"
+                className="block text-sm font-medium uppercase tracking-widest text-accent-strong mb-4"
+              >
+                {eyebrow}
+              </EditableText>
+              <EditableText
+                id="pmpage-title"
+                value={pageTitle}
+                onChange={setPageTitle}
+                as="h1"
+                className="font-playfair text-4xl md:text-5xl lg:text-6xl font-bold text-primary text-balance"
+              >
+                {pageTitle}
+              </EditableText>
+              <EditableText
+                id="pmpage-subtitle"
+                value={pageSubtitle}
+                onChange={setPageSubtitle}
+                as="p"
+                multiline
+                className="mt-6 text-lg text-foreground/70 leading-relaxed max-w-2xl mx-auto"
+              >
+                {pageSubtitle}
+              </EditableText>
             </div>
           </div>
         </section>
 
-        <section className="py-20 bg-background">
+        {/* Engine — owns id="property-evaluation". */}
+        <PropertyEvaluator />
+
+        {/* The offer: three pillars, the proof strip, Guaranteed Income. */}
+        <PropertyManagement />
+
+        <OwnerComparison />
+
+        {/* Book a call, for owners who would rather talk than type an address.
+            ⚠️ This is our own form, not a scheduling tool — it captures a
+            preferred date and we confirm by hand. Swapping in Calendly (or
+            similar) is still open; when that happens, keep the contacts insert
+            so leads stay in one place. */}
+        <ConsultationBooking />
+
+        <OwnerTestimonials />
+
+        <OwnerFaq />
+
+        {/* Closing CTA — back to the projection, which is the whole page's ask. */}
+        <section className="py-24 bg-gradient-sage">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <EditableText id="pmp-services-title" value={servicesTitle} onChange={setServicesTitle} as="h2" className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-12 text-center">{servicesTitle}</EditableText>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.map((service, index) => {
-                  const Icon = iconMap[service.icon] || FileCheck;
-                  return (
-                    <Card key={index} className="p-6 hover:shadow-elegant transition-all duration-300">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center shrink-0">
-                          <Icon className="w-6 h-6 text-accent-strong" />
-                        </div>
-                        <EditableText
-                          id={`pmp-service-${index}`}
-                          value={service.text}
-                          onChange={(v) => { const u = [...services]; u[index] = { ...u[index], text: v }; setServices(u); }}
-                          as="p"
-                          className="text-foreground/90 font-medium pt-2"
-                        >{service.text}</EditableText>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 bg-primary text-primary-foreground">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-accent/20 rounded-full mb-6">
-                  <Cpu className="w-8 h-8 text-accent-on-primary" />
-                </div>
-                <EditableText id="pmp-ai-title" value={aiTitle} onChange={setAiTitle} as="h2" className="font-playfair text-3xl md:text-4xl font-bold mb-6">{aiTitle}</EditableText>
-                <EditableText id="pmp-ai-subtitle" value={aiSubtitle} onChange={setAiSubtitle} as="p" className="text-lg text-primary-foreground/80 max-w-3xl mx-auto">{aiSubtitle}</EditableText>
-              </div>
-
-              <div className="grid lg:grid-cols-2 gap-12 mt-12">
-                <div>
-                  <EditableText id="pmp-systems-title" value={systemsTitle} onChange={setSystemsTitle} as="h3" className="text-xl font-semibold mb-6 text-accent-on-primary">{systemsTitle}</EditableText>
-                  <ul className="space-y-4">
-                    {aiFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <span className="text-accent-on-primary mt-1">•</span>
-                        <EditableText
-                          id={`pmp-ai-feature-${index}`}
-                          value={feature}
-                          onChange={(v) => { const u = [...aiFeatures]; u[index] = v; setAiFeatures(u); }}
-                          as="span"
-                          className="text-primary-foreground/90"
-                        >{feature}</EditableText>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <EditableText id="pmp-ensures-title" value={ensuresTitle} onChange={setEnsuresTitle} as="h3" className="text-xl font-semibold mb-6 text-accent-on-primary">{ensuresTitle}</EditableText>
-                  <ul className="space-y-4">
-                    {benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-center gap-3">
-                        <Check className="w-5 h-5 text-accent-on-primary shrink-0" />
-                        <EditableText
-                          id={`pmp-benefit-${index}`}
-                          value={benefit}
-                          onChange={(v) => { const u = [...benefits]; u[index] = v; setBenefits(u); }}
-                          as="span"
-                          className="text-primary-foreground/90"
-                        >{benefit}</EditableText>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            <div className="max-w-2xl mx-auto text-center">
+              <EditableText
+                id="pmpage-closing-title"
+                value={closingTitle}
+                onChange={setClosingTitle}
+                as="h2"
+                className="font-playfair text-3xl md:text-4xl font-bold text-primary-foreground text-balance"
+              >
+                {closingTitle}
+              </EditableText>
+              <EditableText
+                id="pmpage-closing-text"
+                value={closingText}
+                onChange={setClosingText}
+                as="p"
+                multiline
+                className="mt-5 text-lg text-primary-foreground/80 leading-relaxed"
+              >
+                {closingText}
+              </EditableText>
+              <div className="mt-10">
+                {/* Same-page anchor with a handler: a <Link> to a hash that is
+                    already in the URL is a no-op, and this button is at the
+                    bottom of a page whose form is at the top — the one place a
+                    reader is most likely to click it twice. */}
+                <a href="#property-evaluation" onClick={scrollToEvaluator}>
+                  <Button
+                    size="lg"
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold font-semibold px-8"
+                  >
+                    <EditableText
+                      id="pmpage-closing-cta"
+                      value={closingCta}
+                      onChange={setClosingCta}
+                      as="span"
+                    >
+                      {closingCta}
+                    </EditableText>
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </a>
               </div>
             </div>
           </div>
@@ -145,5 +177,10 @@ const PropertyManagementPageContent = () => {
   );
 };
 
-const PropertyManagementPage = () => (<PageWrapper slug="site--property-management"><PropertyManagementPageContent /></PageWrapper>);
+const PropertyManagementPage = () => (
+  <PageWrapper slug="site--property-management">
+    <PropertyManagementPageContent />
+  </PageWrapper>
+);
+
 export default PropertyManagementPage;

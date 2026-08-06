@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { format } from "date-fns";
+import { Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,10 +10,49 @@ import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { Calendar as CalendarIcon, Upload, CheckCircle2, AlertCircle } from "lucide-react";
+import SectionIntro from "./SectionIntro";
+
+/**
+ * Splits "Alejandro Marinetto Rohr" into the two columns `contacts` has.
+ * first_name is NOT NULL, so a single-word entry becomes the first name and
+ * last_name stays null rather than the insert failing.
+ */
+const splitName = (full: string) => {
+  const parts = full.trim().split(/\s+/).filter(Boolean);
+  return {
+    first_name: parts[0] || "Unknown",
+    last_name: parts.length > 1 ? parts.slice(1).join(" ") : null,
+  };
+};
+
+/**
+ * Best-effort upload into the existing `images` bucket, returning how many
+ * files made it. Whether an anonymous visitor may write there depends on the
+ * bucket's storage policy — the only other upload in the app runs from the
+ * authenticated admin UI. If the policy blocks it the lead is already saved,
+ * and the caller says so honestly instead of claiming the photos arrived.
+ */
+const uploadImages = async (contactId: string, files: File[]) => {
+  let uploaded = 0;
+
+  for (const [index, file] of files.entries()) {
+    const extension = file.name.split(".").pop() || "jpg";
+    const path = `consultations/${contactId}/${index}-${Date.now()}.${extension}`;
+    const { error } = await supabase.storage.from("images").upload(path, file);
+    if (error) {
+      console.error("Consultation image upload failed:", error);
+    } else {
+      uploaded += 1;
+    }
+  }
+
+  return uploaded;
+};
 
 const ConsultationBooking = () => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -39,9 +81,19 @@ const ConsultationBooking = () => {
     setSelectedImages(selectedImages.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /**
+   * This used to end at the success toast: it validated the form, told the
+   * owner "we'll contact you within 24 hours", and sent nothing anywhere. Every
+   * lead this page produced was lost the moment the tab closed.
+   *
+   * The contact row is written first and on its own, because it is the part
+   * that matters — a name and a phone number reach a human even if the photos
+   * never upload. The uploads then run separately, and a storage failure
+   * downgrades the message rather than throwing the lead away.
+   */
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!date) {
       toast({
         title: "Please select a date",
@@ -60,10 +112,61 @@ const ConsultationBooking = () => {
       return;
     }
 
+    if (!formData.name.trim() || !formData.email.trim()) {
+      toast({
+        title: "Missing details",
+        description: "Please enter your name and email so we can reach you",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    const { data: contact, error } = await supabase
+      .from("contacts")
+      .insert({
+        ...splitName(formData.name),
+        email: formData.email || null,
+        phone: formData.phone || null,
+        property_interest: formData.propertyAddress || null,
+        notes: formData.message || null,
+        source: "consultation-booking",
+        tags: ["owner-lead"],
+        metadata: {
+          preferred_date: format(date, "yyyy-MM-dd"),
+          image_count: selectedImages.length,
+        },
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      console.error("Could not save consultation request:", error);
+      setSubmitting(false);
+      toast({
+        title: "Something went wrong",
+        description:
+          "We couldn't submit your request. Please email Hello@frontier-residences.com and we'll pick it up from there.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const uploaded = await uploadImages(contact.id, selectedImages);
+    setSubmitting(false);
+
     toast({
-      title: "Consultation Requested",
-      description: "We'll review your property and contact you within 24 hours",
+      title: "Consultation requested",
+      description:
+        uploaded === selectedImages.length
+          ? "We'll review your property and contact you within 24 hours."
+          : "Your request is with us — we'll be in touch within 24 hours. Your photos didn't upload, so we may ask for them by email.",
     });
+
+    setDate(undefined);
+    setSelectedImages([]);
+    setFormData({ name: "", email: "", phone: "", propertyAddress: "", message: "" });
   };
 
   const handleChange = (
@@ -76,17 +179,22 @@ const ConsultationBooking = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-accent/5">
+    <section id="book-a-call" className="py-24 bg-background scroll-mt-20">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <CalendarIcon className="w-16 h-16 text-accent-strong mx-auto mb-6" />
-            <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">
-              Ready to List Your Property?
-            </h2>
-            <p className="text-xl text-foreground/80 max-w-2xl mx-auto">
-              Book a consultation with our team to discuss your property's potential
-            </p>
+          {/* Header brought into the page's section pattern — it used to be a
+              16×16 icon over a hardcoded headline, which was both off-pattern
+              and the one block on this page a client could not edit. */}
+          <div className="mb-14">
+            <div className="w-12 h-12 rounded-full bg-accent/15 flex items-center justify-center mx-auto mb-8">
+              <CalendarIcon className="w-6 h-6 text-accent-strong" />
+            </div>
+            <SectionIntro
+              idPrefix="cb"
+              eyebrow="Book a call"
+              heading="Rather talk it through?"
+              lead="Pick a date and send us a few photos. We'll look at the property before we call, so the conversation starts with numbers rather than questions."
+            />
           </div>
 
           <Card className="p-8 bg-card/80 backdrop-blur-sm border-border shadow-elegant">
@@ -251,9 +359,17 @@ const ConsultationBooking = () => {
               <Button
                 type="submit"
                 size="lg"
+                disabled={submitting}
                 className="w-full bg-accent hover:bg-accent/90 text-white shadow-elegant"
               >
-                Request Consultation
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Sending…
+                  </>
+                ) : (
+                  "Request Consultation"
+                )}
               </Button>
             </form>
           </Card>
