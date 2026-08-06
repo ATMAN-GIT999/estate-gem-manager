@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Bed, Bath, Users, Star } from "lucide-react";
+import Seo from "@/components/Seo";
 import PageWrapper from "@/components/PageWrapper";
 
 const BookContent = () => {
@@ -66,6 +67,12 @@ const BookContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        path="/book"
+        title="Your Bookings | Frontier Residences"
+        description="Manage your stay with Frontier Residences."
+        noindex
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">

@@ -6,6 +6,7 @@ import PropertyCard from "@/components/PropertyCard";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import EditableText from "@/components/admin/EditableText";
+import Seo from "@/components/Seo";
 import PageWrapper from "@/components/PageWrapper";
 import SearchBar from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
@@ -162,6 +163,11 @@ const PropertiesContent = () => {
     // flex-col + flex-1 keeps the footer at the bottom when a search returns
     // only one or two listings; without it the footer rode up into view.
     <div className="min-h-screen flex flex-col">
+      <Seo
+        path="/properties"
+        title="Villas & Apartments to Rent | Frontier Residences"
+        description="Browse every villa and apartment we manage on the Costa del Sol, in Austria and Croatia. Check live availability and book direct without platform fees."
+      />
       <Navigation />
 
       <main className="flex-1 pt-24 pb-12">

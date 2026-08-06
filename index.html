@@ -3,22 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Frontier Residences | Luxury Property Management & Investment Services</title>
-    <meta name="description" content="Bespoke property management, renovation, and investment solutions for exclusive villas and apartments in Spain, Austria, and Croatia." />
+    <!-- Fallback metadata only. Every route sets its own title, description,
+         canonical and social card through <Seo> (src/components/Seo.tsx); what
+         is here is what a client that runs no JavaScript sees, so it mirrors
+         the landing page. Once the build prerenders routes to static HTML,
+         each page ships with its own <head> and this becomes the 404 case. -->
+    <title>Luxury Villas & Vacation Rentals on the Costa del Sol | Frontier Residences</title>
+    <meta name="description" content="Hand-picked villas and apartments on the Costa del Sol, in Austria and Croatia. Booked direct, managed by us, with 24/7 support and hotel-standard cleaning." />
     <meta name="author" content="Frontier Residences" />
     <link rel="icon" href="/favicon.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
 
-    <meta property="og:title" content="Frontier Residences | Luxury Property Management Costa del Sol" />
-    <meta property="og:description" content="Full-service property management, guaranteed income programs, and renovation services for premium properties." />
+    <meta property="og:title" content="Luxury Villas & Vacation Rentals on the Costa del Sol | Frontier Residences" />
+    <meta property="og:description" content="Hand-picked villas and apartments on the Costa del Sol, in Austria and Croatia. Booked direct, managed by us." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://frontier-residences.com/" />
+    <!-- ⚠️ /og-default.jpg DOES NOT EXIST YET. Add a 1200×630 image at
+         public/og-default.jpg and every shared link picks it up — this file
+         and src/components/Seo.tsx point at the same path on purpose.
+         Until then link previews show no image. That is the intended state:
+         what stood here was https://lovable.dev/opengraph-image-p98pqg.png,
+         the Lovable starter graphic, so every Frontier link shared on
+         WhatsApp, LinkedIn or Slack advertised Lovable. Social scrapers do not
+         run JavaScript, so the per-route tags below cannot fix that — only
+         this file can. -->
+    <meta property="og:image" content="https://frontier-residences.com/og-default.jpg" />
 
+    <!-- twitter:site removed with the image: it named @FrontierResidences, an
+         account that is not linked anywhere on the site. Put it back if the
+         handle exists. -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@FrontierResidences" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:image" content="https://frontier-residences.com/og-default.jpg" />
   </head>
 
   <body>

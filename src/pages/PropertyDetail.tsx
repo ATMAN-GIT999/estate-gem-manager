@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 import BookingSummary from "@/components/BookingSummary";
 import AvailabilityCalendar from "@/components/AvailabilityCalendar";
 import type { DateRange } from "react-day-picker";
@@ -136,6 +137,19 @@ const PropertyDetail = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* The 23 property pages are the site's long tail — each one targets a
+          search no other page can ("4 bedroom villa Marbella"). They carry the
+          property's own photo as the social card, so a link shared in a
+          WhatsApp group shows the house rather than a generic banner. */}
+      <Seo
+        path={`/property/${property.slug}`}
+        title={`${property.name} — ${property.location} | Frontier Residences`}
+        description={
+          property.description?.slice(0, 155) ||
+          `${property.bedrooms}-bedroom ${(property.type || "home").toLowerCase()} in ${property.location}, sleeping ${property.guests}. Book direct with Frontier Residences.`
+        }
+        image={guestyImages[0]}
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">

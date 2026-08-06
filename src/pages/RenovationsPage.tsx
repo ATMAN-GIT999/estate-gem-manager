@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Lightbulb, Calculator, HardHat, Package, Palette, Camera, TrendingUp } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
+import Seo from "@/components/Seo";
 import PageWrapper from "@/components/PageWrapper";
 
 const RenovationsPageContent = () => {
@@ -29,6 +30,11 @@ const RenovationsPageContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        path="/renovations"
+        title="Renovation & Interior Design for Holiday Homes | Frontier Residences"
+        description="Mediterranean interiors designed to raise both your home's value and its rental performance. Concept, construction, delivery and staging in one hand."
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <section className="py-16 bg-gradient-hero">

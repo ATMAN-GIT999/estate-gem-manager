@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +55,12 @@ const BookingConfirmation = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <Seo
+        path="/booking-confirmation"
+        title="Booking Confirmed | Frontier Residences"
+        description="Your booking with Frontier Residences is confirmed."
+        noindex
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-3xl">

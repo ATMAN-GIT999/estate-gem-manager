@@ -11,6 +11,7 @@ import OwnerFaq from "@/components/OwnerFaq";
 import ConsultationBooking from "@/components/ConsultationBooking";
 import { Button } from "@/components/ui/button";
 import EditableText from "@/components/admin/EditableText";
+import Seo from "@/components/Seo";
 import PageWrapper from "@/components/PageWrapper";
 
 /**
@@ -66,6 +67,15 @@ const PropertyManagementPageContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Deliberately shares no keywords with the landing page: this one is
+          aimed at owners searching for management and income, not at guests
+          searching for a villa. That separation is the reason the two pages
+          exist apart. */}
+      <Seo
+        path="/property-management"
+        title="Property Management Costa del Sol, Austria & Croatia | Frontier Residences"
+        description="Full-service holiday rental management for villa and apartment owners. Listings, dynamic pricing, 24/7 guest care and upkeep. Get a free revenue projection — no commitment."
+      />
       <Navigation />
       <main className="flex-1">
         {/* Hero: the offer, then straight into the engine that delivers it. */}
