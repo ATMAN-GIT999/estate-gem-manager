@@ -28,7 +28,12 @@ export default function EditableImage({
   alt = "",
   onChange,
   className,
-  bucketName = "images",
+  // The default used to be "images", a bucket that does not exist — the
+  // project has exactly one, `property-images`. Every inline image upload has
+  // therefore been failing with "Bucket not found" since this was written.
+  // `property-images` is public to read and admin-only to write, which is
+  // exactly what this component needs.
+  bucketName = "property-images",
 }: EditableImageProps) {
   const { editMode, isEditing, setIsEditing } = useInlineEdit();
   const [dialogOpen, setDialogOpen] = useState(false);
