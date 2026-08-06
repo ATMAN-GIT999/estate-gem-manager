@@ -1,29 +1,24 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
 import SectionIntro from "./SectionIntro";
 
 /**
- * The hinge of the page.
+ * The owner teaser — the one place on a guest-primary page where the other
+ * half of the business gets to speak.
  *
- * Everything above it is written for a guest; everything below it is written
- * for an owner. Rather than switching audiences with a heading and hoping the
- * reader follows, this band earns the turn: the homes you have just scrolled
- * past are the proof of the service being offered from here down.
+ * It used to be the hinge of a one-pager, turning the scroll from guests to
+ * owners in place. Now the owner story has its own page, so this band's job is
+ * smaller and sharper: use the homes the reader has just scrolled past as the
+ * argument, then hand them over. One sentence, one link, no service list.
  *
- * It is the only full-bleed green band in the scroll, which is what makes it
- * read as a chapter break rather than another section.
+ * It is the only full-bleed green band in the scroll, which is what stops it
+ * reading as just another section.
  */
 const RevealBand = () => {
   const [ctaText, setCtaText] = useState("See what your property could earn");
-
-  const scrollToEvaluator = (e: React.MouseEvent) => {
-    e.preventDefault();
-    document
-      .getElementById("property-evaluation")
-      ?.scrollIntoView({ behavior: "smooth" });
-  };
 
   return (
     <section id="reveal" className="py-24 bg-gradient-sage scroll-mt-20">
@@ -37,7 +32,7 @@ const RevealBand = () => {
         />
 
         <div className="mt-10 text-center">
-          <a href="#property-evaluation" onClick={scrollToEvaluator}>
+          <Link to="/property-management">
             <Button
               size="lg"
               className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold font-semibold px-8"
@@ -52,7 +47,7 @@ const RevealBand = () => {
               </EditableText>
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-          </a>
+          </Link>
         </div>
       </div>
     </section>

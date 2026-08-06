@@ -2,40 +2,56 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
+import TrustStrip from "@/components/TrustStrip";
+import StaysYouLove from "@/components/StaysYouLove";
 import Stats from "@/components/Stats";
-import WhereWeHost from "@/components/WhereWeHost";
-import FeaturedProperties from "@/components/FeaturedProperties";
-import StayValue from "@/components/StayValue";
+import WhatMakesUsDifferent from "@/components/WhatMakesUsDifferent";
+import AboutMini from "@/components/AboutMini";
 import RevealBand from "@/components/RevealBand";
-import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
-import Testimonials from "@/components/Testimonials";
+import GuestReviews from "@/components/GuestReviews";
+import GuestFaq from "@/components/GuestFaq";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabaseClient";
 import PageWrapper from "@/components/PageWrapper";
 
 /**
- * The one-pager, told as a single story with one turn in the middle.
+ * The guest landing page. One audience, one job: find a stay.
  *
- * Guest half — hero (find a stay) → where we host → the homes → why book
- * direct. Then RevealBand turns the page over: the homes you just scrolled
- * past are ours to run, and that is the offer. Owner half — what we do →
- * what it would earn → what people say.
+ * Search → where the homes are listed → the homes → the numbers behind them →
+ * why book here → who we are → and only then, once, the other half of the
+ * business, as a link rather than a chapter. Reviews and FAQ close it.
  *
- * What used to be here and isn't any more: IntroSection opened with an owner
- * pitch above a guest search bar; BusinessAreas and TechnologySection listed
- * the same services a second and third time; ProjectsSection and AboutSection
- * are back on their own routes (/projects, /about), reachable from the footer,
- * because they answer questions a reader only asks after the argument lands.
- * All five component files are still in the repo, just not rendered here.
+ * The owner story lives on /property-management now. Splitting them was the
+ * point of this rebuild: one URL cannot rank for "villa rental Marbella" and
+ * "property management Costa del Sol" at once, and a reader who wants one is
+ * not helped by scrolling the other.
  *
- * Stats is the one thing between the hero and the story: a thin confirmed
- * trust strip, deliberately not a section of its own.
+ * Gone from here: IntroSection, BusinessAreas, TechnologySection,
+ * ProjectsSection, AboutSection, WhereWeHost (absorbed into TrustStrip),
+ * StayValue (grown into WhatMakesUsDifferent), PropertyManagement and
+ * Testimonials (both moving to the owner page). The files stay in the repo.
+ *
+ * ⚠️ PropertyEvaluator is still here on purpose, and only until Phase 3. It
+ * owns `id="property-evaluation"`, which the header dropdown and the owner
+ * links point at; removing it before the owner page can host it would leave
+ * those links dead. It moves there next, and comes out of this file then.
  *
  * Every section owns its `id` and `scroll-mt-20` (the fixed header is 80px,
- * matching the convention in Navigation.tsx), so the header links and the
- * redirects from the retired routes all land in the right place.
+ * matching the convention in Navigation.tsx).
  */
+/**
+ * `crypto.randomUUID` only exists in a secure context — https or localhost.
+ * Opened over a plain http LAN address (Vite prints one as "Network:", and
+ * anyone testing from a phone will use it) it is undefined, and the throw took
+ * the whole page down to a white screen before the first section rendered.
+ * Analytics is not worth that, so it degrades instead.
+ */
+const newSessionId = () =>
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `sess-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
 const IndexContent = () => {
   const location = useLocation();
 
@@ -54,24 +70,25 @@ const IndexContent = () => {
     supabase.from("analytics_events").insert({
       event_type: "page_view",
       page_path: "/",
-      session_id: sessionStorage.getItem("session_id") || crypto.randomUUID(),
+      session_id: sessionStorage.getItem("session_id") || newSessionId(),
     });
   }, []);
 
   return (
     <div className="min-h-screen">
       <Navigation />
-      {/* 🔒 Hero's video, SearchBar and scroll indicator are untouched — only
-          the headline and subheadline copy changed. */}
+      {/* 🔒 Hero's video and SearchBar wiring are untouched — only copy and the
+          trust/CTA block underneath the search changed. */}
       <Hero />
+      <TrustStrip />
+      <StaysYouLove />
       <Stats />
-      <WhereWeHost />
-      <FeaturedProperties />
-      <StayValue />
+      <WhatMakesUsDifferent />
+      <AboutMini />
       <RevealBand />
-      <PropertyManagement />
       <PropertyEvaluator />
-      <Testimonials />
+      <GuestReviews />
+      <GuestFaq />
       <Footer />
     </div>
   );
