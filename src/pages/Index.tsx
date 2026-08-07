@@ -3,7 +3,7 @@ import Hero from "@/components/Hero";
 import IntroSection from "@/components/IntroSection";
 import Stats from "@/components/Stats";
 import Footer from "@/components/Footer";
-import FeaturedProperties from "@/components/FeaturedProperties";
+import StaysYouLove from "@/components/StaysYouLove";
 import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
 import BusinessAreas from "@/components/BusinessAreas";
@@ -43,7 +43,7 @@ const IndexContent = () => {
       <Hero />
       <IntroSection />
 
-      <FeaturedProperties />
+      <StaysYouLove />
 
       <Stats />
       <BusinessAreas />
