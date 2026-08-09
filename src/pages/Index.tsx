@@ -1,14 +1,9 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import IntroSection from "@/components/IntroSection";
-import Stats from "@/components/Stats";
 import Footer from "@/components/Footer";
 import StaysYouLove from "@/components/StaysYouLove";
 import GuestManagement from "@/components/GuestManagement";
-import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
-import BusinessAreas from "@/components/BusinessAreas";
-import TechnologySection from "@/components/TechnologySection";
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useLocation } from "react-router-dom";
@@ -42,7 +37,6 @@ const IndexContent = () => {
     <div className="min-h-screen">
       <Navigation />
       <Hero />
-      <IntroSection />
 
       <StaysYouLove />
 
@@ -50,10 +44,10 @@ const IndexContent = () => {
           who is behind it once they have booked. */}
       <GuestManagement />
 
-      <Stats />
-      <BusinessAreas />
-      <TechnologySection />
-      <PropertyManagement />
+      {/* TODO: the "Own a Property?" band belongs here — the hand-off from the
+          guest half of the site to the owner half. Until it exists, the header
+          is the only route to /property-management. */}
+
       <PropertyEvaluator />
       <Footer />
     </div>

@@ -5,6 +5,11 @@ import { Card } from "@/components/ui/card";
 import { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck, Cpu, Check } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
+import IntroSection from "@/components/IntroSection";
+import Stats from "@/components/Stats";
+import BusinessAreas from "@/components/BusinessAreas";
+import TechnologySection from "@/components/TechnologySection";
+import PropertyManagement from "@/components/PropertyManagement";
 
 const PropertyManagementPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Bespoke Property Management");
@@ -58,6 +63,16 @@ const PropertyManagementPageContent = () => {
             </div>
           </div>
         </section>
+
+        {/* Moved off the landing page, which is for guests. Order is the one
+            they had there; phase 2 resolves the overlaps this creates — notably
+            TechnologySection against the AI section further down, and the
+            "What's Included" list against Our Services. */}
+        <IntroSection />
+        <Stats />
+        <BusinessAreas />
+        <TechnologySection />
+        <PropertyManagement />
 
         <section className="py-20 bg-background">
           <div className="container mx-auto px-4">
