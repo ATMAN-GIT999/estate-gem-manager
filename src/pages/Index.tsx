@@ -4,6 +4,7 @@ import IntroSection from "@/components/IntroSection";
 import Stats from "@/components/Stats";
 import Footer from "@/components/Footer";
 import StaysYouLove from "@/components/StaysYouLove";
+import GuestManagement from "@/components/GuestManagement";
 import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
 import BusinessAreas from "@/components/BusinessAreas";
@@ -44,6 +45,10 @@ const IndexContent = () => {
       <IntroSection />
 
       <StaysYouLove />
+
+      {/* Directly after the homes: a guest who has just picked one wants to know
+          who is behind it once they have booked. */}
+      <GuestManagement />
 
       <Stats />
       <BusinessAreas />

@@ -13,9 +13,6 @@ const PropertyManagement = () => {
   const [listingTitle, setListingTitle] = useState("Listing management");
   const [listingDesc, setListingDesc] = useState("Your property advertised on all major platforms. We keep listings updated for maximum visibility.");
   const [listingBadge, setListingBadge] = useState("Listings that stand out");
-  const [guestTitle, setGuestTitle] = useState("Guest management");
-  const [guestDesc, setGuestDesc] = useState("We ensure satisfied guests and provide support whenever needed. Your guests can contact us 24/7 with any questions or problems.");
-  const [guestBadge, setGuestBadge] = useState("Stays that impress");
   const [propertyTitle, setPropertyTitle] = useState("Property management");
   const [propertyDesc1, setPropertyDesc1] = useState("Your home will be thoroughly inspected and cleaned after each stay. We take great care of your property.");
   const [propertyDesc2, setPropertyDesc2] = useState("Once guests have checked out, we will conduct a thorough inspection of your property to detect any damage.");
@@ -23,21 +20,12 @@ const PropertyManagement = () => {
   const [platformImage, setPlatformImage] = useState(platformConnections);
   const [contactBtnText, setContactBtnText] = useState("→ Contact us");
   const [listingMgmtLabel, setListingMgmtLabel] = useState("→ Listing management");
-  const [guestMgmtLabel, setGuestMgmtLabel] = useState("→ Guest management");
-  const [propertyMgmtLabel, setPropertyMgmtLabel] = useState("→ Property management");
 
   const [listingManagement, setListingManagement] = useState([
     { icon: "Monitor", title: "Optimal listing", description: "Your home will be advertised with inviting, clear photos and clear text." },
     { icon: "BookOpen", title: "Your house rules", description: "The house rules are communicated through the advertisement to avoid misunderstandings and to prevent any damage." },
     { icon: "DollarSign", title: "Dynamic pricing", description: "Prices are adjusted based on location, amenities, and time of year. Certain cancellation policies are also determined." },
     { icon: "Package", title: "Admin assistance", description: "We advise you on insurance and legislation relating to the home." },
-  ]);
-
-  const [guestManagement, setGuestManagement] = useState([
-    { icon: "Shield", title: "Guest screening", description: "Before a booking is accepted, we review the terms and conditions to avoid unwanted guests." },
-    { icon: "Key", title: "Self check-in", description: "Guests receive a personal code to retrieve the key to your home from a key box." },
-    { icon: "Clock", title: "24/7 availability", description: "If guests have any questions, they can contact us at any time. We are responsible for all communication with guests." },
-    { icon: "BookOpen", title: "Survival guide", description: "A customized handbook will be created to guide guests during their stay. This will include any house rules, Wi-Fi code and activities nearby." },
   ]);
 
   const [propertyManagement, setPropertyManagement] = useState([
@@ -127,38 +115,6 @@ const PropertyManagement = () => {
           </div>
         </div>
 
-        {/* Guest Management Section */}
-        <div className="mb-20">
-          <div className="max-w-6xl mx-auto">
-            <Card className="bg-primary border-none shadow-elegant overflow-hidden">
-              <CardContent className="p-8 md:p-12">
-                <div className="flex items-start gap-4 mb-8">
-                  <div className="bg-accent rounded-full p-3">
-                    <Users className="w-6 h-6 text-accent-foreground" />
-                  </div>
-                  <div>
-                    <div className="bg-accent text-accent-foreground px-6 py-2 rounded-full inline-block mb-4 font-semibold">
-                      <EditableText id="pm-guest-badge" value={guestBadge} onChange={setGuestBadge} as="span">{guestBadge}</EditableText>
-                    </div>
-                  </div>
-                </div>
-                <EditableText id="pm-guest-title" value={guestTitle} onChange={setGuestTitle} as="h3" className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">{guestTitle}</EditableText>
-                <EditableText id="pm-guest-desc" value={guestDesc} onChange={setGuestDesc} as="p" multiline className="text-xl text-primary-foreground/90 mb-8 leading-relaxed">{guestDesc}</EditableText>
-                {renderItemGrid(guestManagement, setGuestManagement, "pm-guest")}
-                <div className="flex flex-wrap gap-4 mb-8">
-                  <EditableText id="pm-listing-mgmt-label" value={listingMgmtLabel} onChange={setListingMgmtLabel} as="span" className="text-accent-on-primary text-lg font-medium">{listingMgmtLabel}</EditableText>
-                  <EditableText id="pm-property-mgmt-label" value={propertyMgmtLabel} onChange={setPropertyMgmtLabel} as="span" className="text-accent-on-primary text-lg font-medium">{propertyMgmtLabel}</EditableText>
-                </div>
-                <Link to="/book">
-                  <Button className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
-                    <EditableText id="pm-contact-btn-2" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
         {/* Property Management Section */}
         <div>
           <div className="max-w-6xl mx-auto">
@@ -182,7 +138,6 @@ const PropertyManagement = () => {
                 {renderItemGrid(propertyManagement, setPropertyManagement, "pm-prop")}
                 <div className="flex flex-wrap gap-4 mb-8">
                   <EditableText id="pm-listing-mgmt-label2" value={listingMgmtLabel} onChange={setListingMgmtLabel} as="span" className="text-accent-on-primary text-lg font-medium">{listingMgmtLabel}</EditableText>
-                  <EditableText id="pm-guest-mgmt-label" value={guestMgmtLabel} onChange={setGuestMgmtLabel} as="span" className="text-accent-on-primary text-lg font-medium">{guestMgmtLabel}</EditableText>
                 </div>
                 <Link to="/book">
                   <Button className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
