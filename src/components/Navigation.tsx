@@ -14,11 +14,10 @@ const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [navLabel1, setNavLabel1] = useState("Our Business Areas");
-  const [navLabel2, setNavLabel2] = useState("Projects");
+  const [navLabel1, setNavLabel1] = useState("Property Management");
   const [navLabel3, setNavLabel3] = useState("About Us");
   const [navLabel4, setNavLabel4] = useState("Book Your Stay");
-  const [navLabel5, setNavLabel5] = useState("Property Evaluation");
+  const [navLabel5, setNavLabel5] = useState("Property Evaluator");
   const [signInLabel, setSignInLabel] = useState("Sign In");
   const [dashboardLabel, setDashboardLabel] = useState("Dashboard");
   const [myBookingsLabel, setMyBookingsLabel] = useState("My Bookings");
@@ -36,9 +35,12 @@ const Navigation = () => {
     setIsOpen(false);
   };
 
+  // Order matters: Property Management first, since the owner journey is the one
+  // the landing page hands off to. The evaluator is rendered after these as a
+  // button rather than a Link — it scrolls to an anchor instead of routing.
   const navLinks = [
-    { href: "/business-areas", label: navLabel1, setLabel: setNavLabel1, id: "nav-1" },
-    { href: "/projects", label: navLabel2, setLabel: setNavLabel2, id: "nav-2" },
+    { href: "/property-management", label: navLabel1, setLabel: setNavLabel1, id: "nav-1" },
+    { href: "/properties", label: navLabel4, setLabel: setNavLabel4, id: "nav-4" },
     { href: "/about", label: navLabel3, setLabel: setNavLabel3, id: "nav-3" },
   ];
 
@@ -66,12 +68,6 @@ const Navigation = () => {
                 <EditableText id={link.id} value={link.label} onChange={link.setLabel} as="span" className="text-primary-foreground">{link.label}</EditableText>
               </Link>
             ))}
-            <Link
-              to="/properties"
-              className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
-            >
-              <EditableText id="nav-4" value={navLabel4} onChange={setNavLabel4} as="span" className="text-primary-foreground">{navLabel4}</EditableText>
-            </Link>
             <button
               onClick={handleEvaluationClick}
               className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
@@ -116,13 +112,6 @@ const Navigation = () => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/properties"
-                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
-                onClick={() => setIsOpen(false)}
-              >
-                {navLabel4}
-              </Link>
               <button
                 onClick={handleEvaluationClick}
                 className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2 text-left"
