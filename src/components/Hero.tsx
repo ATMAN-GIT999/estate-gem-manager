@@ -14,8 +14,8 @@ const Hero = () => {
   const navigate = useNavigate();
 
   // Editable content state
-  const [headline, setHeadline] = useState("Bespoke Property Management");
-  const [subheadline, setSubheadline] = useState("Private, tailored management for exceptional properties");
+  const [headline, setHeadline] = useState("Luxury Villas & Vacation Rentals in Spain and Austria");
+  const [subheadline, setSubheadline] = useState("Handpicked homes on the Costa del Sol, in Málaga, Vienna and the Austrian Alps — booked directly with the team that manages them.");
   const [videoId, setVideoId] = useState("tqmWpFCv_1M");
 
   useEffect(() => {
