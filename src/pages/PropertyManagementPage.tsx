@@ -7,7 +7,7 @@ import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
 
 const PropertyManagementPageContent = () => {
-  const [pageTitle, setPageTitle] = useState("Luxury Property Management Designed for Exceptional Homes");
+  const [pageTitle, setPageTitle] = useState("Bespoke Property Management");
   const [pageSubtitle, setPageSubtitle] = useState("We deliver a personalised management plan for every property — combining hotel-level hospitality with advanced AI-driven systems to maximise revenue, elevate guest satisfaction, and protect the long-term value of your home.");
   const [servicesTitle, setServicesTitle] = useState("Our Services");
   const [aiTitle, setAiTitle] = useState("AI-Driven Hospitality & Operations");
