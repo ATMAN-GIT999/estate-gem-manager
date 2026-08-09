@@ -40,7 +40,7 @@ Gäste-primär, kompakt. Kein Property-Management-Content außer der Übergangs-
 | 2 | Hero mit Booking-Engine | `Hero.tsx` (enthält `SearchBar`) | main | ✅ neue Headline (Platzhalter) |
 | 3 | Stays You'll Love | `StaysYouLove.tsx` | experiment | ✅ erledigt |
 | 4 | Guest Management | `GuestManagement.tsx` | main, aus `PropertyManagement` extrahiert | ✅ verschoben, ⚠️ Text offen |
-| 5 | **Own a Property?** | — | **neu** | offen — große, aufmerksamkeitsstarke Section, verlinkt auf `/property-management` |
+| 5 | **Own a Property?** | `OwnAProperty.tsx` | **neu** | ✅ gebaut — goldenes Band, randlos; Texte als erster Entwurf |
 | 6 | Cashflow Analysis | `PropertyEvaluator.tsx` | main | vorhanden |
 | 7 | Footer | `Footer.tsx` | main | vorhanden |
 
@@ -138,8 +138,9 @@ kompakte `AboutMini`-Variante als Section.
 2. **Landing-Hero-Headline** ist ein Platzhalter
    („Luxury Villas & Vacation Rentals in Spain and Austria"), vom Besitzer
    abzusegnen.
-3. **„Own a Property?"** existiert auf `main` nicht und wird neu gebaut — es gibt
-   dafür keine Vorlage im Experiment-Branch außer einer Zeile im dortigen Hero.
+3. **„Own a Property?"-Texte** sind ein erster Entwurf und vom Besitzer
+   abzusegnen — insbesondere „earn **with** us" (Partnerschaft, Provisionsmodell)
+   gegenüber „earn **from** us" (das wäre Guaranteed Income, also Festmiete).
 4. **Testimonials** für die Proof-Ebene der PM-Seite müssen vom Besitzer kommen;
    können nicht erfunden werden.
 5. **SEO:** Der bisherige PM-Seitentitel „Luxury Property Management Designed for
