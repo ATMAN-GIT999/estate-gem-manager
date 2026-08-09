@@ -44,7 +44,7 @@ Gäste-primär, kompakt. Kein Property-Management-Content außer der Übergangs-
 | 6 | Cashflow Analysis | `PropertyEvaluator.tsx` | main | vorhanden |
 | 7 | Footer | `Footer.tsx` | main | vorhanden |
 
-**Von der Landingpage entfernen** (wandern auf die PM-Seite):
+✅ **Von der Landingpage entfernt** (jetzt auf der PM-Seite):
 `IntroSection.tsx`, `Stats.tsx`, `BusinessAreas.tsx`, `TechnologySection.tsx`,
 `PropertyManagement.tsx`.
 
@@ -58,11 +58,11 @@ Eigentümer-primär. Sammelt den gesamten PM-Content.
 |---|---|---|---|---|
 | 1 | Navigation | `Navigation.tsx` | main | ✅ umgebaut |
 | 2 | Hero „Bespoke Property Management" | `PropertyManagementPage.tsx` | main | ✅ erledigt |
-| 3 | „Your home deserves…" | `IntroSection.tsx` | main (von Landing) | offen |
-| 4 | Stats | `Stats.tsx` | main (von Landing) | offen |
-| 5 | Business Areas | `BusinessAreas.tsx` | main (von Landing) | offen |
-| 6 | Technology | `TechnologySection.tsx` | main (von Landing) | offen |
-| 7 | Short-Term Rental Mgmt (Listing + Property Care) | `PropertyManagement.tsx` | main (von Landing) | offen — enthält nur noch 2 der 3 Säulen |
+| 3 | „Your home deserves…" | `IntroSection.tsx` | main (von Landing) | ✅ verschoben |
+| 4 | Stats | `Stats.tsx` | main (von Landing) | ✅ verschoben |
+| 5 | Business Areas | `BusinessAreas.tsx` | main (von Landing) | ✅ verschoben |
+| 6 | Technology | `TechnologySection.tsx` | main (von Landing) | ✅ verschoben |
+| 7 | Short-Term Rental Mgmt (Listing + Property Care) | `PropertyManagement.tsx` | main (von Landing) | ✅ verschoben, enthält nur noch 2 der 3 Säulen |
 | 8 | Our Services | `PropertyManagementPage.tsx` | main | vorhanden |
 | 9 | AI-Driven Hospitality & Operations | `PropertyManagementPage.tsx` | main | vorhanden |
 | 10 | Projects | Inhalt aus `pages/Projects.tsx` | main | offen |
