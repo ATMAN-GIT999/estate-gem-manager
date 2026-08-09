@@ -25,6 +25,9 @@ Content-Audits.
 Die Vermischung beider Phasen war bisher die Hauptquelle für Missverständnisse.
 In Phase 1 gilt: verschieben, nicht verbessern.
 
+**Eine Ausnahme:** Wenn ein Umzug die *Zielgruppe* wechselt, muss der Text früher
+mit. Betrifft aktuell Guest Management (siehe unten).
+
 ---
 
 ## Seite 1 — Booking-Landingpage (`/`)
@@ -33,12 +36,12 @@ Gäste-primär, kompakt. Kein Property-Management-Content außer der Übergangs-
 
 | # | Section | Komponente | Herkunft | Status |
 |---|---|---|---|---|
-| 1 | Navigation | `Navigation.tsx` | main | vorhanden |
-| 2 | Hero mit Booking-Engine | `Hero.tsx` (enthält `SearchBar`) | main | vorhanden, Headline offen (s. u.) |
+| 1 | Navigation | `Navigation.tsx` | main | ✅ umgebaut |
+| 2 | Hero mit Booking-Engine | `Hero.tsx` (enthält `SearchBar`) | main | ✅ neue Headline (Platzhalter) |
 | 3 | Stays You'll Love | `StaysYouLove.tsx` | experiment | ✅ erledigt |
-| 4 | **Own a Property?** | — | **neu** | offen — große, aufmerksamkeitsstarke Section, verlinkt auf `/property-management` |
-| 5 | Cashflow Analysis | `PropertyEvaluator.tsx` | main | vorhanden |
-| 6 | About Us (kompakt) | `AboutMini.tsx` | experiment | offen |
+| 4 | Guest Management | `GuestManagement.tsx` | main, aus `PropertyManagement` extrahiert | ✅ verschoben, ⚠️ Text offen |
+| 5 | **Own a Property?** | — | **neu** | offen — große, aufmerksamkeitsstarke Section, verlinkt auf `/property-management` |
+| 6 | Cashflow Analysis | `PropertyEvaluator.tsx` | main | vorhanden |
 | 7 | Footer | `Footer.tsx` | main | vorhanden |
 
 **Von der Landingpage entfernen** (wandern auf die PM-Seite):
@@ -53,17 +56,17 @@ Eigentümer-primär. Sammelt den gesamten PM-Content.
 
 | # | Section | Komponente / Quelle | Herkunft | Status |
 |---|---|---|---|---|
-| 1 | Navigation | `Navigation.tsx` | main | vorhanden |
+| 1 | Navigation | `Navigation.tsx` | main | ✅ umgebaut |
 | 2 | Hero „Bespoke Property Management" | `PropertyManagementPage.tsx` | main | ✅ erledigt |
 | 3 | „Your home deserves…" | `IntroSection.tsx` | main (von Landing) | offen |
 | 4 | Stats | `Stats.tsx` | main (von Landing) | offen |
 | 5 | Business Areas | `BusinessAreas.tsx` | main (von Landing) | offen |
 | 6 | Technology | `TechnologySection.tsx` | main (von Landing) | offen |
-| 7 | Short-Term Rental Mgmt (3 Säulen) | `PropertyManagement.tsx` | main (von Landing) | offen |
+| 7 | Short-Term Rental Mgmt (Listing + Property Care) | `PropertyManagement.tsx` | main (von Landing) | offen — enthält nur noch 2 der 3 Säulen |
 | 8 | Our Services | `PropertyManagementPage.tsx` | main | vorhanden |
 | 9 | AI-Driven Hospitality & Operations | `PropertyManagementPage.tsx` | main | vorhanden |
 | 10 | Projects | Inhalt aus `pages/Projects.tsx` | main | offen |
-| 11 | About Us (ausführlich) | Inhalt aus `pages/About.tsx` | main | offen |
+| 11 | About Us (kompakt) | `AboutMini.tsx` | experiment | offen |
 | 12 | Cashflow Analysis | `PropertyEvaluator.tsx` | main | offen |
 | 13 | CTA / Kontakt | — | **neu** | offen — existiert bisher nicht |
 | 14 | Footer | `Footer.tsx` | main | vorhanden |
@@ -80,14 +83,18 @@ Phase 2 eine kompakte Teaser-Ebene, die dorthin verlinkt.
 
 ## Header-Navigation
 
-Aktuell: `/business-areas` · `/projects` · `/about`
+**Property Management** · **Book Your Stay** · **About Us** · **Property Evaluator**
 
-Nach dem Umbau entfallen **Projects** und **About** als Menüpunkte — ihre Inhalte
-leben als Sections auf der PM-Seite.
+| Label | Ziel |
+|---|---|
+| Property Management | `/property-management` |
+| Book Your Stay | `/properties` |
+| About Us | `/about` — die Seite bleibt als eigene Seite bestehen |
+| Property Evaluator | Anker `#property-evaluation` (Button, kein Link) |
 
-⚠️ **Offen:** Damit bliebe nur `/business-areas` im Menü, dessen Inhalt aber
-ebenfalls auf die PM-Seite wandert. Naheliegend wäre ein Menüpunkt
-„Property Management" → `/property-management`. Muss noch entschieden werden.
+`/business-areas` und `/projects` sind keine Menüpunkte mehr. Die `/about`-Seite
+bleibt vollständig erhalten und verlinkt; die PM-Seite bekommt zusätzlich die
+kompakte `AboutMini`-Variante als Section.
 
 ---
 
@@ -115,23 +122,28 @@ ebenfalls auf die PM-Seite wandert. Naheliegend wäre ein Menüpunkt
 | Unterseiten GI/Renovations/Investments | Bleiben bestehen, PM-Seite verlinkt nur |
 | Cashflow Analysis | Auf **beiden** Seiten |
 | Projects | Inhalt als Section auf PM-Seite, Nav-Punkt entfällt |
-| About | Inhalt als Section auf PM-Seite, Nav-Punkt entfällt |
+| About Us | `AboutMini` als Section auf der PM-Seite; `/about` bleibt als Seite **und** als Menüpunkt |
+| Guest Management | Gehört auf die Booking-Landingpage, nicht auf die PM-Seite |
+| Header-Navigation | Property Management · Book Your Stay · About Us · Property Evaluator |
 | Farbpalette | `main` ist Referenz |
 
 ---
 
 ## Offene Punkte
 
-1. **Landing-Hero-Headline** — „Bespoke Property Management" ist auf die PM-Seite
-   gewandert. Die Booking-Landingpage braucht eine gäste-gerichtete Headline.
-   Vorschlag steht aus; sollte der Besitzer absegnen.
-2. **Header-Navigation** nach Wegfall von Projects/About (siehe oben).
+1. **Guest-Management-Texte sind an Eigentümer gerichtet** („your guests can
+   contact us", Screening-Karte über „unwanted guests"). Auf der Booking-Seite
+   liest ein Gast das über sich selbst. Braucht einen Text-Pass vor dem Livegang —
+   früher als der Rest von Phase 2.
+2. **Landing-Hero-Headline** ist ein Platzhalter
+   („Luxury Villas & Vacation Rentals in Spain and Austria"), vom Besitzer
+   abzusegnen.
 3. **„Own a Property?"** existiert auf `main` nicht und wird neu gebaut — es gibt
    dafür keine Vorlage im Experiment-Branch außer einer Zeile im dortigen Hero.
 4. **Testimonials** für die Proof-Ebene der PM-Seite müssen vom Besitzer kommen;
    können nicht erfunden werden.
-5. **`AboutMini` verlinkt auf die About-Seite** — dieser Link braucht ein neues
-   Ziel, sobald `/about` kein eigener Menüpunkt mehr ist.
-6. **SEO:** Der bisherige PM-Seitentitel „Luxury Property Management Designed for
+5. **SEO:** Der bisherige PM-Seitentitel „Luxury Property Management Designed for
    Exceptional Homes" war keyword-stärker als „Bespoke Property Management".
    Der keyword-starke Begriff könnte im `<title>`-Tag erhalten bleiben.
+6. **`/business-areas`** ist kein Menüpunkt mehr, existiert aber weiter als Route.
+   Offen, ob die Seite bestehen bleibt oder in der PM-Seite aufgeht.
