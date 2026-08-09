@@ -65,15 +65,20 @@ Eigentümer-primär. Sammelt den gesamten PM-Content.
 | 7 | Short-Term Rental Mgmt (Listing + Property Care) | `PropertyManagement.tsx` | main (von Landing) | ✅ verschoben, enthält nur noch 2 der 3 Säulen |
 | 8 | Our Services | `PropertyManagementPage.tsx` | main | vorhanden |
 | 9 | AI-Driven Hospitality & Operations | `PropertyManagementPage.tsx` | main | vorhanden |
-| 10 | Projects | Inhalt aus `pages/Projects.tsx` | main | offen |
-| 11 | About Us (kompakt) | `AboutMini.tsx` | experiment | offen |
-| 12 | Cashflow Analysis | `PropertyEvaluator.tsx` | main | offen |
-| 13 | CTA / Kontakt | — | **neu** | offen — existiert bisher nicht |
+| 10 | Projects | `ProjectsSection.tsx` | main | ✅ verschoben (Seite `/projects` nutzt dieselbe Komponente) |
+| 11 | About Us (kompakt) | `AboutMini.tsx` | experiment | ✅ verschoben, Eyebrow auf Eigentümer angepasst |
+| 12 | Cashflow Analysis | `PropertyEvaluator.tsx` | main | ✅ ergänzt |
+| 13 | CTA / Kontakt | `OwnerCta.tsx` | **neu** | ✅ gebaut — mailto, siehe offene Punkte |
 | 14 | Footer | `Footer.tsx` | main | vorhanden |
 
 **Bekannte Redundanzen** — bewusst erst in Phase 2 anfassen, nicht beim Verschieben:
 - #6 Technology und #9 AI-Driven sind inhaltlich fast dieselbe Liste.
 - #5 Business Areas („What's Included") überschneidet sich mit #7 und #8.
+- #10 Projects („Our Destinations": Spain · Austria · Croatia) wiederholt die
+  Regionen, die #4 Stats direkt darüber schon aufzählt.
+- #10 enthält noch „Before & After Photos — Coming Soon"-Platzhalter.
+
+**Phase 1 ist damit abgeschlossen.** Beide Seiten sind strukturell vollständig.
 
 **Guaranteed Income, Renovations, Investments** bleiben eigenständige Unterseiten
 (`/guaranteed-income`, `/renovations`, `/investments`). Die PM-Seite bekommt in
@@ -148,3 +153,7 @@ kompakte `AboutMini`-Variante als Section.
    Der keyword-starke Begriff könnte im `<title>`-Tag erhalten bleiben.
 6. **`/business-areas`** ist kein Menüpunkt mehr, existiert aber weiter als Route.
    Offen, ob die Seite bestehen bleibt oder in der PM-Seite aufgeht.
+7. **Kontaktweg für Eigentümer:** Der CTA am Ende der PM-Seite ist ein `mailto:`
+   auf die Footer-Adresse, weil es keinen anderen eigentümer-gerichteten Kanal
+   gibt. Ein Terminbuchungs-Link oder Kontaktformular würde deutlich besser
+   konvertieren — Entscheidung des Besitzers.
