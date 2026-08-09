@@ -13,6 +13,7 @@ import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
 import AboutMini from "@/components/AboutMini";
 import ProjectsSection from "@/components/ProjectsSection";
+import OwnerCta from "@/components/OwnerCta";
 
 const PropertyManagementPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Bespoke Property Management");
@@ -161,6 +162,7 @@ const PropertyManagementPageContent = () => {
         <ProjectsSection />
         <AboutMini />
         <PropertyEvaluator />
+        <OwnerCta />
       </main>
       <Footer />
     </div>
