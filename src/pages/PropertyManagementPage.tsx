@@ -11,6 +11,7 @@ import BusinessAreas from "@/components/BusinessAreas";
 import TechnologySection from "@/components/TechnologySection";
 import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
+import AboutMini from "@/components/AboutMini";
 
 const PropertyManagementPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Bespoke Property Management");
@@ -156,6 +157,7 @@ const PropertyManagementPageContent = () => {
           </div>
         </section>
 
+        <AboutMini />
         <PropertyEvaluator />
       </main>
       <Footer />
