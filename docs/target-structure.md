@@ -19,8 +19,9 @@ Text-Redesign, keine Kürzung, keine neue Farbwelt. Ziel ist nur, dass jeder
 Inhalt auf der richtigen Seite liegt.
 
 **Phase 2 — Inhaltlich verdichten.** Erst danach werden Texte gekürzt,
-Redundanzen aufgelöst und die Hierarchie geschärft — anhand des archivierten
-Content-Audits.
+Redundanzen aufgelöst und die Hierarchie geschärft. Grundlage dafür ist
+`docs/pm-page-content-analysis.md` — Section-für-Section-Analyse der PM-Seite
+mit Redundanz-Landkarte, Streichliste und Ziel: 12 Sections → 8.
 
 Die Vermischung beider Phasen war bisher die Hauptquelle für Missverständnisse.
 In Phase 1 gilt: verschieben, nicht verbessern.
