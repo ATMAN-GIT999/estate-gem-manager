@@ -10,26 +10,27 @@ import EditableText from "./admin/EditableText";
  * because it belongs in front of guests rather than owners: it is the answer to
  * "who looks after me once I have booked".
  *
- * ⚠️ The copy still addresses the owner — "your guests can contact us", and a
- * screening card written as keeping unwanted guests out. On the booking page a
- * guest reads that about themselves. The text needs a pass before this section
- * is considered finished; the move itself is deliberate, the wording is not.
+ * The copy is rewritten to the guest, in the second person. It previously spoke
+ * over their head to the owner — "your guests can contact us", and a screening
+ * card about keeping unwanted guests out, which on a booking page a reader
+ * applies to themselves. Every card states the same fact as before from the
+ * side of the person reading it.
  *
  * The two "→ Listing management" / "→ Property management" cross-links from the
  * original are dropped: they pointed at sibling pillars that now live on the PM
  * page, so they would dangle here.
  */
 const GuestManagement = () => {
-  const [guestTitle, setGuestTitle] = useState("Guest management");
-  const [guestDesc, setGuestDesc] = useState("We ensure satisfied guests and provide support whenever needed. Your guests can contact us 24/7 with any questions or problems.");
-  const [guestBadge, setGuestBadge] = useState("Stays that impress");
+  const [guestTitle, setGuestTitle] = useState("It's in the details.");
+  const [guestDesc, setGuestDesc] = useState("From the moment you book to the morning you leave, the same team that looks after the home looks after you — and you can reach us at any hour.");
+  const [guestBadge, setGuestBadge] = useState("Every stay, looked after");
   const [contactBtnText, setContactBtnText] = useState("→ Contact us");
 
   const [guestManagement, setGuestManagement] = useState([
-    { icon: "Shield", title: "Guest screening", description: "Before a booking is accepted, we review the terms and conditions to avoid unwanted guests." },
-    { icon: "Key", title: "Self check-in", description: "Guests receive a personal code to retrieve the key to your home from a key box." },
-    { icon: "Clock", title: "24/7 availability", description: "If guests have any questions, they can contact us at any time. We are responsible for all communication with guests." },
-    { icon: "BookOpen", title: "Survival guide", description: "A customized handbook will be created to guide guests during their stay. This will include any house rules, Wi-Fi code and activities nearby." },
+    { icon: "Shield", title: "Confirmed by a person", description: "Every booking is reviewed by someone on our team before it's confirmed — which is also why these homes stay in the condition you'd want to arrive to." },
+    { icon: "Key", title: "Self check-in", description: "Arrive when it suits you. Your personal key-box code reaches you before you travel, so there's no handover to wait around for." },
+    { icon: "Clock", title: "24/7 availability", description: "Message us at any hour and a real person answers — the same people who manage the home you're staying in, not an outsourced line." },
+    { icon: "BookOpen", title: "Your guide to the home", description: "A handbook written for the place you've booked: the Wi-Fi code, how everything works, and the spots nearby we'd send a friend to." },
   ]);
 
   const iconMap: Record<string, any> = { Users, Shield, Key, Clock, BookOpen, Package };
