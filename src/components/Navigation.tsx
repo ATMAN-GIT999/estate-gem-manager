@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,7 +12,6 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [navLabel1, setNavLabel1] = useState("Property Management");
   const [navLabel3, setNavLabel3] = useState("About Us");
@@ -24,11 +23,12 @@ const Navigation = () => {
 
   const handleEvaluationClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (location.pathname === "/") {
-      const element = document.getElementById("property-evaluation");
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
+    // Ask the page rather than the route: the evaluator lives on the landing
+    // page and the property management page, and hard-coding "/" sent anyone
+    // on the latter back to the homepage to reach a section already on screen.
+    const element = document.getElementById("property-evaluation");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
     } else {
       navigate("/#property-evaluation");
     }
