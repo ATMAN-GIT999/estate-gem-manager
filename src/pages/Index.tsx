@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import StaysYouLove from "@/components/StaysYouLove";
 import GuestManagement from "@/components/GuestManagement";
+import OwnAProperty from "@/components/OwnAProperty";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -44,9 +45,9 @@ const IndexContent = () => {
           who is behind it once they have booked. */}
       <GuestManagement />
 
-      {/* TODO: the "Own a Property?" band belongs here — the hand-off from the
-          guest half of the site to the owner half. Until it exists, the header
-          is the only route to /property-management. */}
+      {/* The hand-off from the guest half of the site to the owner half. Its
+          heading promises what the evaluator directly below delivers. */}
+      <OwnAProperty />
 
       <PropertyEvaluator />
       <Footer />
