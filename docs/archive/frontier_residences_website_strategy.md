@@ -1,3 +1,9 @@
+> **ARCHIVIERT — nicht als Bauanweisung lesen.**
+> Verbindlich ist `docs/target-structure.md`. Dieses Dokument erklärt das *Warum*
+> hinter den Entscheidungen und ist dafür weiterhin nützlich, beschreibt aber
+> teilweise den Branch `experiment/one-pager` so, als wäre er der Ist-Zustand
+> (z. B. „Own a Property?" — das existiert auf `main` nicht).
+
 # Frontier Residences — Website Structure & Property Management Strategy
 
 Hi Claude,

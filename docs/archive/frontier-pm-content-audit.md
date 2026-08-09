@@ -1,3 +1,10 @@
+> **ARCHIVIERT — nicht als Bauanweisung lesen.**
+> Verbindlich ist `docs/target-structure.md`. Die Redundanz-Analyse (§2) und die
+> Bewertung der einzelnen Sections (§1) bleiben die Grundlage für Phase 2
+> (inhaltliches Verdichten). Die vorgeschlagene 9-Ebenen-Reihenfolge (§3) wurde
+> durch die Zielstruktur ersetzt; mehrere offene Fragen aus §5 sind inzwischen
+> entschieden und im Protokoll der Zielstruktur festgehalten.
+
 # Frontier — Property-Management-Seite: Content-Audit & neue Informationsarchitektur
 _Strategie-Analyse · kein Code geändert · Stand: 6. Aug 2026_
 
