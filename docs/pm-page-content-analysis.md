@@ -261,7 +261,30 @@ die Technik auf Vertrauen hinnehmen, bevor er einen einzigen Beleg gesehen hat.
 Die Umsetzung zerfällt in zwei sehr verschiedene Arten von Arbeit. Sie zu
 trennen ist wichtig, weil nur die zweite auf Freigaben warten muss.
 
-### 2a — Streichen und Verschmelzen (kein neuer Text nötig)
+### ✅ 2a — Streichen und Verschmelzen — **erledigt**
+
+**Zwei Korrekturen an dieser Analyse, die beim Umsetzen nötig wurden:**
+
+1. **Es durfte nur *eine* der beiden Service-Listen weg, nicht beide.** Seit
+   Guest Management auf die Booking-Seite gewandert ist, ist „Our Services"
+   die einzige Stelle auf der PM-Seite, die einem Eigentümer sagt, dass Gäste
+   24/7 betreut werden, dass Check-ins übernommen werden und dass er Reporting
+   bekommt — die Säulen sagen nichts davon. Gestrichen wurde deshalb
+   „What's Included" aus Business Areas; „Our Services" bleibt vorerst.
+   *In 2b muss die Säulen-Ebene um Gästebetreuung und Reporting ergänzt werden,
+   bevor „Our Services" verschwinden kann.*
+2. **Die Regionen-Empfehlung widersprach sich.** Section 3 sagte „gehören zu
+   Projects", Section 9 sagte „gehören zu Stats" — beides streichen ging nicht.
+   Behalten wurden die Projects-Karten (Beschreibung + Objektzahl), gestrichen
+   die zwei Aufzählungszeilen in Stats.
+
+**Tatsächlich entfernt:** die AI-Driven-Section (52 Zeilen, 6 doppelte
+Fähigkeiten), die Zeile „We don't just manage homes…", die 7er-Liste
+„What's Included", die zwei Regionen-Zeilen in Stats, die Istrien-Karte und
+alle Kroatien-Nennungen auf PM-Seite und About-Seite.
+
+<details>
+<summary>Ursprünglicher Plan für 2a</summary>
 
 Reine Subtraktion. Jede Zeile, die wegfällt, existiert nachweislich woanders.
 Kein Wort muss erfunden, nichts muss freigegeben werden.
@@ -276,12 +299,16 @@ Kein Wort muss erfunden, nichts muss freigegeben werden.
 **Wirkung:** 12 → ca. 9 Sections, die Seite wird deutlich kürzer und
 widerspruchsfrei. Risiko praktisch null, jederzeit per Git rückholbar.
 
-### 2b — Neu schreiben und Umsortieren (braucht Freigabe)
+</details>
 
+### 2b — Neu schreiben und Umsortieren (braucht Freigabe) — **offen**
+
+- **Säulen-Ebene um Gästebetreuung und Reporting ergänzen** — Voraussetzung
+  dafür, dass „Our Services" verschwinden kann (siehe Korrektur 1 oben)
 - Die Finanz-Ebene (neue Ebene 3) muss geschrieben werden
 - Hero + IntroSection zu einer Positionierung verschmelzen
 - Teaser-Ebene für Guaranteed Income / Renovations / Investments
-- Die neue Reihenfolge herstellen
+- Die neue Reihenfolge herstellen (Beweis vor Technologie)
 
 **Empfehlung: 2a zuerst und vollständig.** Danach ist die Seite sauber genug,
 dass man beim Schreiben von 2b tatsächlich sieht, was noch fehlt — statt gegen
@@ -298,9 +325,16 @@ Dubletten anzuschreiben.
 3. **Kontaktweg** — `mailto:` durch Terminbuchung ersetzen.
 4. **Sind die Zahlen aktuell?** 41 Objekte, 1500+ Buchungen, 8 Destinationen,
    50+ Partner — und stimmen die Projekt-Kennzahlen (85 % / +120 % / 4,9) noch?
-5. ~~Kroatien~~ — **entschieden: wird komplett gestrichen.** Offen bleibt nur:
-   Stimmt die Zahl „8 Destinations" dann noch, oder waren kroatische Orte
-   mitgezählt?
+5. ~~Kroatien~~ — **erledigt** auf PM-Seite und About-Seite. Zwei Reste, die
+   eine Entscheidung brauchen:
+   - **Die Investments-Unterseite bietet Kroatien weiter an.** Sie verkauft
+     Kaufgelegenheiten, keine verwalteten Objekte, und formuliert in
+     Zukunftsform („emerging gem with growth potential") — das kann ein echter
+     Zielmarkt sein. Bewusst stehen gelassen.
+   - `admin/Builder.tsx` enthält Kroatien in zwei Seiten-Vorlagen. Reines
+     Admin-Werkzeug, nicht öffentlich sichtbar.
+   - Offen bleibt: Stimmt „8 Destinations" noch, oder waren kroatische Orte
+     mitgezählt?
 6. **Texte sind nicht im CMS änderbar.** `EditableText` schreibt nur in lokalen
    React-State — nach einem Reload ist die Änderung weg. Es gibt keine
    Persistenz-Tabelle. Der einzige Override-Mechanismus (`PageWrapper` → Tabelle
