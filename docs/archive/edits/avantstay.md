@@ -1,8 +1,8 @@
-AvantStay:
+Charakteristiken die AvantStay hat die wir auch übernehmen wollen:
+
 Design wirkt entfernter/übersichtlicher
 weniger rahmen/boxes = professioneller
 
-Section: Its in the Details = Guest Managemnet FR 
 
 Individual Property Page: Professionelles UI/UX
     - Bilder 50% von Seite ( FR aktuell fast 80%)

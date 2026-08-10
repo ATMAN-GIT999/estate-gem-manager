@@ -228,7 +228,64 @@ Beteiligte Komponenten:
 
 ## 5   CTA PM Page
 
-Ein Call to Action mit einem Button muss viel früher kommen auf dieser Seite, da sonst man sich zu sehr durch Informationen durchliest. Was dementsprechend auch bedeutet, dass man sich überlegen muss, welche Art von Call to Action Button man nehmen möchte: ob es ein Kalender-Termin-Buchungslink ist oder zum Kontaktformular. Wobei man ein Kontaktformular eher unten anbringen kann, vor dem Footer, und oben eine Termin-Buchung. Dann auch noch mal schauen, bezüglich der Sections überhalb und drunterhalb, ob man da eventuell im Inhalt etwas austauschen kann oder die chronologische Reihenfolge ändern kann. 
+**Status:** ✅ gebaut · ⚠️ **Migration muss noch angewendet werden**
+
+Ein Call to Action mit einem Button muss viel früher kommen auf dieser Seite, da sonst man sich zu sehr durch Informationen durchliest. Was dementsprechend auch bedeutet, dass man sich überlegen muss, welche Art von Call to Action Button man nehmen möchte: ob es ein Kalender-Termin-Buchungslink ist oder zum Kontaktformular. Wobei man ein Kontaktformular eher unten anbringen kann, vor dem Footer, und oben eine Termin-Buchung. Dann auch noch mal schauen, bezüglich der Sections überhalb und drunterhalb, ob man da eventuell im Inhalt etwas austauschen kann oder die chronologische Reihenfolge ändern kann.
+
+### Ausgangslage
+
+Die **erste Handlungsaufforderung war Section 9 von 10**. Davor acht Sections
+reine Information. Der Hero bestand aus drei gestapelten Textblöcken und hatte
+keinen einzigen Button.
+
+### Umgesetzt
+
+**Hero:** zwei Buttons. Primär „Talk to us about your property" springt zum
+Formular am Seitenende, sekundär „See what it could earn" zur Cashflow-Analyse.
+Zwei, weil Eigentümer in zwei Zuständen ankommen — der entschlossene will eine
+Person, der neugierige gibt seinen Namen noch nicht her und nimmt lieber eine
+Zahl mit.
+
+**Reihenfolge:** Die Cashflow-Analyse ist von Platz 9 auf Platz 6 gerückt,
+direkt hinter Stats und Projects. Sie beantwortet damit genau die Frage, die der
+Beweis darüber gerade ausgelöst hat, und der zweite Hero-Button springt vier
+statt acht Sections weit.
+
+| | vorher | jetzt |
+|---|---|---|
+| 1 | Hero (ohne CTA) | Hero **+ 2 Buttons** |
+| 2–5 | Säulen · Financial · Stats · Projects | unverändert |
+| 6 | Technology | **Cashflow-Analyse** ⬆ |
+| 7–9 | About · Ways · Cashflow | Technology · About · Ways |
+| 10 | Owner CTA (`mailto`) | **Kontaktformular** |
+
+**Formular:** `OwnerContactForm.tsx` ersetzt den `mailto`-CTA. Sechs Felder,
+vier davon Pflicht, schreibt in die vorhandene CRM-Tabelle `contacts` mit
+`source = 'website_owner_form'`.
+
+### Offen
+
+- ⚠️ **`20260810211500_owner_enquiries_public_insert.sql` muss angewendet
+  werden.** `contacts` hatte nur eine Admin-Policy — ohne die neue INSERT-Policy
+  weist RLS jede Einsendung ab. Das Formular fängt das ab und zeigt dann die
+  E-Mail-Adresse, aber der Lead landet nirgends.
+- `OwnerCta.tsx` wird nicht mehr verwendet und kann gelöscht werden.
+- Der Terminbuchungs-Link bleibt offen (siehe unten) — der obere Button springt
+  vorerst zum Formular statt in einen Kalender.
+
+### 🔴 Getrennter Fund: `ConsultationBooking.tsx` speichert nichts
+
+Nicht Teil von Punkt 5, aber beim Suchen aufgefallen und gravierender als die
+CTA-Platzierung.
+
+`handleSubmit` (`:42-67`) prüft Datum und Bilder, zeigt „We'll review your
+property and contact you within 24 hours" — und hört auf. Kein
+`supabase.from(...)`, kein Mailversand, kein Upload der Fotos.
+
+Die Komponente steht auf `/evaluate` unter dem Ergebnis der Cashflow-Analyse
+(`Evaluate.tsx:506`), also am wärmsten Lead, den die Seite überhaupt erzeugt.
+Der Eigentümer lädt Adresse, Telefonnummer und bis zu zehn Fotos hoch, bekommt
+eine Bestätigung, und die Anfrage existiert nirgends.
 
 ## Nicht aus der Notiz, aber offen
 
