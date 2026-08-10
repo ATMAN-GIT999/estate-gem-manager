@@ -16,11 +16,6 @@ import EditableText from "./admin/EditableText";
  * Both cards name the trade-off. An offer with no visible cost reads as either
  * too good to be true or evasive, and the reader here is deciding what to do
  * with an asset worth more than most people's savings.
- *
- * ⚠️ What an owner asks next is not answered anywhere on the site: how the fixed
- * amount is set, how long the lease runs, who carries which costs, whether they
- * can still use the house themselves, and whether they can switch later. Those
- * are commercial terms only the client can supply.
  */
 const WaysToWorkTogether = () => {
   const [eyebrow, setEyebrow] = useState("How we work together");

@@ -256,11 +256,10 @@ Finanz-Ebene). Alles andere ist Auswählen, Verschieben und Streichen.
 
 4. **„Before & After"-Platzhalter bleiben stehen**, bis die Bilder da sind.
 
-## Noch offen
+## Erledigt
 
-- **„Hybrid models"** — steht als Halbsatz auf `/guaranteed-income`
-  („For hybrid models, benefit from our advanced technology…"), ein drittes
-  Modell, das sonst nirgends vorkommt. Entweder benennen oder streichen.
-- Die fünf offenen Fragen zum Guaranteed Income (Höhe des Festbetrags,
-  Vertragsdauer, Kostenträger, Eigennutzung, Wechselmöglichkeit) — die
-  Unterseite kann die Entscheidung ohne sie nicht beantworten.
+- **„Hybrid models"** — gestrichen. Der Halbsatz auf `/guaranteed-income`
+  verwies auf ein drittes Modell, das es nicht gibt.
+- **Die Detailfragen zum Guaranteed Income** (Festbetrag, Vertragsdauer,
+  Kostenträger, Eigennutzung, Wechsel) werden bewusst nicht auf der Website
+  beantwortet — das klärt sich im Gespräch.

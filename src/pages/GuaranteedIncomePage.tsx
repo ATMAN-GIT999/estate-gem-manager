@@ -21,7 +21,6 @@ const GuaranteedIncomePageContent = () => {
     { icon: "ShieldCheck", title: "Zero vacancy risk", description: "No more worrying about empty periods — your income is guaranteed." },
     { icon: "Wrench", title: "Professional upkeep", description: "We maintain your property to the highest standards, protecting its long-term value." },
     { icon: "Paintbrush", title: "Optional interior upgrades", description: "We can invest in design improvements to enhance your property's appeal." },
-    { icon: "Cpu", title: "AI-enhanced pricing & premium guest standards", description: "For hybrid models, benefit from our advanced technology and hospitality expertise." },
   ]);
 
   return (
