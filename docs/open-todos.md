@@ -140,7 +140,7 @@ Haarlinien und Abstand.
 
 ## 4 · Stripe / Buchungsabschluss
 
-**Status:** offen · **Priorität:** zuletzt · ⚠️ **höchstes Risiko**
+**Status:** diagnostiziert, nichts geändert · **Priorität:** zuletzt · ⚠️ **höchstes Risiko**
 
 Aus der Notiz: *„Stripe bzw. Buchungsabschluss Funktion fixen und flüssig
 bekommen."*
@@ -149,6 +149,72 @@ bekommen."*
 / Stripe nicht anfassen". Der Punkt ist inzwischen ausdrücklich freigegeben, wird
 aber als Letztes bearbeitet — hier geht es um echte Zahlungen, nicht um Layout.
 Vor Änderungen am Zahlungsfluss jeweils einzeln rückfragen.
+
+### Befund A — das Zahlungsformular lädt ewig
+
+`guesty-stripe-config` antwortet **HTTP 500: „Stripe publishable key not
+configured"**. Das Secret `GUESTY_STRIPE_PUBLISHABLE_KEY` ist im Supabase-Projekt
+nicht gesetzt.
+
+Die Kette dahinter:
+
+| Schritt | `BookingSummary.tsx` | Folge |
+|---|---|---|
+| Config-Aufruf schlägt fehl | `:161-167` — nur `console.error`, kein Toast | `stripePromise` bleibt `null` |
+| Kartenfeld wird nie gerendert | `:847-861` | „Loading secure payment form…" läuft endlos |
+| `onReady` feuert nie | `:850-854` | `cardReady` bleibt `false` |
+| Button ist dauerhaft deaktiviert | `:875` `disabled={… \|\| !cardReady}` | Klick tut nichts |
+
+Genau das beschriebene Verhalten. **Kein Code-Fehler — ein fehlendes Secret.**
+Zwei getrennte Sachen: Almedin setzt den Key, ich baue die sichtbare
+Fehlermeldung statt des ewigen Spinners.
+
+### Befund B — der Gesamtpreis ist zu niedrig
+
+Live-Quote, Vienna Ottakring, 02.–09.11.2026:
+
+| Guesty-Feld | Wert |
+|---|---|
+| `fareAccommodation` | 1.550,00 € |
+| `fareCleaning` / `totalFees` | 250,00 € |
+| `subTotalPrice` | 1.800,00 € |
+| **`totalTaxes`** (City Tax) | **694,40 €** |
+| **`hostPayout`** = was der Gast zahlt | **2.494,40 €** |
+
+`BookingSummary.tsx:227` nimmt `money.subTotalPrice` als Total → die Seite zeigt
+**1.800 €**, Guesty bucht **2.494,40 €** ab. Die Steuerzeile taucht in der
+Aufschlüsselung überhaupt nicht auf, weil `fees` (`:214`) nur `totalFees` liest.
+
+Richtig wäre `hostPayout` (bzw. `subTotalPrice + totalTaxes`) plus eine eigene
+Zeile „Taxes".
+
+### Befund C — stille Fantasiepreise, wenn Guesty nicht antwortet
+
+`fetchQuote` fängt jeden Fehler ab und rechnet ersatzweise
+`price_per_night × Nächte × 1,1` (`:291-301`). Die 10 % sind erfunden, und
+`price_per_night` ist der eingefrorene Importwert aus Punkt 1. Der Gast sieht
+eine glaubwürdige Zahl ohne jeden Hinweis, dass sie geraten ist — und kann damit
+buchen.
+
+Bei `DATES_NOT_AVAILABLE` (`:271-281`) wird `quote` gar nicht gesetzt, die
+Zusammenfassung rendert dann „€" ohne Zahl.
+
+### Befund D — „from €X" auf den Karten stimmt in beide Richtungen nicht
+
+| Objekt | gespeichert | echte Live-Rate/Nacht |
+|---|---|---|
+| Vienna Ottakring | 340 € | **221 €** |
+| Oaks&Thistle Calahonda | 65 € | **90 €** |
+
+„from" behauptet eine Untergrenze, die keine ist. Das ist derselbe Defekt wie
+Punkt 1 und wird erst durch den nächtlichen Cache-Job wirklich gelöst.
+
+### Was in Ordnung ist
+
+`guesty-booking-auth` (Token-Cache greift) · `guesty-get-quote` liefert saubere
+Quotes mit `_id` und `ratePlanId` · `guesty-create-reservation` mit
+Fehlerübersetzung und Inquiry-Fallback · `guesty-webhook` inkl. Signaturprüfung
+und Cache-Invalidierung.
 
 Beteiligte Funktionen:
 `guesty-booking-auth` · `guesty-create-reservation` · `guesty-get-quote` ·
@@ -159,6 +225,10 @@ Beteiligte Komponenten:
 · `pages/Book.tsx` · `pages/BookingConfirmation.tsx`
 
 ---
+
+## 5   CTA PM Page
+
+Ein Call to Action mit einem Button muss viel früher kommen auf dieser Seite, da sonst man sich zu sehr durch Informationen durchliest. Was dementsprechend auch bedeutet, dass man sich überlegen muss, welche Art von Call to Action Button man nehmen möchte: ob es ein Kalender-Termin-Buchungslink ist oder zum Kontaktformular. Wobei man ein Kontaktformular eher unten anbringen kann, vor dem Footer, und oben eine Termin-Buchung. Dann auch noch mal schauen, bezüglich der Sections überhalb und drunterhalb, ob man da eventuell im Inhalt etwas austauschen kann oder die chronologische Reihenfolge ändern kann. 
 
 ## Nicht aus der Notiz, aber offen
 
