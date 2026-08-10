@@ -2,7 +2,7 @@ import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
-import { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck, Cpu, Check } from "lucide-react";
+import { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
 import IntroSection from "@/components/IntroSection";
@@ -19,10 +19,6 @@ const PropertyManagementPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Bespoke Property Management");
   const [pageSubtitle, setPageSubtitle] = useState("We deliver a personalised management plan for every property — combining hotel-level hospitality with advanced AI-driven systems to maximise revenue, elevate guest satisfaction, and protect the long-term value of your home.");
   const [servicesTitle, setServicesTitle] = useState("Our Services");
-  const [aiTitle, setAiTitle] = useState("AI-Driven Hospitality & Operations");
-  const [aiSubtitle, setAiSubtitle] = useState("Frontier Residences uses state-of-the-art technology to deliver consistent, precise performance.");
-  const [systemsTitle, setSystemsTitle] = useState("Our systems use:");
-  const [ensuresTitle, setEnsuresTitle] = useState("This ensures:");
 
   const iconMap: Record<string, any> = { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck };
 
@@ -36,23 +32,6 @@ const PropertyManagementPageContent = () => {
     { icon: "Wrench", text: "Preventive maintenance & inspections" },
     { icon: "LayoutDashboard", text: "Owner portal with real-time reporting" },
     { icon: "FileCheck", text: "Legal traveller registration & compliance" },
-  ]);
-
-  const [aiFeatures, setAiFeatures] = useState([
-    "Real-time Airbnb & hotel price analysis",
-    "Automated rate adjustments (multiple times daily)",
-    "AI-supported guest messaging in all languages",
-    "Predictive maintenance alerts",
-    "Smart cleaning and task automation",
-    "Algorithm-based reviews and feedback management",
-  ]);
-
-  const [benefits, setBenefits] = useState([
-    "Higher occupancy",
-    "Better nightly rates",
-    "Faster responses",
-    "Zero operational gaps",
-    "Increased long-term value",
   ]);
 
   return (
@@ -102,58 +81,6 @@ const PropertyManagementPageContent = () => {
                     </Card>
                   );
                 })}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 bg-primary text-primary-foreground">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-accent/20 rounded-full mb-6">
-                  <Cpu className="w-8 h-8 text-accent-on-primary" />
-                </div>
-                <EditableText id="pmp-ai-title" value={aiTitle} onChange={setAiTitle} as="h2" className="font-playfair text-3xl md:text-4xl font-bold mb-6">{aiTitle}</EditableText>
-                <EditableText id="pmp-ai-subtitle" value={aiSubtitle} onChange={setAiSubtitle} as="p" className="text-lg text-primary-foreground/80 max-w-3xl mx-auto">{aiSubtitle}</EditableText>
-              </div>
-
-              <div className="grid lg:grid-cols-2 gap-12 mt-12">
-                <div>
-                  <EditableText id="pmp-systems-title" value={systemsTitle} onChange={setSystemsTitle} as="h3" className="text-xl font-semibold mb-6 text-accent-on-primary">{systemsTitle}</EditableText>
-                  <ul className="space-y-4">
-                    {aiFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <span className="text-accent-on-primary mt-1">•</span>
-                        <EditableText
-                          id={`pmp-ai-feature-${index}`}
-                          value={feature}
-                          onChange={(v) => { const u = [...aiFeatures]; u[index] = v; setAiFeatures(u); }}
-                          as="span"
-                          className="text-primary-foreground/90"
-                        >{feature}</EditableText>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <EditableText id="pmp-ensures-title" value={ensuresTitle} onChange={setEnsuresTitle} as="h3" className="text-xl font-semibold mb-6 text-accent-on-primary">{ensuresTitle}</EditableText>
-                  <ul className="space-y-4">
-                    {benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-center gap-3">
-                        <Check className="w-5 h-5 text-accent-on-primary shrink-0" />
-                        <EditableText
-                          id={`pmp-benefit-${index}`}
-                          value={benefit}
-                          onChange={(v) => { const u = [...benefits]; u[index] = v; setBenefits(u); }}
-                          as="span"
-                          className="text-primary-foreground/90"
-                        >{benefit}</EditableText>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               </div>
             </div>
           </div>

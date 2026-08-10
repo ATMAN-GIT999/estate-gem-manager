@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Cpu, TrendingUp, Globe, MessageSquare, Wrench, LayoutDashboard, Zap } from "lucide-react";
+import { Cpu, TrendingUp, Globe, MessageSquare, Wrench, LayoutDashboard, Zap, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import EditableText from "./admin/EditableText";
 
@@ -8,8 +8,19 @@ const TechnologySection = () => {
   const [description, setDescription] = useState(
     "Frontier Residences operates with a fully integrated 360º software ecosystem connecting reservations, cleaning, maintenance, pricing, guest communications, and owner reporting into one seamless platform."
   );
-  const [tagline, setTagline] = useState("We don't just manage homes — we engineer high-performance assets.");
   const [aiHeading, setAiHeading] = useState("Our advanced AI ensures:");
+  const [outcomesHeading, setOutcomesHeading] = useState("This ensures:");
+
+  // Moved here from the page's separate AI section, which listed the same six
+  // capabilities as `features` above and then these outcomes. The capabilities
+  // were the duplicate; the outcomes were the only part that was not.
+  const [outcomes, setOutcomes] = useState([
+    "Higher occupancy",
+    "Better nightly rates",
+    "Faster responses",
+    "Zero operational gaps",
+    "Increased long-term value",
+  ]);
 
   const [features, setFeatures] = useState([
     { icon: "TrendingUp", text: "Higher ROI through real-time dynamic pricing" },
@@ -65,8 +76,25 @@ const TechnologySection = () => {
             </div>
           </div>
 
-          <div className="mt-12 text-center">
-            <EditableText id="tech-tagline" value={tagline} onChange={setTagline} as="p" className="font-playfair text-2xl italic text-primary-foreground">{tagline}</EditableText>
+          {/* What the capabilities above are for. Replaces the tagline that used
+              to close this section ("we engineer high-performance assets"),
+              which asserted a great deal and said nothing. */}
+          <div className="mt-14">
+            <EditableText id="tech-outcomes-heading" value={outcomesHeading} onChange={setOutcomesHeading} as="h3" className="text-xl font-semibold text-center mb-8 text-primary-foreground">{outcomesHeading}</EditableText>
+            <ul className="flex flex-wrap justify-center gap-x-8 gap-y-4">
+              {outcomes.map((outcome, index) => (
+                <li key={index} className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-accent-on-primary shrink-0" />
+                  <EditableText
+                    id={`tech-outcome-${index}`}
+                    value={outcome}
+                    onChange={(v) => { const u = [...outcomes]; u[index] = v; setOutcomes(u); }}
+                    as="span"
+                    className="text-primary-foreground/90"
+                  >{outcome}</EditableText>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
