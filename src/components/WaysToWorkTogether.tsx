@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Percent, Wallet } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import EditableText from "./admin/EditableText";
 
 /**
@@ -85,8 +84,8 @@ const WaysToWorkTogether = () => {
           {models.map((model, index) => {
             const Icon = iconMap[model.icon] || Percent;
             return (
-              <Card key={index} className="p-8 bg-card border-border shadow-elegant flex flex-col">
-                <Icon className="w-10 h-10 text-accent-strong mb-5" />
+              <div key={index} className="border-t-2 border-accent-strong/30 pt-8 flex flex-col">
+                <Icon className="w-7 h-7 text-accent-strong mb-5" strokeWidth={1.5} />
                 <EditableText
                   id={`ways-model-name-${index}`}
                   value={model.name}
@@ -125,7 +124,7 @@ const WaysToWorkTogether = () => {
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 )}
-              </Card>
+              </div>
             );
           })}
         </div>
@@ -145,7 +144,7 @@ const WaysToWorkTogether = () => {
               <Link
                 key={index}
                 to={item.href}
-                className="group block p-6 rounded-lg border border-border bg-card/60 hover:bg-card hover:shadow-elegant transition-all"
+                className="group block border-t border-primary/15 pt-6"
               >
                 <div className="flex items-center justify-between gap-4 mb-2">
                   <EditableText
