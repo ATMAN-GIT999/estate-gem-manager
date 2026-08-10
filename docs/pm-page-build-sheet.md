@@ -1,5 +1,22 @@
 # PM-Seite — Bauliste für Phase 2b
 
+> **Status: umgesetzt.** Die Seite hat jetzt diese Struktur:
+>
+> | # | Ebene | Komponente |
+> |---|---|---|
+> | 1 | Positioning | Hero in `PropertyManagementPage.tsx` |
+> | 2 | Was wir übernehmen | `PropertyManagement.tsx` — **3 Säulen** |
+> | 3 | Was es bringt | `FinancialPerformance.tsx` — **neu** |
+> | 4 | Beweis | `Stats.tsx` + `ProjectsSection.tsx` |
+> | 5 | Technologie | `TechnologySection.tsx` — auf 4 Punkte reduziert |
+> | 6 | Wer dahintersteht | `AboutMini.tsx` |
+> | 7 | Zwei Wege + darüber hinaus | `WaysToWorkTogether.tsx` — **neu** |
+> | 8 | Rechnen und sprechen | `PropertyEvaluator.tsx` + `OwnerCta.tsx` |
+>
+> Von 12 Sections auf 9 Blöcke, gelöscht: „Our Services", die zweite
+> Technologie-Liste, drei Positionierungs-Dopplungen, der Business-Areas-Wrapper.
+> `BusinessAreas.tsx` selbst bleibt unangetastet — `/business-areas` nutzt es weiter.
+
 Die Zielstruktur aus `pm-page-content-analysis.md`, aber **mit dem vorhandenen
 Text darunter**. Pro Ebene steht hier, was wir schon haben, wo es aktuell liegt,
 und was fehlt.
@@ -213,11 +230,37 @@ Finanz-Ebene). Alles andere ist Auswählen, Verschieben und Streichen.
 
 ## Offene Entscheidungen vor dem Bauen
 
-1. **Guaranteed Income — Ebene 3 oder Ebene 7?** Es ist ein Finanzmodell, kein
-   Zusatzservice. Auf Ebene 3 wäre es stärker, auf Ebene 7 unauffälliger.
-2. **Welcher Positionierungssatz führt?** „deserves more than management" (emotional)
-   oder „precision, discretion, hospitality of a boutique hotel" (konkret)?
-3. **Bleibt die Dach-Überschrift „Short-Term Rental Management"?** Sie beschreibt
-   die Betriebsart, nicht den Nutzen. „We manage while you relax" ist der stärkere
-   Halbsatz.
-4. **„Before & After"-Platzhalter** — Bilder abwarten oder Block vorerst entfernen?
+1. **Guaranteed Income** wird zu **„Two ways to work with us"** — ein Block, der
+   beide Geschäftsmodelle nebeneinanderstellt, statt eines „Programms" mit
+   „Included"-Badge. Liegt auf **Ebene 7**, direkt vor dem Abschluss: Der Leser
+   hat dann alles gesehen und entscheidet, *wie* er zusammenarbeiten will.
+   Formulierung darf später noch nachgeschärft werden.
+
+   > **Full-service management** — We run the property and you earn what it
+   > earns. Your income moves with the season, the market and how well the home
+   > performs.
+   >
+   > **Guaranteed Income** — We lease the property from you and pay a fixed
+   > amount every month, booked or not. You trade the strong months for
+   > certainty in the weak ones.
+
+   Wichtig: Der Satz benennt den **Tausch**. Ein Angebot ohne erkennbaren Haken
+   wirkt bei einer Millionen-Immobilie entweder zu schön oder ausweichend.
+
+2. **Positionierung führt mit** „Your home deserves more than management — it
+   deserves care, strategy, and master craftsmanship." Der Boutique-Hotel-Satz
+   folgt als zweiter Satz. Die drei übrigen Varianten entfallen.
+
+3. **Dach-Überschrift ist** „We manage while you relax." · „Short-Term Rental
+   Management" rutscht darunter als kleine Überschrift des Inhaltsblocks.
+
+4. **„Before & After"-Platzhalter bleiben stehen**, bis die Bilder da sind.
+
+## Noch offen
+
+- **„Hybrid models"** — steht als Halbsatz auf `/guaranteed-income`
+  („For hybrid models, benefit from our advanced technology…"), ein drittes
+  Modell, das sonst nirgends vorkommt. Entweder benennen oder streichen.
+- Die fünf offenen Fragen zum Guaranteed Income (Höhe des Festbetrags,
+  Vertragsdauer, Kostenträger, Eigennutzung, Wechselmöglichkeit) — die
+  Unterseite kann die Entscheidung ohne sie nicht beantworten.
