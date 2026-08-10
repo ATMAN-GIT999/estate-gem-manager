@@ -1,7 +1,7 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
-import StaysYouLove from "@/components/StaysYouLove";
+import PropertyCollections from "@/components/PropertyCollections";
 import GuestManagement from "@/components/GuestManagement";
 import OwnAProperty from "@/components/OwnAProperty";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
@@ -39,15 +39,16 @@ const IndexContent = () => {
       <Navigation />
       <Hero />
 
-      <StaysYouLove />
+      <PropertyCollections />
 
-      {/* Directly after the homes: a guest who has just picked one wants to know
-          who is behind it once they have booked. */}
-      <GuestManagement />
-
-      {/* The hand-off from the guest half of the site to the owner half. Its
-          heading promises what the evaluator directly below delivers. */}
+      {/* The hand-off to the owner half, placed while the homes are still on
+          screen: "own a property?" lands hardest right after someone has just
+          scrolled past what Frontier does with other people's. */}
       <OwnAProperty />
+
+      {/* Then back to the guest: having seen the homes, what the stay is
+          actually like. */}
+      <GuestManagement />
 
       <PropertyEvaluator />
       <Footer />
