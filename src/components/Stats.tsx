@@ -4,8 +4,6 @@ import EditableText from "./admin/EditableText";
 
 const Stats = () => {
   const [sectionTitle, setSectionTitle] = useState("A Portfolio Built on Precision & Performance");
-  const [locations, setLocations] = useState("Spain • Austria • Croatia");
-  const [regions, setRegions] = useState("Costa del Sol • Vienna & Carinthia • Istria");
 
   const stats = [
     { number: "41", label: "Properties Managed" },
@@ -47,24 +45,9 @@ const Stats = () => {
           >
             {sectionTitle}
           </EditableText>
-          <EditableText
-            id="stats-locations"
-            value={locations}
-            onChange={setLocations}
-            as="p"
-            className="text-lg text-foreground/70"
-          >
-            {locations}
-          </EditableText>
-          <EditableText
-            id="stats-regions"
-            value={regions}
-            onChange={setRegions}
-            as="p"
-            className="text-muted-foreground"
-          >
-            {regions}
-          </EditableText>
+          {/* The two region lines that used to sit here — "Spain • Austria •
+              Croatia" and its sub-regions — are covered in more detail by
+              "Our Destinations" in the Projects section. */}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {stats.map((stat, index) => (

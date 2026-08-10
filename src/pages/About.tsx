@@ -16,7 +16,7 @@ const AboutContent = () => {
   const [missionText, setMissionText] = useState("Transform property ownership into effortless elegance through bespoke management. We combine international hospitality standards with local expertise to maximize your property's potential while ensuring exceptional guest experiences.");
   const [storyTitle, setStoryTitle] = useState("Our Story");
   const [storyText1, setStoryText1] = useState("Founded with a passion for luxury hospitality and real estate, Frontier Residences emerged from the recognition that property owners deserve more than standard management services. We saw an opportunity to bridge the gap between traditional property management and the personalized, high-touch service that discerning owners and guests expect.");
-  const [storyText2, setStoryText2] = useState("Today, we manage a curated portfolio of exceptional properties across Spain's Costa del Sol, Austria's Alpine regions, and Croatia's stunning coastline. Each property in our collection is treated with the same care and attention as if it were our own.");
+  const [storyText2, setStoryText2] = useState("Today, we manage a curated portfolio of exceptional properties across Spain's Costa del Sol and Austria's Alpine regions. Each property in our collection is treated with the same care and attention as if it were our own.");
   const [whyChooseTitle, setWhyChooseTitle] = useState("Why Choose Us");
   const [teamTitle, setTeamTitle] = useState("Meet the Team");
   const [teamSubtitle, setTeamSubtitle] = useState("Our diverse team brings together expertise in hospitality, real estate, technology, and business development.");
@@ -24,7 +24,7 @@ const AboutContent = () => {
 
   const [whyChooseItems, setWhyChooseItems] = useState([
     "Tailored management plans for each property",
-    "International presence across Spain, Austria, and Croatia",
+    "International presence across Spain and Austria",
     "Transparent communication and detailed owner reporting",
     "End-to-end services from renovation to rental management",
     "Hotel-level hospitality with real estate expertise",

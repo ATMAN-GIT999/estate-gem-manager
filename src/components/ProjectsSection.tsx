@@ -22,7 +22,6 @@ const ProjectsSection = ({ headingAs = "h2" }: { headingAs?: "h1" | "h2" }) => {
   const [regions, setRegions] = useState([
     { name: "Spain", subtitle: "Costa del Sol", description: "Luxury villas and apartments in Marbella, Málaga, and surrounding areas", projects: "20+ premium properties under management", icon: "🇪🇸" },
     { name: "Austria", subtitle: "Vienna & Carinthia", description: "Urban elegance and Alpine retreats with exceptional rental yields", projects: "Cosmopolitan apartments and leisure properties", icon: "🇦🇹" },
-    { name: "Croatia", subtitle: "Istria", description: "Mediterranean charm meets modern luxury in this emerging destination", projects: "Traditional homes transformed into premium rentals", icon: "🇭🇷" },
   ]);
 
   const [featuredProjects, setFeaturedProjects] = useState([
@@ -75,7 +74,7 @@ const ProjectsSection = ({ headingAs = "h2" }: { headingAs?: "h1" | "h2" }) => {
         {/* Regions */}
         <div className="max-w-6xl mx-auto mb-20">
           <EditableText id="projects-destinations-title" value={destinationsTitle} onChange={setDestinationsTitle} as="h3" className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">{destinationsTitle}</EditableText>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {regions.map((region, index) => (
               <Card key={index} className="shadow-elegant hover:shadow-gold transition-all hover:scale-105 duration-300 overflow-hidden">
                 <CardHeader className="bg-gradient-hero">
