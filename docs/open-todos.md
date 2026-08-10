@@ -90,7 +90,29 @@ Verlinkungen gehen tief, da ist zu prüfen, was leicht übertragbar ist.
 
 ## 3 · Weniger Rahmen und Boxen (ganze Website)
 
-**Status:** angefangen · **Priorität:** mittel
+**Status:** ✅ erledigt · **Priorität:** mittel
+
+**Das durchgehende Muster:** Haarlinie oben, Abstand darunter, Icon mit
+`strokeWidth={1.5}` in `accent-strong` — statt gefüllter Karte mit Rahmen und
+Hover-Schatten. Sektionsabstände von `py-20` auf `py-24/28`.
+
+| Section | Was weg ist |
+|---|---|
+| `PropertyManagement.tsx` | zwei grüne Panels mit je vier Kästchen darin |
+| `Stats.tsx` | vier gehobene Karten mit Hover-Skalierung; Beige-Verlauf → Seitenhintergrund |
+| `OwnAProperty.tsx` | dieselben vier Karten |
+| `FinancialPerformance.tsx` | drei Karten |
+| `TechnologySection.tsx` | vier durchscheinende Panels, jedes mit Kachel hinter dem Icon, auf grüner Fläche |
+| `ProjectsSection.tsx` | tiefste Verschachtelung: Karte → getöntes Kennzahlen-Panel; Regionen-Karten mit eigenem Header |
+| `WaysToWorkTogether.tsx` | zwei Modell-Karten, zwei Teaser-Kästen |
+| `PropertyCard.tsx` | Rahmen um das Foto |
+
+**Bewusst behalten:** der Platzhalter „Before & After" (eine leere Fläche ohne
+Begrenzung liest sich als Layoutfehler) und die Formular-Karte im
+`PropertyEvaluator` — ein Eingabeformular profitiert von einem Container.
+
+<details>
+<summary>Ausgangslage</summary>
 
 Leitsatz aus der Notiz: *„Design wirkt entfernter/übersichtlicher — weniger
 Rahmen/Boxes = professioneller."*
@@ -111,6 +133,8 @@ Haarlinien und Abstand.
 | Own a Property? | `OwnAProperty.tsx` |
 | Cashflow-Rechner | `PropertyEvaluator.tsx` |
 | Property-Karten | `PropertyCard.tsx` |
+
+</details>
 
 ---
 
