@@ -18,6 +18,8 @@ export interface Property {
   price_per_night: number;
   featured: boolean;
   type: string;
+  /** Present when rates come from Guesty and move with dates. */
+  guesty_listing_id?: string | null;
   images?: Array<{ url: string; caption?: string }>;
 }
 
@@ -100,8 +102,18 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </div>
           </div>
 
+          {/* `price_per_night` is the base rate Guesty held when the property
+              was imported, not today's price — every listing here prices
+              dynamically, so the stored figure is an indication and is labelled
+              as one. The detail page already says "Live pricing" rather than a
+              number; the cards were the only place still presenting a frozen
+              snapshot as the rate. A cached lowest live rate would let this show
+              a real number again. */}
           <div className="flex items-center justify-between border-t border-border pt-4">
             <div>
+              {property.guesty_listing_id && (
+                <span className="text-muted-foreground text-sm">from </span>
+              )}
               <span className="text-2xl font-bold text-primary">€{property.price_per_night}</span>
               <span className="text-muted-foreground text-sm"> / night</span>
             </div>
