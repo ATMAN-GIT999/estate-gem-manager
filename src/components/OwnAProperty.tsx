@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
 
@@ -67,18 +66,17 @@ const OwnAProperty = () => {
           </EditableText>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto mb-12">
+        {/* Same treatment as the Portfolio numbers: a hairline and space
+            instead of a raised panel. */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-10 gap-y-10 max-w-5xl mx-auto mb-14">
           {stats.map((stat, index) => (
-            <Card
-              key={index}
-              className="p-8 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-all duration-300 hover:scale-105"
-            >
+            <div key={index} className="border-t border-primary/15 pt-6">
               <EditableText
                 id={`oap-stat-number-${index}`}
                 value={stat.number}
                 onChange={(v) => updateStat(index, "number", v)}
                 as="p"
-                className="font-playfair text-4xl md:text-5xl font-bold text-accent-strong mb-2"
+                className="font-playfair text-4xl md:text-5xl font-bold text-accent-strong mb-3 tabular-nums"
               >
                 {stat.number}
               </EditableText>
@@ -87,11 +85,11 @@ const OwnAProperty = () => {
                 value={stat.label}
                 onChange={(v) => updateStat(index, "label", v)}
                 as="p"
-                className="text-foreground/70 font-medium"
+                className="text-sm uppercase tracking-widest text-foreground/60"
               >
                 {stat.label}
               </EditableText>
-            </Card>
+            </div>
           ))}
         </div>
 

@@ -1,7 +1,14 @@
-import { Card } from "@/components/ui/card";
 import { useEffect, useRef, useState } from "react";
 import EditableText from "./admin/EditableText";
 
+/**
+ * Four numbers, no cards.
+ *
+ * They were in raised, bordered, hover-scaling panels, which made four facts
+ * look like four buttons. A number this large needs no container to be found —
+ * a hairline above each and space between is enough, and it lets the numbers
+ * sit at the same weight as the rest of the page instead of floating over it.
+ */
 const Stats = () => {
   const [sectionTitle, setSectionTitle] = useState("A Portfolio Built on Precision & Performance");
 
@@ -33,25 +40,22 @@ const Stats = () => {
   }, [hasAnimated]);
 
   return (
-    <section ref={sectionRef} className="py-20 bg-gradient-hero">
+    <section ref={sectionRef} className="py-24 md:py-28 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <div className="max-w-3xl mx-auto text-center mb-16">
           <EditableText
             id="stats-title"
             value={sectionTitle}
             onChange={setSectionTitle}
             as="h2"
-            className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4"
+            className="font-playfair text-4xl md:text-5xl font-bold text-primary text-balance"
           >
             {sectionTitle}
           </EditableText>
-          {/* The two region lines that used to sit here — "Spain • Austria •
-              Croatia" and its sub-regions — are covered in more detail by
-              "Our Destinations" in the Projects section. */}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-12 max-w-5xl mx-auto">
           {stats.map((stat, index) => (
-            <AnimatedStatCard
+            <AnimatedStat
               key={index}
               stat={stat}
               index={index}
@@ -64,7 +68,7 @@ const Stats = () => {
   );
 };
 
-const AnimatedStatCard = ({ stat, index, hasAnimated }: { stat: { number: string; label: string }; index: number; hasAnimated: boolean }) => {
+const AnimatedStat = ({ stat, index, hasAnimated }: { stat: { number: string; label: string }; index: number; hasAnimated: boolean }) => {
   const [displayNumber, setDisplayNumber] = useState("0");
 
   useEffect(() => {
@@ -94,12 +98,12 @@ const AnimatedStatCard = ({ stat, index, hasAnimated }: { stat: { number: string
   }, [hasAnimated, stat.number, index]);
 
   return (
-    <Card className="p-8 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-all duration-300 hover:scale-105">
-      <div className="font-playfair text-4xl md:text-5xl font-bold text-accent-strong mb-2">
+    <div className="border-t border-primary/15 pt-6">
+      <div className="font-playfair text-5xl md:text-6xl font-bold text-accent-strong mb-3 tabular-nums">
         {displayNumber}
       </div>
-      <div className="text-foreground/70 font-medium">{stat.label}</div>
-    </Card>
+      <div className="text-sm uppercase tracking-widest text-foreground/60">{stat.label}</div>
+    </div>
   );
 };
 
