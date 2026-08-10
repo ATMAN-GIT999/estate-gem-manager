@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, TrendingUp, Home, Star } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
@@ -74,23 +73,15 @@ const ProjectsSection = ({ headingAs = "h2" }: { headingAs?: "h1" | "h2" }) => {
         {/* Regions */}
         <div className="max-w-6xl mx-auto mb-20">
           <EditableText id="projects-destinations-title" value={destinationsTitle} onChange={setDestinationsTitle} as="h3" className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">{destinationsTitle}</EditableText>
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-x-12 gap-y-10 max-w-4xl mx-auto">
             {regions.map((region, index) => (
-              <Card key={index} className="shadow-elegant hover:shadow-gold transition-all hover:scale-105 duration-300 overflow-hidden">
-                <CardHeader className="bg-gradient-hero">
-                  <div className="text-4xl mb-2">{region.icon}</div>
-                  <CardTitle className="font-playfair text-2xl text-primary">
-                    <EditableText id={`proj-region-name-${index}`} value={region.name} onChange={(v) => updateRegion(index, "name", v)} as="span">{region.name}</EditableText>
-                  </CardTitle>
-                  <CardDescription className="text-lg font-medium text-accent-strong">
-                    <EditableText id={`proj-region-sub-${index}`} value={region.subtitle} onChange={(v) => updateRegion(index, "subtitle", v)} as="span">{region.subtitle}</EditableText>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <EditableText id={`proj-region-desc-${index}`} value={region.description} onChange={(v) => updateRegion(index, "description", v)} as="p" className="text-foreground/80 mb-4">{region.description}</EditableText>
-                  <EditableText id={`proj-region-proj-${index}`} value={region.projects} onChange={(v) => updateRegion(index, "projects", v)} as="p" className="text-sm text-muted-foreground">{region.projects}</EditableText>
-                </CardContent>
-              </Card>
+              <div key={index} className="border-t border-primary/15 pt-6">
+                <div className="text-3xl mb-4">{region.icon}</div>
+                <EditableText id={`proj-region-name-${index}`} value={region.name} onChange={(v) => updateRegion(index, "name", v)} as="h4" className="font-playfair text-2xl font-bold text-primary">{region.name}</EditableText>
+                <EditableText id={`proj-region-sub-${index}`} value={region.subtitle} onChange={(v) => updateRegion(index, "subtitle", v)} as="p" className="text-sm uppercase tracking-widest text-accent-strong mt-1 mb-3">{region.subtitle}</EditableText>
+                <EditableText id={`proj-region-desc-${index}`} value={region.description} onChange={(v) => updateRegion(index, "description", v)} as="p" className="text-foreground/70 leading-relaxed mb-2">{region.description}</EditableText>
+                <EditableText id={`proj-region-proj-${index}`} value={region.projects} onChange={(v) => updateRegion(index, "projects", v)} as="p" className="text-sm text-muted-foreground">{region.projects}</EditableText>
+              </div>
             ))}
           </div>
         </div>
@@ -98,75 +89,71 @@ const ProjectsSection = ({ headingAs = "h2" }: { headingAs?: "h1" | "h2" }) => {
         {/* Featured Projects */}
         <div className="max-w-6xl mx-auto">
           <EditableText id="projects-transformations-title" value={transformationsTitle} onChange={setTransformationsTitle} as="h3" className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">{transformationsTitle}</EditableText>
-          <div className="space-y-12">
+          {/* No card, no nested stat panel. Each project is a row divided from
+              the next by a rule; the numbers sit inline under the description
+              rather than in a tinted box inside a bordered card. */}
+          <div className="space-y-20">
             {featuredProjects.map((project, index) => (
-              <Card key={index} className="shadow-elegant border-accent/20 overflow-hidden">
-                <div className="grid lg:grid-cols-2 gap-0">
-                  <div className="bg-gradient-hero p-8 flex items-center justify-center min-h-[300px]">
-                    <div className="text-center">
-                      <Home className="w-16 h-16 text-accent-strong mx-auto mb-4" />
-                      <p className="text-muted-foreground">Before &amp; After Photos</p>
-                      <p className="text-sm text-muted-foreground/70">Coming Soon</p>
-                    </div>
-                  </div>
-                  <div className="p-8">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <EditableText id={`proj-fp-title-${index}`} value={project.title} onChange={(v) => updateProject(index, "title", v)} as="h4" className="font-playfair text-2xl font-bold text-primary mb-2">{project.title}</EditableText>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <MapPin className="w-4 h-4" />
-                          <EditableText id={`proj-fp-loc-${index}`} value={project.location} onChange={(v) => updateProject(index, "location", v)} as="span">{project.location}</EditableText>
-                        </div>
-                      </div>
-                      <Badge className="bg-accent text-accent-foreground">
-                        <EditableText id={`proj-fp-type-${index}`} value={project.type} onChange={(v) => updateProject(index, "type", v)} as="span">{project.type}</EditableText>
-                      </Badge>
-                    </div>
-                    <EditableText id={`proj-fp-desc-${index}`} value={project.description} onChange={(v) => updateProject(index, "description", v)} as="p" multiline className="text-foreground/80 leading-relaxed mb-6">{project.description}</EditableText>
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-secondary/30 rounded-lg">
-                      <div className="text-center">
-                        <div className="flex items-center justify-center gap-1 text-accent-strong font-bold text-xl">
-                          <TrendingUp className="w-4 h-4" />
-                          <EditableText id={`proj-fp-occ-${index}`} value={project.stats.occupancy} onChange={(v) => updateStat(index, "occupancy", v)} as="span">{project.stats.occupancy}</EditableText>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Occupancy</p>
-                      </div>
-                      <div className="text-center">
-                        <EditableText id={`proj-fp-rev-${index}`} value={project.stats.revenue} onChange={(v) => updateStat(index, "revenue", v)} as="span" className="text-accent-strong font-bold text-xl">{project.stats.revenue}</EditableText>
-                        <p className="text-xs text-muted-foreground">Revenue</p>
-                      </div>
-                      <div className="text-center">
-                        <div className="flex items-center justify-center gap-1 text-accent-strong font-bold text-xl">
-                          <Star className="w-4 h-4" />
-                          <EditableText id={`proj-fp-rating-${index}`} value={project.stats.rating} onChange={(v) => updateStat(index, "rating", v)} as="span">{project.stats.rating}</EditableText>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Rating</p>
-                      </div>
-                    </div>
-
-                    {/* Highlights */}
-                    <div>
-                      <h5 className="font-semibold text-primary mb-3">Key Highlights:</h5>
-                      <div className="grid grid-cols-2 gap-2">
-                        {project.highlights.map((highlight, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-accent rounded-full"></div>
-                            <EditableText
-                              id={`proj-fp-hl-${index}-${idx}`}
-                              value={highlight}
-                              onChange={(v) => updateHighlight(index, idx, v)}
-                              as="p"
-                              className="text-sm text-foreground/80"
-                            >{highlight}</EditableText>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+              <div key={index} className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start border-t border-primary/15 pt-10">
+                <div className="bg-muted/40 rounded-2xl aspect-[4/3] flex items-center justify-center">
+                  <div className="text-center">
+                    <Home className="w-12 h-12 text-accent-strong/60 mx-auto mb-4" strokeWidth={1.5} />
+                    <p className="text-muted-foreground text-sm">Before &amp; After Photos</p>
+                    <p className="text-sm text-muted-foreground/70">Coming Soon</p>
                   </div>
                 </div>
-              </Card>
+
+                <div>
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <EditableText id={`proj-fp-title-${index}`} value={project.title} onChange={(v) => updateProject(index, "title", v)} as="h4" className="font-playfair text-3xl font-bold text-primary">{project.title}</EditableText>
+                    <Badge variant="outline" className="border-accent-strong/40 text-accent-strong shrink-0">
+                      <EditableText id={`proj-fp-type-${index}`} value={project.type} onChange={(v) => updateProject(index, "type", v)} as="span">{project.type}</EditableText>
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground mb-5">
+                    <MapPin className="w-4 h-4" strokeWidth={1.5} />
+                    <EditableText id={`proj-fp-loc-${index}`} value={project.location} onChange={(v) => updateProject(index, "location", v)} as="span" className="text-sm">{project.location}</EditableText>
+                  </div>
+
+                  <EditableText id={`proj-fp-desc-${index}`} value={project.description} onChange={(v) => updateProject(index, "description", v)} as="p" multiline className="text-foreground/70 leading-relaxed mb-8">{project.description}</EditableText>
+
+                  <div className="flex flex-wrap gap-x-12 gap-y-5 mb-8">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-accent-strong font-playfair text-2xl font-bold">
+                        <TrendingUp className="w-4 h-4" strokeWidth={2} />
+                        <EditableText id={`proj-fp-occ-${index}`} value={project.stats.occupancy} onChange={(v) => updateStat(index, "occupancy", v)} as="span">{project.stats.occupancy}</EditableText>
+                      </div>
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">Occupancy</p>
+                    </div>
+                    <div>
+                      <EditableText id={`proj-fp-rev-${index}`} value={project.stats.revenue} onChange={(v) => updateStat(index, "revenue", v)} as="p" className="text-accent-strong font-playfair text-2xl font-bold">{project.stats.revenue}</EditableText>
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">Revenue</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 text-accent-strong font-playfair text-2xl font-bold">
+                        <Star className="w-4 h-4" strokeWidth={2} />
+                        <EditableText id={`proj-fp-rating-${index}`} value={project.stats.rating} onChange={(v) => updateStat(index, "rating", v)} as="span">{project.stats.rating}</EditableText>
+                      </div>
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">Rating</p>
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
+                    {project.highlights.map((highlight, idx) => (
+                      <div key={idx} className="flex items-start gap-2.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent-strong mt-2 shrink-0"></div>
+                        <EditableText
+                          id={`proj-fp-hl-${index}-${idx}`}
+                          value={highlight}
+                          onChange={(v) => updateHighlight(index, idx, v)}
+                          as="p"
+                          className="text-sm text-foreground/70"
+                        >{highlight}</EditableText>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
