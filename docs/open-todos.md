@@ -7,7 +7,30 @@ hat. Reihenfolge der Abarbeitung: **2 → 1 → 3 → 4**.
 
 ## 1 · Preis-Anzeige stimmt nicht
 
-**Status:** offen · **Priorität:** hoch (falsche Aussage gegenüber Gästen)
+**Status:** ⚠️ teilweise erledigt · **Priorität:** hoch
+
+**Was sich herausgestellt hat:** **Alle 23 Objekte** haben eine Guesty-Anbindung,
+also dynamische Preise. Es gibt kein einziges mit statischem Preis.
+
+Die **Detailseite war bereits korrekt** — bei Guesty-Objekten zeigt sie „Live
+pricing — Rates are calculated in real-time in the booking engine" statt einer
+Zahl. Der statische Zweig dort ist praktisch toter Code.
+
+**Die Karten waren die einzige Stelle**, die den eingefrorenen Wert als aktuellen
+Preis ausgab. Sie zeigen jetzt **„from €X / night"**.
+
+**Damit noch nicht gelöst:**
+- „from" unterstellt, dass der Basispreis eine Untergrenze ist. Sollte gegen
+  Guesty geprüft werden — dynamische Preise können auch darunter liegen.
+- Die Zahl altert weiter bis zum nächsten Import.
+- **Der eigentliche Fix** bleibt ein nächtlicher Job, der pro Objekt den
+  günstigsten Live-Preis holt und zwischenspeichert. Dann kann die Karte wieder
+  eine echte Zahl zeigen.
+- Der Import müsste einmal neu laufen, damit die Basiswerte aktuell sind — das
+  schreibt in die Live-Datenbank und sollte bewusst ausgelöst werden.
+
+<details>
+<summary>Ursprüngliche Diagnose</summary>
 
 Die Website zeigt einen Preis, der nicht der Preis ist.
 
@@ -31,11 +54,25 @@ eines Objekts zum Import-Zeitpunkt. In der Datenbank stehen aktuell Werte von
 **Nebenbefund:** Das `|| 0` im Import bedeutet, dass ein Objekt ohne `basePrice`
 mit **0 €** angezeigt würde. Aktuell hat keines den Wert 0 — aber die Falle steht.
 
+</details>
+
 ---
 
 ## 2 · Property-Seite: Bilder von ~80 % auf ~50 %
 
-**Status:** in Arbeit · **Priorität:** hoch (größter UX-Gewinn, eine Datei)
+**Status:** ✅ erledigt · **Priorität:** hoch (größter UX-Gewinn, eine Datei)
+
+**Umgesetzt:** ein Leitbild mit vier kleineren daneben, auf 50 vh begrenzt
+(min 320, max 560 px). Kacheln ohne eigene Rundung auf 2 px Abstand innerhalb
+*eines* gerundeten Rahmens — liest sich als ein Bild, nicht als fünf Boxen.
+Unter `md` nur das Leitbild. Jede Kachel öffnet einen Dialog mit allen Fotos.
+
+**Nebenbefund behoben:** Die alte Galerie schnitt nach dem sechsten Bild ab
+(`images.slice(0, 6)`) — alles danach war nicht erreichbar. Jetzt zeigt der
+Dialog alle.
+
+<details>
+<summary>Ausgangslage</summary>
 
 `src/pages/PropertyDetail.tsx:153` rendert **sechs Kacheln im Dreier-Raster mit
 4:3** — zwei volle Reihen à rund 340 px, also ~700 px Bild, bevor überhaupt Text
@@ -46,6 +83,8 @@ zusammen etwa halbe Bildschirmhöhe, mit „Alle Fotos anzeigen" für den Rest.
 
 Laut Notiz kann das Design „oberflächlich" übernommen werden — Backend-
 Verlinkungen gehen tief, da ist zu prüfen, was leicht übertragbar ist.
+
+</details>
 
 ---
 
