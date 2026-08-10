@@ -8,7 +8,7 @@ import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
-import { MapPin, Bed, Bath, Users, ArrowLeft } from "lucide-react";
+import { MapPin, Bed, Bath, Users, ArrowLeft, Images } from "lucide-react";
 import { getAmenityIcon } from "@/lib/amenityIcons";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,6 +41,7 @@ const PropertyDetail = () => {
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showBookingSummary, setShowBookingSummary] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const [datesValid, setDatesValid] = useState(false);
   
   // Initialize booking state with URL params if available
@@ -149,18 +150,73 @@ const PropertyDetail = () => {
             Back to Properties
           </Button>
 
-          {/* Property Images */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {images.slice(0, 6).map((img, idx) => (
-              <div key={idx} className="aspect-[4/3] overflow-hidden rounded-lg">
+          {/* Gallery — one lead image with four beside it, capped at half the
+              viewport. It used to be six 4:3 tiles in a three-column grid: two
+              full rows, around 700px of photograph before a reader reached a
+              single word about the property. Tiles carry no radius of their own
+              and sit on a 2px gap inside one rounded frame, so the block reads
+              as one image rather than five boxes. */}
+          <div className="relative mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 h-[50vh] min-h-[320px] max-h-[560px] rounded-2xl overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setGalleryOpen(true)}
+                className="md:col-span-2 md:row-span-2 group relative overflow-hidden"
+              >
                 <img
-                  src={img}
-                  alt={`${property.name} - ${idx + 1}`}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  src={images[0]}
+                  alt={`${property.name} — 1`}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-              </div>
-            ))}
+              </button>
+
+              {/* Hidden below md: on a phone the lead image alone is the whole
+                  screen, and four slivers beside it would be unreadable. */}
+              {images.slice(1, 5).map((img: string, idx: number) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setGalleryOpen(true)}
+                  className="hidden md:block group relative overflow-hidden"
+                >
+                  <img
+                    src={img}
+                    alt={`${property.name} — ${idx + 2}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </button>
+              ))}
+            </div>
+
+            {images.length > 1 && (
+              <Button
+                variant="secondary"
+                onClick={() => setGalleryOpen(true)}
+                className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm hover:bg-background shadow-elegant"
+              >
+                <Images className="w-4 h-4 mr-2" />
+                Show all {images.length} photos
+              </Button>
+            )}
           </div>
+
+          <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
+            <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto">
+              <DialogTitle className="font-playfair text-2xl text-primary">
+                {property.name}
+              </DialogTitle>
+              <div className="grid sm:grid-cols-2 gap-3 mt-2">
+                {images.map((img: string, idx: number) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`${property.name} — ${idx + 1}`}
+                    className="w-full aspect-[4/3] object-cover rounded-lg"
+                  />
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <div className="grid lg:grid-cols-5 gap-8">
             {/* Property Details */}
