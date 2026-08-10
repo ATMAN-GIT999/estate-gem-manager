@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Monitor, Home, Users, DollarSign, CheckCircle2, Shield, Key, Clock, BookOpen, Sparkles, Shirt, Wrench, Package } from "lucide-react";
+import { Monitor, Home, Users, DollarSign, CheckCircle2, Shield, Key, Clock, BookOpen, Sparkles, Shirt, Wrench, Package, LayoutDashboard } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,11 @@ import EditableText from "./admin/EditableText";
 import EditableImage from "./admin/EditableImage";
 
 const PropertyManagement = () => {
-  const [sectionTitle, setSectionTitle] = useState("Short-Term Rental Management");
-  const [sectionSubtitle, setSectionSubtitle] = useState("We manage while you relax");
+  // The benefit leads, the category label follows: "Short-Term Rental
+  // Management" describes the trade, "We manage while you relax" describes what
+  // an owner gets. The second is what makes someone keep reading.
+  const [sectionTitle, setSectionTitle] = useState("We manage while you relax.");
+  const [sectionSubtitle, setSectionSubtitle] = useState("Short-Term Rental Management");
   const [listingTitle, setListingTitle] = useState("Listing management");
   const [listingDesc, setListingDesc] = useState("Your property advertised on all major platforms. We keep listings updated for maximum visibility.");
   const [listingBadge, setListingBadge] = useState("Listings that stand out");
@@ -25,7 +28,23 @@ const PropertyManagement = () => {
     { icon: "Monitor", title: "Optimal listing", description: "Your home will be advertised with inviting, clear photos and clear text." },
     { icon: "BookOpen", title: "Your house rules", description: "The house rules are communicated through the advertisement to avoid misunderstandings and to prevent any damage." },
     { icon: "DollarSign", title: "Dynamic pricing", description: "Prices are adjusted based on location, amenities, and time of year. Certain cancellation policies are also determined." },
-    { icon: "Package", title: "Admin assistance", description: "We advise you on insurance and legislation relating to the home." },
+    { icon: "Package", title: "Admin assistance", description: "We advise you on insurance and legislation relating to the home, and handle traveller registration and compliance." },
+  ]);
+
+  // The guest pillar. The same four facts run on the booking page in
+  // GuestManagement, written to the guest; here they are written to the owner,
+  // whose question is not "will I be looked after" but "do I have to deal with
+  // any of this". Without it the page never tells an owner that guest handling
+  // is covered at all — the single largest part of the job.
+  const [guestBadge, setGuestBadge] = useState("Guests, handled");
+  const [guestTitle, setGuestTitle] = useState("Guest management");
+  const [guestDesc, setGuestDesc] = useState("Every enquiry, booking, arrival and complaint comes to us, not to you. It is the largest part of the work and the part owners most want to stop doing.");
+
+  const [guestManagement, setGuestManagement] = useState([
+    { icon: "Shield", title: "Guest screening", description: "We review every booking against your conditions before accepting it, so the people in your home are people you would have said yes to." },
+    { icon: "Key", title: "Check-in without you", description: "Guests receive a personal key-box code before they travel. You are never the one handing over keys or waiting for a late arrival." },
+    { icon: "Clock", title: "All guest contact, 24/7", description: "Every message, question and problem comes to us at any hour — including the ones at 2am. You hear about it only if it concerns the property." },
+    { icon: "BookOpen", title: "A handbook per property", description: "We write a guide for your home: house rules, Wi-Fi, how things work, what is worth seeing nearby. Fewer questions, fewer mistakes, better reviews." },
   ]);
 
   const [propertyManagement, setPropertyManagement] = useState([
@@ -35,7 +54,7 @@ const PropertyManagement = () => {
     { icon: "Package", title: "Facilities", description: "We always provide some basic amenities: toilet paper, garbage bags, cleaning products, coffee/tea, soap, shampoo, etc." },
   ]);
 
-  const iconMap: Record<string, any> = { Monitor, Home, Users, DollarSign, CheckCircle2, Shield, Key, Clock, BookOpen, Sparkles, Shirt, Wrench, Package };
+  const iconMap: Record<string, any> = { Monitor, Home, Users, DollarSign, CheckCircle2, Shield, Key, Clock, BookOpen, Sparkles, Shirt, Wrench, Package, LayoutDashboard };
 
   const updateItem = (setter: any, items: any[], index: number, field: string, value: string) => {
     const updated = [...items];
@@ -78,8 +97,8 @@ const PropertyManagement = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16 animate-fade-in">
-          <EditableText id="pm-section-title" value={sectionTitle} onChange={setSectionTitle} as="h2" className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-6">{sectionTitle}</EditableText>
-          <EditableText id="pm-section-subtitle" value={sectionSubtitle} onChange={setSectionSubtitle} as="p" className="text-xl text-foreground/70 max-w-3xl mx-auto">{sectionSubtitle}</EditableText>
+          <EditableText id="pm-section-subtitle" value={sectionSubtitle} onChange={setSectionSubtitle} as="span" className="block text-sm font-medium uppercase tracking-widest text-accent-strong mb-4">{sectionSubtitle}</EditableText>
+          <EditableText id="pm-section-title" value={sectionTitle} onChange={setSectionTitle} as="h2" className="font-playfair text-4xl md:text-5xl font-bold text-primary">{sectionTitle}</EditableText>
         </div>
 
         {/* Listing Management Section */}
@@ -112,6 +131,37 @@ const PropertyManagement = () => {
                 </Button>
               </Link>
             </div>
+          </div>
+        </div>
+
+        {/* Guest Management Section — the owner-facing counterpart to the
+            GuestManagement component on the booking page. Same four facts, but
+            answering "do I have to deal with any of this" rather than "will I
+            be looked after". */}
+        <div className="mb-20">
+          <div className="max-w-6xl mx-auto">
+            <Card className="bg-primary border-none shadow-elegant overflow-hidden">
+              <CardContent className="p-8 md:p-12">
+                <div className="flex items-start gap-4 mb-8">
+                  <div className="bg-accent rounded-full p-3">
+                    <Users className="w-6 h-6 text-accent-foreground" />
+                  </div>
+                  <div>
+                    <div className="bg-accent text-accent-foreground px-6 py-2 rounded-full inline-block mb-4 font-semibold">
+                      <EditableText id="pm-guest-badge-owner" value={guestBadge} onChange={setGuestBadge} as="span">{guestBadge}</EditableText>
+                    </div>
+                  </div>
+                </div>
+                <EditableText id="pm-guest-title-owner" value={guestTitle} onChange={setGuestTitle} as="h3" className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">{guestTitle}</EditableText>
+                <EditableText id="pm-guest-desc-owner" value={guestDesc} onChange={setGuestDesc} as="p" multiline className="text-xl text-primary-foreground/90 mb-8 leading-relaxed">{guestDesc}</EditableText>
+                {renderItemGrid(guestManagement, setGuestManagement, "pm-guest-owner")}
+                <Link to="/book">
+                  <Button className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
+                    <EditableText id="pm-contact-btn-2" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
