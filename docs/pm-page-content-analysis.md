@@ -303,6 +303,8 @@ widerspruchsfrei. Risiko praktisch null, jederzeit per Git rückholbar.
 
 ### 2b — Neu schreiben und Umsortieren (braucht Freigabe) — **offen**
 
+→ **Bauliste mit dem konkreten Text pro Ebene: `docs/pm-page-build-sheet.md`**
+
 - **Säulen-Ebene um Gästebetreuung und Reporting ergänzen** — Voraussetzung
   dafür, dass „Our Services" verschwinden kann (siehe Korrektur 1 oben)
 - Die Finanz-Ebene (neue Ebene 3) muss geschrieben werden
