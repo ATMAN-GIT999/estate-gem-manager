@@ -1,8 +1,6 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Card } from "@/components/ui/card";
-import { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
 import Stats from "@/components/Stats";
@@ -13,6 +11,7 @@ import PropertyEvaluator from "@/components/PropertyEvaluator";
 import AboutMini from "@/components/AboutMini";
 import ProjectsSection from "@/components/ProjectsSection";
 import OwnerCta from "@/components/OwnerCta";
+import FinancialPerformance from "@/components/FinancialPerformance";
 
 const PropertyManagementPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Bespoke Property Management");
@@ -21,22 +20,6 @@ const PropertyManagementPageContent = () => {
   // Business Areas lead-in. These are the two that say something.
   const [pageLead, setPageLead] = useState("Your home deserves more than management — it deserves care, strategy, and master craftsmanship.");
   const [pageSubtitle, setPageSubtitle] = useState("We manage it with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset.");
-  const [servicesTitle, setServicesTitle] = useState("Our Services");
-
-  const iconMap: Record<string, any> = { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck };
-
-  const [services, setServices] = useState([
-    { icon: "Camera", text: "Luxury photography & staging" },
-    { icon: "Globe", text: "Listings on top global booking channels" },
-    { icon: "MessageSquare", text: "24/7 guest communication" },
-    { icon: "Users", text: "Personal or remote check-ins" },
-    { icon: "TrendingUp", text: "Dynamic pricing algorithm" },
-    { icon: "Sparkles", text: "Professional housekeeping" },
-    { icon: "Wrench", text: "Preventive maintenance & inspections" },
-    { icon: "LayoutDashboard", text: "Owner portal with real-time reporting" },
-    { icon: "FileCheck", text: "Legal traveller registration & compliance" },
-  ]);
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
@@ -51,42 +34,19 @@ const PropertyManagementPageContent = () => {
           </div>
         </section>
 
-        <Stats />
-        <BusinessAreas />
-        <TechnologySection />
+        {/* Order follows the argument, not the order things were built:
+            what we take on -> what it earns -> proof it worked -> how, then
+            who we are, how to engage, and the two ways to act. */}
         <PropertyManagement />
+        <FinancialPerformance />
 
-        <section className="py-20 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <EditableText id="pmp-services-title" value={servicesTitle} onChange={setServicesTitle} as="h2" className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-12 text-center">{servicesTitle}</EditableText>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.map((service, index) => {
-                  const Icon = iconMap[service.icon] || FileCheck;
-                  return (
-                    <Card key={index} className="p-6 hover:shadow-elegant transition-all duration-300">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center shrink-0">
-                          <Icon className="w-6 h-6 text-accent-strong" />
-                        </div>
-                        <EditableText
-                          id={`pmp-service-${index}`}
-                          value={service.text}
-                          onChange={(v) => { const u = [...services]; u[index] = { ...u[index], text: v }; setServices(u); }}
-                          as="p"
-                          className="text-foreground/90 font-medium pt-2"
-                        >{service.text}</EditableText>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-
+        <Stats />
         <ProjectsSection />
+
+        <TechnologySection />
         <AboutMini />
+        <BusinessAreas />
+
         <PropertyEvaluator />
         <OwnerCta />
       </main>
