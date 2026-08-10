@@ -13,10 +13,6 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
   const [sectionSubtitle, setSectionSubtitle] = useState("Comprehensive services designed to maximize your property's potential");
   const [expertiseLabel, setExpertiseLabel] = useState("Our Expertise");
   const [pmTitle, setPmTitle] = useState("Property Management");
-  const [pmSubtitle, setPmSubtitle] = useState("Bespoke management for villas and luxury residences");
-  const [pmDescription, setPmDescription] = useState(
-    "We manage your home with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset."
-  );
   const [coreServiceLabel, setCoreServiceLabel] = useState("Our Core Service");
   const [guaranteedIncomeTitle, setGuaranteedIncomeTitle] = useState("Guaranteed Income Program");
   const [guaranteedIncomeLabel, setGuaranteedIncomeLabel] = useState("Included");
@@ -132,28 +128,11 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                       >
                         {pmTitle}
                       </EditableText>
-                      <EditableText
-                        id="ba-pm-subtitle"
-                        value={pmSubtitle}
-                        onChange={setPmSubtitle}
-                        as="p"
-                        className="text-base md:text-lg lg:text-xl text-white/80 font-medium"
-                      >
-                        {pmSubtitle}
-                      </EditableText>
                     </div>
                   </div>
-                  
-                  <EditableText
-                    id="ba-pm-desc"
-                    value={pmDescription}
-                    onChange={setPmDescription}
-                    as="p"
-                    multiline
-                    className="text-white/70 text-base md:text-lg leading-relaxed max-w-3xl"
-                  >
-                    {pmDescription}
-                  </EditableText>
+                  {/* The subtitle and description that stood here were the
+                      fourth and fifth phrasing of the page's positioning. The
+                      boutique-hotel sentence is now the hero's second line. */}
                 </div>
 
                 {/* Single box now: the "What's Included" list that used to sit

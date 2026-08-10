@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
-import IntroSection from "@/components/IntroSection";
 import Stats from "@/components/Stats";
 import BusinessAreas from "@/components/BusinessAreas";
 import TechnologySection from "@/components/TechnologySection";
@@ -17,7 +16,11 @@ import OwnerCta from "@/components/OwnerCta";
 
 const PropertyManagementPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Bespoke Property Management");
-  const [pageSubtitle, setPageSubtitle] = useState("We deliver a personalised management plan for every property — combining hotel-level hospitality with advanced AI-driven systems to maximise revenue, elevate guest satisfaction, and protect the long-term value of your home.");
+  // Two sentences where the page used to open with five variations of the same
+  // positioning — the hero's own subtitle, both halves of IntroSection, and the
+  // Business Areas lead-in. These are the two that say something.
+  const [pageLead, setPageLead] = useState("Your home deserves more than management — it deserves care, strategy, and master craftsmanship.");
+  const [pageSubtitle, setPageSubtitle] = useState("We manage it with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset.");
   const [servicesTitle, setServicesTitle] = useState("Our Services");
 
   const iconMap: Record<string, any> = { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck };
@@ -42,16 +45,12 @@ const PropertyManagementPageContent = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center animate-fade-in">
               <EditableText id="pmp-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6">{pageTitle}</EditableText>
-              <EditableText id="pmp-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="text-xl text-foreground/80 leading-relaxed">{pageSubtitle}</EditableText>
+              <EditableText id="pmp-page-lead" value={pageLead} onChange={setPageLead} as="p" multiline className="font-playfair text-2xl md:text-3xl text-primary leading-snug text-balance mb-5">{pageLead}</EditableText>
+              <EditableText id="pmp-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="text-lg text-foreground/70 leading-relaxed">{pageSubtitle}</EditableText>
             </div>
           </div>
         </section>
 
-        {/* Moved off the landing page, which is for guests. Order is the one
-            they had there; phase 2 resolves the overlaps this creates — notably
-            TechnologySection against the AI section further down, and the
-            "What's Included" list against Our Services. */}
-        <IntroSection />
         <Stats />
         <BusinessAreas />
         <TechnologySection />
