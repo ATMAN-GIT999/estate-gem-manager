@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { TrendingUp, LineChart, FileBarChart, Check } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import EditableText from "./admin/EditableText";
 
 /**
@@ -86,18 +85,18 @@ const FinancialPerformance = () => {
           </EditableText>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-14">
+        <div className="grid md:grid-cols-3 gap-x-10 gap-y-12 max-w-5xl mx-auto mb-16">
           {pillars.map((pillar, index) => {
             const Icon = iconMap[pillar.icon] || TrendingUp;
             return (
-              <Card key={index} className="p-8 bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-all duration-300">
-                <Icon className="w-10 h-10 text-accent-strong mb-5" />
+              <div key={index} className="border-t border-primary/15 pt-6">
+                <Icon className="w-6 h-6 text-accent-strong mb-4" strokeWidth={1.5} />
                 <EditableText
                   id={`fin-pillar-title-${index}`}
                   value={pillar.title}
                   onChange={(v) => { const u = [...pillars]; u[index] = { ...u[index], title: v }; setPillars(u); }}
                   as="h3"
-                  className="font-playfair text-2xl font-bold text-primary mb-3"
+                  className="font-playfair text-xl font-bold text-primary mb-3"
                 >
                   {pillar.title}
                 </EditableText>
@@ -111,7 +110,7 @@ const FinancialPerformance = () => {
                 >
                   {pillar.description}
                 </EditableText>
-              </Card>
+              </div>
             );
           })}
         </div>
