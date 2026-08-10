@@ -4,7 +4,6 @@ import Footer from "@/components/Footer";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
 import Stats from "@/components/Stats";
-import BusinessAreas from "@/components/BusinessAreas";
 import TechnologySection from "@/components/TechnologySection";
 import PropertyManagement from "@/components/PropertyManagement";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
@@ -12,6 +11,7 @@ import AboutMini from "@/components/AboutMini";
 import ProjectsSection from "@/components/ProjectsSection";
 import OwnerCta from "@/components/OwnerCta";
 import FinancialPerformance from "@/components/FinancialPerformance";
+import WaysToWorkTogether from "@/components/WaysToWorkTogether";
 
 const PropertyManagementPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Bespoke Property Management");
@@ -45,7 +45,7 @@ const PropertyManagementPageContent = () => {
 
         <TechnologySection />
         <AboutMini />
-        <BusinessAreas />
+        <WaysToWorkTogether />
 
         <PropertyEvaluator />
         <OwnerCta />
