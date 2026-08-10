@@ -223,8 +223,8 @@ Konkret sichtbar:
 | 1 | **Positioning** — wer wir sind | Hero **+** IntroSection **+** Positionierungssatz aus Business Areas | groß |
 | 2 | **Was wir übernehmen** — die operative Arbeit | Section 6, angereichert um die Punkte aus 4 und 7 | **größte Section** |
 | 3 | **Was es bringt** — Finanz-Ebene | „This ensures"-Liste aus 8 + Pricing/Revenue/Reporting, gebündelt | groß |
-| 4 | **Wie wir das schaffen** — Technologie | 5 **+** 8 verschmolzen, 4 Proof-Punkte | mittel |
-| 5 | **Beweis** — Zahlen und Objekte | Stats (ohne Regionen) **+** Projects (ohne Regionen-Block) | groß |
+| 4 | **Beweis** — Zahlen und Objekte | Stats (ohne Regionen) **+** Projects (ohne Regionen-Block) | groß |
+| 5 | **Wie wir das schaffen** — Technologie | 5 **+** 8 verschmolzen, 4 Proof-Punkte | mittel |
 | 6 | **Wer dahintersteht** | About Us / Team | klein |
 | 7 | **Darüber hinaus** | Guaranteed Income · Renovations · Investments als Teaser → Unterseiten | klein |
 | 8 | **Rechnen und sprechen** | Cashflow Analysis **+** CTA | groß |
@@ -232,6 +232,11 @@ Konkret sichtbar:
 **Entfällt vollständig:** „Our Services" (Section 7), der Wrapper „Business Areas"
 (Section 4), die Regionen-Dopplung, die Zeile „We don't just manage homes — we
 engineer high-performance assets".
+
+**Warum Beweis vor Technologie** (Ebene 4 vor 5): Die Abfolge wird dadurch
+*Behauptung → Beweis → Mechanismus*. Ein Eigentümer glaubt die Technologie-Story
+eher, wenn er vorher gesehen hat, dass sie funktioniert hat. Umgekehrt müsste er
+die Technik auf Vertrauen hinnehmen, bevor er einen einzigen Beleg gesehen hat.
 
 ---
 
@@ -247,10 +252,44 @@ engineer high-performance assets".
 | „We don't just manage homes…" | 5 | Behauptung ohne Inhalt |
 | Boutique-Hotel-Satz | 4 | Steht schon im Hero |
 | „Before & After — Coming Soon" | 9 | Platzhalter — echte Bilder oder streichen |
+| **Kroatien / Istrien überall** | 3 · 4 · 9 | **Entschieden: komplett raus.** Keine Immobilie im Bestand. Betrifft die Regionen-Zeile in Stats, die Istrien-Karte in Projects und den Investments-Text („across Spain, Austria, and Croatia"). |
 
 ---
 
-## 6 · Offene Punkte für den Besitzer
+## 6 · Umsetzung in zwei Schritten
+
+Die Umsetzung zerfällt in zwei sehr verschiedene Arten von Arbeit. Sie zu
+trennen ist wichtig, weil nur die zweite auf Freigaben warten muss.
+
+### 2a — Streichen und Verschmelzen (kein neuer Text nötig)
+
+Reine Subtraktion. Jede Zeile, die wegfällt, existiert nachweislich woanders.
+Kein Wort muss erfunden, nichts muss freigegeben werden.
+
+- „Our Services" (Section 7) löschen
+- Die beiden Technologie-Listen zu einer verschmelzen
+- „What's Included" aus Business Areas auflösen
+- Regionen-Dopplung entfernen
+- Kroatien entfernen
+- Leere Zeilen streichen
+
+**Wirkung:** 12 → ca. 9 Sections, die Seite wird deutlich kürzer und
+widerspruchsfrei. Risiko praktisch null, jederzeit per Git rückholbar.
+
+### 2b — Neu schreiben und Umsortieren (braucht Freigabe)
+
+- Die Finanz-Ebene (neue Ebene 3) muss geschrieben werden
+- Hero + IntroSection zu einer Positionierung verschmelzen
+- Teaser-Ebene für Guaranteed Income / Renovations / Investments
+- Die neue Reihenfolge herstellen
+
+**Empfehlung: 2a zuerst und vollständig.** Danach ist die Seite sauber genug,
+dass man beim Schreiben von 2b tatsächlich sieht, was noch fehlt — statt gegen
+Dubletten anzuschreiben.
+
+---
+
+## 7 · Offene Punkte für den Besitzer
 
 1. **Bilder für die Transformationen** — die drei Projekte tragen Platzhalter.
    Vorher/Nachher-Fotos wären das stärkste visuelle Argument der Seite.
@@ -259,6 +298,12 @@ engineer high-performance assets".
 3. **Kontaktweg** — `mailto:` durch Terminbuchung ersetzen.
 4. **Sind die Zahlen aktuell?** 41 Objekte, 1500+ Buchungen, 8 Destinationen,
    50+ Partner — und stimmen die Projekt-Kennzahlen (85 % / +120 % / 4,9) noch?
-5. **Kroatien** wird in Business Areas, Stats und Projects genannt, es gibt aber
-   keine einzige Immobilie dort in der Datenbank. Bewusst als Zielmarkt genannt
-   oder veraltet?
+5. ~~Kroatien~~ — **entschieden: wird komplett gestrichen.** Offen bleibt nur:
+   Stimmt die Zahl „8 Destinations" dann noch, oder waren kroatische Orte
+   mitgezählt?
+6. **Texte sind nicht im CMS änderbar.** `EditableText` schreibt nur in lokalen
+   React-State — nach einem Reload ist die Änderung weg. Es gibt keine
+   Persistenz-Tabelle. Der einzige Override-Mechanismus (`PageWrapper` → Tabelle
+   `pages`) ersetzt eine *ganze Seite* durch gespeichertes HTML und ist aktuell
+   für keine Seite aktiv. **Konsequenz:** Was wir in den Code schreiben, ist der
+   Text. „Das ändert der Kunde später selbst" funktioniert heute nicht.
