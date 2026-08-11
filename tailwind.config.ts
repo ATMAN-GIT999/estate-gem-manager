@@ -93,7 +93,7 @@ export default {
         gold: "var(--shadow-gold)",
       },
       fontFamily: {
-        playfair: ["Playfair Display", "serif"],
+        playfair: ["Playfair Display Variable", "Playfair Display", "serif"],
         lato: ["Lato", "sans-serif"],
       },
       borderRadius: {

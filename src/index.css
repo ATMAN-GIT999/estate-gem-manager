@@ -1,3 +1,21 @@
+/* Fonts are bundled, not fetched from Google.
+   Loading them from fonts.googleapis.com sends every visitor's IP address to
+   Google before the page has even rendered, which Austrian and German courts
+   have repeatedly treated as a GDPR breach — and this business has clients and
+   an office in Austria. Self-hosting also removes two connections to a third
+   party from the critical path.
+   Playfair is the variable cut, so one file covers 400-700 instead of four.
+
+   Lato is imported latin-only. The full files also carry latin-ext, whose
+   three woff subsets are small enough that Vite base64-inlines them straight
+   into this stylesheet — 15 KB that barely compress, sitting in the render
+   path. latin covers U+0000-00FF, so Málaga, Wien and Sauerwald are safe;
+   latin-ext is Polish, Czech and Hungarian, which this site does not use. */
+@import '@fontsource-variable/playfair-display';
+@import '@fontsource/lato/latin-300.css';
+@import '@fontsource/lato/latin-400.css';
+@import '@fontsource/lato/latin-700.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -93,9 +111,24 @@ All colors MUST be HSL.
     font-family: 'Lato', 'Open Sans', sans-serif;
   }
 
+  /* The variable cut registers under its own family name, so it has to be
+     named first — 'Playfair Display' alone would silently fall through to the
+     serif fallback now that nothing loads the static family. */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Playfair Display Variable', 'Playfair Display', serif;
     font-weight: 600;
+  }
+}
+
+/* Required by the stack guidelines and absent until now. Anyone who has asked
+   their system to reduce motion currently still gets every fade, scale and
+   scroll animation on the site. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

@@ -112,16 +112,55 @@ nur nicht konsequent angewendet.
 
 ## 6 · Fehlende Basis-Bausteine
 
-**Status:** offen · **Priorität:** niedrig, aber schnell erledigt
+**Status:** ✅ erledigt · **Priorität:** vorgezogen (enthielt den einzigen
+rechtlichen Punkt der Liste)
 
-- **Google Fonts extern geladen** (`fonts.googleapis.com` in `index.html`) statt
-  selbst gehostet — zusätzlicher Request, und für ein Unternehmen mit
-  Kunden/Sitz in Österreich ein bekanntes DSGVO-Risiko (deutsche/österreichische
-  Gerichte werten das externe Nachladen als Verstoß, da die IP-Adresse des
-  Besuchers an Google übertragen wird). Fix: `@fontsource` oder eigenes Hosting.
-- **Keine `sitemap.xml`** — weder unter `public/` noch im Build erzeugt.
-- **Kein `llms.txt`** — Sichtbarkeit in KI-Antwortmaschinen (siehe Skill
-  `website-seo-geo`).
+**Fonts selbst gehostet.** `@fontsource-variable/playfair-display` +
+`@fontsource/lato`, die beiden `fonts.googleapis.com`-Links aus `index.html`
+entfernt. Im gesamten Build gibt es **keine Google-Font-Referenz mehr**.
+
+Drei Details, die dabei aufgefallen sind:
+
+- Der Variable-Font registriert sich als **`'Playfair Display Variable'`** —
+  ein anderer Familienname. `index.css` und `tailwind.config.ts` mussten
+  nachziehen, sonst wären alle Überschriften still auf `serif` zurückgefallen.
+- Lato wird **latin-only** importiert. Die Vollversion bringt latin-ext mit,
+  dessen drei woff-Subsets klein genug sind, dass Vite sie als base64 direkt
+  ins CSS einbettet — 15 KB im Render-Pfad, die sich kaum komprimieren.
+  latin deckt U+0000–00FF ab, also Málaga, Wien und Sauerwald.
+- Der **Page-Builder** lud Google Fonts in seine Vorschau-Iframe
+  (`Builder.tsx:101`). Nur Admins betroffen, aber derselbe Defekt — jetzt über
+  `?url` auf die lokalen Dateien. Dort die statische Playfair-Variante, weil
+  die Schriftauswahl im Editor „Playfair Display" anbietet.
+
+Kosten: Haupt-CSS 17,54 → **18,19 KB** gzip, dafür zwei externe Requests und
+zwei DNS/TLS-Verbindungen weniger.
+
+**`sitemap.xml` wird beim Build erzeugt** (`scripts/generate-sitemap.mjs`,
+in `npm run build` eingehängt): 35 URLs, davon **23 Property-Seiten**, deren
+Slugs live aus Supabase kommen. Schlägt die Abfrage fehl, entsteht eine
+Sitemap nur mit statischen Routen statt eines fehlgeschlagenen Deploys.
+
+**`llms.txt` angelegt** — Leistungen, Regionen, Firmendaten und die wichtigsten
+Seiten in extrahierbarer Form.
+
+**`robots.txt` korrigiert.** Vorher standen dort eigene `Allow`-Gruppen für
+Googlebot, Bingbot, Twitterbot und facebookexternalhit. Da ein Crawler nur
+seine spezifischste Gruppe liest und alle anderen ignoriert, hätte jedes
+künftige `Disallow` in der `*`-Gruppe **genau diese vier nicht erreicht**.
+Jetzt eine einzige Gruppe, plus Sitemap-Verweis. KI-Crawler sind namentlich im
+Kommentar als erwünscht festgehalten, damit sie niemand später aussperrt.
+
+### ⚠️ Nebenbefund: zwei verschiedene Telefonnummern
+
+| Wo | Nummer |
+|---|---|
+| `Footer.tsx`, `InstantBookFallbackDialog.tsx` | +34 665 51 18 53 |
+| `AvisoLegal.tsx` (Impressum) | +34 649 429 678 |
+
+Für lokales SEO zählt NAP-Konsistenz (Name/Adresse/Telefon überall identisch,
+auch im Google-Business-Profil). **Welche ist die richtige?** Wird für das
+`LocalBusiness`-Schema in Punkt 3 gebraucht.
 
 ---
 
