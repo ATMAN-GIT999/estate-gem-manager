@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import whatsappIcon from "@/assets/whatsapp-icon.png";
+import whatsappIcon from "@/assets/whatsapp-icon.webp";
 
 const WhatsAppButton = () => {
   const { pathname } = useLocation();

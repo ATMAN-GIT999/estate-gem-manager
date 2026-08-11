@@ -1,10 +1,10 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { MapPin, Bed, Bath, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import property2 from "@/assets/property-2.png";
-import property3 from "@/assets/property-3.png";
-import property4 from "@/assets/property-4.png";
-import villaHigueron from "@/assets/villa-higueron.png";
+import property2 from "@/assets/property-2.webp";
+import property3 from "@/assets/property-3.webp";
+import property4 from "@/assets/property-4.webp";
+import villaHigueron from "@/assets/villa-higueron.webp";
 
 export interface Property {
   id: string;

@@ -22,11 +22,11 @@ import {
 } from "@/components/ui/dialog";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema, propertySchema } from "@/lib/schema";
-import property2 from "@/assets/property-2.png";
-import property3 from "@/assets/property-3.png";
-import property4 from "@/assets/property-4.png";
-import property5 from "@/assets/property-5.png";
-import villaHigueron from "@/assets/villa-higueron.png";
+import property2 from "@/assets/property-2.webp";
+import property3 from "@/assets/property-3.webp";
+import property4 from "@/assets/property-4.webp";
+import property5 from "@/assets/property-5.webp";
+import villaHigueron from "@/assets/villa-higueron.webp";
 
 const propertyImages: Record<string, string[]> = {
   "villa-in-higueron": [villaHigueron, property5],

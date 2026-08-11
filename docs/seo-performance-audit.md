@@ -163,7 +163,34 @@ generische Lovable-Platzhalterbild statt einer echten Frontier-Residences-Vorsch
 
 ## 5 · Vier Property-Fotos unkomprimiert
 
-**Status:** offen · **Priorität:** mittel
+**Status:** ✅ erledigt · **Priorität:** mittel
+
+Es waren nicht vier, sondern acht. Alle zu WebP konvertiert (Qualität 82,
+Fotos auf max. 1600 px begrenzt):
+
+| Datei | vorher | nachher | |
+|---|---|---|---|
+| property-4 | 1.329 KB | 165 KB | −88 % |
+| property-2 | 1.191 KB | 115 KB | −91 % |
+| property-5 | 821 KB | 112 KB | −87 % |
+| property-3 | 670 KB | 66 KB | −90 % |
+| villa-higueron | 670 KB | 65 KB | −90 % |
+| platform-connections | 309 KB | 89 KB | −72 % |
+| **frontier-logo** | **148 KB** | **12 KB** | **−92 %** |
+| **whatsapp-icon** | **106 KB** | **5 KB** | **−95 %** |
+
+**Der eigentliche Fund waren Logo und Icon.** Beide lagen als PNG mit 1.640
+bzw. 1.920 px Breite vor und wurden mit 48–56 px dargestellt — das Logo auf
+**jeder einzelnen Seite**. Auf 512 bzw. 128 px verkleinert bleibt reichlich
+Reserve für Retina.
+
+**Im Build gibt es jetzt kein einziges PNG mehr**; alle Bilder zusammen wiegen
+**680 KB** statt vorher gut 5,5 MB.
+
+**Nebenbefund:** `property-1.png` (1,1 MB) wird nirgends importiert. Vite
+bündelt es deshalb gar nicht — es kostet nichts zur Laufzeit, liegt aber
+unnötig im Repo. Die alten PNGs sind absichtlich liegengelassen worden, falls
+die Originale nochmal gebraucht werden; sie landen in keinem Build.
 
 **Befund:** in `src/assets` liegen `property-2.png` (1,22 MB), `property-3.png`
 (686 KB), `property-4.png` (1,36 MB), `property-5.png` (840 KB) — unkomprimiertes

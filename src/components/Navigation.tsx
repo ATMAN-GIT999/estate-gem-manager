@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import logo from "@/assets/frontier-logo.png";
+import logo from "@/assets/frontier-logo.webp";
 import EditableText from "./admin/EditableText";
 
 const GUESTY_BOOKING_URL = "https://booking.guesty.com/properties?brandId=67471cfce5b88600014f0647";

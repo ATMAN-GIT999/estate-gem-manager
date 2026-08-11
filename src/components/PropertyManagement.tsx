@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Monitor, DollarSign, Shield, Key, Clock, BookOpen, Sparkles, Shirt, Wrench, Package } from "lucide-react";
-import platformConnections from "@/assets/platform-connections.png";
+import platformConnections from "@/assets/platform-connections.webp";
 import EditableText from "./admin/EditableText";
 import EditableImage from "./admin/EditableImage";
 
