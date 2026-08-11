@@ -19,16 +19,19 @@ ON CONFLICT (id) DO NOTHING;
 -- Visitors may add files and nothing else: no reading, no overwriting, no
 -- deleting. Without the size and type limits above, this would be an open
 -- upload endpoint.
+DROP POLICY IF EXISTS "Anyone can attach photos to an enquiry" ON storage.objects;
 CREATE POLICY "Anyone can attach photos to an enquiry"
 ON storage.objects FOR INSERT
 TO anon, authenticated
 WITH CHECK (bucket_id = 'owner-enquiries');
 
+DROP POLICY IF EXISTS "Admins can view enquiry photos" ON storage.objects;
 CREATE POLICY "Admins can view enquiry photos"
 ON storage.objects FOR SELECT
 TO authenticated
 USING (bucket_id = 'owner-enquiries' AND public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can delete enquiry photos" ON storage.objects;
 CREATE POLICY "Admins can delete enquiry photos"
 ON storage.objects FOR DELETE
 TO authenticated

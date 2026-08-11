@@ -8,6 +8,10 @@
 -- INSERT only, and deliberately no SELECT: a visitor may drop a lead in, and
 -- may never read the table back. Leads stay admin-only to read, which matters
 -- because this table holds other people's names, emails and phone numbers.
+-- Guarded so this replays cleanly if it is ever run outside the migration
+-- history — for example pasted into the SQL editor first and pushed later.
+DROP POLICY IF EXISTS "Anyone can submit a contact enquiry" ON public.contacts;
+
 CREATE POLICY "Anyone can submit a contact enquiry"
 ON public.contacts
 FOR INSERT
