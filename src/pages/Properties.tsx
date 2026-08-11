@@ -11,6 +11,8 @@ import SearchBar from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { format, addDays, parseISO, isValid } from "date-fns";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 
 const parseDateParam = (value: string | null) => {
   if (!value) return undefined;
@@ -162,6 +164,12 @@ const PropertiesContent = () => {
     // flex-col + flex-1 keeps the footer at the bottom when a search returns
     // only one or two listings; without it the footer rode up into view.
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Luxury Villas & Apartments to Book"
+        description="The full Frontier Residences portfolio — villas, city apartments and cabins in Marbella, Málaga, Vienna and beyond, bookable directly with us."
+        path="/properties"
+        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Properties", path: "/properties" }])}
+      />
       <Navigation />
 
       <main className="flex-1 pt-24 pb-12">

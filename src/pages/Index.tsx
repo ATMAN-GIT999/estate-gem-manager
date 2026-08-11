@@ -9,6 +9,8 @@ import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useLocation } from "react-router-dom";
 import PageWrapper from "@/components/PageWrapper";
+import Seo from "@/components/Seo";
+import { organizationSchema } from "@/lib/schema";
 
 const IndexContent = () => {
   const location = useLocation();
@@ -36,6 +38,13 @@ const IndexContent = () => {
 
   return (
     <div className="min-h-screen">
+      {/* The organisation schema lives on the home page and is referenced by
+          @id from every other page, so the whole site resolves to one business. */}
+      <Seo
+        path="/"
+        description="Book luxury villas and apartments in Marbella, Málaga and Vienna directly with Frontier Residences — and see what your own property could earn under our management."
+        schema={organizationSchema()}
+      />
       <Navigation />
       <Hero />
 

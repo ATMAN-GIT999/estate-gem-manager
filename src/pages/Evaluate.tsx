@@ -10,6 +10,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import PageWrapper from "@/components/PageWrapper";
 import { supabase } from "@/lib/supabaseClient";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 
 interface PropertyAnalysis {
   monthlyIncome: number;
@@ -147,6 +149,12 @@ const EvaluateContent = () => {
 
   return (
     <div className="min-h-screen">
+      <Seo
+        title="Property Cashflow Analysis"
+        description="Enter your property's address and details and receive a realistic short-term and long-term rental income projection based on live market data."
+        path="/evaluate"
+        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Cashflow Analysis", path: "/evaluate" }])}
+      />
       <Navigation />
       
       <section className="pt-24 pb-20 bg-background">

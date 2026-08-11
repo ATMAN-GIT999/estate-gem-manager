@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Search, BarChart3, Handshake, HardHat, Settings, MapPin } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 
 const InvestmentsPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Curated Real Estate Investments Across Europe");
@@ -30,6 +32,12 @@ const InvestmentsPageContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Property Investments"
+        description="Curated real estate investments in Spain and Austria, guided from acquisition through renovation to turnkey rental operation."
+        path="/investments"
+        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Investments", path: "/investments" }])}
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <section className="py-16 bg-gradient-hero">

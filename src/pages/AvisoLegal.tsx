@@ -2,10 +2,16 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageWrapper from "@/components/PageWrapper";
 import { MapPin, Mail, Phone, Globe } from "lucide-react";
+import Seo from "@/components/Seo";
 
 const AvisoLegalContent = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Aviso Legal"
+        description="Datos identificativos, condiciones de uso y política de privacidad de Frontier Residences Real Estate Management S.L."
+        path="/aviso-legal"
+      />
       <Navigation />
       <main className="flex-1 pt-24">
         <div className="container mx-auto px-4 py-12">

@@ -49,7 +49,36 @@ umstellen. Reine Technik, kein Design/Content betroffen, keine Freigabe nötig.
 
 ## 2 · Alle Seiten teilen sich Titel & Beschreibung
 
-**Status:** offen · **Priorität:** hoch
+**Status:** ✅ erledigt · **Priorität:** hoch
+
+**Umgesetzt:** `react-helmet-async`, `<HelmetProvider>` in `main.tsx`, dazu
+`src/components/Seo.tsx` und `src/lib/siteMeta.ts` als einzige Quelle für
+Firmendaten. **Alle 17 öffentlichen Routen** haben jetzt eigenen Titel,
+Beschreibung, Canonical und Social-Tags.
+
+**Canonical ist hier wichtiger als üblich:** Die Property-Karten hängen
+`?checkIn=…&checkOut=…&guests=…` an, sobald jemand aus einer Suche kommt. Eine
+einzelne Immobilie ist dadurch unter beliebig vielen URLs erreichbar, die ohne
+Canonical alle gegeneinander antreten. Der Canonical zeigt immer auf den
+reinen Slug.
+
+`/auth`, `/update-password`, `/booking-confirmation` und die 404-Seite sind auf
+`noindex` gesetzt.
+
+**Nachgewiesen** durch serverseitiges Rendern der Komponente: Titel,
+Description, Canonical, `og:*`, `twitter:*`, JSON-LD und `noindex` erscheinen
+alle korrekt.
+
+### ⚠️ Bekannte Grenze: Social-Previews
+
+WhatsApp, LinkedIn und Facebook führen **kein JavaScript aus** — sie sehen nur
+`index.html`. Per-Seite-Vorschauen brauchen Prerendering oder SSR. Google
+rendert JS und sieht die Helmet-Werte.
+
+Deshalb stehen in `index.html` nur noch neutrale Fallbacks: `og:title` und
+`og:description` wurden dort entfernt, weil Helmet Tags **anhängt statt
+ersetzt** — sonst hätte jede Seite zwei davon, und ein Parser, der den ersten
+nimmt, hätte immer den generischen gelesen.
 
 **Befund:** `index.html` setzt `<title>` und `<meta name="description">` einmal,
 global. Im gesamten `src/`-Ordner gibt es kein `react-helmet`, kein dynamisches
@@ -67,7 +96,42 @@ Title/Description setzen. Bei Property-Detail: Titel aus Objektname + Ort bauen.
 
 ## 3 · Keine strukturierten Daten (JSON-LD)
 
-**Status:** offen · **Priorität:** mittel-hoch
+**Status:** ✅ erledigt (mit einer bewussten Auslassung) · **Priorität:** mittel-hoch
+
+**Umgesetzt:** `src/lib/schema.ts` mit drei Bausteinen.
+
+- **`RealEstateAgent`** (spezifischer als `LocalBusiness`) auf Start- und
+  PM-Seite — mit Firmendaten aus dem Aviso Legal, Einzugsgebiet, Sprachen und
+  den drei Leistungen als `makesOffer`. Eine feste `@id`, die überall
+  referenziert wird, damit die Seiten als **ein** Unternehmen gelten.
+- **`Accommodation`** pro Immobilie: Name, Beschreibung, Fotos, Ort,
+  Schlafzimmer, Bäder, Belegung, Ausstattung, `provider` → Organisation.
+- **`BreadcrumbList`** auf allen Unterseiten.
+
+### Warum kein Preis im Property-Schema
+
+Das Audit wollte `Product` + `Offer` für Preis-Snippets — das ist auch das
+richtige Ziel. Nur: Die einzige verfügbare Zahl ist `price_per_night`, der beim
+Import eingefrorene Basispreis, und der ist **nachweislich in beide Richtungen
+falsch** (Wien 340 gespeichert gegen 221 live, Calahonda 65 gegen 90).
+
+Diese Zahl als strukturierte Daten zu veröffentlichen hieße, Google einen Preis
+zu nennen, den die Buchungsmaschine nicht abbucht — auf einer Seite, die selbst
+„Live pricing" schreibt. Ein fehlender Preis kostet ein Rich Snippet; ein
+falscher ist ein Widerspruch zwischen Markup und Seite, den der Gast beim
+Bezahlen entdeckt.
+
+**Punkt 1 in `open-todos.md`** (nächtlicher Job für den günstigsten Live-Preis)
+schaltet das frei. Dann gehört `offers` in `propertySchema()`.
+
+### Offen: `FAQPage`
+
+Es gibt auf der ganzen Website **keine FAQ-Sektion**. Laut Skill
+`website-seo-geo` sind Frage-Antwort-Paare das wertvollste Einzelformat für
+Sichtbarkeit in KI-Antworten, weil sie direkt extrahierbar sind. Eine FAQ auf
+der PM-Seite („Was kostet die Verwaltung?", „Wie lange bindet mich das?",
+„Was passiert bei Schäden?") plus `FAQPage`-Schema wäre der nächste große
+GEO-Hebel — braucht aber echte Antworten vom Kunden.
 
 **Befund:** kein `application/ld+json`, kein `schema.org` irgendwo im Code.
 

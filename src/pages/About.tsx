@@ -7,6 +7,8 @@ import EditableText from "@/components/admin/EditableText";
 import EditableImage from "@/components/admin/EditableImage";
 import PageWrapper from "@/components/PageWrapper";
 import aboutHero from "@/assets/about-hero.webp";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 
 const AboutContent = () => {
   const [heroImage, setHeroImage] = useState(aboutHero);
@@ -59,6 +61,12 @@ const AboutContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="About Us"
+        description="The team behind Frontier Residences — a boutique property management company operating luxury homes on the Costa del Sol and in Austria."
+        path="/about"
+        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "About", path: "/about" }])}
+      />
       <Navigation />
       <main className="flex-1">
         {/* Hero Section — pt-20 and safe centring keep the headline clear of the

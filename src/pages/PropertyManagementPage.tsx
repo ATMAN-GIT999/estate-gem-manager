@@ -4,6 +4,8 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema, organizationSchema } from "@/lib/schema";
 import { Button } from "@/components/ui/button";
 import Stats from "@/components/Stats";
 import TechnologySection from "@/components/TechnologySection";
@@ -32,6 +34,18 @@ const PropertyManagementPageContent = () => {
   const [secondaryCta, setSecondaryCta] = useState("See what it could earn");
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Bespoke Property Management in Marbella, Málaga & Vienna"
+        description="Full-service short-term rental management for luxury homes on the Costa del Sol and in Austria — listing, dynamic pricing, guests, housekeeping and owner reporting. Or lease your property to us for a fixed monthly income."
+        path="/property-management"
+        schema={[
+          organizationSchema(),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Property Management", path: "/property-management" },
+          ]),
+        ]}
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <section className="py-16 bg-gradient-hero">

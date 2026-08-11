@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, CreditCard, Mail, Calendar, Users, Home, Hash, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import Seo from "@/components/Seo";
 
 interface ConfirmationState {
   reservationId?: string;
@@ -54,6 +55,9 @@ const BookingConfirmation = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* noindex: this page only renders with router state from a completed
+          booking, so a crawler would only ever see an empty shell. */}
+      <Seo title="Booking Confirmation" path="/booking-confirmation" noindex />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-3xl">

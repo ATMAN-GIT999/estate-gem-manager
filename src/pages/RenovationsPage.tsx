@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Lightbulb, Calculator, HardHat, Package, Palette, Camera, TrendingUp } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 
 const RenovationsPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Timeless Mediterranean Interiors. Elevated Asset Value.");
@@ -29,6 +31,12 @@ const RenovationsPageContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Renovations & Interior Design"
+        description="Timeless Mediterranean interiors that raise a home's value and its rental performance. We run the full process: concept, construction, delivery, staging."
+        path="/renovations"
+        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Renovations", path: "/renovations" }])}
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <section className="py-16 bg-gradient-hero">

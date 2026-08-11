@@ -20,6 +20,8 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema, propertySchema } from "@/lib/schema";
 import property2 from "@/assets/property-2.png";
 import property3 from "@/assets/property-3.png";
 import property4 from "@/assets/property-4.png";
@@ -135,8 +137,42 @@ const PropertyDetail = () => {
   const guestyImages = property.images?.map((img: any) => img.url) || [];
   const images = guestyImages.length > 0 ? guestyImages : (propertyImages[property.slug] || [property3]);
 
+  // A property's own words if it has any, trimmed to roughly what a search
+  // result will actually display, otherwise a sentence built from its facts.
+  const metaDescription = property.description
+    ? String(property.description).replace(/\s+/g, " ").trim().slice(0, 155)
+    : `${property.bedrooms}-bedroom ${String(property.type ?? "property").toLowerCase()} in ${property.location}, sleeping up to ${property.guests}. Book directly with Frontier Residences.`;
+
   return (
     <div className="min-h-screen flex flex-col">
+      {/* `path` is built from the slug alone, without the checkIn/checkOut/guests
+          query string the property cards attach — otherwise every date a
+          visitor searches would present itself as a separate page. */}
+      <Seo
+        title={`${property.name} — ${property.location}`}
+        description={metaDescription}
+        path={`/property/${property.slug}`}
+        type="article"
+        image={images[0] ?? undefined}
+        schema={[
+          propertySchema({
+            name: property.name,
+            slug: property.slug,
+            description: property.description,
+            location: property.location,
+            bedrooms: property.bedrooms,
+            bathrooms: property.bathrooms,
+            guests: property.guests,
+            images: property.images,
+            amenities: property.amenities,
+          }),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Properties", path: "/properties" },
+            { name: property.name, path: `/property/${property.slug}` },
+          ]),
+        ]}
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">

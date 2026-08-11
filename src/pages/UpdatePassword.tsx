@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
+import Seo from "@/components/Seo";
 
 const UpdatePassword = () => {
   const [password, setPassword] = useState("");
@@ -53,6 +54,7 @@ const UpdatePassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Seo title="Update Password" path="/update-password" noindex />
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="font-playfair text-3xl text-center">Set a new password</CardTitle>

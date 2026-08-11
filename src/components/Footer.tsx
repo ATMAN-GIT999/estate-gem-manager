@@ -17,7 +17,10 @@ const SOCIAL_LINKS: { label: string; href: string; Icon: typeof Instagram }[] = 
 const Footer = () => {
   const [tagline, setTagline] = useState("Bespoke property management and investment solutions for exclusive properties.");
   const [email, setEmail] = useState("Hello@frontier-residences.com");
-  const [phone, setPhone] = useState("+34 665 51 18 53");
+  // Must stay identical to the number in the Aviso Legal and the Google
+  // Business Profile — local search treats a mismatched phone number as a
+  // signal that it is looking at two different businesses.
+  const [phone, setPhone] = useState("+34 649 429 678");
   const [companyName, setCompanyName] = useState("Frontier Residences");
   const [servicesTitle, setServicesTitle] = useState("Services");
   const [companyTitle, setCompanyTitle] = useState("Company");

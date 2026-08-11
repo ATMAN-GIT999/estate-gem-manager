@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Wallet, ShieldCheck, Wrench, Paintbrush, Cpu, Check } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 
 const GuaranteedIncomePageContent = () => {
   const [pageTitle, setPageTitle] = useState("Effortless Ownership. Guaranteed Monthly Income.");
@@ -25,6 +27,12 @@ const GuaranteedIncomePageContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Guaranteed Rental Income"
+        description="We lease your property and pay a fixed amount every month, booked or empty, and maintain the home throughout — you trade the strong months for certainty in the weak ones."
+        path="/guaranteed-income"
+        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Guaranteed Income", path: "/guaranteed-income" }])}
+      />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
         <section className="py-16 bg-gradient-hero">
