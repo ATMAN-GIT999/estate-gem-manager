@@ -21,16 +21,18 @@ import EditableText from "./admin/EditableText";
  * you are, how to reach you, and which property — and leaves the rest for that
  * conversation.
  *
- * ⚠️ Writing here depends on the RLS policy in
- * `20260810211500_owner_enquiries_public_insert.sql`. Until that migration is
- * applied, every submission is rejected. That is why the failure path below
- * shows the email address rather than a generic apology: a lead that cannot be
- * stored must still have somewhere to go.
+ * The failure path shows the email address rather than a generic apology: a
+ * lead that cannot be stored must still have somewhere to go.
  */
 const CONTACT_EMAIL = "Hello@frontier-residences.com";
 
-/** Must match the WITH CHECK clause of the insert policy exactly. */
-const LEAD_SOURCE = "website_owner_form";
+/**
+ * The deployed policy "Anyone can submit a consultation request" ends in
+ * `source = 'consultation-booking'` and accepts nothing else, so both public
+ * forms share the value. `metadata.submitted_from` is what tells them apart in
+ * the CRM — widen the policy and this can become its own source.
+ */
+const LEAD_SOURCE = "consultation-booking";
 
 const enquirySchema = z.object({
   firstName: z.string().trim().min(1, "Please enter your first name").max(100),

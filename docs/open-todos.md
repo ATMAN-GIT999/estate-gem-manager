@@ -287,28 +287,50 @@ Die Komponente steht auf `/evaluate` unter dem Ergebnis der Cashflow-Analyse
 Der Eigentümer lud Adresse, Telefonnummer und bis zu zehn Fotos hoch, bekam
 eine Bestätigung, und die Anfrage existierte nirgends.
 
-**Jetzt:** Zeile in `contacts` mit `source = 'website_consultation_form'`,
-Fotos in den privaten Bucket `owner-enquiries`. Reihenfolge bewusst Fotos
+**Jetzt:** Zeile in `contacts` mit `source = 'consultation-booking'`,
+Fotos in den privaten Bucket `consultation-uploads`. Reihenfolge bewusst Fotos
 zuerst, Lead-Zeile zuletzt — ein fehlgeschlagener Upload darf die Anfrage nicht
 kosten, deshalb werden Fehler gesammelt und in der Zeile vermerkt statt
 abzubrechen. Nach dem Absenden ersetzt eine Bestätigung das Formular, sonst
 lädt ein ausgefülltes Formular zur zweiten identischen Einsendung ein.
 
-**Warum ein eigener Bucket:** `property-images` ist `public = true` — richtig für
-Inserate, falsch für Fotos eines fremden Hauses, die uns jemand vor dem
-Vertragsabschluss schickt. `owner-enquiries` ist privat, auf 10 MB und
-Bildformate begrenzt, Besucher dürfen nur schreiben, Admins lesen und löschen.
+### Die Datenbankseite war längst da
 
-### ⚠️ Beide Formulare brauchen die Migrationen
+Wichtig für künftige Sessions: **Es waren keine Migrationen nötig.** Eine
+frühere Lovable-Session hatte die Rückseite dieses Formulars bereits gebaut und
+nur nie angeschlossen:
 
-| Migration | wofür |
+| | Zustand |
 |---|---|
-| `20260810211500_owner_enquiries_public_insert.sql` | INSERT-Policy auf `contacts` |
-| `20260810214500_owner_enquiry_photos.sql` | Bucket `owner-enquiries` + erweitert die Policy um die zweite `source` |
+| Bucket `consultation-uploads` | privat, existiert |
+| Policy „Anyone can submit a consultation request" auf `contacts` | INSERT für `anon`, verlangt `source = 'consultation-booking'` |
+| Policy „Anyone can upload consultation photos" | INSERT in den Bucket für `anon` |
+| Policy „Admins can read consultation photos" | SELECT für Admins |
 
-Solange sie nicht angewendet sind, weist RLS **jede** Einsendung beider
-Formulare ab. Beide fangen das ab und zeigen die E-Mail-Adresse, statt sich zu
-bedanken und den Lead zu verlieren.
+Ich hatte zuerst zwei eigene Migrationen geschrieben
+(`20260810211500`, `20260810214500`) und wieder entfernt — sie hätten einen
+zweiten Bucket `owner-enquiries` neben dem vorhandenen angelegt. Sie stehen in
+der Git-Historie, falls die Werte darin je gebraucht werden.
+
+**Konsequenz für den Code:** `LEAD_SOURCE` und `PHOTO_BUCKET` in beiden
+Formularen sind keine freie Wahl, sondern das, was die Policies verlangen. Wird
+`source` geändert, weist RLS jede Einsendung ab.
+
+**Beide Formulare senden dieselbe `source`**, weil die Policy nur diesen einen
+Wert durchlässt. Unterschieden werden sie über `metadata.submitted_from`
+(`property-management` bzw. `evaluate`). Wer sie im CRM sauber trennen will,
+erweitert die Policy auf
+`source IN ('consultation-booking', 'website_owner_form')`.
+
+**Verifiziert am 10.08.2026:** Insert mit dem öffentlichen Schlüssel für beide
+Formular-Payloads → `201 Created`. Testzeilen wieder gelöscht.
+
+### Am Bucket noch offen
+
+- `consultation-uploads` hat **kein** `file_size_limit` und **keine**
+  `allowed_mime_types` — das Upload-Feld verspricht „PNG, JPG up to 10MB each",
+  die Datenbank erzwingt davon nichts.
+- Es gibt keine DELETE-Policy für Admins auf den Bucket, nur SELECT.
 
 ## Nicht aus der Notiz, aber offen
 

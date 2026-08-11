@@ -19,15 +19,22 @@ import { Calendar as CalendarIcon, Upload, CheckCircle2, AlertCircle, Loader2 } 
  * projection, and every one of those enquiries was discarded on the spot.
  *
  * It now writes a row to `contacts` and puts the photos in the private
- * `owner-enquiries` bucket. Both need the policies in
- * `20260810211500_owner_enquiries_public_insert.sql` and
- * `20260810214500_owner_enquiry_photos.sql`.
+ * `consultation-uploads` bucket.
+ *
+ * Both of those already existed in the database — a private bucket, an insert
+ * policy for anonymous visitors, and admin read access were provisioned for
+ * this form and then never wired up. The values below are not free choices:
+ * they are what the deployed policies require.
  */
 const CONTACT_EMAIL = "Hello@frontier-residences.com";
 
-/** Must match the WITH CHECK clause of the contacts insert policy. */
-const LEAD_SOURCE = "website_consultation_form";
-const PHOTO_BUCKET = "owner-enquiries";
+/**
+ * The live policy "Anyone can submit a consultation request" ends in
+ * `source = 'consultation-booking'`. Change this string and every submission is
+ * rejected by RLS.
+ */
+const LEAD_SOURCE = "consultation-booking";
+const PHOTO_BUCKET = "consultation-uploads";
 
 /** Keeps Supabase Storage keys predictable: no spaces, no accents, no slashes. */
 const safeFileName = (name: string) =>
