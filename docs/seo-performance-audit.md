@@ -13,7 +13,23 @@ Empfohlene Reihenfolge: **1 → 2 → 3 → 4 → 5 → 6** (Aufwand steigt, Ris
 
 ## 1 · Admin-Bereich lädt bei jedem Besuch mit
 
-**Status:** offen · **Priorität:** hoch (größter Hebel, ein Datei-Umbau)
+**Status:** ✅ erledigt · **Priorität:** hoch (größter Hebel, ein Datei-Umbau)
+
+**Umgesetzt:** alle 13 `/admin/*`-Routen in `src/App.tsx` auf `React.lazy()`
+umgestellt, ein `<Suspense>` um die `<Routes>`. Bewusst pro Route statt einem
+gemeinsamen Admin-Chunk — wer Bookings öffnet, braucht den Page-Builder nicht.
+
+| | vorher | nachher |
+|---|---|---|
+| Haupt-JS (gzip) | 750,5 KB | **377,5 KB** |
+| Haupt-CSS (gzip) | 29,3 KB | **17,5 KB** |
+| JS-Chunks | 1 | 32 |
+
+**Der eigentliche Brocken war `grapesjs`** im Page-Builder: 1,14 MB, jetzt in
+`Builder-*.js` ausgelagert und wird nur unter `/admin/builder` geladen. Die
+Vite-Warnung bleibt bestehen, betrifft aber jetzt nur noch diesen Chunk.
+
+Alle Routen inklusive `/admin/builder` und `/admin/dashboard` weiterhin 200.
 
 **Befund:** `npm run build` liefert **ein JS-Bundle mit 2,77 MB (750 KB gzip)** —
 Vite warnt beim Build selbst davor ("Some chunks are larger than 500 kB").
