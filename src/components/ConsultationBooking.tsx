@@ -6,11 +6,38 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import { Calendar as CalendarIcon, Upload, CheckCircle2, AlertCircle } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import { Calendar as CalendarIcon, Upload, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+
+/**
+ * The consultation request under the cashflow result on /evaluate.
+ *
+ * ⚠️ This form used to submit nothing at all. `handleSubmit` validated the
+ * date and the photos, showed "We'll review your property and contact you
+ * within 24 hours", and returned — no insert, no upload, no mail. It sits at
+ * the warmest lead the site produces, directly under an owner's own income
+ * projection, and every one of those enquiries was discarded on the spot.
+ *
+ * It now writes a row to `contacts` and puts the photos in the private
+ * `owner-enquiries` bucket. Both need the policies in
+ * `20260810211500_owner_enquiries_public_insert.sql` and
+ * `20260810214500_owner_enquiry_photos.sql`.
+ */
+const CONTACT_EMAIL = "Hello@frontier-residences.com";
+
+/** Must match the WITH CHECK clause of the contacts insert policy. */
+const LEAD_SOURCE = "website_consultation_form";
+const PHOTO_BUCKET = "owner-enquiries";
+
+/** Keeps Supabase Storage keys predictable: no spaces, no accents, no slashes. */
+const safeFileName = (name: string) =>
+  name.normalize("NFKD").replace(/[^\w.\-]+/g, "_").slice(-80);
 
 const ConsultationBooking = () => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -39,9 +66,9 @@ const ConsultationBooking = () => {
     setSelectedImages(selectedImages.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!date) {
       toast({
         title: "Please select a date",
@@ -60,10 +87,94 @@ const ConsultationBooking = () => {
       return;
     }
 
-    toast({
-      title: "Consultation Requested",
-      description: "We'll review your property and contact you within 24 hours",
+    // `required` on the inputs accepts a string of spaces, which would reach the
+    // database and be bounced by the policy's `first_name <> ''` check — a
+    // confusing way to learn you left the name blank.
+    if (!formData.name.trim() || !formData.email.trim() || !formData.propertyAddress.trim()) {
+      toast({
+        title: "Check your details",
+        description: "Please fill in your name, email and the property address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    // The id is minted here rather than read back from the insert: visitors
+    // have no SELECT policy on `contacts`, so asking for the row would turn a
+    // successful write into an error. Knowing the id up front also gives the
+    // photos a folder to live in.
+    const enquiryId = crypto.randomUUID();
+
+    // Photos first, the lead row last. An upload that fails must not cost us
+    // the enquiry, so failures are collected and reported inside the row
+    // instead of aborting — a lead with missing photos is recoverable, a lead
+    // that was never written is not.
+    const uploaded: string[] = [];
+    const failed: string[] = [];
+    for (const [index, file] of selectedImages.entries()) {
+      const path = `${enquiryId}/${index + 1}-${safeFileName(file.name)}`;
+      const { error } = await supabase.storage
+        .from(PHOTO_BUCKET)
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (error) {
+        console.error("Enquiry photo upload failed:", file.name, error);
+        failed.push(file.name);
+      } else {
+        uploaded.push(path);
+      }
+    }
+
+    const [firstName, ...restOfName] = formData.name.trim().split(/\s+/);
+    const preferredDate = date.toISOString().slice(0, 10);
+
+    const { error } = await supabase.from("contacts").insert({
+      id: enquiryId,
+      first_name: firstName || formData.name.trim(),
+      last_name: restOfName.join(" ") || null,
+      email: formData.email.trim(),
+      phone: formData.phone.trim() || null,
+      source: LEAD_SOURCE,
+      status: "lead",
+      notes: [
+        `Property: ${formData.propertyAddress.trim()}`,
+        `Preferred consultation date: ${preferredDate}`,
+        `Photos: ${uploaded.length} uploaded to ${PHOTO_BUCKET}/${enquiryId}`,
+        failed.length ? `Photos that failed to upload: ${failed.join(", ")}` : "",
+        formData.message.trim() ? `\n${formData.message.trim()}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      metadata: {
+        property_address: formData.propertyAddress.trim(),
+        preferred_date: preferredDate,
+        photo_paths: uploaded,
+        photo_upload_failures: failed,
+        submitted_from: "evaluate",
+      },
     });
+
+    setSubmitting(false);
+
+    if (error) {
+      console.error("Consultation request insert failed:", error);
+      toast({
+        variant: "destructive",
+        title: "We could not send that",
+        description: `Please email us at ${CONTACT_EMAIL} — we don't want to lose your request.`,
+      });
+      return;
+    }
+
+    if (failed.length) {
+      toast({
+        title: "Request sent, some photos didn't upload",
+        description: `We have your details. Please email ${failed.length} missing photo(s) to ${CONTACT_EMAIL}.`,
+      });
+    }
+
+    setSent(true);
   };
 
   const handleChange = (
@@ -74,6 +185,28 @@ const ConsultationBooking = () => {
       [e.target.name]: e.target.value,
     }));
   };
+
+  // The confirmation replaces the form rather than sitting under it. Leaving a
+  // filled-in form on screen after a successful send invites a second identical
+  // submission, which is how one owner becomes three rows in the CRM.
+  if (sent) {
+    return (
+      <section className="py-20 bg-gradient-to-b from-background to-accent/5">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center">
+            <CheckCircle2 className="w-14 h-14 text-accent-strong mx-auto mb-6" strokeWidth={1.5} />
+            <h2 className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-4">
+              Consultation requested
+            </h2>
+            <p className="text-lg text-foreground/70 leading-relaxed">
+              We have your property details and photos. Our team will review them and
+              come back to you within 24 hours to confirm your consultation.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 bg-gradient-to-b from-background to-accent/5">
@@ -251,9 +384,17 @@ const ConsultationBooking = () => {
               <Button
                 type="submit"
                 size="lg"
+                disabled={submitting}
                 className="w-full bg-accent hover:bg-accent/90 text-white shadow-elegant"
               >
-                Request Consultation
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Sending your request…
+                  </>
+                ) : (
+                  "Request Consultation"
+                )}
               </Button>
             </form>
           </Card>

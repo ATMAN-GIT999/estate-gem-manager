@@ -273,19 +273,42 @@ vier davon Pflicht, schreibt in die vorhandene CRM-Tabelle `contacts` mit
 - Der Terminbuchungs-Link bleibt offen (siehe unten) — der obere Button springt
   vorerst zum Formular statt in einen Kalender.
 
-### 🔴 Getrennter Fund: `ConsultationBooking.tsx` speichert nichts
+### Getrennter Fund: `ConsultationBooking.tsx` speichert nichts — ✅ behoben
 
 Nicht Teil von Punkt 5, aber beim Suchen aufgefallen und gravierender als die
 CTA-Platzierung.
 
-`handleSubmit` (`:42-67`) prüft Datum und Bilder, zeigt „We'll review your
-property and contact you within 24 hours" — und hört auf. Kein
+**War:** `handleSubmit` prüfte Datum und Bilder, zeigte „We'll review your
+property and contact you within 24 hours" — und hörte auf. Kein
 `supabase.from(...)`, kein Mailversand, kein Upload der Fotos.
 
 Die Komponente steht auf `/evaluate` unter dem Ergebnis der Cashflow-Analyse
 (`Evaluate.tsx:506`), also am wärmsten Lead, den die Seite überhaupt erzeugt.
-Der Eigentümer lädt Adresse, Telefonnummer und bis zu zehn Fotos hoch, bekommt
-eine Bestätigung, und die Anfrage existiert nirgends.
+Der Eigentümer lud Adresse, Telefonnummer und bis zu zehn Fotos hoch, bekam
+eine Bestätigung, und die Anfrage existierte nirgends.
+
+**Jetzt:** Zeile in `contacts` mit `source = 'website_consultation_form'`,
+Fotos in den privaten Bucket `owner-enquiries`. Reihenfolge bewusst Fotos
+zuerst, Lead-Zeile zuletzt — ein fehlgeschlagener Upload darf die Anfrage nicht
+kosten, deshalb werden Fehler gesammelt und in der Zeile vermerkt statt
+abzubrechen. Nach dem Absenden ersetzt eine Bestätigung das Formular, sonst
+lädt ein ausgefülltes Formular zur zweiten identischen Einsendung ein.
+
+**Warum ein eigener Bucket:** `property-images` ist `public = true` — richtig für
+Inserate, falsch für Fotos eines fremden Hauses, die uns jemand vor dem
+Vertragsabschluss schickt. `owner-enquiries` ist privat, auf 10 MB und
+Bildformate begrenzt, Besucher dürfen nur schreiben, Admins lesen und löschen.
+
+### ⚠️ Beide Formulare brauchen die Migrationen
+
+| Migration | wofür |
+|---|---|
+| `20260810211500_owner_enquiries_public_insert.sql` | INSERT-Policy auf `contacts` |
+| `20260810214500_owner_enquiry_photos.sql` | Bucket `owner-enquiries` + erweitert die Policy um die zweite `source` |
+
+Solange sie nicht angewendet sind, weist RLS **jede** Einsendung beider
+Formulare ab. Beide fangen das ab und zeigen die E-Mail-Adresse, statt sich zu
+bedanken und den Lead zu verlieren.
 
 ## Nicht aus der Notiz, aber offen
 
