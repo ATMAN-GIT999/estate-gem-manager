@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import EditableText from "./admin/EditableText";
+import { BUSINESS } from "@/lib/siteMeta";
+import logo from "@/assets/frontier-logo.webp";
 
 /**
  * Only networks with a real profile are rendered. Facebook and LinkedIn are
@@ -32,11 +34,15 @@ const Footer = () => {
   const [aboutLink, setAboutLink] = useState("About Us");
   const [projectsLink, setProjectsLink] = useState("Projects");
   const [evalLink, setEvalLink] = useState("Property Evaluation");
+  const [faqLink, setFaqLink] = useState("FAQ");
   const [avisoLegalLink, setAvisoLegalLink] = useState("Aviso Legal");
+  // Must stay identical to the Aviso Legal and the Google Business Profile,
+  // for the same reason as the phone number above.
+  const [address, setAddress] = useState(`${BUSINESS.street}, ${BUSINESS.postalCode} ${BUSINESS.city}`);
   const [copyright, setCopyright] = useState("Frontier Residences. All rights reserved.");
 
   return (
-    <footer className="bg-primary text-primary-foreground py-12">
+    <footer className="bg-primary text-primary-foreground border-t-2 border-accent py-12">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
@@ -62,6 +68,7 @@ const Footer = () => {
             >
               {tagline}
             </EditableText>
+            <img src={logo} alt="Frontier Residences" className="h-12 mt-6" />
           </div>
 
           <div>
@@ -181,6 +188,19 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/property-management#faq" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                  <EditableText
+                    id="footer-faq-link"
+                    value={faqLink}
+                    onChange={setFaqLink}
+                    as="span"
+                    className="text-primary-foreground/80"
+                  >
+                    {faqLink}
+                  </EditableText>
+                </Link>
+              </li>
+              <li>
                 <Link to="/aviso-legal" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-aviso-legal-link"
@@ -229,6 +249,18 @@ const Footer = () => {
                   className="text-primary-foreground/80"
                 >
                   {phone}
+                </EditableText>
+              </li>
+              <li className="flex items-start gap-2 text-primary-foreground/80">
+                <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
+                <EditableText
+                  id="footer-address"
+                  value={address}
+                  onChange={setAddress}
+                  as="span"
+                  className="text-primary-foreground/80"
+                >
+                  {address}
                 </EditableText>
               </li>
             </ul>

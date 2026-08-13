@@ -2,12 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import EditableText from "./admin/EditableText";
 
 /**
- * Four numbers, no cards.
- *
- * They were in raised, bordered, hover-scaling panels, which made four facts
- * look like four buttons. A number this large needs no container to be found —
- * a hairline above each and space between is enough, and it lets the numbers
- * sit at the same weight as the rest of the page instead of floating over it.
+ * Four numbers, no cards, on a full green fill — the one section on the page
+ * that is entirely colour rather than a light surface with an accent, so the
+ * portfolio scale reads as a statement rather than another paragraph.
  */
 const Stats = () => {
   const [sectionTitle, setSectionTitle] = useState("A Portfolio Built on Precision & Performance");
@@ -40,7 +37,7 @@ const Stats = () => {
   }, [hasAnimated]);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-28 bg-background">
+    <section ref={sectionRef} className="py-24 md:py-28 bg-primary border-y-2 border-accent">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <EditableText
@@ -48,7 +45,7 @@ const Stats = () => {
             value={sectionTitle}
             onChange={setSectionTitle}
             as="h2"
-            className="t-section text-primary text-balance"
+            className="t-section text-primary-foreground text-balance"
           >
             {sectionTitle}
           </EditableText>
@@ -98,14 +95,14 @@ const AnimatedStat = ({ stat, index, hasAnimated }: { stat: { number: string; la
   }, [hasAnimated, stat.number, index]);
 
   return (
-    <div className="border-t border-primary/15 pt-6">
+    <div className="border-t border-primary-foreground/25 pt-6">
       {/* Display size on a non-heading, which is the one deliberate exception
           to "Display appears once per page": in this section the numbers ARE
           the content — the heading only frames them. */}
-      <div className="t-display text-accent-strong mb-3 tabular-nums">
+      <div className="t-display text-accent-on-primary mb-3 tabular-nums">
         {displayNumber}
       </div>
-      <div className="t-meta text-foreground/60">{stat.label}</div>
+      <div className="t-meta text-primary-foreground/70">{stat.label}</div>
     </div>
   );
 };

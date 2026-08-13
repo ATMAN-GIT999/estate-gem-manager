@@ -1,37 +1,27 @@
 import { useState } from "react";
-import { ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema, organizationSchema } from "@/lib/schema";
-import { Button } from "@/components/ui/button";
 import Stats from "@/components/Stats";
-import TechnologySection from "@/components/TechnologySection";
+import WhyItMakesADifference from "@/components/WhyItMakesADifference";
 import PropertyManagement from "@/components/PropertyManagement";
-import PropertyEvaluator from "@/components/PropertyEvaluator";
+import ListingWorkflow from "@/components/ListingWorkflow";
 import AboutMini from "@/components/AboutMini";
 import ProjectsSection from "@/components/ProjectsSection";
 import OwnerContactForm from "@/components/OwnerContactForm";
 import FinancialPerformance from "@/components/FinancialPerformance";
 import WaysToWorkTogether from "@/components/WaysToWorkTogether";
-
-/** Nothing on this page sets `scroll-behavior`, so scrolling is done in JS —
- *  the same way the header's evaluator button does it. */
-const scrollTo = (id: string) => () => {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-};
+import FAQ from "@/components/FAQ";
+import GetInTouch from "@/components/GetInTouch";
 
 const PropertyManagementPageContent = () => {
-  const [pageTitle, setPageTitle] = useState("Bespoke Property Management");
-  // Two sentences where the page used to open with five variations of the same
-  // positioning — the hero's own subtitle, both halves of IntroSection, and the
-  // Business Areas lead-in. These are the two that say something.
-  const [pageLead, setPageLead] = useState("Your home deserves more than management — it deserves care, strategy, and master craftsmanship.");
-  const [pageSubtitle, setPageSubtitle] = useState("We manage it with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset.");
-  const [primaryCta, setPrimaryCta] = useState("Talk to us about your property");
-  const [secondaryCta, setSecondaryCta] = useState("See what it could earn");
+  const [pageTitle, setPageTitle] = useState("Luxury Rental Management");
+  const [pageLead, setPageLead] = useState("We offer bespoke Property Management");
+  const [pageSubtitle, setPageSubtitle] = useState("And treat your home with care, strategy and the precision it needs — while preserving your asset we are maximising revenue.");
+
   return (
     <div className="min-h-screen flex flex-col">
       <Seo
@@ -47,68 +37,71 @@ const PropertyManagementPageContent = () => {
         ]}
       />
       <Navigation />
-      <main className="flex-1 pt-24 pb-12">
-        <section className="py-16 bg-gradient-hero">
+      {/* overflow-x-clip is the safety net for the full-bleed image blocks
+          further down (OwnerContactForm, the Featured Transformations
+          gallery): `100vw` can be a hair wider than the visible viewport
+          when a scrollbar is present, and without this the page would gain
+          a few pixels of horizontal scroll. */}
+      <main className="flex-1 pt-24 pb-12 overflow-x-clip">
+        {/* 1 — The contact form is the hero. Title states what this is, lead
+            and subtitle state the promise, and the form itself is the first
+            thing an owner can act on — no more scrolling past eight sections
+            to find a way to talk to someone. */}
+        <section className="pt-16 pb-10 md:pb-14">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center animate-fade-in">
-              <EditableText id="pmp-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="t-display text-primary mb-6">{pageTitle}</EditableText>
-              {/* The lead sits on Block, not Body: it is the strongest sentence
-                  on the page and is meant to read as a statement, not as an
-                  intro paragraph. The subtitle below it drops to Body so the
-                  hero descends cleanly Display → Block → Body. */}
-              <EditableText id="pmp-page-lead" value={pageLead} onChange={setPageLead} as="p" multiline className="t-block text-primary text-balance mb-5">{pageLead}</EditableText>
-              <EditableText id="pmp-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="t-body text-foreground/70">{pageSubtitle}</EditableText>
-
-              {/* The page used to open with three stacked paragraphs and no way
-                  to act — the first button was in the ninth of ten sections. An
-                  owner convinced by the headline had to scroll past everything
-                  to do anything about it.
-
-                  Two actions, not one, because owners arrive in two states. The
-                  ready one wants a person; the curious one is not going to
-                  volunteer their name yet and will take a number instead. */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
-                <Button
-                  size="lg"
-                  onClick={scrollTo("owner-contact")}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant px-8 py-6 text-base"
-                >
-                  <EditableText id="pmp-cta-primary" value={primaryCta} onChange={setPrimaryCta} as="span">{primaryCta}</EditableText>
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={scrollTo("property-evaluation")}
-                  className="border-primary/30 text-primary hover:bg-primary/5 px-8 py-6 text-base"
-                >
-                  <EditableText id="pmp-cta-secondary" value={secondaryCta} onChange={setSecondaryCta} as="span">{secondaryCta}</EditableText>
-                </Button>
+            {/* The silver panel is its own contained, rounded element — not
+                a full-bleed section fill — so it reads as a deliberate
+                material rather than just "the page background got lighter". */}
+            <div className="bg-silver-shimmer relative rounded-[2.5rem] px-6 py-16 md:px-16 md:py-20 shadow-soft">
+              {/* Soft green shading tucked into the corners on top of the
+                  shimmer — decoration only, harmonising the panel with the
+                  rest of the palette. */}
+              <div className="pointer-events-none absolute -left-16 top-0 w-72 h-72 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
+              <div className="pointer-events-none absolute -right-16 bottom-0 w-72 h-72 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
+              <div className="relative text-center animate-fade-in">
+                {/* Full panel width, not the narrower max-w-2xl below — at
+                    this width the title has room to sit on one line rather
+                    than breaking after "Rental". */}
+                <EditableText id="pmp-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="t-display text-primary mb-6">{pageTitle}</EditableText>
+                <div className="max-w-2xl mx-auto">
+                  <EditableText id="pmp-page-lead" value={pageLead} onChange={setPageLead} as="p" multiline className="t-block text-primary text-balance mb-5">{pageLead}</EditableText>
+                  <EditableText id="pmp-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="t-body text-foreground/70">{pageSubtitle}</EditableText>
+                </div>
               </div>
             </div>
           </div>
         </section>
+        <OwnerContactForm />
 
-        {/* Order follows the argument: what we take on -> what it earns ->
-            proof it worked -> so what would yours earn -> how it is run, who
-            we are, the two commercial models, and a way to start.
-
-            The calculator moved up from ninth place. It answers the question
-            the proof above it has just provoked, and it is where the hero's
-            second button lands — a jump of four sections rather than eight. */}
-        <PropertyManagement />
+        {/* 2 — Proof of scale, then how the earnings side is run. The
+            calculator itself lives on the landing page; the button at the
+            end of FinancialPerformance links there instead of embedding the
+            whole form again. */}
+        <Stats />
         <FinancialPerformance />
 
-        <Stats />
+        {/* 3-4 — The listing itself: the opening statement and the platform
+            work as one surface, then the four things that make it up on
+            their own, more visible, surface. */}
+        <PropertyManagement />
+        <ListingWorkflow />
+
+        {/* 5 — The work, in three destinations. */}
         <ProjectsSection />
 
-        <PropertyEvaluator />
+        {/* 6 — The differentiator: the system, with guest management and
+            property care folded in underneath as the standard services they
+            are. */}
+        <WhyItMakesADifference />
 
-        <TechnologySection />
+        {/* 7-8 — Who runs it, and the two ways to start (Renovations and
+            Investments nest inside Guaranteed Income there). */}
         <AboutMini />
         <WaysToWorkTogether />
 
-        <OwnerContactForm />
+        <FAQ eyebrow="" heading="Frequently Asked Questions" />
+
+        <GetInTouch />
       </main>
       <Footer />
     </div>

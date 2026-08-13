@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { TrendingUp, LineChart, FileBarChart, Check } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, TrendingUp, LineChart, FileBarChart, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
 
 /**
@@ -17,25 +19,26 @@ import EditableText from "./admin/EditableText";
  */
 const FinancialPerformance = () => {
   const [eyebrow, setEyebrow] = useState("Financial Performance");
-  const [heading, setHeading] = useState("We don't just manage the property. We manage what it earns.");
-  const [lead, setLead] = useState("Occupancy, nightly rate and running costs are the three things that decide what a home returns. All three are managed actively, and reported to you in full.");
+  const [heading, setHeading] = useState("We manage what the property earns.");
+  const [lead, setLead] = useState("Occupancy, nightly rate and running costs — actively managed, reported to you in full.");
   const [outcomesHeading, setOutcomesHeading] = useState("What that adds up to:");
+  const [ctaText, setCtaText] = useState("Calculate what your property could earn");
 
   const [pillars, setPillars] = useState([
     {
       icon: "TrendingUp",
       title: "Dynamic pricing",
-      description: "Rates move with location, season, demand and amenities rather than sitting still — adjusted automatically, several times a day.",
+      description: "Rates adjusted automatically, several times a day.",
     },
     {
       icon: "LineChart",
       title: "Revenue optimisation",
-      description: "Pricing decisions are made against live hotel and Airbnb market data for your area, not against last year's guesswork.",
+      description: "Priced against live hotel and Airbnb market data.",
     },
     {
       icon: "FileBarChart",
       title: "Transparent reporting",
-      description: "A monthly statement of what the property earned and what it cost, plus a live dashboard you can open at any time.",
+      description: "Monthly statement, plus a live dashboard anytime.",
     },
   ]);
 
@@ -145,6 +148,24 @@ const FinancialPerformance = () => {
               </li>
             ))}
           </ul>
+        </div>
+
+        {/* The full calculator used to sit inline here as its own heavy
+            section (`PropertyEvaluator.tsx`) — now just a link to where it
+            actually lives, on the landing page. */}
+        <div className="text-center mt-14">
+          <Button
+            asChild
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant px-8"
+          >
+            <Link to="/#property-evaluation">
+              <EditableText id="fin-cta" value={ctaText} onChange={setCtaText} as="span">
+                {ctaText}
+              </EditableText>
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

@@ -203,6 +203,28 @@ All colors MUST be HSL.
   }
 }
 
+/* One "polished silver" background, used wherever a light surface needs to
+   read as a deliberate material rather than the plain page background —
+   currently the property-management hero panel and the FAQ panel. Defined
+   once so the two can never drift into two different effects that both get
+   called "the silver shimmer". No new colour tokens: it is layered white,
+   `--background` and `--secondary`, which is what the palette already has to
+   offer as "light". */
+@layer components {
+  .bg-silver-shimmer {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(140% 160% at 20% -20%, hsl(0 0% 100%) 0%, hsl(var(--background)) 42%, hsl(var(--secondary)) 100%);
+  }
+  .bg-silver-shimmer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 32%, hsl(0 0% 100% / 0.6) 46%, transparent 62%);
+    pointer-events: none;
+  }
+}
+
 /* Required by the stack guidelines and absent until now. Anyone who has asked
    their system to reduce motion currently still gets every fade, scale and
    scroll animation on the site. */

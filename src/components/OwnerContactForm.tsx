@@ -6,8 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowRight, CalendarClock, CheckCircle2, Loader2 } from "lucide-react";
 import EditableText from "./admin/EditableText";
+import EditableImage from "./admin/EditableImage";
+import ownerFormImage from "@/assets/about-hero.webp";
+
+/**
+ * Provisional — Frontier has no Cal.com/Calendly of its own yet (see
+ * docs/open-todos.md, point 5). This is Almedin's own booking link, standing
+ * in until the client provides theirs; swap the href when that arrives.
+ */
+const VIDEO_CALL_URL = "https://cal.com/almedin-sinanovic-ff4chx/videocall-mit-mir";
 
 /**
  * The close of the owner page, and the destination of the hero button.
@@ -53,8 +62,10 @@ const OwnerContactForm = () => {
   const [heading, setHeading] = useState("Less hassle, higher income, protected value.");
   const [lead, setLead] = useState("Tell us about your property and we'll come back to you with what managing it with us would look like — usually within one working day.");
   const [ctaText, setCtaText] = useState("Send enquiry");
+  const [callCtaText, setCallCtaText] = useState("Book a video call");
   const [sentHeading, setSentHeading] = useState("Thank you — we have your details.");
   const [sentBody, setSentBody] = useState("One of the founders will read this personally and come back to you within one working day.");
+  const [formImage, setFormImage] = useState(ownerFormImage);
 
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
@@ -122,55 +133,84 @@ const OwnerContactForm = () => {
   };
 
   return (
-    <section id="owner-contact" className="py-24 md:py-28 bg-gradient-hero scroll-mt-20">
+    <section id="owner-contact" className="pt-10 md:pt-14 scroll-mt-20">
       <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto">
-          {sent ? (
-            <div className="text-center">
-              <CheckCircle2 className="w-12 h-12 text-accent-strong mx-auto mb-6" strokeWidth={1.5} />
-              <EditableText
-                id="owner-form-sent-heading"
-                value={sentHeading}
-                onChange={setSentHeading}
-                as="h2"
-                className="t-section text-primary mb-4 text-balance"
-              >
-                {sentHeading}
-              </EditableText>
-              <EditableText
-                id="owner-form-sent-body"
-                value={sentBody}
-                onChange={setSentBody}
-                as="p"
-                multiline
-                className="t-body text-foreground/70"
-              >
-                {sentBody}
-              </EditableText>
-            </div>
-          ) : (
-            <>
-              <div className="text-center mb-10">
-                <EditableText
-                  id="owner-form-heading"
-                  value={heading}
-                  onChange={setHeading}
-                  as="h2"
-                  className="t-section text-primary mb-4 text-balance"
-                >
-                  {heading}
-                </EditableText>
-                <EditableText
-                  id="owner-form-lead"
-                  value={lead}
-                  onChange={setLead}
-                  as="p"
-                  multiline
-                  className="t-body text-foreground/70"
-                >
-                  {lead}
-                </EditableText>
-              </div>
+        {sent ? (
+          <div className="max-w-2xl mx-auto text-center pb-16 md:pb-20">
+            <CheckCircle2 className="w-12 h-12 text-accent-strong mx-auto mb-6" strokeWidth={1.5} />
+            <EditableText
+              id="owner-form-sent-heading"
+              value={sentHeading}
+              onChange={setSentHeading}
+              as="h2"
+              className="t-section text-primary mb-4 text-balance"
+            >
+              {sentHeading}
+            </EditableText>
+            <EditableText
+              id="owner-form-sent-body"
+              value={sentBody}
+              onChange={setSentBody}
+              as="p"
+              multiline
+              className="t-body text-foreground/70"
+            >
+              {sentBody}
+            </EditableText>
+          </div>
+        ) : (
+          /* True edge-to-edge photo, cropped into the section and darkened
+             at the edges so text stays legible over it — the form sits on
+             top as its own light card, a small window rather than a column
+             fighting the image for space.
+
+             `w-screen` plus the calc() margins is the standard full-bleed
+             trick: it pulls the block out to the viewport edges regardless
+             of how wide its parent `container` is, at every breakpoint —
+             unlike a plain negative margin, which only has room to work
+             once the container itself stops being 100% of the viewport.
+             Square corners here on purpose: the gold top/bottom edge is
+             meant to read as one continuous line flush with the browser
+             edge, not a rounded card floating mid-screen.
+
+             Gold top and bottom only — no side bars. Two horizontal lines
+             read as an architectural datum across the page; a full frame
+             around a full-bleed photo just reads as a border. */
+          <div className="relative w-screen ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] pt-2.5 pb-2.5 md:pt-3.5 md:pb-3.5 bg-gradient-to-r from-accent-strong via-accent to-accent-strong shadow-2xl">
+            <div className="relative overflow-hidden min-h-[640px] md:min-h-[680px] flex items-center justify-center md:justify-end">
+              <EditableImage
+                id="owner-form-image"
+                src={formImage}
+                alt="A Frontier Residences managed property"
+                onChange={setFormImage}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-black/55 to-transparent pointer-events-none" aria-hidden="true" />
+              <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-black/55 to-transparent pointer-events-none" aria-hidden="true" />
+
+              <div className="relative z-10 w-full max-w-md mx-6 my-10 md:mr-16 md:ml-0">
+                <div className="bg-muted/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 md:p-8">
+                <div className="mb-6">
+                  <EditableText
+                    id="owner-form-heading"
+                    value={heading}
+                    onChange={setHeading}
+                    as="h2"
+                    className="t-block text-primary mb-3 text-balance"
+                  >
+                    {heading}
+                  </EditableText>
+                  <EditableText
+                    id="owner-form-lead"
+                    value={lead}
+                    onChange={setLead}
+                    as="p"
+                    multiline
+                    className="t-body text-foreground/70"
+                  >
+                    {lead}
+                  </EditableText>
+                </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid sm:grid-cols-2 gap-5">
@@ -241,26 +281,42 @@ const OwnerContactForm = () => {
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={submitting}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant py-6 text-base"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Sending…
-                    </>
-                  ) : (
-                    <>
-                      <EditableText id="owner-form-btn" value={ctaText} onChange={setCtaText} as="span">
-                        {ctaText}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={submitting}
+                    className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant py-6 text-base"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Sending…
+                      </>
+                    ) : (
+                      <>
+                        <EditableText id="owner-form-btn" value={ctaText} onChange={setCtaText} as="span">
+                          {ctaText}
+                        </EditableText>
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="lg"
+                    variant="outline"
+                    asChild
+                    className="flex-1 border-primary/30 text-primary hover:bg-primary/5 py-6 text-base"
+                  >
+                    <a href={VIDEO_CALL_URL} target="_blank" rel="noopener noreferrer">
+                      <CalendarClock className="w-5 h-5 mr-2" />
+                      <EditableText id="owner-form-call-btn" value={callCtaText} onChange={setCallCtaText} as="span">
+                        {callCtaText}
                       </EditableText>
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </>
-                  )}
-                </Button>
+                    </a>
+                  </Button>
+                </div>
 
                 <p className="t-meta text-muted-foreground text-center">
                   We use your details to answer your enquiry, nothing else. You can also reach us at{" "}
@@ -270,9 +326,11 @@ const OwnerContactForm = () => {
                   .
                 </p>
               </form>
-            </>
-          )}
-        </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

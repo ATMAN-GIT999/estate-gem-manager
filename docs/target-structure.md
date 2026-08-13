@@ -55,29 +55,28 @@ Gäste-primär, kompakt. Kein Property-Management-Content außer der Übergangs-
 
 Eigentümer-primär. Sammelt den gesamten PM-Content.
 
-| # | Section | Komponente / Quelle | Herkunft | Status |
-|---|---|---|---|---|
-| 1 | Navigation | `Navigation.tsx` | main | ✅ umgebaut |
-| 2 | Hero „Bespoke Property Management" | `PropertyManagementPage.tsx` | main | ✅ erledigt |
-| 3 | „Your home deserves…" | `IntroSection.tsx` | main (von Landing) | ✅ verschoben |
-| 4 | Stats | `Stats.tsx` | main (von Landing) | ✅ verschoben |
-| 5 | Business Areas | `BusinessAreas.tsx` | main (von Landing) | ✅ verschoben |
-| 6 | Technology | `TechnologySection.tsx` | main (von Landing) | ✅ verschoben |
-| 7 | Short-Term Rental Mgmt (Listing + Property Care) | `PropertyManagement.tsx` | main (von Landing) | ✅ verschoben, enthält nur noch 2 der 3 Säulen |
-| 8 | Our Services | `PropertyManagementPage.tsx` | main | vorhanden |
-| 9 | AI-Driven Hospitality & Operations | `PropertyManagementPage.tsx` | main | vorhanden |
-| 10 | Projects | `ProjectsSection.tsx` | main | ✅ verschoben (Seite `/projects` nutzt dieselbe Komponente) |
-| 11 | About Us (kompakt) | `AboutMini.tsx` | experiment | ✅ verschoben, Eyebrow auf Eigentümer angepasst |
-| 12 | Cashflow Analysis | `PropertyEvaluator.tsx` | main | ✅ ergänzt |
-| 13 | CTA / Kontakt | `OwnerCta.tsx` | **neu** | ✅ gebaut — mailto, siehe offene Punkte |
-| 14 | Footer | `Footer.tsx` | main | vorhanden |
+**Phase 2 (13.08.2026): Kontaktformular als CTA nach vorne, Guest/Property zu
+„Why it makes a difference" verschmolzen, Renovations/Investments als eigene
+Section, Zwei-Modelle-Vergleich als Linienbalken.** Tabelle unten ist der
+aktuelle Ist-Zustand, nicht mehr die Phase-1-Verschiebung.
 
-**Bekannte Redundanzen** — bewusst erst in Phase 2 anfassen, nicht beim Verschieben:
-- #6 Technology und #9 AI-Driven sind inhaltlich fast dieselbe Liste.
-- #5 Business Areas („What's Included") überschneidet sich mit #7 und #8.
-- #10 Projects („Our Destinations": Spain · Austria · Croatia) wiederholt die
-  Regionen, die #4 Stats direkt darüber schon aufzählt.
-- #10 enthält noch „Before & After Photos — Coming Soon"-Platzhalter.
+| # | Section | Komponente | Status |
+|---|---|---|---|
+| 1 | Navigation | `Navigation.tsx` | ✅ |
+| 2 | Hero + Kontaktformular (Bild daneben, „Send enquiry" + Cal.com-Termin-Button) | `PropertyManagementPage.tsx` + `OwnerContactForm.tsx` | ✅ — Cal.com-Link ist Almedins eigener, provisorisch (siehe offene Punkte) |
+| 3 | Portfolio-Zahlen + CTA zum Cashflow-Rechner | `Stats.tsx` | ✅ |
+| 4 | „We manage what the property earns." (Financial Performance) | `FinancialPerformance.tsx` | ✅ |
+| 5 | Cashflow-Rechner | `PropertyEvaluator.tsx` | ✅ |
+| 6 | „We manage while you relax." (Listing-Intro, eine Fläche) | `PropertyManagement.tsx` | ✅ — Guest/Property-Pillars ausgelagert nach #8 |
+| 7 | „This is how we work together." (4 Listing-Cards, dunkler Hintergrund) | `ListingWorkflow.tsx` | ✅ **neu** |
+| 8 | „Our Destinations" / Before & After (dunkler Hintergrund, weiße Schrift) | `ProjectsSection.tsx` | ✅ — auch auf `/projects` |
+| 9 | „Why it makes a difference." (Technology + Guest Management + Property Care, reduziert) | `WhyItMakesADifference.tsx` | ✅ **neu**, ersetzt `TechnologySection.tsx` (gelöscht) |
+| 10 | About Us (kompakt) | `AboutMini.tsx` | unverändert |
+| 11 | „What else we do?" (Renovations & Investments, zwei Container) | `BeyondManagement.tsx` | ✅ **neu**, aus `WaysToWorkTogether.tsx` gelöst |
+| 12 | „Two ways to start to work with us." (Linienbalken statt Karten) | `WaysToWorkTogether.tsx` | ✅ redesignt |
+| 13 | FAQ („Frequently Asked Questions", ohne Eyebrow) | `FAQ.tsx` | ✅ — Inhalt bleibt gästeseitig formuliert, siehe offene Punkte |
+| 14 | „Get in touch." (kleine CTA vor dem Footer) | `GetInTouch.tsx` | ✅ **neu** |
+| 15 | Footer | `Footer.tsx` | ✅ erweitert (Adresse, FAQ-Link) |
 
 **Phase 1 ist damit abgeschlossen.** Beide Seiten sind strukturell vollständig.
 
@@ -154,7 +153,18 @@ kompakte `AboutMini`-Variante als Section.
    Der keyword-starke Begriff könnte im `<title>`-Tag erhalten bleiben.
 6. **`/business-areas`** ist kein Menüpunkt mehr, existiert aber weiter als Route.
    Offen, ob die Seite bestehen bleibt oder in der PM-Seite aufgeht.
-7. **Kontaktweg für Eigentümer:** Der CTA am Ende der PM-Seite ist ein `mailto:`
-   auf die Footer-Adresse, weil es keinen anderen eigentümer-gerichteten Kanal
-   gibt. Ein Terminbuchungs-Link oder Kontaktformular würde deutlich besser
-   konvertieren — Entscheidung des Besitzers.
+7. **Kontaktweg für Eigentümer:** ✅ gelöst — Kontaktformular ist jetzt der
+   Hero der PM-Seite (`OwnerContactForm.tsx`).
+8. **Cal.com-Termin-Button ist provisorisch.** `OwnerContactForm.tsx` verlinkt
+   aktuell auf Almedins eigenen Cal.com-Link
+   (`cal.com/almedin-sinanovic-ff4chx/videocall-mit-mir`), weil Frontier
+   Residences noch keinen eigenen hat. Muss ausgetauscht werden, sobald der
+   Kunde einen liefert.
+9. **FAQ auf der PM-Seite ist wortwörtlich die gästeseitige FAQ** von `/`
+   (Buchungsablauf, Check-in, Storno), nur mit neuer Überschrift. Das ist die
+   Umkehrung des Projekt-Hauptfehlers (Gäste-Sprache auf einer
+   Eigentümer-Seite) — bewusst so von Almedin angefordert, aber wenn eigentümer-
+   spezifische Fragen gewünscht sind, braucht es eigenen Content.
+10. **Hero-/Formularbild ist eine Zweitverwertung von `about-hero.webp`**
+    (bereits das Bild der About-Seite), weil kein dediziertes Bild existierte.
+    Über `EditableImage` im Admin austauschbar.
