@@ -85,20 +85,29 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Optional shared secret check (configure GUESTY_WEBHOOK_SECRET in Guesty + Lovable Cloud)
+  // Shared secret check — fail closed. Guesty issues the secret when the webhook
+  // is created, so it can only be mirrored into GUESTY_WEBHOOK_SECRET afterwards.
+  // Until it is, we reject: this endpoint writes with the service-role key, and
+  // its URL is public knowledge.
   const expectedSecret = Deno.env.get("GUESTY_WEBHOOK_SECRET");
-  if (expectedSecret) {
-    const provided =
-      req.headers.get("x-guesty-signature") ||
-      req.headers.get("x-webhook-secret") ||
-      payload?.secret;
-    if (provided !== expectedSecret) {
-      console.warn("Webhook signature mismatch");
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+  if (!expectedSecret) {
+    console.error("GUESTY_WEBHOOK_SECRET is not configured — rejecting webhook");
+    return new Response(JSON.stringify({ error: "Webhook not configured" }), {
+      status: 503,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const provided =
+    req.headers.get("x-guesty-signature") ||
+    req.headers.get("x-webhook-secret") ||
+    payload?.secret;
+  if (provided !== expectedSecret) {
+    console.warn("Webhook signature mismatch");
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   const eventType: string =
