@@ -25,6 +25,13 @@ import { Calendar as CalendarIcon, Upload, CheckCircle2, AlertCircle, Loader2 } 
  * policy for anonymous visitors, and admin read access were provisioned for
  * this form and then never wired up. The values below are not free choices:
  * they are what the deployed policies require.
+ *
+ * Date and photos are deliberately optional (they used to be required). An
+ * owner who has just read their own income projection is at the single most
+ * motivated moment in the entire funnel; asking them to also pick a calendar
+ * slot and upload up to ten property photos before Frontier even has their
+ * name turns an enquiry into an application. Name, email and address are
+ * still required — that is the minimum needed to follow up at all.
  */
 const CONTACT_EMAIL = "Hello@frontier-residences.com";
 
@@ -76,24 +83,8 @@ const ConsultationBooking = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!date) {
-      toast({
-        title: "Please select a date",
-        description: "Choose your preferred consultation date",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (selectedImages.length === 0) {
-      toast({
-        title: "Property images required",
-        description: "Please upload at least one image of your property",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    // Date and photos are optional — see the note above the component. Only
+    // the fields needed to actually reach the owner are enforced.
     // `required` on the inputs accepts a string of spaces, which would reach the
     // database and be bounced by the policy's `first_name <> ''` check — a
     // confusing way to learn you left the name blank.
@@ -134,7 +125,7 @@ const ConsultationBooking = () => {
     }
 
     const [firstName, ...restOfName] = formData.name.trim().split(/\s+/);
-    const preferredDate = date.toISOString().slice(0, 10);
+    const preferredDate = date ? date.toISOString().slice(0, 10) : null;
 
     const { error } = await supabase.from("contacts").insert({
       id: enquiryId,
@@ -146,8 +137,10 @@ const ConsultationBooking = () => {
       status: "lead",
       notes: [
         `Property: ${formData.propertyAddress.trim()}`,
-        `Preferred consultation date: ${preferredDate}`,
-        `Photos: ${uploaded.length} uploaded to ${PHOTO_BUCKET}/${enquiryId}`,
+        preferredDate ? `Preferred consultation date: ${preferredDate}` : "No preferred date given",
+        uploaded.length
+          ? `Photos: ${uploaded.length} uploaded to ${PHOTO_BUCKET}/${enquiryId}`
+          : "No photos attached",
         failed.length ? `Photos that failed to upload: ${failed.join(", ")}` : "",
         formData.message.trim() ? `\n${formData.message.trim()}` : "",
       ]
@@ -206,8 +199,8 @@ const ConsultationBooking = () => {
               Consultation requested
             </h2>
             <p className="text-lg text-foreground/70 leading-relaxed">
-              We have your property details and photos. Our team will review them and
-              come back to you within 24 hours to confirm your consultation.
+              We have your details. Our team will review them and come back to you
+              within 24 hours to talk through next steps.
             </p>
           </div>
         </div>
@@ -239,8 +232,8 @@ const ConsultationBooking = () => {
                     <div className="space-y-2 text-sm">
                       <p className="font-semibold">Selective Property Portfolio</p>
                       <p className="text-foreground/80">
-                        We carefully curate our property collection to maintain the highest standards. 
-                        Property images are required to ensure your home aligns with our quality criteria.
+                        We carefully curate our property collection to maintain the highest standards.
+                        Tell us a little about your property below — photos help, but aren't required to get started.
                       </p>
                     </div>
                   </div>
@@ -252,8 +245,8 @@ const ConsultationBooking = () => {
                     <div className="space-y-2 text-sm">
                       <p className="font-semibold">Professional Preparation Included</p>
                       <p className="text-foreground/80">
-                        Don't worry about perfect photos! Once approved, we'll professionally prepare and 
-                        photograph your property before listing it on booking platforms.
+                        Don't have photos handy? No problem — once we start working together, we'll
+                        professionally prepare and photograph your property before listing it.
                       </p>
                     </div>
                   </div>
@@ -288,7 +281,7 @@ const ConsultationBooking = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="phone">Phone Number *</Label>
+                  <Label htmlFor="phone">Phone Number (Optional)</Label>
                   <Input
                     id="phone"
                     name="phone"
@@ -296,7 +289,6 @@ const ConsultationBooking = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="+34 600 000 000"
-                    required
                   />
                 </div>
 
@@ -315,7 +307,7 @@ const ConsultationBooking = () => {
 
               {/* Calendar Selection */}
               <div>
-                <Label className="mb-3 block">Preferred Consultation Date *</Label>
+                <Label className="mb-3 block">Preferred Consultation Date (Optional)</Label>
                 <Card className="p-4 bg-card border-border w-fit mx-auto">
                   <Calendar
                     mode="single"
@@ -329,7 +321,7 @@ const ConsultationBooking = () => {
 
               {/* Image Upload */}
               <div>
-                <Label className="mb-3 block">Property Images * (Max 10)</Label>
+                <Label className="mb-3 block">Property Images (Optional, max 10)</Label>
                 <Card className="p-6 bg-card border-border border-dashed">
                   <div className="text-center">
                     <Upload className="w-12 h-12 text-accent-strong mx-auto mb-4" />

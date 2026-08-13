@@ -103,13 +103,16 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </span>
         </div>
 
-        {/* `price_per_night` is the base rate Guesty held when the property
-            was imported, not today's price — every listing here prices
-            dynamically, so the stored figure is an indication and is labelled
-            as one. The detail page already says "Live pricing" rather than a
-            number; the cards were the only place still presenting a frozen
-            snapshot as the rate. A cached lowest live rate would let this show
-            a real number again. */}
+        {/* `price_per_night` is a snapshot matched against a live Guesty quote
+            as of `price_last_synced_at` (20 of 23 listings, 2026-08-13) —
+            not the real-time rate for whatever dates a visitor actually has in
+            mind. Every listing here prices dynamically, so this is still
+            labelled "from" rather than presented as today's rate. Three
+            listings (Los Monteros Retreat, Luxury Escape Los Flamingos Golf
+            Retreat, THE ONE Higuerón) came back "not available" on every
+            window tried and were left untouched — `price_last_synced_at` is
+            NULL for those, so nobody mistakes the old value for a checked one.
+            A scheduled sync job is the real fix; see docs/open-todos.md. */}
         <div>
           {property.guesty_listing_id && (
             <span className="t-meta text-muted-foreground">from </span>

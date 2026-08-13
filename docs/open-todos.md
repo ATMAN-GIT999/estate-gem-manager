@@ -7,7 +7,7 @@ hat. Reihenfolge der Abarbeitung: **2 → 1 → 3 → 4**.
 
 ## 1 · Preis-Anzeige stimmt nicht
 
-**Status:** ⚠️ teilweise erledigt · **Priorität:** hoch
+**Status:** ⚠️ größtenteils erledigt · **Priorität:** hoch
 
 **Was sich herausgestellt hat:** **Alle 23 Objekte** haben eine Guesty-Anbindung,
 also dynamische Preise. Es gibt kein einziges mit statischem Preis.
@@ -19,15 +19,34 @@ Zahl. Der statische Zweig dort ist praktisch toter Code.
 **Die Karten waren die einzige Stelle**, die den eingefrorenen Wert als aktuellen
 Preis ausgab. Sie zeigen jetzt **„from €X / night"**.
 
+### ✅ 13.08.2026 — Live-Sync durchgeführt
+
+**20 von 23 Objekten** haben jetzt einen `price_per_night`, der gegen eine
+echte Guesty-Quote geprüft wurde (2 Gäste, verschiedene Zeitfenster 45–400 Tage
+voraus, je nach Verfügbarkeit und Mindestaufenthalt). Neue Spalte
+`properties.price_last_synced_at` macht sichtbar, wann das war — `NULL`
+bedeutet „nie live geprüft", nicht „aktuell". Migration:
+`20260813180000_sync_live_prices.sql`.
+
+Die Zahlen haben sich zum Teil deutlich verschoben (z. B. Vienna Ottakring
+340 € → 231,50 €, Oaks&Thistle Calahonda 65 € → 107,33 €) — in beide
+Richtungen, wie erwartet.
+
+**Drei Objekte blieben unverändert**, weil sie bei jedem getesteten Zeitfenster
+(bis 400 Tage voraus) als „nicht verfügbar" zurückkamen — das liest sich als
+in Guesty blockiert/inaktiv, nicht als Abfrageproblem:
+- Los Monteros Retreat
+- Luxury Escape Los Flamingos Golf Retreat
+- THE ONE – Sea View Luxury Villa in Higuerón
+
 **Damit noch nicht gelöst:**
-- „from" unterstellt, dass der Basispreis eine Untergrenze ist. Sollte gegen
-  Guesty geprüft werden — dynamische Preise können auch darunter liegen.
-- Die Zahl altert weiter bis zum nächsten Import.
-- **Der eigentliche Fix** bleibt ein nächtlicher Job, der pro Objekt den
-  günstigsten Live-Preis holt und zwischenspeichert. Dann kann die Karte wieder
-  eine echte Zahl zeigen.
-- Der Import müsste einmal neu laufen, damit die Basiswerte aktuell sind — das
-  schreibt in die Live-Datenbank und sollte bewusst ausgelöst werden.
+- Das ist ein **manueller Schnappschuss**, kein Automatismus. Die Zahl altert
+  wieder ab sofort.
+- **Der eigentliche Fix** bleibt ein nächtlicher Job (Edge Function + Cron),
+  der pro Objekt den günstigsten Live-Preis holt und `price_per_night` +
+  `price_last_synced_at` aktuell hält.
+- Die drei „nicht verfügbar"-Objekte sollten in Guesty selbst geprüft werden —
+  eventuell absichtlich pausiert, eventuell ein Konfigurationsfehler.
 
 <details>
 <summary>Ursprüngliche Diagnose</summary>
@@ -150,6 +169,24 @@ bekommen."*
 aber als Letztes bearbeitet — hier geht es um echte Zahlungen, nicht um Layout.
 Vor Änderungen am Zahlungsfluss jeweils einzeln rückfragen.
 
+### 🔴 Blockiert — wartet auf Almedin, nicht auf Code
+
+**Der Stripe-Publishable-Key kann nur vom Kunden besorgt werden.** Guesty hat
+genau ein Payment-Provider-Konto (`acct_1Pqi8YRsGzWWYqz8`, „Frontier
+Residences", `ACTIVE`, alle 24 Objekte daran), verbunden am 22.08.2024 durch
+`aschbacher@frontier-residences.com` — Almedin hat darauf keinen Zugriff, und
+Claude auch nicht (weder über den Supabase- noch über den Lovable- oder
+Guesty-Konnektor lässt sich ein Stripe-Konto fremder Personen erreichen).
+
+Almedin muss den Besitzer/`aschbacher@` kontaktieren und entweder den
+`pk_live_…` aus genau diesem Konto bekommen, oder direkten Zugriff auf das
+Stripe-Dashboard. Sobald der Key da ist: in Supabase → Project Settings →
+Edge Functions → Secrets → `GUESTY_STRIPE_PUBLISHABLE_KEY` eintragen.
+
+Vollständige Fragenliste und Kontext für dieses Gespräch:
+[`docs/guesty-stripe-api.md`](guesty-stripe-api.md).
+Bereits mit Live-Daten beantwortet: [`docs/guesty-befunde-2026-08-11.md`](guesty-befunde-2026-08-11.md).
+
 ### Befund A — das Zahlungsformular lädt ewig
 
 `guesty-stripe-config` antwortet **HTTP 500: „Stripe publishable key not
@@ -201,13 +238,10 @@ Zusammenfassung rendert dann „€" ohne Zahl.
 
 ### Befund D — „from €X" auf den Karten stimmt in beide Richtungen nicht
 
-| Objekt | gespeichert | echte Live-Rate/Nacht |
-|---|---|---|
-| Vienna Ottakring | 340 € | **221 €** |
-| Oaks&Thistle Calahonda | 65 € | **90 €** |
-
-„from" behauptet eine Untergrenze, die keine ist. Das ist derselbe Defekt wie
-Punkt 1 und wird erst durch den nächtlichen Cache-Job wirklich gelöst.
+✅ **13.08.2026 einmalig korrigiert** (siehe Punkt 1 oben) — 20 von 23 Objekten
+haben jetzt einen live geprüften Wert samt Zeitstempel. „from" behauptet aber
+weiterhin eine Untergrenze, die keine ist, und die Zahl altert ab sofort wieder.
+Endgültig gelöst ist das erst durch den nächtlichen Cache-Job.
 
 ### Was in Ordnung ist
 
@@ -332,6 +366,41 @@ Formular-Payloads → `201 Created`. Testzeilen wieder gelöscht.
   die Datenbank erzwingt davon nichts.
 - Es gibt keine DELETE-Policy für Admins auf den Bucket, nur SELECT.
 
+---
+
+## 6 · Was passiert nach dem Cashflow-Evaluator? — ✅ erledigt
+
+**Status:** ✅ erledigt · 13.08.2026
+
+War Teil von Befund K1 im Marketing-Teardown, dort auf **Hoch** korrigiert: Der
+Weg existierte (`ConsultationBooking.tsx` unter dem Analyse-Ergebnis auf
+`/evaluate`), war aber zu eng — zehn Felder **plus Pflicht-Fotoupload und
+Pflicht-Termin**, bevor Frontier auch nur den Namen kennt. Wer die Zahl liest
+und geht, hinterlässt nichts.
+
+**Jetzt:** Datum und Fotos sind optional. Pflicht bleiben nur Name, E-Mail und
+Objektadresse — das Minimum, um überhaupt nachfassen zu können. Die beiden
+Hinweiskarten und die Bestätigung sind entsprechend umformuliert, damit sie
+nicht mehr behaupten, Fotos seien nötig.
+
+---
+
+## 7 · FAQ auf der Startseite — ✅ erledigt
+
+**Status:** ✅ erledigt · 13.08.2026
+
+Neue Komponente `src/components/FAQ.tsx`, als Akkordeon vor dem Footer auf `/`.
+Sieben Fragen, gästeseitig formuliert (Buchungsablauf, Preise, Check-in,
+Erreichbarkeit, Stornobedingungen, Standorte) plus ein einzelner Übergangs-Link
+zu `/property-management` — bewusst nur einer, analog zur bestehenden „Own a
+Property?"-Section auf derselben Seite, um die Regel „keine Eigentümer-Sprache
+auf Gäste-Seiten" nicht zu verletzen.
+
+Jede Antwort ist aus bereits vorhandener, verifizierter Seiten-Copy hergeleitet
+(`GuestManagement.tsx`, `BookingSummary.tsx`s `cancellationPolicy`), nichts
+davon ist neu erfunden. `FAQPage`-JSON-LD über `faqSchema()` in `schema.ts`,
+mit denselben Items wie im Akkordeon — kann nicht auseinanderlaufen.
+
 ## Nicht aus der Notiz, aber offen
 
 - **`collection`-Spalte für die Property-Tabelle.** Die drei Reihen auf der
@@ -343,3 +412,8 @@ Formular-Payloads → `201 Created`. Testzeilen wieder gelöscht.
   noch „Coming Soon"-Platzhalter.
 - **Testimonials von Eigentümern** für die PM-Seite.
 - **Terminbuchungs-Link** statt `mailto:` im CTA der PM-Seite.
+- **Nächtlicher Preis-Sync-Job** (Punkt 1) — der manuelle Sync vom 13.08.2026
+  altert wieder ab sofort.
+- **Drei Objekte ohne Live-Preis** (Los Monteros Retreat, Luxury Escape Los
+  Flamingos Golf Retreat, THE ONE Higuerón) — in Guesty prüfen, warum sie auf
+  keinem getesteten Zeitfenster verfügbar waren.

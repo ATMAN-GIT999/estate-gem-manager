@@ -71,6 +71,25 @@ export const organizationSchema = () => ({
   ],
 });
 
+/**
+ * Question/answer pairs are the single format answer engines (Perplexity,
+ * Google AI Overviews, ChatGPT) extract most directly — see the GEO section of
+ * the website-seo-geo skill. Pass the same items rendered in the accordion so
+ * markup and page can never drift apart.
+ */
+export const faqSchema = (items: Array<{ question: string; answer: string }>) => ({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: items.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+});
+
 /** Attach to any page that is not the home page, so search shows a trail. */
 export const breadcrumbSchema = (
   trail: Array<{ name: string; path: string }>,
@@ -102,17 +121,18 @@ interface PropertySchemaInput {
  *
  * ⚠️ Deliberately carries **no price**. The audit asked for `Product` + `Offer`
  * so that Google can show a price snippet, and that is the right destination —
- * but the only figure available today is `price_per_night`, the base rate
- * frozen at import time, and it has been measured wrong in both directions
- * (Vienna stored 340 against a live 221, Calahonda stored 65 against a live 90).
+ * but `price_per_night` is at best a manually synced snapshot (see
+ * `price_last_synced_at` on the `properties` table, and the note in
+ * `PropertyCard.tsx`), not a real-time rate, and three listings still carry a
+ * value that was never verified live at all.
  *
  * Publishing that as structured data would state a price the booking engine
  * does not charge, on a page that already says "Live pricing". A missing price
  * costs a rich snippet; a wrong one is a mismatch between markup and page, and
  * it is the kind a guest discovers at checkout.
  *
- * Point 1 of `docs/open-todos.md` — the nightly job caching the lowest live
- * rate — is what unlocks this. Add `offers` here on the day that exists.
+ * Point 1 of `docs/open-todos.md` — a scheduled job that keeps every listing's
+ * rate current — is what unlocks this. Add `offers` here on the day that exists.
  */
 export const propertySchema = (property: PropertySchemaInput) => ({
   "@context": "https://schema.org",

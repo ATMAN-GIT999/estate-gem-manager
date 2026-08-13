@@ -5,12 +5,13 @@ import PropertyCollections from "@/components/PropertyCollections";
 import GuestManagement from "@/components/GuestManagement";
 import OwnAProperty from "@/components/OwnAProperty";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
+import FAQ, { FAQ_ITEMS } from "@/components/FAQ";
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useLocation } from "react-router-dom";
 import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
-import { organizationSchema } from "@/lib/schema";
+import { faqSchema, organizationSchema } from "@/lib/schema";
 
 const IndexContent = () => {
   const location = useLocation();
@@ -43,7 +44,7 @@ const IndexContent = () => {
       <Seo
         path="/"
         description="Book luxury villas and apartments in Marbella, Málaga and Vienna directly with Frontier Residences — and see what your own property could earn under our management."
-        schema={organizationSchema()}
+        schema={[organizationSchema(), faqSchema(FAQ_ITEMS)]}
       />
       <Navigation />
       <Hero />
@@ -60,6 +61,7 @@ const IndexContent = () => {
       <GuestManagement />
 
       <PropertyEvaluator />
+      <FAQ />
       <Footer />
     </div>
   );
