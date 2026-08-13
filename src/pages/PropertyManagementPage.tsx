@@ -51,9 +51,13 @@ const PropertyManagementPageContent = () => {
         <section className="py-16 bg-gradient-hero">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center animate-fade-in">
-              <EditableText id="pmp-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6">{pageTitle}</EditableText>
-              <EditableText id="pmp-page-lead" value={pageLead} onChange={setPageLead} as="p" multiline className="font-playfair text-2xl md:text-3xl text-primary leading-snug text-balance mb-5">{pageLead}</EditableText>
-              <EditableText id="pmp-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="text-lg text-foreground/70 leading-relaxed">{pageSubtitle}</EditableText>
+              <EditableText id="pmp-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="t-display text-primary mb-6">{pageTitle}</EditableText>
+              {/* The lead sits on Block, not Body: it is the strongest sentence
+                  on the page and is meant to read as a statement, not as an
+                  intro paragraph. The subtitle below it drops to Body so the
+                  hero descends cleanly Display → Block → Body. */}
+              <EditableText id="pmp-page-lead" value={pageLead} onChange={setPageLead} as="p" multiline className="t-block text-primary text-balance mb-5">{pageLead}</EditableText>
+              <EditableText id="pmp-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="t-body text-foreground/70">{pageSubtitle}</EditableText>
 
               {/* The page used to open with three stacked paragraphs and no way
                   to act — the first button was in the ninth of ten sections. An

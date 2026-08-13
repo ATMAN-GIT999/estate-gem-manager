@@ -96,7 +96,7 @@ const PropertyEvaluator = () => {
               value={sectionTitle}
               onChange={setSectionTitle}
               as="h2"
-              className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4"
+              className="t-section text-primary mb-4"
             >
               {sectionTitle}
             </EditableText>
@@ -106,7 +106,7 @@ const PropertyEvaluator = () => {
               onChange={setSectionSubtitle}
               as="p"
               multiline
-              className="text-xl text-foreground/80 max-w-2xl mx-auto"
+              className="t-body text-foreground/80 max-w-2xl mx-auto"
             >
               {sectionSubtitle}
             </EditableText>

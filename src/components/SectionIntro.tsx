@@ -58,7 +58,7 @@ const SectionIntro = ({
         onChange={setEyebrowText}
         as="span"
         className={cn(
-          "block text-sm font-medium uppercase tracking-widest mb-4",
+          "block t-meta mb-4",
           onPrimary ? "text-accent-on-primary" : "text-accent-strong"
         )}
       >
@@ -71,7 +71,7 @@ const SectionIntro = ({
         onChange={setHeadingText}
         as="h2"
         className={cn(
-          "font-playfair text-4xl md:text-5xl font-bold text-balance",
+          "t-section text-balance",
           onPrimary ? "text-primary-foreground" : "text-primary"
         )}
       >
@@ -86,7 +86,7 @@ const SectionIntro = ({
           as="p"
           multiline
           className={cn(
-            "mt-5 text-lg leading-relaxed",
+            "mt-5 t-body",
             onPrimary ? "text-primary-foreground/80" : "text-foreground/70",
             align === "center" ? "mx-auto max-w-2xl" : "max-w-2xl"
           )}

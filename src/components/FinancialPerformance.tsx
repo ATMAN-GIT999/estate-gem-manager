@@ -60,7 +60,7 @@ const FinancialPerformance = () => {
             value={eyebrow}
             onChange={setEyebrow}
             as="span"
-            className="block text-sm font-medium uppercase tracking-widest text-accent-strong mb-4"
+            className="block t-meta text-accent-strong mb-4"
           >
             {eyebrow}
           </EditableText>
@@ -69,7 +69,7 @@ const FinancialPerformance = () => {
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="font-playfair text-4xl md:text-5xl font-bold text-primary text-balance mb-5"
+            className="t-section text-primary text-balance mb-5"
           >
             {heading}
           </EditableText>
@@ -79,7 +79,7 @@ const FinancialPerformance = () => {
             onChange={setLead}
             as="p"
             multiline
-            className="text-lg text-foreground/70 leading-relaxed"
+            className="t-body text-foreground/70"
           >
             {lead}
           </EditableText>
@@ -96,7 +96,7 @@ const FinancialPerformance = () => {
                   value={pillar.title}
                   onChange={(v) => { const u = [...pillars]; u[index] = { ...u[index], title: v }; setPillars(u); }}
                   as="h3"
-                  className="font-playfair text-xl font-bold text-primary mb-3"
+                  className="t-block text-primary mb-3"
                 >
                   {pillar.title}
                 </EditableText>
@@ -106,7 +106,7 @@ const FinancialPerformance = () => {
                   onChange={(v) => { const u = [...pillars]; u[index] = { ...u[index], description: v }; setPillars(u); }}
                   as="p"
                   multiline
-                  className="text-foreground/70 leading-relaxed"
+                  className="t-body text-foreground/70"
                 >
                   {pillar.description}
                 </EditableText>
@@ -120,8 +120,12 @@ const FinancialPerformance = () => {
             id="fin-outcomes-heading"
             value={outcomesHeading}
             onChange={setOutcomesHeading}
-            as="h3"
-            className="text-xl font-semibold text-primary mb-6"
+            as="p"
+            /* "What that adds up to:" introduces the list below it — it is a
+               label, not a section heading. It used to be an <h3> at 20px,
+               which put it on the same outline level as the three pillar
+               titles above without being one. */
+            className="t-meta text-primary mb-6"
           >
             {outcomesHeading}
           </EditableText>
@@ -134,7 +138,7 @@ const FinancialPerformance = () => {
                   value={outcome}
                   onChange={(v) => { const u = [...outcomes]; u[index] = v; setOutcomes(u); }}
                   as="span"
-                  className="text-foreground/80 font-medium"
+                  className="t-body text-foreground/80"
                 >
                   {outcome}
                 </EditableText>

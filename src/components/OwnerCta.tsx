@@ -34,7 +34,7 @@ const OwnerCta = () => {
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-4 text-balance"
+            className="t-section text-primary mb-4 text-balance"
           >
             {heading}
           </EditableText>
@@ -45,7 +45,7 @@ const OwnerCta = () => {
             onChange={setLead}
             as="p"
             multiline
-            className="text-lg text-foreground/70 leading-relaxed mb-8"
+            className="t-body text-foreground/70 mb-8"
           >
             {lead}
           </EditableText>

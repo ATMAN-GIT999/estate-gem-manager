@@ -48,7 +48,7 @@ const Stats = () => {
             value={sectionTitle}
             onChange={setSectionTitle}
             as="h2"
-            className="font-playfair text-4xl md:text-5xl font-bold text-primary text-balance"
+            className="t-section text-primary text-balance"
           >
             {sectionTitle}
           </EditableText>
@@ -99,10 +99,13 @@ const AnimatedStat = ({ stat, index, hasAnimated }: { stat: { number: string; la
 
   return (
     <div className="border-t border-primary/15 pt-6">
-      <div className="font-playfair text-5xl md:text-6xl font-bold text-accent-strong mb-3 tabular-nums">
+      {/* Display size on a non-heading, which is the one deliberate exception
+          to "Display appears once per page": in this section the numbers ARE
+          the content — the heading only frames them. */}
+      <div className="t-display text-accent-strong mb-3 tabular-nums">
         {displayNumber}
       </div>
-      <div className="text-sm uppercase tracking-widest text-foreground/60">{stat.label}</div>
+      <div className="t-meta text-foreground/60">{stat.label}</div>
     </div>
   );
 };

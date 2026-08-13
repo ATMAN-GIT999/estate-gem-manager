@@ -113,10 +113,93 @@ All colors MUST be HSL.
 
   /* The variable cut registers under its own family name, so it has to be
      named first — 'Playfair Display' alone would silently fall through to the
-     serif fallback now that nothing loads the static family. */
+     serif fallback now that nothing loads the static family.
+
+     This is only the fallback for headings that have not been moved onto the
+     type scale below (and for the admin area, which is out of scope). Anything
+     public should carry a .t-* class, which overrides both of these. */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display Variable', 'Playfair Display', serif;
     font-weight: 600;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The type scale — six roles, nothing else.
+
+   Why this lives here and not in tailwind.config.ts: a Tailwind `fontSize`
+   token can carry size, line-height, tracking and weight, but NOT the font
+   family. Splitting "how big" from "which font" across two classes is exactly
+   how the page ended up with twelve 16px headings set in a display serif. One
+   class per role keeps the two decisions welded together.
+
+   Sizes are clamp()ed, so a role needs no responsive variant — `.t-section` is
+   30px on a phone and 44px on a desktop by itself. That removes the second
+   source of drift, where a heading got its `md:` breakpoint but its neighbour
+   did not.
+
+   Weights: Playfair is the variable cut (400-700 continuous). Lato is NOT —
+   only 300/400/700 are bound in the imports above, and Lato has no 600 at all.
+   Item and Meta therefore use 700; asking for 600 would let the browser round
+   or synthesise a fake bold.
+
+   Rule this enforces: no `text-xs` … `text-7xl` in a public component.
+   Full rationale in docs/design-finalisierung.md.
+   --------------------------------------------------------------------------- */
+@layer components {
+  .t-display,
+  .t-section,
+  .t-block {
+    font-family: 'Playfair Display Variable', 'Playfair Display', serif;
+    font-weight: 700;
+  }
+
+  .t-item,
+  .t-body,
+  .t-meta {
+    font-family: 'Lato', 'Open Sans', sans-serif;
+  }
+
+  /* H1 — once per page, never more */
+  .t-display {
+    font-size: clamp(2.375rem, 1.6rem + 3.2vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  /* H2 — the title of a section */
+  .t-section {
+    font-size: clamp(1.875rem, 1.35rem + 2.15vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
+  /* H3 — a sub-unit inside a section */
+  .t-block {
+    font-size: clamp(1.375rem, 1.1rem + 1.1vw, 1.75rem);
+    line-height: 1.2;
+  }
+
+  /* H4 — a single item in a list. Separated from body by weight, not size. */
+  .t-item {
+    font-size: clamp(1.0625rem, 1.03rem + 0.15vw, 1.125rem);
+    line-height: 1.4;
+    font-weight: 700;
+  }
+
+  .t-body {
+    font-size: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem);
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* Eyebrows, labels, caption-level text */
+  .t-meta {
+    font-size: clamp(0.75rem, 0.73rem + 0.08vw, 0.8125rem);
+    line-height: 1.4;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 }
 

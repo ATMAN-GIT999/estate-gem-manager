@@ -60,8 +60,8 @@ const GuestManagement = () => {
 
               {/* h2, not the h3 it was inside the three-pillar group: this is now
                   the section's own heading rather than one of three sub-heads. */}
-              <EditableText id="pm-guest-title" value={guestTitle} onChange={setGuestTitle} as="h2" className="font-playfair text-4xl md:text-5xl font-bold text-primary-foreground mb-6">{guestTitle}</EditableText>
-              <EditableText id="pm-guest-desc" value={guestDesc} onChange={setGuestDesc} as="p" multiline className="text-xl text-primary-foreground/90 mb-8 leading-relaxed">{guestDesc}</EditableText>
+              <EditableText id="pm-guest-title" value={guestTitle} onChange={setGuestTitle} as="h2" className="t-section text-primary-foreground mb-6">{guestTitle}</EditableText>
+              <EditableText id="pm-guest-desc" value={guestDesc} onChange={setGuestDesc} as="p" multiline className="t-body text-primary-foreground/90 mb-8">{guestDesc}</EditableText>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {guestManagement.map((item, index) => {
@@ -69,15 +69,15 @@ const GuestManagement = () => {
                   return (
                     <div key={index} className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20" style={{ animationDelay: `${index * 100}ms` }}>
                       <Icon className="w-10 h-10 text-accent-on-primary mb-4" />
-                      <EditableText id={`pm-guest-title-${index}`} value={item.title} onChange={(v) => updateItem(index, "title", v)} as="h3" className="text-lg font-semibold text-primary-foreground mb-2">{item.title}</EditableText>
-                      <EditableText id={`pm-guest-desc-${index}`} value={item.description} onChange={(v) => updateItem(index, "description", v)} as="p" className="text-sm text-primary-foreground/80 leading-relaxed">{item.description}</EditableText>
+                      <EditableText id={`pm-guest-title-${index}`} value={item.title} onChange={(v) => updateItem(index, "title", v)} as="h3" className="t-item text-primary-foreground mb-2">{item.title}</EditableText>
+                      <EditableText id={`pm-guest-desc-${index}`} value={item.description} onChange={(v) => updateItem(index, "description", v)} as="p" className="t-body text-primary-foreground/80">{item.description}</EditableText>
                     </div>
                   );
                 })}
               </div>
 
               <Link to="/book">
-                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
+                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-base">
                   <EditableText id="pm-contact-btn-2" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
                 </Button>
               </Link>

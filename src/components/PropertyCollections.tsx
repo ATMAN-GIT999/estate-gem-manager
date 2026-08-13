@@ -94,7 +94,7 @@ const Rail = ({
               value={title}
               onChange={setTitle}
               as="h2"
-              className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-2"
+              className="t-section text-primary mb-2"
             >
               {title}
             </EditableText>

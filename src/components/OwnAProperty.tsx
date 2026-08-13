@@ -48,7 +48,7 @@ const OwnAProperty = () => {
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4"
+            className="t-section text-primary mb-4"
           >
             {heading}
           </EditableText>
@@ -60,7 +60,7 @@ const OwnAProperty = () => {
             value={subheading}
             onChange={setSubheading}
             as="p"
-            className="font-playfair text-xl md:text-2xl text-accent-strong"
+            className="t-block text-accent-strong"
           >
             {subheading}
           </EditableText>
@@ -76,7 +76,7 @@ const OwnAProperty = () => {
                 value={stat.number}
                 onChange={(v) => updateStat(index, "number", v)}
                 as="p"
-                className="font-playfair text-4xl md:text-5xl font-bold text-accent-strong mb-3 tabular-nums"
+                className="t-display text-accent-strong mb-3 tabular-nums"
               >
                 {stat.number}
               </EditableText>
@@ -85,7 +85,7 @@ const OwnAProperty = () => {
                 value={stat.label}
                 onChange={(v) => updateStat(index, "label", v)}
                 as="p"
-                className="text-sm uppercase tracking-widest text-foreground/60"
+                className="t-meta text-foreground/60"
               >
                 {stat.label}
               </EditableText>

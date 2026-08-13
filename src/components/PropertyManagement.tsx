@@ -94,7 +94,7 @@ const PropertyManagement = () => {
               value={item.title}
               onChange={(v) => update("title", v)}
               as="h4"
-              className="font-semibold text-primary mb-2"
+              className="t-item text-primary mb-2"
             >
               {item.title}
             </EditableText>
@@ -103,7 +103,7 @@ const PropertyManagement = () => {
               value={item.description}
               onChange={(v) => update("description", v)}
               as="p"
-              className="text-sm text-foreground/70 leading-relaxed"
+              className="t-body text-foreground/70"
             >
               {item.description}
             </EditableText>
@@ -126,7 +126,7 @@ const PropertyManagement = () => {
         value={badge}
         onChange={setBadge}
         as="span"
-        className="block text-xs font-semibold uppercase tracking-[0.18em] text-accent-strong mb-3"
+        className="block t-meta text-accent-strong mb-3"
       >
         {badge}
       </EditableText>
@@ -135,7 +135,7 @@ const PropertyManagement = () => {
         value={title}
         onChange={setTitle}
         as="h3"
-        className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-5"
+        className="t-block text-primary mb-5"
       >
         {title}
       </EditableText>
@@ -151,7 +151,7 @@ const PropertyManagement = () => {
             value={sectionSubtitle}
             onChange={setSectionSubtitle}
             as="span"
-            className="block text-sm font-medium uppercase tracking-widest text-accent-strong mb-4"
+            className="block t-meta text-accent-strong mb-4"
           >
             {sectionSubtitle}
           </EditableText>
@@ -160,7 +160,7 @@ const PropertyManagement = () => {
             value={sectionTitle}
             onChange={setSectionTitle}
             as="h2"
-            className="font-playfair text-4xl md:text-5xl font-bold text-primary text-balance"
+            className="t-section text-primary text-balance"
           >
             {sectionTitle}
           </EditableText>
@@ -178,7 +178,7 @@ const PropertyManagement = () => {
                   value={listingDesc}
                   onChange={setListingDesc}
                   as="p"
-                  className="text-lg text-foreground/70 leading-relaxed"
+                  className="t-body text-foreground/70"
                 >
                   {listingDesc}
                 </EditableText>
@@ -203,7 +203,7 @@ const PropertyManagement = () => {
               onChange={setGuestDesc}
               as="p"
               multiline
-              className="text-lg text-foreground/70 leading-relaxed"
+              className="t-body text-foreground/70"
             >
               {guestDesc}
             </EditableText>
@@ -219,7 +219,7 @@ const PropertyManagement = () => {
               onChange={setPropertyDesc}
               as="p"
               multiline
-              className="text-lg text-foreground/70 leading-relaxed"
+              className="t-body text-foreground/70"
             >
               {propertyDesc}
             </EditableText>

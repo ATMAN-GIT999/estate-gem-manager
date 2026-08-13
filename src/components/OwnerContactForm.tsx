@@ -133,7 +133,7 @@ const OwnerContactForm = () => {
                 value={sentHeading}
                 onChange={setSentHeading}
                 as="h2"
-                className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-4 text-balance"
+                className="t-section text-primary mb-4 text-balance"
               >
                 {sentHeading}
               </EditableText>
@@ -143,7 +143,7 @@ const OwnerContactForm = () => {
                 onChange={setSentBody}
                 as="p"
                 multiline
-                className="text-lg text-foreground/70 leading-relaxed"
+                className="t-body text-foreground/70"
               >
                 {sentBody}
               </EditableText>
@@ -156,7 +156,7 @@ const OwnerContactForm = () => {
                   value={heading}
                   onChange={setHeading}
                   as="h2"
-                  className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-4 text-balance"
+                  className="t-section text-primary mb-4 text-balance"
                 >
                   {heading}
                 </EditableText>
@@ -166,7 +166,7 @@ const OwnerContactForm = () => {
                   onChange={setLead}
                   as="p"
                   multiline
-                  className="text-lg text-foreground/70 leading-relaxed"
+                  className="t-body text-foreground/70"
                 >
                   {lead}
                 </EditableText>
@@ -262,7 +262,7 @@ const OwnerContactForm = () => {
                   )}
                 </Button>
 
-                <p className="text-xs text-muted-foreground text-center">
+                <p className="t-meta text-muted-foreground text-center">
                   We use your details to answer your enquiry, nothing else. You can also reach us at{" "}
                   <a href={`mailto:${CONTACT_EMAIL}`} className="text-accent-strong hover:underline">
                     {CONTACT_EMAIL}

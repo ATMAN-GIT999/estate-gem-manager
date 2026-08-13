@@ -65,7 +65,7 @@ const WaysToWorkTogether = () => {
             value={eyebrow}
             onChange={setEyebrow}
             as="span"
-            className="block text-sm font-medium uppercase tracking-widest text-accent-strong mb-4"
+            className="block t-meta text-accent-strong mb-4"
           >
             {eyebrow}
           </EditableText>
@@ -74,7 +74,7 @@ const WaysToWorkTogether = () => {
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="font-playfair text-4xl md:text-5xl font-bold text-primary text-balance"
+            className="t-section text-primary text-balance"
           >
             {heading}
           </EditableText>
@@ -91,7 +91,7 @@ const WaysToWorkTogether = () => {
                   value={model.name}
                   onChange={(v) => { const u = [...models]; u[index] = { ...u[index], name: v }; setModels(u); }}
                   as="h3"
-                  className="font-playfair text-2xl font-bold text-primary mb-3"
+                  className="t-block text-primary mb-3"
                 >
                   {model.name}
                 </EditableText>
@@ -101,7 +101,7 @@ const WaysToWorkTogether = () => {
                   onChange={(v) => { const u = [...models]; u[index] = { ...u[index], summary: v }; setModels(u); }}
                   as="p"
                   multiline
-                  className="text-lg text-foreground/90 font-medium mb-3"
+                  className="t-body text-foreground/90 mb-3"
                 >
                   {model.summary}
                 </EditableText>
@@ -118,7 +118,7 @@ const WaysToWorkTogether = () => {
                 {model.href && (
                   <Link
                     to={model.href}
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-strong hover:gap-2.5 transition-all mt-5"
+                    className="inline-flex items-center gap-1.5 t-meta text-accent-strong hover:gap-2.5 transition-all mt-5"
                   >
                     {model.linkText}
                     <ArrowRight className="w-4 h-4" />
@@ -135,7 +135,7 @@ const WaysToWorkTogether = () => {
             value={beyondHeading}
             onChange={setBeyondHeading}
             as="h3"
-            className="font-playfair text-2xl font-bold text-primary text-center mb-8"
+            className="t-block text-primary text-center mb-8"
           >
             {beyondHeading}
           </EditableText>
@@ -152,7 +152,7 @@ const WaysToWorkTogether = () => {
                     value={item.title}
                     onChange={(v) => { const u = [...beyond]; u[index] = { ...u[index], title: v }; setBeyond(u); }}
                     as="h4"
-                    className="font-playfair text-xl font-bold text-primary"
+                    className="t-item text-primary"
                   >
                     {item.title}
                   </EditableText>
@@ -164,7 +164,7 @@ const WaysToWorkTogether = () => {
                   onChange={(v) => { const u = [...beyond]; u[index] = { ...u[index], description: v }; setBeyond(u); }}
                   as="p"
                   multiline
-                  className="text-sm text-foreground/70 leading-relaxed"
+                  className="t-body text-foreground/70"
                 >
                   {item.description}
                 </EditableText>

@@ -60,7 +60,7 @@ const TeamFace = ({
           className="w-full h-full object-cover"
         />
       ) : (
-        <span className="font-playfair text-xl font-bold text-primary-foreground">
+        <span className="t-item text-primary-foreground">
           {initialsOf(member.name)}
         </span>
       )}
@@ -72,7 +72,7 @@ const TeamFace = ({
           value={member.name}
           onChange={(v) => onChange(index, "name", v)}
           as="p"
-          className="font-semibold text-primary text-sm"
+          className="t-item text-primary"
         >
           {member.name}
         </EditableText>
@@ -81,15 +81,15 @@ const TeamFace = ({
           value={member.role}
           onChange={(v) => onChange(index, "role", v)}
           as="p"
-          className="text-foreground/60 text-sm"
+          className="t-body text-foreground/60"
         >
           {member.role}
         </EditableText>
       </>
     ) : (
       <>
-        <p className="font-semibold text-primary text-sm">{member.name}</p>
-        <p className="text-foreground/60 text-sm">{member.role}</p>
+        <p className="t-item text-primary">{member.name}</p>
+        <p className="t-body text-foreground/60">{member.role}</p>
       </>
     )}
   </div>
@@ -151,7 +151,7 @@ const AboutMini = () => {
         <div className="mt-12 text-center">
           <Link
             to="/about"
-            className="text-sm font-semibold text-accent-strong hover:underline"
+            className="t-meta text-accent-strong hover:underline"
           >
             <EditableText
               id="am-link"

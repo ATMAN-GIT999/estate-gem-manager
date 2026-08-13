@@ -44,8 +44,11 @@ const Footer = () => {
               id="footer-company-name"
               value={companyName}
               onChange={setCompanyName}
-              as="h3"
-              className="font-playfair text-2xl font-bold mb-4"
+              /* The brand mark, not an outline node. As an <h3> it was the one
+                 heading on the page carrying a different size from every other
+                 h3, because it is not the same kind of thing. */
+              as="p"
+              className="t-block mb-4"
             >
               {companyName}
             </EditableText>
@@ -67,7 +70,7 @@ const Footer = () => {
               value={servicesTitle}
               onChange={setServicesTitle}
               as="h4"
-              className="font-semibold mb-4 text-lg"
+              className="t-item mb-4"
             >
               {servicesTitle}
             </EditableText>
@@ -133,7 +136,7 @@ const Footer = () => {
               value={companyTitle}
               onChange={setCompanyTitle}
               as="h4"
-              className="font-semibold mb-4 text-lg"
+              className="t-item mb-4"
             >
               {companyTitle}
             </EditableText>
@@ -199,7 +202,7 @@ const Footer = () => {
               value={contactTitle}
               onChange={setContactTitle}
               as="h4"
-              className="font-semibold mb-4 text-lg"
+              className="t-item mb-4"
             >
               {contactTitle}
             </EditableText>

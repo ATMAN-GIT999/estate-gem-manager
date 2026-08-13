@@ -79,16 +79,16 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
       </div>
 
       <div className="pt-4">
-        <h3 className="font-playfair text-xl text-primary mb-1 group-hover:text-accent-strong transition-colors">
+        <h3 className="t-item text-primary mb-1 group-hover:text-accent-strong transition-colors">
           {property.name}
         </h3>
 
         <div className="flex items-center gap-1.5 text-muted-foreground mb-3">
           <MapPin className="w-3.5 h-3.5" strokeWidth={1.5} />
-          <span className="text-sm">{property.location}</span>
+          <span className="t-meta">{property.location}</span>
         </div>
 
-        <div className="flex items-center gap-4 mb-3 text-foreground/60 text-sm">
+        <div className="flex items-center gap-4 mb-3 text-foreground/60 t-body">
           <span className="flex items-center gap-1.5">
             <Bed className="w-4 h-4" strokeWidth={1.5} />
             {property.bedrooms}
@@ -112,10 +112,10 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             a real number again. */}
         <div>
           {property.guesty_listing_id && (
-            <span className="text-muted-foreground text-sm">from </span>
+            <span className="t-meta text-muted-foreground">from </span>
           )}
-          <span className="text-lg font-semibold text-primary">€{property.price_per_night}</span>
-          <span className="text-muted-foreground text-sm"> / night</span>
+          <span className="t-item text-primary">€{property.price_per_night}</span>
+          <span className="t-meta text-muted-foreground"> / night</span>
         </div>
       </div>
     </Link>

@@ -73,7 +73,7 @@ const Hero = () => {
             value={headline}
             onChange={setHeadline}
             as="h1"
-            className="font-playfair text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-4 md:mb-6 text-balance drop-shadow-2xl"
+            className="t-display text-white mb-4 md:mb-6 text-balance drop-shadow-2xl"
           >
             {headline}
           </EditableText>
@@ -82,7 +82,7 @@ const Hero = () => {
             value={subheadline}
             onChange={setSubheadline}
             as="p"
-            className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-lg"
+            className="t-body text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto drop-shadow-lg"
           >
             {subheadline}
           </EditableText>

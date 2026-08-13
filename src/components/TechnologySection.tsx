@@ -34,12 +34,15 @@ const TechnologySection = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <Cpu className="w-8 h-8 text-accent-on-primary mx-auto mb-6" strokeWidth={1.5} />
-            <EditableText id="tech-title" value={title} onChange={setTitle} as="h2" className="font-playfair text-4xl md:text-5xl font-bold mb-6 text-balance">{title}</EditableText>
-            <EditableText id="tech-description" value={description} onChange={setDescription} as="p" multiline className="text-lg text-primary-foreground/70 max-w-3xl mx-auto leading-relaxed">{description}</EditableText>
+            <EditableText id="tech-title" value={title} onChange={setTitle} as="h2" className="t-section mb-6 text-balance">{title}</EditableText>
+            <EditableText id="tech-description" value={description} onChange={setDescription} as="p" multiline className="t-body text-primary-foreground/70 max-w-3xl mx-auto">{description}</EditableText>
           </div>
 
           <div>
-            <EditableText id="tech-ai-heading" value={aiHeading} onChange={setAiHeading} as="h3" className="text-sm uppercase tracking-widest text-accent-on-primary text-center mb-10">{aiHeading}</EditableText>
+            {/* "What the system actually does:" is a lead-in to the list, not a
+                heading. As an <h3> at 14px it was the smallest heading on the
+                page — below body size — while every other h3 was 20-36px. */}
+            <EditableText id="tech-ai-heading" value={aiHeading} onChange={setAiHeading} as="p" className="t-meta text-accent-on-primary text-center mb-10">{aiHeading}</EditableText>
             {/* Hairlines on the green, same as the light sections. The four
                 capabilities were in translucent panels with a rounded tile
                 behind each icon — a box inside a box, on a band that was
@@ -55,7 +58,7 @@ const TechnologySection = () => {
                       value={feature.text}
                       onChange={(v) => updateFeature(index, v)}
                       as="p"
-                      className="text-primary-foreground/90 leading-relaxed"
+                      className="t-body text-primary-foreground/90"
                     >{feature.text}</EditableText>
                   </div>
                 );
