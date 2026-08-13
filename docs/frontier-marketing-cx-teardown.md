@@ -102,30 +102,44 @@ schicken, endet ohne Ergebnis für Frontier.
 
 ---
 
-#### K1 · Der Property Evaluator erfasst keinen einzigen Kontakt
+#### K1 · Der Rechner selbst erfasst keinen Kontakt — der Abbrecher ist unsichtbar
+
+> **Korrigiert am 13.08.2026.** Die ursprüngliche Fassung behauptete, `/evaluate`
+> sei eine vollständige Sackgasse ohne jede Kontakterfassung. Das war falsch. Die
+> Prüfung lief per Suche **innerhalb** von `Evaluate.tsx` und hat übersehen, dass
+> das Formular in einer importierten Komponente steckt: `Evaluate.tsx:5` importiert
+> `ConsultationBooking`, `:514` rendert es als `{!loading && analysis && <ConsultationBooking />}`.
+> Der Befund bleibt bestehen, aber schwächer als beschrieben.
 
 **Beobachtung.** `PropertyEvaluator.tsx:22-29` sammelt `address`, `bedrooms`,
 `bathrooms`, `propertyType`, `size`, `guests`. **Kein Name, keine E-Mail, keine
 Telefonnummer.** `handleSubmit` (Zeile 53) navigiert mit den Daten im Router-State
 nach `/evaluate`.
 
-`pages/Evaluate.tsx` (521 Zeilen) enthält — verifiziert per Suche — **keinen**
-Treffer für `email`, `name`, `phone`, `insert`, `contact`, und **keinen einzigen**
-`<Button>`, `<Link>`, `to=`, `href=` oder `mailto`.
+**Erst nachdem die Analyse fertig gerechnet ist**, erscheint darunter
+`ConsultationBooking` — Name, E-Mail, Telefon, Objektadresse, Wunschtermin und bis
+zu zehn Fotos, die seit dem Fix in `contacts` und den Bucket `consultation-uploads`
+geschrieben werden. Das ist ein funktionierender und sogar sehr reichhaltiger
+Lead-Weg.
 
-Der Eigentümer bekommt seine Zahl und steht vor einer Seite ohne nächsten Schritt.
-Frontier erfährt nicht einmal, dass er da war (siehe H6).
+**Was bleibt:** Die Erfassung hängt vollständig daran, dass der Eigentümer die
+Analyse **abwartet und danach ein zehnfeldriges Formular ausfüllt** — inklusive
+Pflicht-Fotoupload (`ConsultationBooking.tsx`, Bilder sind erforderlich). Wer die
+Zahl sieht und geht, hinterlässt **nichts**: keine Adresse, kein Objektprofil,
+nicht einmal die Information, dass er da war (siehe H6).
 
 Dieselbe Sektion ist auf **beiden** Seiten eingebunden (`Index.tsx`,
-`PropertyManagementPage.tsx:105`) und ist der **Navigationspunkt „Property
-Evaluator"**. Es ist der meistbeworbene Eigentümer-Pfad der ganzen Website.
+`PropertyManagementPage.tsx`) und ist der **Navigationspunkt „Property Evaluator"**.
+Es ist der meistbeworbene Eigentümer-Pfad der ganzen Website.
 
-**Warum es Conversion kostet.** Der Cashflow-Rechner ist das einzige Element, das
-einen Eigentümer aus reinem Eigeninteresse zur Eingabe seiner Objektdaten bringt —
-der wertvollste Moment im gesamten Funnel. Er wird vollständig verschenkt. Ein
-Eigentümer, der bis hierher gekommen ist, war maximal qualifiziert und ist jetzt weg.
+**Warum es Conversion kostet.** Der Cashflow-Rechner bringt einen Eigentümer aus
+reinem Eigeninteresse dazu, seine Objektdaten einzugeben — der wertvollste Moment
+im gesamten Funnel. Diese Daten liegen bereits im Router-State und werden
+**verworfen**, wenn er das große Formular danach nicht ausfüllt. Der Pflicht-Upload
+von Fotos ist an dieser Stelle die härteste Hürde der ganzen Website: Sie steht vor
+dem Erstkontakt, nicht danach.
 
-**Severity: Kritisch.**
+**Severity: Hoch** (herabgestuft von Kritisch — der Weg existiert, er ist nur zu eng).
 
 **Die 10x-Version.** AvantStay und Le Collectionist gaten nicht den *Input*,
 sondern das *Ergebnis*. Konkret:
@@ -580,14 +594,20 @@ Nach Effekt auf Eigentümer-Anfragen, nicht nach Aufwand.
 
 ---
 
-### 1 · Den Rechner in ein Lead-Instrument verwandeln  → **K1**
+### 1 · Die Hürde am Rechner senken  → **K1**
 
-Der meistbeworbene Eigentümer-Pfad der Website erfasst heute **null** Kontakte und
-endet auf einer Seite ohne jeden weiteren Schritt. Jeder andere Hebel auf dieser
-Liste bringt mehr Menschen in einen Funnel, der an dieser Stelle undicht ist.
-Reihenfolge: erst abdichten, dann füllen.
+*Korrigiert: Der Weg ist nicht tot, er ist zu eng.* Nach der Analyse steht ein
+Formular mit zehn Feldern **und Pflicht-Fotoupload**, bevor Frontier auch nur den
+Namen kennt. Wer die Zahl sieht und geht, hinterlässt nichts — obwohl Adresse und
+Objektprofil zu diesem Zeitpunkt bereits im Router-State liegen.
 
-*Wirkung: Aus dem qualifiziertesten Moment der Website entsteht überhaupt erst ein Lead.*
+Zwei Stufen statt einer: die Objektdaten sofort als Lead speichern, danach ein
+einziges E-Mail-Feld („Send me the full breakdown"), und die Fotos erst im
+Gespräch. Ein Fotoupload ist eine Bewerbung — die verlangt man nach dem
+Erstkontakt, nicht davor.
+
+*Wirkung: Aus dem qualifiziertesten Moment der Website entsteht ein Lead, auch wenn
+der Eigentümer abbricht.*
 
 ---
 
