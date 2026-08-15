@@ -1,5 +1,12 @@
 # Frontier Residences — Marketing- & CX-Teardown
 
+> **Status-Update 15.08.2026** (beim Doku-Aufräumen ergänzt): Jeder Befund
+> unten trägt jetzt eine eigene Status-Zeile. `TechnologySection.tsx` aus der
+> Gelesen-Liste existiert nicht mehr (aufgegangen in `WhyItMakesADifference.tsx`)
+> — die Befunde, die sich darauf beziehen, gelten sinngemäß für die
+> Nachfolge-Komponente weiter. Von den fünf kritischen Befunden sind drei
+> erledigt (K3, K4, K5), zwei offen (K1 teilweise, K2 ganz).
+
 **Scope:** Startseite (`/`) und Property-Management-Seite (`/property-management`).
 **Branch:** `redesign/v2` · **Stand:** 13.08.2026 · **Primäres Ziel:** Eigentümer-Anfragen.
 
@@ -104,6 +111,8 @@ schicken, endet ohne Ergebnis für Frontier.
 
 #### K1 · Der Rechner selbst erfasst keinen Kontakt — der Abbrecher ist unsichtbar
 
+> **Status 15.08.2026: ⚠️ teilweise.** Formular sammelt weiterhin keinen Kontakt vor der Analyse. `ConsultationBooking.tsx` danach ist inzwischen funktional (siehe Korrektur oben).
+
 > **Korrigiert am 13.08.2026.** Die ursprüngliche Fassung behauptete, `/evaluate`
 > sei eine vollständige Sackgasse ohne jede Kontakterfassung. Das war falsch. Die
 > Prüfung lief per Suche **innerhalb** von `Evaluate.tsx` und hat übersehen, dass
@@ -156,6 +165,8 @@ sondern das *Ergebnis*. Konkret:
 
 #### K2 · Der einzige gefüllte Button im Header ist ein Gäste-Login
 
+> **Status: 🔴 offen.** `Navigation.tsx` hat weiterhin nur `Sign In` als gefüllten Button — braucht eine Design-Entscheidung, siehe `open-todos.md` Punkt 9.
+
 **Beobachtung.** `Navigation.tsx:84-88`. Das visuell dominanteste Element im
 Header — Gold, `shadow-gold` — ist **„Sign In"**. „Property Management" ist ein
 Textlink unter vieren (`Navigation.tsx:41-45`).
@@ -180,6 +191,8 @@ Button, auf jeder Seite, mit Ziel `#owner-contact` bzw. `/property-management#ow
 ---
 
 #### K3 · Der einzige echte Anfrage-Weg steht in Sektion 9 von 9
+
+> **Status: ✅ erledigt.** Das Kontaktformular ist jetzt der Hero der PM-Seite (`OwnerContactForm.tsx`).
 
 **Beobachtung.** `PropertyManagementPage.tsx:99-111` rendert in dieser Reihenfolge:
 
@@ -223,6 +236,8 @@ Beweisblock, nicht einmal am Ende.
 
 #### K4 · Jeder geteilte Link bewirbt das Build-Tool
 
+> **Status: ✅ erledigt** 15.08.2026 — `DEFAULT_OG_IMAGE` zeigt jetzt auf `public/og-image.png` statt auf Lovable.
+
 **Beobachtung.** `lib/siteMeta.ts`:
 
 ```ts
@@ -249,6 +264,8 @@ Anzeigenfläche, nicht wie eine Metadatenpflicht.
 ---
 
 #### K5 · Der Hero lädt ein YouTube-iframe — im direkten Widerspruch zur eigenen DSGVO-Haltung
+
+> **Status: ✅ erledigt** 15.08.2026 — `Hero.tsx` zeigt standardmäßig ein statisches Bild, kein YouTube-Embed mehr ungefragt. Das naheliegende `public/videos/hero-background.mp4` ist unbrauchbar (HTML unter `.mp4`-Endung), siehe `open-todos.md` Punkt 9.
 
 **Beobachtung.** `Hero.tsx:59`:
 
@@ -290,6 +307,8 @@ erstklassigem Material; ein ruhiges Foto schlägt ein mittelmäßiges Video.
 
 #### H1 · Die Kennzahlen sind hartkodierte Copy, stehen doppelt und laden zur Gegenrechnung ein
 
+> **Status: 🔴 offen.** Die Diskrepanz (41 vs. 23 Objekte) besteht weiterhin.
+
 **Beobachtung.** `OwnAProperty.tsx:27-32` und `Stats.tsx` führen **dieselben vier
 Zahlen**: 41 Properties Managed · 1500+ Successful Reservations · 8 Destinations ·
 50+ Collaborators. Beide sind `useState`-Defaults — **Marketing-Copy, keine
@@ -319,6 +338,8 @@ Zahlen als auf der PM-Seite.
 
 #### H2 · Keine Testimonials, keine Gesichter, keine Namen
 
+> **Status: 🔴 offen.**
+
 **Beobachtung.** `AboutMini.tsx:56-64` zeigt ein Foto nur, wenn
 `team_members.avatar_url` gefüllt ist — sonst **Initialen in einem farbigen Kreis**.
 Im gerenderten Zustand sind es Initialen. Der Kommentar (Zeile 20) benennt das als
@@ -343,6 +364,8 @@ gesetzt: erst der Mensch, der dein Haus betritt, dann die Technik.
 ---
 
 #### H3 · Fee-Transparenz fehlt vollständig
+
+> **Status: 🔴 offen.**
 
 **Beobachtung.** `WaysToWorkTogether.tsx` stellt beide Modelle klar gegenüber —
 Full-service management und Guaranteed Income, jeweils mit benanntem Tausch. Das ist
@@ -369,6 +392,8 @@ passenden wärmer.
 
 #### H4 · Frontier prüft den Eigentümer nicht sichtbar
 
+> **Status: 🔴 offen.**
+
 **Beobachtung.** Auf der gesamten PM-Seite gibt es kein Kriterium, das eine
 Immobilie erfüllen muss. Exklusivität wird durchgehend **behauptet** („bespoke",
 „exceptional homes", „boutique hotel"), aber nie durch einen Filter **belegt**.
@@ -388,6 +413,8 @@ ist wahr (lokale Teams in jeder Region), kostet nichts und dreht die Dynamik.
 ---
 
 #### H5 · `/business-areas` ist eine verwaiste Route mit konkurrierendem PM-Content
+
+> **Status: 🔴 offen** — `/business-areas` ist weiterhin keine Nav-Route, existiert weiter.
 
 **Beobachtung.** `App.tsx:80` hält die Route aktiv; `BusinessAreasPage.tsx:47`
 rendert `BusinessAreas`. In `Navigation.tsx:41-45` kommt sie nicht vor — sie ist
@@ -412,6 +439,8 @@ nicht zwei.
 ---
 
 #### H6 · Der Eigentümer-Funnel ist nicht messbar
+
+> **Status: 🔴 offen.**
 
 **Beobachtung.** Im gesamten öffentlichen Code existiert **ein einziger**
 Tracking-Aufruf: `Index.tsx:32`, ein `page_view` auf `/`. Der einzige vorkommende
@@ -438,6 +467,8 @@ ist die Eigentümer-Conversion eine Zahl statt einer Meinung.
 
 #### M1 · Die Value Proposition ist auf beiden Seiten eine Kategorie, kein Versprechen
 
+> **Status: ⚠️ teilweise.** PM-H1 ist inzwischen ›Luxury Rental Management‹ statt ›Bespoke Property Management‹ — der Kernbefund (Kategorie statt Versprechen) bleibt.
+
 **Beobachtung.** Landing-H1: „Luxury Villas & Vacation Rentals in Spain and Austria"
 (Platzhalter laut `target-structure.md`). PM-H1: „Bespoke Property Management",
 gefolgt von zwei Lede-Sätzen.
@@ -456,6 +487,8 @@ das stärkste Argument, das Frontier besitzt, und steht aktuell auf Position 4.
 
 #### M2 · Der Eigentümer-Einstieg auf der Startseite trägt keinen Beweis
 
+> **Status: 🔴 offen.**
+
 **Beobachtung.** `OwnAProperty.tsx:22-23`: „Own a Property?" / „See what it could
 earn with us.", darunter die vier bereits kritisierten Zahlen und ein Button.
 
@@ -473,6 +506,8 @@ konkretes Haus schlägt vier abstrakte Zahlen.
 
 #### M3 · Der Rechner verlangt sechs Angaben, bevor er irgendetwas gibt
 
+> **Status: 🔴 offen.**
+
 **Beobachtung.** `PropertyEvaluator.tsx:41-48`: `address`, `bedrooms`, `bathrooms`
 sind Pflicht; `propertyType`, `size`, `guests` stehen optisch gleichwertig daneben.
 Sechs Felder Kaltstart ohne jeden Gegenwert.
@@ -486,6 +521,8 @@ Disclosure verdoppelt in dieser Kategorie regelmäßig die Abschlussrate.
 ---
 
 #### M4 · „Before & After Photos — Coming Soon", dreimal, im stärksten Beweisblock
+
+> **Status: 🔴 offen** — siehe `open-todos.md`.
 
 **Beobachtung.** `ProjectsSection.tsx` zeigt bei allen drei Projekten einen
 Platzhalter statt Bildern. `pm-page-build-sheet.md` §Offene Entscheidungen 4 lässt
@@ -504,6 +541,8 @@ Vorher/Nachher das visuell stärkste Element der gesamten Website.
 ---
 
 #### M5 · Textmenge
+
+> **Status: 🔴 offen**, `design-finalisierung.md` Schritt 3 noch nicht umgesetzt.
 
 Die PM-Seite trägt **1.250 Wörter**, der größte Block **352**. Detailanalyse,
 Regelwerk und konkrete Kürzungen stehen in

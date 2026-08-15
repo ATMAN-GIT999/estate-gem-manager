@@ -6,11 +6,18 @@ ist, damit die Seite beim ersten Lesen verstanden wird.
 
 ## Abgrenzung zu den anderen Dokumenten
 
+> **Korrigiert 15.08.2026:** Diese Tabelle nannte `target-structure.md` und
+> `pm-page-content-analysis.md` als inhaltliche Autorität. Seit dem
+> AvantStay-Refactor gilt stattdessen `docs/GENERAL-STRUCTURE.md` als
+> führendes Dokument für Layout und Section-Reihenfolge (siehe `CLAUDE.md`);
+> `pm-page-content-analysis.md` ist gelöscht, in `pm-page-build-sheet.md`
+> aufgegangen.
+
 | Datei | Regelt | Gewinnt bei Konflikt |
 |---|---|---|
-| `target-structure.md` | **WAS** gebaut wird — Sections, Reihenfolge, Navigation | inhaltlich |
-| `pm-page-content-analysis.md` | **WELCHER Text** bleibt — Redundanzen, Streichliste | inhaltlich |
-| `pm-page-build-sheet.md` | Konkreter Text pro Ebene | inhaltlich |
+| `GENERAL-STRUCTURE.md` | Layout-Architektur, Section-Reihenfolge | inhaltlich, führend |
+| `target-structure.md` | **WAS** auf welcher Seite liegt, Navigation | inhaltlich |
+| `pm-page-build-sheet.md` | Historisch — Text-Herleitung pro Ebene | Begründung, keine Bauanweisung |
 | **diese Datei** | **WIE es aussieht** — Größen, Gewichte, Blocklänge | bei der Darstellung |
 
 Wenn diese Datei einer der oberen widerspricht, gilt die obere. Diese Datei fügt
@@ -322,7 +329,20 @@ Vorschlag, noch nicht umgesetzt. Prinzip durchgehend: **Aktiv statt Passiv, ein
 Gedanke pro Zeile, und was die Zahl daneben schon sagt, sagt der Satz nicht
 nochmal.**
 
-### A.1 Hero — 49 → 42 W
+> **Korrektur 15.08.2026:** Die Section-Nummern unten (3, 6, 4, 7 …) sind aus
+> der Struktur vor dem AvantStay-Refactor und stimmen nicht mehr mit
+> `GENERAL-STRUCTURE.md` §27 überein — verlässlich ist nur der jeweils
+> genannte Komponenten- bzw. Section-Titel. **A.1 ist inzwischen gegenstandslos:**
+> die Hero-Copy „Your home deserves more than management…" existiert nicht
+> mehr, der Hero heißt heute „Luxury Rental Management" / „We offer bespoke
+> Property Management" und ist bereits ein Satz. **A.2, Säule 2 („Guest
+> management")** ist in der Sache bereits passiert — die heutige
+> `WhyItMakesADifference.tsx` trägt exakt den vorgeschlagenen Kurztext
+> („Every enquiry, booking, arrival and complaint comes to us, not to you.").
+> Säule 1 (Listing-Karten in `ListingWorkflow.tsx`) trägt weiterhin die
+> langen Alt-Texte — dort ist der Vorschlag noch offen.
+
+### A.1 Hero — 49 → 42 W (überholt, siehe Korrektur oben)
 
 ⚠️ **Hier gilt eine bestehende Entscheidung.** `pm-page-build-sheet.md` Punkt 2
 legt fest, dass die Positionierung mit „Your home deserves…" führt und der

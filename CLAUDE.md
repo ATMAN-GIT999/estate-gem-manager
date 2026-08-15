@@ -35,9 +35,10 @@ verursacht:
 | `docs/open-todos.md` | Aktueller Arbeitsstand: was offen ist, was diagnostiziert wurde, was bewusst liegen bleibt. Betrifft Backend/Content, überschneidet sich nicht mit dem Layout-System. |
 | `docs/seo-performance-audit.md` | Befunde und Restpunkte zu SEO/Performance. |
 | `docs/design-finalisierung.md` | **WIE formatiert wird** — Typo-Skala, Blockmuster, Wortgrenzen. Regelt die Darstellung, nie den Inhalt: bei Konflikt gewinnen die Zeilen darüber. |
-| `docs/pm-page-content-analysis.md`<br>`docs/pm-page-build-sheet.md` | ⚠️ **Historisch.** Beschreiben eine frühere PM-Seiten-Struktur (12→8 Blöcke). Als Begründung für einzelne Textentscheidungen nützlich, **nicht** als Bauanweisung — die Struktur darin ist von §27 überholt. |
-| `docs/archive/` | Das **WARUM** (Strategie-Brief des Besitzers, Content-Audit). Wertvoll als Begründung, **nicht als Bauanweisung** — teils vor den Entscheidungen geschrieben. |
-| `README.md` | ⚠️ **Keine Dokumentation.** Das ist der ursprüngliche Lovable-Generierungs-Prompt. Nicht als Ist-Zustand lesen, nicht als Vorgabe behandeln. |
+| `docs/frontier-marketing-cx-teardown.md` | Conversion-/CX-Befunde, jeder mit eigenem Status (✅/⚠️/🔴). Analyse, keine Bauanweisung. |
+| `docs/pm-page-build-sheet.md` | ⚠️ **Historisch.** Beschreibt eine frühere PM-Seiten-Struktur, von §27 überholt. Als Begründung für einzelne Textentscheidungen nützlich (welcher Satz warum genau so steht), **nicht** als Bauanweisung. Enthält seit 15.08.2026 auch, was vorher in `pm-page-content-analysis.md` stand (gelöscht, zusammengelegt). |
+| `docs/archive/` | Das **WARUM** (Strategie-Brief des Besitzers, Content-Audit, der ursprüngliche Lovable-Prompt). Wertvoll als Begründung, **nicht als Bauanweisung** — teils vor den Entscheidungen geschrieben. |
+| `README.md` | Kurze Projekt-Orientierung für den Einstieg (Stack, Befehle, Ordnerstruktur). Verweist selbst auf diese Datei als eigentliche Quelle. |
 
 Wenn ein Dokument dem Code widerspricht: Code prüfen, dann das Dokument
 nachziehen — nicht stillschweigend das eine oder andere annehmen.

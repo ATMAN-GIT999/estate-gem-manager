@@ -262,7 +262,7 @@ Beteiligte Komponenten:
 
 ## 5   CTA PM Page
 
-**Status:** ✅ gebaut · ⚠️ **Migration muss noch angewendet werden**
+**Status:** ✅ gebaut
 
 Ein Call to Action mit einem Button muss viel früher kommen auf dieser Seite, da sonst man sich zu sehr durch Informationen durchliest. Was dementsprechend auch bedeutet, dass man sich überlegen muss, welche Art von Call to Action Button man nehmen möchte: ob es ein Kalender-Termin-Buchungslink ist oder zum Kontaktformular. Wobei man ein Kontaktformular eher unten anbringen kann, vor dem Footer, und oben eine Termin-Buchung. Dann auch noch mal schauen, bezüglich der Sections überhalb und drunterhalb, ob man da eventuell im Inhalt etwas austauschen kann oder die chronologische Reihenfolge ändern kann.
 
@@ -299,13 +299,15 @@ vier davon Pflicht, schreibt in die vorhandene CRM-Tabelle `contacts` mit
 
 ### Offen
 
-- ⚠️ **`20260810211500_owner_enquiries_public_insert.sql` muss angewendet
-  werden.** `contacts` hatte nur eine Admin-Policy — ohne die neue INSERT-Policy
-  weist RLS jede Einsendung ab. Das Formular fängt das ab und zeigt dann die
-  E-Mail-Adresse, aber der Lead landet nirgends.
-- `OwnerCta.tsx` wird nicht mehr verwendet und kann gelöscht werden.
-- Der Terminbuchungs-Link bleibt offen (siehe unten) — der obere Button springt
-  vorerst zum Formular statt in einen Kalender.
+- ~~Migration `20260810211500_owner_enquiries_public_insert.sql` muss
+  angewendet werden~~ — **war ein veralteter Stand dieser Zeile.** Siehe
+  „Die Datenbankseite war längst da" unten: genau diese Migration wurde
+  geschrieben und wieder entfernt, weil sie nicht gebraucht wurde. Die Datei
+  existiert nicht mehr, auch nicht ungewendet.
+- ~~`OwnerCta.tsx` wird nicht mehr verwendet und kann gelöscht werden~~ —
+  ✅ erledigt beim Doku-Aufräumen am 15.08.2026.
+- Der Terminbuchungs-Link ist inzwischen da (Cal.com), aber **provisorisch**
+  — siehe `target-structure.md`, Offene Punkte, Nr. 8.
 
 ### Getrennter Fund: `ConsultationBooking.tsx` speichert nichts — ✅ behoben
 
@@ -426,6 +428,72 @@ schickte.
 
 ---
 
+## 9 · Doku-Aufräumen — teils erledigt, teils gefunden
+
+**Status:** 🔶 laufend · 15.08.2026
+
+Beim Durchsehen aller `.md`-Dateien im Projekt zusätzlich behoben:
+
+- ✅ **OG-Image zeigte auf den Lovable-Platzhalter** (`lovable.dev/opengraph-image...`)
+  — jeder geteilte Link auf WhatsApp/LinkedIn bewarb das Build-Tool statt
+  Frontier Residences. Jetzt `public/og-image.png` (Villa Hoyo 19), verlinkt
+  über `absoluteUrl()` in `siteMeta.ts`.
+- ✅ **Der Hero lud ein YouTube-iframe ungefragt für jeden Besucher** — im
+  Widerspruch zur eigenen DSGVO-Begründung für selbst gehostete Fonts im
+  selben Repo (`index.css`). Der Hero zeigt jetzt standardmäßig ein
+  statisches Bild (`villa-higueron.webp`); YouTube bleibt über den
+  Video-Editor wählbar, ist nur nicht mehr der Default.
+  `handleVideoChange` in `Hero.tsx` warf zudem den „file"-Zweig des
+  Video-Editors still weg (`if (type === "youtube")` ohne `else`) — behoben,
+  ein echtes MP4 funktioniert jetzt.
+
+**🔴 `public/videos/hero-background.mp4` ist kaputt.** Die Datei sieht nach
+dem naheliegenden selbst gehosteten Ersatz für das YouTube-Embed aus — 900 KB,
+passend benannt, nie verdrahtet. Sie ist aber **kein Video**: die ersten Bytes
+sind `<!doctype html>` (offenbar eine HTML-Fehlerseite, die unter `.mp4`
+gespeichert wurde), Chrome quittiert sie mit
+`DEMUXER_ERROR_COULD_NOT_OPEN`. Sie zu verdrahten hätte das Datenschutz-
+Problem gegen einen leeren Hero getauscht. Datei bewusst liegen gelassen,
+falls die echte noch existiert — sobald ein funktionierendes MP4 unter
+`public/videos/` liegt, reicht in `Hero.tsx` `videoType: "file"` plus der
+Pfad, um es zu aktivieren.
+- ✅ **Toter Code entfernt:** `OwnerCta.tsx` und `IntroSection.tsx` — beide
+  seit älteren Umbauten von nichts mehr importiert.
+
+**Neu gefunden, noch offen:**
+
+- 🔴 **Das Layout-System endet an der PM-Seite.** `src/components/layout/`
+  (Container/Section/Grid/Stack/Surface/Divider) ist nur auf
+  `PropertyManagementPage.tsx` und der Landingpage verdrahtet. Alle
+  Unterseiten — `/renovations`, `/investments`, `/guaranteed-income`,
+  `/about`, `/properties`, `/business-areas` — laufen noch auf dem alten
+  Muster (`container mx-auto px-4` + eigenes `max-w-*`, `font-playfair
+  text-4xl md:text-6xl` statt der Typo-Skala, weiße Karten mit Rahmen und
+  Schatten). Wer über „Two ways to start to work with us" auf `/renovations`
+  klickt, landet spürbar auf einer anderen Website. Größter sichtbarer Bruch
+  im aktuellen Stand.
+- 🟡 **Texte sind nicht dauerhaft im CMS änderbar.** `EditableText` /
+  `EditableImage` / `EditableVideo` schreiben nur in lokalen React-State —
+  nach einem Reload ist jede Änderung weg. Es gibt keine Persistenz-Tabelle.
+  Der einzige Override-Mechanismus (`PageWrapper` → Tabelle `pages`, komplette
+  Seite als gespeichertes HTML) ist für keine Seite aktiv. **Konsequenz:** Was
+  im Code steht, ist der Text — „das ändert der Kunde später selbst" stimmt
+  heute nicht. Gefunden in `pm-page-content-analysis.md`, dort beim Kürzen
+  entfernt, hierher gerettet, weil es das ganze CMS-Versprechen betrifft, nicht
+  nur die PM-Seite.
+- 🟡 **Einziger gefüllter Header-Button ist ein Gäste-Login** (`Sign In` in
+  `Navigation.tsx`), auf einer Seite, deren primäre Zielgruppe Eigentümer sind.
+  Design-Entscheidung, keine reine Bugfix — braucht Freigabe, nicht automatisch
+  mitgezogen.
+- 🟡 **`/business-areas`** ist kein Menüpunkt mehr, Route lebt weiter. Bleibt
+  offen, ob sie bestehen bleibt oder aufgeht.
+- 🟡 **„It's in the details." steht jetzt auf beiden Seiten** — als
+  Gäste-Section auf `/` (`GuestManagement.tsx`) und als Detailebene der
+  PM-Seite (`ListingWorkflow.tsx`). Nicht kaputt, aber eine der beiden sollte
+  einen eigenen Titel bekommen.
+
+---
+
 ## Nicht aus der Notiz, aber offen
 
 - **`collection`-Spalte für die Property-Tabelle.** Die drei Reihen auf der
@@ -436,9 +504,16 @@ schickte.
 - **Vorher/Nachher-Fotos** für die drei Projekte auf der PM-Seite — dort stehen
   noch „Coming Soon"-Platzhalter.
 - **Testimonials von Eigentümern** für die PM-Seite.
-- **Terminbuchungs-Link** statt `mailto:` im CTA der PM-Seite.
+- **Terminbuchungs-Link** ist da (Cal.com), aber provisorisch — Almedins
+  eigener Link, nicht der von Frontier Residences. Siehe
+  `target-structure.md`, Offene Punkte, Nr. 8.
 - **Nächtlicher Preis-Sync-Job** (Punkt 1) — der manuelle Sync vom 13.08.2026
   altert wieder ab sofort.
 - **Drei Objekte ohne Live-Preis** (Los Monteros Retreat, Luxury Escape Los
   Flamingos Golf Retreat, THE ONE Higuerón) — in Guesty prüfen, warum sie auf
   keinem getesteten Zeitfenster verfügbar waren.
+- **Stimmt „8 Destinations" noch?** Kroatien wurde auf der PM-Seite und der
+  About-Seite entfernt (kein Objekt im Bestand), die Investments-Unterseite
+  bietet es weiterhin als Zielmarkt an (Kaufgelegenheit, nicht Bestand —
+  bewusst so stehen gelassen). Offen: ob kroatische Orte in der „8"
+  mitgezählt waren.

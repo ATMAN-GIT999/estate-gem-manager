@@ -5,6 +5,7 @@ import SearchBar from "./SearchBar";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
 import { Container, Stack } from "./layout";
+import villaHigueron from "@/assets/villa-higueron.webp";
 
 /**
  * Headline, one supporting line and the search bar, as a single block over a
@@ -32,7 +33,29 @@ const Hero = () => {
   // Editable content state
   const [headline, setHeadline] = useState("Luxury Villas & Vacation Rentals in Spain and Austria");
   const [subheadline, setSubheadline] = useState("Handpicked homes on the Costa del Sol, in Málaga, Vienna and the Austrian Alps — booked directly with the team that manages them.");
-  const [videoId, setVideoId] = useState("tqmWpFCv_1M");
+
+  /**
+   * Defaults to a static image, not a video. This used to hard-code a
+   * YouTube ID and load `youtube.com/embed` unconditionally for every
+   * visitor before anyone had clicked anything — the same class of problem
+   * the self-hosted fonts comment in index.css describes, just for video
+   * instead of typography.
+   *
+   * `public/videos/hero-background.mp4` looked like the obvious self-hosted
+   * replacement — present, plausibly named, never wired up — but it isn't a
+   * video: its first bytes are `<!doctype html>`, and Chrome confirms with
+   * `DEMUXER_ERROR_COULD_NOT_OPEN`. Wiring it up would have swapped a privacy
+   * problem for a blank hero. Left in place in case whoever saved it still
+   * has the real file; tracked in `open-todos.md` point 9.
+   *
+   * `EditableVideo` already offered a "file" tab in its dialog, but
+   * `handleVideoChange` silently dropped it (`if (type === "youtube")` with
+   * no `else`), so choosing a self-hosted file there did nothing — fixed
+   * below regardless, so a real MP4 works once one exists.
+   */
+  const [videoType, setVideoType] = useState<"youtube" | "file" | "none">("none");
+  const [videoId, setVideoId] = useState("");
+  const [videoFileSrc, setVideoFileSrc] = useState("");
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -44,8 +67,11 @@ const Hero = () => {
   };
 
   const handleVideoChange = (src: string, type: "youtube" | "file") => {
+    setVideoType(type);
     if (type === "youtube") {
       setVideoId(src);
+    } else {
+      setVideoFileSrc(src);
     }
   };
 
@@ -63,18 +89,35 @@ const Hero = () => {
     <section className="relative flex items-center [align-items:safe_center] overflow-hidden pt-20 min-h-[clamp(34rem,62vh,44rem)]">
       <EditableVideo
         id="hero-video"
-        type="youtube"
-        src={videoId}
+        type={videoType === "none" ? "file" : videoType}
+        src={videoType === "youtube" ? videoId : videoFileSrc}
         onChange={handleVideoChange}
       >
         <div className="absolute inset-0 w-full h-full overflow-hidden">
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&start=0&end=23&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
-            className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-full min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2"
-            allow="autoplay; encrypted-media"
-            style={{ pointerEvents: 'none', border: 'none' }}
-            title="Frontier Residences"
-          />
+          {videoType === "youtube" && videoId ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&start=0&end=23&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
+              className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-full min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2"
+              allow="autoplay; encrypted-media"
+              style={{ pointerEvents: 'none', border: 'none' }}
+              title="Frontier Residences"
+            />
+          ) : videoType === "file" && videoFileSrc ? (
+            <video
+              src={videoFileSrc}
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            <img
+              src={villaHigueron}
+              alt="A Frontier Residences managed villa"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
           {/* Palette-derived, not black — see --overlay-media in index.css. */}
           <div className="absolute inset-0 overlay-media" aria-hidden="true" />
         </div>

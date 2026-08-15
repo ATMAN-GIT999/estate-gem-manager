@@ -28,13 +28,17 @@ export const DEFAULT_TITLE =
 export const DEFAULT_DESCRIPTION =
   "Bespoke property management, renovation, and investment solutions for exclusive villas and apartments in Spain and Austria.";
 
-/**
- * ⚠️ Still the Lovable placeholder. Replace with a 1200×630 brand image and
- * every share on WhatsApp and LinkedIn stops advertising the build tool.
- * Tracked as point 4 of the SEO audit.
- */
-export const DEFAULT_OG_IMAGE = "https://lovable.dev/opengraph-image-p98pqg.png";
-
 /** Absolute URL for a route, which canonical and og:url both require. */
 export const absoluteUrl = (path: string) =>
   `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+
+/**
+ * A real brand photo (Villa Hoyo 19, "peninsula-corner-villa-higueron" in
+ * PropertyCard.tsx) rather than the Lovable placeholder every share used to
+ * carry. Lives in `public/`, not `src/assets/`: `og:image` needs a stable,
+ * un-hashed URL a crawler can fetch, which a Vite-bundled import does not
+ * give you without going through `absoluteUrl()` on a filename that changes
+ * on every rebuild. PNG rather than the site's usual WebP because Open Graph
+ * crawler support for WebP is still inconsistent across platforms.
+ */
+export const DEFAULT_OG_IMAGE = absoluteUrl("/og-image.png");

@@ -1,5 +1,21 @@
 # Frontier Residences — AvantStay-inspirierter Layout- und Design-Refactor
 
+> ## Stand 15.08.2026 — größtenteils umgesetzt
+>
+> Dieses Dokument war ursprünglich ein Umbau-Auftrag (Imperativ: „Überarbeite…",
+> „Refactore…"). Er ist inzwischen zu **~90 % umgesetzt** — jeder Abschnitt trägt
+> jetzt eine eigene Status-Zeile. Es bleibt trotzdem das führende Dokument für
+> Layout-Architektur (siehe `CLAUDE.md`): Konflikte mit anderen Docs entscheidet
+> weiterhin dieses hier, und die Prinzipien (Container/Grid/Spacing-Leiter,
+> Goldlinie als Akzent, Zoom-Out-Test) gelten unverändert als Regel für alles
+> Neue.
+>
+> **Die eine große Lücke:** Das Layout-System (`src/components/layout/`) läuft
+> nur auf der Property-Management-Seite und der Landingpage. Alle Unterseiten
+> — `/renovations`, `/investments`, `/guaranteed-income`, `/about`,
+> `/properties`, `/business-areas` — sind unverändert im alten Muster. Details
+> in `docs/open-todos.md`, Punkt 9.
+
 Überarbeite die bestehende **Frontier Residences Website**, insbesondere die Homepage und die Property-Management-Erfahrung, mit **AvantStay als professionellem Referenzpunkt für Informationsarchitektur, Layout-Hierarchie, Content-Gruppierung, Spacing und Conversion Flow**.
 
 **Wichtig:** AvantStay soll **nicht visuell kopiert** werden. Übernimm die strukturellen Prinzipien einer professionellen Vacation-Rental-/Property-Management-Plattform, behalte aber die **eigene visuelle Identität, Farbpalette, Typografie, Bilder und den Charakter von Frontier Residences**.
@@ -9,6 +25,8 @@ Das Ziel ist eine Website, die beim normalen Scrollen hochwertig wirkt und beim 
 ---
 
 # 1. Grundziel — zuerst die Website-Architektur verbessern
+
+> **Status 15.08.2026: ✅ erledigt** — `src/components/layout/`, aber bisher nur auf der PM-Seite und der Landingpage verdrahtet. Unterseiten offen, siehe `open-todos.md` Punkt 9.
 
 Die aktuelle Seite enthält viele Sections, die einzeln funktionieren. Beim Herauszoomen wird jedoch sichtbar:
 
@@ -68,6 +86,8 @@ Frontier Residences soll dadurch stärker wie eine **professionelle Hospitality-
 
 # 3. Globales Layout-System schaffen
 
+> **Status: ✅ erledigt.**
+
 Bevor einzelne Sections neu gestaltet werden, soll ein gemeinsames Layout-System etabliert werden.
 
 ## Globaler Content-Container
@@ -94,6 +114,8 @@ Dadurch entsteht eine klare vertikale Achse über die gesamte Seite.
 ---
 
 # 4. Einheitliches 12-Spalten-Grid
+
+> **Status: ✅ erledigt** (`layout/Grid.tsx`).
 
 Für größere Layouts ein konsistentes Grid verwenden.
 
@@ -123,6 +145,8 @@ Nicht für jede Section eigene, willkürliche Breiten definieren.
 
 # 5. Full-Width Sections + kontrollierter Content
 
+> **Status: ✅ erledigt** (`layout/Section.tsx`, `layout/Container.tsx`).
+
 Die Sections selbst dürfen die gesamte Browserbreite einnehmen.
 
 Der eigentliche Content bleibt innerhalb des globalen Containers.
@@ -148,6 +172,8 @@ Damit verschwinden die momentan sichtbaren riesigen, ungenutzten Flächen links 
 ---
 
 # 6. Einheitliches vertikales Spacing
+
+> **Status: ✅ erledigt** (`--space-xs … --space-2xl` in `index.css`).
 
 Die aktuellen Sections haben teilweise zu große bzw. uneinheitliche Abstände.
 
@@ -183,6 +209,8 @@ Nicht für jede einzelne Section neue Abstände erfinden.
 
 # 7. Hero deutlich kompakter machen
 
+> **Status: ✅ erledigt** — Landingpage-Hero, ~62vh statt `min-h-screen`.
+
 Der aktuelle Hero bzw. die Video-/Bildfläche ist zu dominant.
 
 Reduziere die sichtbare Höhe des Hero-Mediums auf ungefähr **50–60 % der aktuellen Höhe**.
@@ -205,6 +233,8 @@ Das Bild/Video soll den Content unterstützen und nicht selbst die komplette ers
 ---
 
 # 8. Hero — Text und Suchmaschine als eine Einheit
+
+> **Status: ✅ erledigt.**
 
 Die Search Engine soll nicht wie ein zufällig darübergelegtes Element wirken.
 
@@ -232,6 +262,8 @@ Die Suchmaschine soll als primärer Conversion-Mechanismus sofort verständlich 
 
 # 9. Hero-Headline
 
+> **Status: ✅ erledigt** — Headline steht wortgleich im Code.
+
 Die bestehende Headline soll klar und hochwertig präsentiert werden:
 
 **Luxury Villas & Vacation Rentals in Spain and Austria**
@@ -243,6 +275,8 @@ Supporting Text darunter kompakt halten und nicht mit der Search Engine konkurri
 ---
 
 # 10. Bestehende Frontier-Farbpalette vollständig beibehalten
+
+> **Status: laufende Regel, eingehalten.**
 
 **Keine neue Farbwelt einführen.**
 
@@ -282,6 +316,8 @@ Keine zufälligen neuen Farben einführen.
 
 # 11. Trust / Portfolio Numbers direkt nach dem Hero
 
+> **Status: ✅ erledigt** (`Stats.tsx`, jetzt mit `heading`-Prop für beide Seiten).
+
 Direkt nach Hero + Search soll ein klarer Trust-/Statistics-Block stehen.
 
 Verwende die bestehenden Kennzahlen:
@@ -301,6 +337,8 @@ Die Section soll visuell genügend Breite und Gewicht haben.
 
 # 12. WICHTIG — Reihenfolge der beiden Sections ändern
 
+> **Status: ✅ erledigt und verifiziert** — `FinancialPerformance` steht vor `PropertyManagement` in `PropertyManagementPage.tsx`.
+
 Diese beiden Sections müssen ihre Position tauschen.
 
 ### Neue Reihenfolge:
@@ -316,6 +354,8 @@ Diese Reihenfolge ist verbindlich.
 ---
 
 # 13. “We Manage What the Property Earns”
+
+> **Status: ✅ erledigt** (`FinancialPerformance.tsx`).
 
 Diese Section soll als eine der wichtigsten Value-Proposition-Sections der Seite funktionieren.
 
@@ -342,6 +382,8 @@ Die Analyse selbst bleibt auf der separaten Seite.
 
 # 14. “We Manage While You Relax”
 
+> **Status: ✅ erledigt** (`PropertyManagement.tsx`).
+
 Diese Section folgt unmittelbar danach.
 
 Sie soll vor allem vermitteln:
@@ -359,6 +401,8 @@ Nicht beide Sections gleich stark gestalten.
 ---
 
 # 15. Zentrale Differenzierungs-Section
+
+> **Status: ✅ erledigt** (`WhyItMakesADifference.tsx`).
 
 Baue eine größere Section nach dem Prinzip:
 
@@ -396,6 +440,8 @@ Guest Management und Property Care sind darunter die unterstützenden klassische
 
 # 16. “It’s in the Details”
 
+> **Status: ✅ erledigt** (`ListingWorkflow.tsx`) — steht jetzt aber wortgleich auch als Titel einer Gäste-Section auf `/`, siehe `open-todos.md` Punkt 9.
+
 Das bestehende Konzept **“It’s in the details”** soll als zweite Detailebene funktionieren.
 
 Hier können die konkreteren Leistungen kompakt zusammengefasst werden:
@@ -415,6 +461,8 @@ Die Section soll die große Differenzierungsbotschaft mit konkreten Details bele
 
 # 17. Our Destinations
 
+> **Status: ✅ erledigt** (`ProjectsSection.tsx`).
+
 ## “Our Destinations”
 
 soll als klare Kapitelüberschrift behandelt werden.
@@ -428,6 +476,8 @@ Die Section soll wie ein **Discovery-/Portfolio-Kapitel** wirken.
 ---
 
 # 18. Feature Transformations
+
+> **Status: ✅ erledigt.**
 
 Danach:
 
@@ -459,6 +509,8 @@ Before / After Text
 
 # 19. About / Trusted Agency
 
+> **Status: ✅ erledigt** (`AboutMini.tsx`) — die eigenständige `/about`-Seite selbst läuft noch auf dem alten Layout-System.
+
 Die bestehende About-/Trusted-Agency-Section erhalten.
 
 Sie soll innerhalb des globalen Containers neu ausgerichtet werden.
@@ -476,6 +528,8 @@ Nicht unnötig viele Cards verwenden.
 ---
 
 # 20. “Two Ways to Start with Us”
+
+> **Status: ✅ erledigt** (`WaysToWorkTogether.tsx`).
 
 Diese Section soll stärker wie ein hochwertiges Editorial-/Architektur-Layout wirken und nicht wie zwei große Standard-Cards.
 
@@ -499,6 +553,8 @@ arbeiten.
 ---
 
 # 21. Renovations and Design + Investments integrieren
+
+> **Status: ✅ erledigt** — als kleinere Unterpunkte unter Guaranteed Income verschachtelt.
 
 Die bisherigen großen eigenständigen Boxen:
 
@@ -536,6 +592,8 @@ Die beiden Unterpunkte sollen:
 
 # 22. “Two Ways to Start with Us” stärker visuell strukturieren
 
+> **Status: ✅ erledigt.**
+
 Diese Section darf mehr Linien und Farbbetonung bekommen.
 
 Verwende dafür:
@@ -560,6 +618,8 @@ aussehen.
 
 # 23. FAQ
 
+> **Status: ✅ erledigt** (`<Surface material="silver">`, gemeinsam mit dem Hero).
+
 Die komplette FAQ-Box soll den gleichen **silber-weiß schimmernden, hellen Premium-Hintergrund** verwenden wie der Hero.
 
 Dabei:
@@ -575,6 +635,8 @@ Dadurch entsteht eine visuelle Verbindung zwischen Hero und FAQ.
 ---
 
 # 24. Goldlinien als Designsystem
+
+> **Status: ✅ erledigt** (`<Section edge>` in `layout/Section.tsx`).
 
 Die bestehende dünne Goldlinie soll erhalten bleiben.
 
@@ -593,6 +655,8 @@ Die Linie soll wie ein hochwertiges architektonisches Detail wirken.
 
 # 25. Weniger Cards, mehr große Flächen
 
+> **Status: ✅ weitgehend erledigt auf PM-Seite und Landingpage.** Die Unterseiten (`/renovations`, `/investments`, `/guaranteed-income`, `/about`) haben noch die alten weißen Karten mit Rahmen und Schatten.
+
 Nicht jede Information als Card darstellen.
 
 Bevorzugt:
@@ -609,6 +673,8 @@ Die Seite soll wie eine **Premium-Hospitality-/Real-Estate-Plattform** wirken un
 ---
 
 # 26. Responsive Verhalten
+
+> **Status: ⚠️ nicht systematisch geprüft.** Kein bekannter Bruch, aber kein expliziter Test über alle Breakpoints.
 
 Die gesamte Struktur muss stabil funktionieren auf:
 
@@ -632,6 +698,8 @@ Nutze stattdessen:
 ---
 
 # 27. Zoom-Out-Test
+
+> **Status: ⚠️ gilt nachweislich für PM-Seite und Landingpage.** Für die Unterseiten (altes Layout-System) nicht anwendbar, bis sie migriert sind.
 
 Nach dem Refactor die Seite bei folgenden Zoom-Stufen prüfen:
 
@@ -677,6 +745,8 @@ Es darf beim Herauszoomen nicht mehr aussehen wie viele kleine, voneinander isol
 ---
 
 # 28. Technischer Refactor
+
+> **Status: ✅ erledigt** (`src/components/layout/`).
 
 Nicht versuchen, die Probleme durch immer mehr individuelle CSS-Regeln für einzelne Sections zu lösen.
 

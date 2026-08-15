@@ -118,18 +118,23 @@ Phase 2 eine kompakte Teaser-Ebene, die dorthin verlinkt.
 
 ## Header-Navigation
 
-**Property Management** · **Book Your Stay** · **About Us** · **Property Evaluator**
+**Stand 15.08.2026** (`Navigation.tsx`) — zwei der vier Punkte sind
+Dropdowns, kein Direkt-Link mehr:
 
-| Label | Ziel |
-|---|---|
-| Property Management | `/property-management` |
-| Book Your Stay | `/properties` |
-| About Us | `/about` — die Seite bleibt als eigene Seite bestehen |
-| Property Evaluator | Anker `#property-evaluation` (Button, kein Link) |
+**Property Management** ⌄ · **Stay With Us** ⌄ · **About Us** · **Sign In**
 
-`/business-areas` und `/projects` sind keine Menüpunkte mehr. Die `/about`-Seite
-bleibt vollständig erhalten und verlinkt; die PM-Seite bekommt zusätzlich die
-kompakte `AboutMini`-Variante als Section.
+| Label | Ziel | Dropdown |
+|---|---|---|
+| Property Management | `/property-management` | → Property Management (nochmal) · **Property Evaluator** (Anker `#property-evaluation`, Button statt Link) |
+| Stay With Us | `/properties` | → Properties (`/properties`) · Our Newest Posts (Instagram, extern) |
+| About Us | `/about` — die Seite bleibt als eigene Seite bestehen | — |
+| Sign In | `/auth` | — |
+
+Property Evaluator ist damit aus der Hauptzeile ins Property-Management-Dropdown
+gewandert, „Book Your Stay" heißt jetzt „Stay With Us". `/business-areas` und
+`/projects` sind keine Menüpunkte mehr. Die `/about`-Seite bleibt vollständig
+erhalten und verlinkt; die PM-Seite bekommt zusätzlich die kompakte
+`AboutMini`-Variante als Section.
 
 ---
 

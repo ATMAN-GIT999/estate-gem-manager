@@ -1,4 +1,4 @@
-# PM-Seite — Bauliste für Phase 2b
+# PM-Seite — Text-Herleitung (historisch)
 
 > ## ⚠️ HISTORISCH — nicht als Bauanweisung lesen
 >
@@ -12,6 +12,12 @@
 > darunter — welcher Satz aus welcher alten Komponente stammt und warum drei
 > von fünf Positionierungs-Formulierungen gestrichen wurden. Das ist die
 > Begründung hinter der heutigen Copy und nirgends sonst festgehalten.
+>
+> **15.08.2026:** `pm-page-content-analysis.md` (die Redundanz-Analyse, auf der
+> diese Datei aufbaute) ist in dieser Datei aufgegangen und gelöscht — zwei
+> historische Dateien mit stark überlappendem Inhalt waren mehr, als der
+> verbleibende Wert rechtfertigt. Ihr einziger noch offener Punkt (keine
+> Text-Persistenz im CMS) steht jetzt in `open-todos.md` Punkt 9.
 
 <details>
 <summary>Die damalige Zielstruktur (überholt)</summary>
@@ -35,9 +41,8 @@
 
 </details>
 
-Die Zielstruktur aus `pm-page-content-analysis.md`, aber **mit dem vorhandenen
-Text darunter**. Pro Ebene steht hier, was wir schon haben, wo es aktuell liegt,
-und was fehlt.
+Die damalige Zielstruktur, **mit dem vorhandenen Text darunter**. Pro Ebene
+steht hier, was wir schon hatten, wo es lag, und was fehlte.
 
 Zweck: beim Bauen nicht mehr zwischen Dateien suchen müssen — und sofort sehen,
 wo tatsächlich neu geschrieben werden muss und wo nur verschoben wird.
@@ -228,51 +233,15 @@ Ebene 3 stehen statt hier. Zweimal wäre eine neue Redundanz.
 
 ---
 
-## Zusammenfassung: wo wirklich Arbeit liegt
+## Stand 15.08.2026
 
-| Ebene | Aufwand | Art |
-|---|---|---|
-| 1 · Positioning | klein | **auswählen** — 5 Varianten auf 2 reduzieren |
-| 2 · Was wir übernehmen | **groß** | Säule 3 (Gäste) zurückbauen + Reporting ergänzen — **einzige Stelle mit echtem Schreibbedarf** |
-| 3 · Was es bringt | mittel | Material ist da, muss eingesammelt werden; Überschrift neu |
-| 4 · Beweis | klein | nur umsortieren |
-| 5 · Technologie | klein | nur reduzieren |
-| 6 · Team | — | fertig |
-| 7 · Darüber hinaus | klein | Wrapper weg, Teaser bleiben |
-| 8 · Rechnen + CTA | — | fertig |
-
-**Von acht Ebenen brauchen zwei echten neuen Text** (Säule 3 + Überschrift der
-Finanz-Ebene). Alles andere ist Auswählen, Verschieben und Streichen.
-
----
-
-## Offene Entscheidungen vor dem Bauen
-
-1. **Guaranteed Income** wird zu **„Two ways to work with us"** — ein Block, der
-   beide Geschäftsmodelle nebeneinanderstellt, statt eines „Programms" mit
-   „Included"-Badge. Liegt auf **Ebene 7**, direkt vor dem Abschluss: Der Leser
-   hat dann alles gesehen und entscheidet, *wie* er zusammenarbeiten will.
-   Formulierung darf später noch nachgeschärft werden.
-
-   > **Full-service management** — We run the property and you earn what it
-   > earns. Your income moves with the season, the market and how well the home
-   > performs.
-   >
-   > **Guaranteed Income** — We lease the property from you and pay a fixed
-   > amount every month, booked or not. You trade the strong months for
-   > certainty in the weak ones.
-
-   Wichtig: Der Satz benennt den **Tausch**. Ein Angebot ohne erkennbaren Haken
-   wirkt bei einer Millionen-Immobilie entweder zu schön oder ausweichend.
-
-2. **Positionierung führt mit** „Your home deserves more than management — it
-   deserves care, strategy, and master craftsmanship." Der Boutique-Hotel-Satz
-   folgt als zweiter Satz. Die drei übrigen Varianten entfallen.
-
-3. **Dach-Überschrift ist** „We manage while you relax." · „Short-Term Rental
-   Management" rutscht darunter als kleine Überschrift des Inhaltsblocks.
-
-4. **„Before & After"-Platzhalter bleiben stehen**, bis die Bilder da sind.
+Die „Zusammenfassung: wo wirklich Arbeit liegt" und „Offene Entscheidungen vor
+dem Bauen", die hier standen, sind beide durch. Alle vier Entscheidungen sind
+im heutigen Code so umgesetzt, wie sie hier vorgeschlagen wurden — „Two ways to
+start to work with us" mit exakt diesem Full-service/Guaranteed-Income-Text
+(`WaysToWorkTogether.tsx`), die Positionierung, die Dach-Überschrift „We manage
+while you relax.". Einzig **„Before & After"-Platzhalter stehen weiterhin**,
+siehe `open-todos.md`.
 
 ## Erledigt
 
