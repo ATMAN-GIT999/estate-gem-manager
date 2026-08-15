@@ -30,11 +30,12 @@ verursacht:
 
 | Datei | Rolle |
 |---|---|
-| `docs/target-structure.md` | **Einzige Quelle dafür, WAS gebaut wird.** Section-Reihenfolge pro Seite, Navigation, Entscheidungsprotokoll. |
-| `docs/open-todos.md` | Aktueller Arbeitsstand: was offen ist, was diagnostiziert wurde, was bewusst liegen bleibt. |
+| `docs/GENERAL-STRUCTURE.md` | **Führend für Layout-Architektur und Section-Reihenfolge.** Container, Grid, Spacing, Hero, Zoom-Out-Test (§27). Bei Konflikt mit jedem anderen Dokument gewinnt diese Datei. |
+| `docs/target-structure.md` | Was auf welcher **Seite** liegt (Gast vs. Eigentümer), Navigation, Entscheidungsprotokoll. Die Section-**Reihenfolge** darin ist an §27 nachgezogen. |
+| `docs/open-todos.md` | Aktueller Arbeitsstand: was offen ist, was diagnostiziert wurde, was bewusst liegen bleibt. Betrifft Backend/Content, überschneidet sich nicht mit dem Layout-System. |
 | `docs/seo-performance-audit.md` | Befunde und Restpunkte zu SEO/Performance. |
-| `docs/pm-page-content-analysis.md` | Grundlage für Phase 2 (Verdichten der PM-Seite: 12 Sections → 8). |
 | `docs/design-finalisierung.md` | **WIE formatiert wird** — Typo-Skala, Blockmuster, Wortgrenzen. Regelt die Darstellung, nie den Inhalt: bei Konflikt gewinnen die Zeilen darüber. |
+| `docs/pm-page-content-analysis.md`<br>`docs/pm-page-build-sheet.md` | ⚠️ **Historisch.** Beschreiben eine frühere PM-Seiten-Struktur (12→8 Blöcke). Als Begründung für einzelne Textentscheidungen nützlich, **nicht** als Bauanweisung — die Struktur darin ist von §27 überholt. |
 | `docs/archive/` | Das **WARUM** (Strategie-Brief des Besitzers, Content-Audit). Wertvoll als Begründung, **nicht als Bauanweisung** — teils vor den Entscheidungen geschrieben. |
 | `README.md` | ⚠️ **Keine Dokumentation.** Das ist der ursprüngliche Lovable-Generierungs-Prompt. Nicht als Ist-Zustand lesen, nicht als Vorgabe behandeln. |
 
@@ -87,6 +88,33 @@ zurückhaltend. Keine neuen Farbtöne erfinden.
   `@fontsource`**. Nie einen Link zu `fonts.googleapis.com` einbauen — der
   Kunde hat Büro und Kunden in Österreich, das ist ein DSGVO-Thema und steht
   als Kommentar in `index.css` und `index.html`.
+
+### Das Layout-System
+
+Alles Öffentliche baut auf `src/components/layout/` — `Container`, `Section`,
+`Grid`, `Stack`, `Surface`, `Divider`. Der Grundsatz aus
+`docs/GENERAL-STRUCTURE.md` §5: **Full-Width-Section → kontrollierter
+Content-Container → konsistentes Grid → konsistentes Spacing.**
+
+- **Eine Achse.** Alle Sections rendern ihren Inhalt durch `<Container>`
+  (1440 px, Gutter `clamp(1.25rem, 3.5vw, 3rem)`). Vorher hatte jede Section
+  `container mx-auto px-4` *plus* ein eigenes `max-w-3xl/4xl/5xl/6xl` — vier
+  verschiedene Textkanten auf einer Seite, genau der Befund aus §1.
+  Schmaler wird nur über `measure="wide|text|narrow"`, damit die Verengung
+  eine benannte Entscheidung bleibt.
+- **Eine Spacing-Leiter.** `--space-xs … --space-2xl` in `index.css`, als
+  `py-lg`, `gap-md`, `space-y-sm` in Tailwind verdrahtet. `<Section size>`
+  kennt `sm | md | lg` — **keine neuen `py-<Zahl>`** in öffentlichen
+  Komponenten.
+- **Goldlinie ist ein Akzent, kein Trenner** (§24): nur an Grün/Hell-Nähten
+  (`<Section edge>`) und an echten Kapitelwechseln (`<Divider tone="gold">`).
+  Nicht zwischen jede Section.
+- Schatten/Overlays über Fotos: `--overlay-media` bzw. das `scrim`-Token —
+  das dunkle Marken-Grün, **nie** neutrales Schwarz (§10).
+
+Wenn eine neue Section nach einem rohen `max-w-*`, `py-<Zahl>` oder eigenem
+`container mx-auto px-4` greift, fehlt etwas im Primitive — dann das Primitive
+erweitern, nicht daran vorbeibauen.
 
 ### Das „weniger Boxen"-Prinzip
 

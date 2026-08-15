@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import EditableText from "./admin/EditableText";
+import { Container } from "./layout";
 import { BUSINESS } from "@/lib/siteMeta";
 import logo from "@/assets/frontier-logo.webp";
 
@@ -42,9 +43,14 @@ const Footer = () => {
   const [copyright, setCopyright] = useState("Frontier Residences. All rights reserved.");
 
   return (
-    <footer className="bg-primary text-primary-foreground border-t-2 border-accent py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-8 mb-8">
+    // `edge-gold-top` rather than the `border-t-2 border-accent` this used to
+    // carry: the footer is one of three green/light seams on the site
+    // (portfolio numbers, the differentiation band, here) and §24 only works
+    // if all three are the same line. A 2px version here and a 1px version
+    // above read as two different ideas.
+    <footer className="bg-primary text-primary-foreground edge-gold-top py-lg">
+      <Container>
+        <div className="grid md:grid-cols-4 gap-md mb-lg">
           <div>
             <EditableText
               id="footer-company-name"
@@ -281,7 +287,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 pt-8 text-center text-primary-foreground/60">
+        <div className="border-t border-primary-foreground/20 pt-md text-center text-primary-foreground/60">
           <p>
             &copy; {new Date().getFullYear()}{" "}
             <EditableText
@@ -294,7 +300,7 @@ const Footer = () => {
             </EditableText>
           </p>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 };

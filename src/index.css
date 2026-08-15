@@ -72,10 +72,78 @@ All colors MUST be HSL.
     --sidebar-border: 32 16% 83%;
     --sidebar-ring: 133 11% 36%;
 
+    /* ---------------------------------------------------------------------
+       Layout system — ONE horizontal axis and ONE vertical ladder.
+
+       Before this, every section carried `container mx-auto px-4` and then
+       narrowed its own content again with an arbitrary `max-w-3xl` / `4xl` /
+       `5xl` / `6xl`. Four different text edges on one page is what made the
+       site read as stacked landing-page modules rather than one document when
+       zoomed out — the section backgrounds ran full width while the content
+       inside them started at four different places.
+
+       Use the <Container>/<Section> primitives in src/components/layout/
+       rather than these variables directly. They are here (not in
+       tailwind.config.ts) because the full-bleed rails need them inside
+       calc(), which a Tailwind token cannot do.
+       --------------------------------------------------------------------- */
+    --container-max: 1440px;
+    --container-gutter: clamp(1.25rem, 3.5vw, 3rem);
+    /* Left/right padding that lines a full-bleed element (a horizontally
+       scrolling rail, an edge-to-edge image row) up with the container above
+       it. Has to reproduce exactly what `.app-container`'s own
+       `width: min(100% - 2*gutter, max); margin-inline: auto` produces as a
+       left offset, in the two regimes that formula has:
+
+       - Below the breakpoint (parent narrower than max + 2*gutter), the
+         container isn't capped, so its margin is just the gutter.
+       - Above it, the container is pinned at `max` and centred, so its
+         margin is `(parent - max) / 2` — with NO extra `+ gutter` term.
+         An earlier version of this formula added one anyway, which is
+         invisible at normal sizes but grows with viewport width, since
+         `max()` doesn't average the two terms — it kept the whole gutter
+         as a constant offset on top of the correct centring, off by a
+         gutter's worth (48px) at a quarter browser zoom.
+
+       `%`, not `100vw`: `vw` is defined to include the vertical scrollbar's
+       width, while a block element's own percentage width does not — so a
+       vw-based inset and Container's own centring drift apart by roughly
+       half the scrollbar width. `%` inside `calc()` resolves against the
+       box it is actually applied to, which for every element that uses this
+       token is a full-width block with the same effective width Container
+       centers against, so the two now agree exactly. */
+    --container-inset: max(
+      var(--container-gutter),
+      calc((100% - var(--container-max)) / 2)
+    );
+
+    /* The vertical ladder. Six steps, nothing between them. Every value is a
+       clamp() so a step needs no responsive variant — `--space-2xl` is 72px on
+       a phone and 140px on a desktop by itself, which is what stops the
+       `py-20` / `py-24` / `py-28` / `py-36` drift this file used to have. */
+    --space-xs: 0.75rem;                                   /* 12 */
+    --space-sm: 1.5rem;                                    /* 24 */
+    --space-md: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem);    /* 28 → 40 */
+    --space-lg: clamp(2.5rem, 1.9rem + 2.6vw, 4rem);       /* 40 → 64 */
+    --space-xl: clamp(3.5rem, 2.4rem + 4.6vw, 6rem);       /* 56 → 96 */
+    --space-2xl: clamp(4.5rem, 2.4rem + 8.5vw, 8.75rem);   /* 72 → 140 */
+
     /* Custom gradients and shadows */
     --gradient-hero: linear-gradient(135deg, hsl(32, 26%, 92%) 0%, hsl(32, 30%, 88%) 100%);
     --gradient-sage: linear-gradient(135deg, hsl(133, 11%, 36%) 0%, hsl(133, 11%, 28%) 100%);
     --gradient-gold: linear-gradient(135deg, hsl(42, 48%, 60%) 0%, hsl(38, 42%, 46%) 100%);
+    /* Darkening layer for photo and video bands. Derived from --foreground
+       (133 14% 22%) taken further down, NOT neutral black: black over the
+       sage-green palette reads grey and drains the warmth out of the
+       photography. Darkest at the top and bottom so the headline and the
+       search bar both sit on their own contrast, lightest through the middle
+       where the image is actually doing its job. */
+    --overlay-media: linear-gradient(
+      180deg,
+      hsl(133 16% 13% / 0.62) 0%,
+      hsl(133 16% 13% / 0.34) 45%,
+      hsl(133 16% 13% / 0.68) 100%
+    );
     --shadow-elegant: 0 10px 40px -10px hsl(133 11% 36% / 0.15);
     --shadow-soft: 0 8px 30px -8px hsl(133 11% 36% / 0.2);
     --shadow-gold: 0 10px 40px -10px hsl(40 42% 52% / 0.35);
@@ -225,6 +293,40 @@ All colors MUST be HSL.
   }
 }
 
+/* The one content container. Everything public sits inside this, so the page
+   has a single left and right edge from the header to the footer.
+
+   `width: min(100% - 2*gutter, max)` rather than `max-width` + `padding`
+   because it keeps the gutter OUT of the box: a 12-column grid inside then
+   measures the real content width, so column edges line up between sections
+   that use different numbers of columns. */
+@layer components {
+  .app-container {
+    width: min(100% - 2 * var(--container-gutter), var(--container-max));
+    margin-inline: auto;
+  }
+
+  /* For elements that must span the viewport (image bands, scrolling rails)
+     while their content still starts on the container's edge. */
+  .app-bleed {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+  }
+  .app-bleed-inset {
+    padding-inline: var(--container-inset);
+  }
+
+  /* The gold hairline from §24 — a seam between two surfaces, not a border
+     around a box. Used at green/light transitions only, never between every
+     pair of sections, or it stops reading as an accent. */
+  .edge-gold-top {
+    border-top: 1px solid hsl(var(--accent) / 0.55);
+  }
+  .edge-gold-bottom {
+    border-bottom: 1px solid hsl(var(--accent) / 0.55);
+  }
+}
+
 /* Required by the stack guidelines and absent until now. Anyone who has asked
    their system to reduce motion currently still gets every fade, scale and
    scroll animation on the site. */
@@ -278,6 +380,10 @@ All colors MUST be HSL.
   
   .gradient-sage {
     background: var(--gradient-sage);
+  }
+
+  .overlay-media {
+    background: var(--overlay-media);
   }
   
   .shadow-elegant {

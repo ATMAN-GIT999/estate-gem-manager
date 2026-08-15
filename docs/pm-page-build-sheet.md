@@ -1,5 +1,21 @@
 # PM-Seite — Bauliste für Phase 2b
 
+> ## ⚠️ HISTORISCH — nicht als Bauanweisung lesen
+>
+> Die Struktur-Tabelle unten beschreibt die PM-Seite vor dem
+> AvantStay-Refactor. Sie ist von `docs/GENERAL-STRUCTURE.md` §27 überholt:
+> `TechnologySection.tsx` und `OwnerCta.tsx` existieren nicht mehr, das
+> Kontaktformular ist der Hero statt Ebene 8, und der Cashflow-Rechner steht
+> gar nicht mehr auf dieser Seite.
+>
+> **Wofür diese Datei weiterhin taugt:** die Section-für-Section-Herleitung
+> darunter — welcher Satz aus welcher alten Komponente stammt und warum drei
+> von fünf Positionierungs-Formulierungen gestrichen wurden. Das ist die
+> Begründung hinter der heutigen Copy und nirgends sonst festgehalten.
+
+<details>
+<summary>Die damalige Zielstruktur (überholt)</summary>
+
 > **Status: umgesetzt.** Die Seite hat jetzt diese Struktur:
 >
 > | # | Ebene | Komponente |
@@ -16,6 +32,8 @@
 > Von 12 Sections auf 9 Blöcke, gelöscht: „Our Services", die zweite
 > Technologie-Liste, drei Positionierungs-Dopplungen, der Business-Areas-Wrapper.
 > `BusinessAreas.tsx` selbst bleibt unangetastet — `/business-areas` nutzt es weiter.
+
+</details>
 
 Die Zielstruktur aus `pm-page-content-analysis.md`, aber **mit dem vorhandenen
 Text darunter**. Pro Ebene steht hier, was wir schon haben, wo es aktuell liegt,

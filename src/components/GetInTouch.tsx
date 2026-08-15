@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
+import { Section, Stack } from "./layout";
 
 const scrollToForm = () => {
   document.getElementById("owner-contact")?.scrollIntoView({ behavior: "smooth" });
@@ -18,15 +19,19 @@ const GetInTouch = () => {
   const [ctaText, setCtaText] = useState("Send enquiry");
 
   return (
-    <section className="py-20 bg-secondary/30">
-      <div className="container mx-auto px-4 text-center">
-        <div className="max-w-xl mx-auto">
-          <EditableText id="get-in-touch-heading" value={heading} onChange={setHeading} as="h2" className="t-block text-primary mb-3">
+    // `size="sm"` — the closing note, the one place a short band is correct.
+    // A full measure of air around three lines would leave it stranded.
+    <Section size="sm" measure="narrow">
+      <Stack gap="sm" align="center">
+        <div className="space-y-xs">
+          <EditableText id="get-in-touch-heading" value={heading} onChange={setHeading} as="h2" className="t-block text-primary">
             {heading}
           </EditableText>
-          <EditableText id="get-in-touch-trust" value={trustText} onChange={setTrustText} as="p" multiline className="t-body text-foreground/70 mb-8">
+          <EditableText id="get-in-touch-trust" value={trustText} onChange={setTrustText} as="p" multiline className="t-body text-foreground/70">
             {trustText}
           </EditableText>
+        </div>
+        <div>
           <Button
             size="lg"
             onClick={scrollToForm}
@@ -38,8 +43,8 @@ const GetInTouch = () => {
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
-      </div>
-    </section>
+      </Stack>
+    </Section>
   );
 };
 

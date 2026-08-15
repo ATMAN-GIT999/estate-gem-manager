@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, CalendarClock, CheckCircle2, Loader2 } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import EditableImage from "./admin/EditableImage";
+import { Container, Section } from "./layout";
 import ownerFormImage from "@/assets/about-hero.webp";
 
 /**
@@ -133,10 +134,10 @@ const OwnerContactForm = () => {
   };
 
   return (
-    <section id="owner-contact" className="pt-10 md:pt-14 scroll-mt-20">
-      <div className="container mx-auto px-4">
+    <Section id="owner-contact" size="none" bleed className="pt-md">
+      <Container>
         {sent ? (
-          <div className="max-w-2xl mx-auto text-center pb-16 md:pb-20">
+          <div className="max-w-2xl mx-auto text-center pb-xl">
             <CheckCircle2 className="w-12 h-12 text-accent-strong mx-auto mb-6" strokeWidth={1.5} />
             <EditableText
               id="owner-form-sent-heading"
@@ -175,9 +176,14 @@ const OwnerContactForm = () => {
 
              Gold top and bottom only — no side bars. Two horizontal lines
              read as an architectural datum across the page; a full frame
-             around a full-bleed photo just reads as a border. */
-          <div className="relative w-screen ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] pt-2.5 pb-2.5 md:pt-3.5 md:pb-3.5 bg-gradient-to-r from-accent-strong via-accent to-accent-strong shadow-2xl">
-            <div className="relative overflow-hidden min-h-[640px] md:min-h-[680px] flex items-center justify-center md:justify-end">
+             around a full-bleed photo just reads as a border.
+
+             The band is shorter than it was (640px → a clamp topping out at
+             560px): §7 asks for the media to support the composition rather
+             than own the screen, and that applies to the owner page's opening
+             image as much as to the video on the landing page. */
+          <div className="relative app-bleed py-2.5 md:py-3.5 bg-gradient-to-r from-accent-strong via-accent to-accent-strong shadow-2xl">
+            <div className="relative overflow-hidden min-h-[clamp(30rem,52vh,35rem)] flex items-center justify-center md:justify-end">
               <EditableImage
                 id="owner-form-image"
                 src={formImage}
@@ -185,12 +191,23 @@ const OwnerContactForm = () => {
                 onChange={setFormImage}
                 className="absolute inset-0 w-full h-full object-cover"
               />
-              <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-black/55 to-transparent pointer-events-none" aria-hidden="true" />
-              <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-black/55 to-transparent pointer-events-none" aria-hidden="true" />
+              {/* `scrim`, not black — the palette's dark green (see the token
+                  in tailwind.config.ts and §10). */}
+              <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-scrim/55 to-transparent pointer-events-none" aria-hidden="true" />
+              <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-scrim/55 to-transparent pointer-events-none" aria-hidden="true" />
 
-              <div className="relative z-10 w-full max-w-md mx-6 my-10 md:mr-16 md:ml-0">
+              {/* The form column stops at the container's right edge instead
+                  of a hard 4rem, so it lines up with every other section on
+                  the page rather than sitting at its own inset.
+
+                  MARGIN, not padding. As `pr-[var(--container-inset)]` the
+                  inset was subtracted from `max-w-md` instead of sitting
+                  outside it: on a 2053px screen that is 354px of the panel's
+                  448px, which left the form 29px wide and stretched the photo
+                  band to 2181px tall to fit it. */}
+              <div className="relative z-10 w-full max-w-md mx-sm my-md md:mr-[var(--container-inset)] md:ml-0">
                 <div className="bg-muted/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 md:p-8">
-                <div className="mb-6">
+                <div className="mb-sm">
                   <EditableText
                     id="owner-form-heading"
                     value={heading}
@@ -331,8 +348,8 @@ const OwnerContactForm = () => {
             </div>
           </div>
         )}
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 };
 

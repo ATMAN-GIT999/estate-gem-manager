@@ -1,30 +1,32 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Users, Shield, Key, Clock, BookOpen, Package } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
+import { Section, Grid, Stack } from "./layout";
 
 /**
  * Lifted out of PropertyManagement, where it was the middle of three pillars,
  * because it belongs in front of guests rather than owners: it is the answer to
  * "who looks after me once I have booked".
  *
- * The copy is rewritten to the guest, in the second person. It previously spoke
+ * The copy is written to the guest, in the second person. It previously spoke
  * over their head to the owner — "your guests can contact us", and a screening
  * card about keeping unwanted guests out, which on a booking page a reader
- * applies to themselves. Every card states the same fact as before from the
+ * applies to themselves. Every item states the same fact as before from the
  * side of the person reading it.
  *
- * The two "→ Listing management" / "→ Property management" cross-links from the
- * original are dropped: they pointed at sibling pillars that now live on the PM
- * page, so they would dangle here.
+ * Structurally this was the site's densest surviving box: a `<Card>` on a
+ * gradient, holding four more translucent cards with borders, each with a hover
+ * state. §25 and the project's own "fewer boxes" rule both land on the same
+ * answer — the green band already separates this from the page, so the items
+ * on it need a hairline and space, not four more frames.
  */
 const GuestManagement = () => {
   const [guestTitle, setGuestTitle] = useState("It's in the details.");
   const [guestDesc, setGuestDesc] = useState("From the moment you book to the morning you leave, the same team that looks after the home looks after you — and you can reach us at any hour.");
   const [guestBadge, setGuestBadge] = useState("Every stay, looked after");
-  const [contactBtnText, setContactBtnText] = useState("→ Contact us");
+  const [contactBtnText, setContactBtnText] = useState("Contact us");
 
   const [guestManagement, setGuestManagement] = useState([
     { icon: "Shield", title: "Confirmed by a person", description: "Every booking is reviewed by someone on our team before it's confirmed — which is also why these homes stay in the condition you'd want to arrive to." },
@@ -42,50 +44,49 @@ const GuestManagement = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-beige via-background to-beige-dark">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
-          <Card className="bg-primary border-none shadow-elegant overflow-hidden">
-            <CardContent className="p-8 md:p-12">
-              <div className="flex items-start gap-4 mb-8">
-                <div className="bg-accent rounded-full p-3">
-                  <Users className="w-6 h-6 text-accent-foreground" />
-                </div>
-                <div>
-                  <div className="bg-accent text-accent-foreground px-6 py-2 rounded-full inline-block mb-4 font-semibold">
-                    <EditableText id="pm-guest-badge" value={guestBadge} onChange={setGuestBadge} as="span">{guestBadge}</EditableText>
-                  </div>
-                </div>
-              </div>
-
-              {/* h2, not the h3 it was inside the three-pillar group: this is now
-                  the section's own heading rather than one of three sub-heads. */}
-              <EditableText id="pm-guest-title" value={guestTitle} onChange={setGuestTitle} as="h2" className="t-section text-primary-foreground mb-6">{guestTitle}</EditableText>
-              <EditableText id="pm-guest-desc" value={guestDesc} onChange={setGuestDesc} as="p" multiline className="t-body text-primary-foreground/90 mb-8">{guestDesc}</EditableText>
-
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {guestManagement.map((item, index) => {
-                  const Icon = iconMap[item.icon] || Package;
-                  return (
-                    <div key={index} className="bg-card/10 backdrop-blur-sm rounded-lg p-6 hover:bg-card/20 transition-all duration-300 animate-fade-in border border-primary-foreground/20" style={{ animationDelay: `${index * 100}ms` }}>
-                      <Icon className="w-10 h-10 text-accent-on-primary mb-4" />
-                      <EditableText id={`pm-guest-title-${index}`} value={item.title} onChange={(v) => updateItem(index, "title", v)} as="h3" className="t-item text-primary-foreground mb-2">{item.title}</EditableText>
-                      <EditableText id={`pm-guest-desc-${index}`} value={item.description} onChange={(v) => updateItem(index, "description", v)} as="p" className="t-body text-primary-foreground/80">{item.description}</EditableText>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <Link to="/book">
-                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-base">
-                  <EditableText id="pm-contact-btn-2" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+    <Section tone="primary" size="md" edge="both">
+      <Stack gap="lg">
+        <div className="max-w-3xl space-y-sm">
+          {/* Was a filled gold pill. An eyebrow says the same thing in the
+              typography the rest of the site already uses for it. */}
+          <EditableText
+            id="pm-guest-badge"
+            value={guestBadge}
+            onChange={setGuestBadge}
+            as="span"
+            className="block t-meta text-accent-on-primary"
+          >
+            {guestBadge}
+          </EditableText>
+          <EditableText id="pm-guest-title" value={guestTitle} onChange={setGuestTitle} as="h2" className="t-section text-primary-foreground text-balance">{guestTitle}</EditableText>
+          <EditableText id="pm-guest-desc" value={guestDesc} onChange={setGuestDesc} as="p" multiline className="t-body text-primary-foreground/85">{guestDesc}</EditableText>
         </div>
-      </div>
-    </section>
+
+        <Grid cols={4}>
+          {guestManagement.map((item, index) => {
+            const Icon = iconMap[item.icon] || Package;
+            return (
+              <div key={index} className="border-t border-primary-foreground/20 pt-sm">
+                <Icon className="w-6 h-6 text-accent-on-primary mb-sm" strokeWidth={1.5} />
+                <EditableText id={`pm-guest-title-${index}`} value={item.title} onChange={(v) => updateItem(index, "title", v)} as="h3" className="t-item text-primary-foreground mb-xs">{item.title}</EditableText>
+                <EditableText id={`pm-guest-desc-${index}`} value={item.description} onChange={(v) => updateItem(index, "description", v)} as="p" className="t-body text-primary-foreground/75">{item.description}</EditableText>
+              </div>
+            );
+          })}
+        </Grid>
+
+        <div>
+          <Button
+            asChild
+            className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-soft px-8 py-6 text-base"
+          >
+            <Link to="/book">
+              <EditableText id="pm-contact-btn-2" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
+            </Link>
+          </Button>
+        </div>
+      </Stack>
+    </Section>
   );
 };
 

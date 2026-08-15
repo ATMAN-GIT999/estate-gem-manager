@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import PropertyCollections from "@/components/PropertyCollections";
+import Stats from "@/components/Stats";
 import GuestManagement from "@/components/GuestManagement";
 import OwnAProperty from "@/components/OwnAProperty";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
@@ -49,16 +50,23 @@ const IndexContent = () => {
       <Navigation />
       <Hero />
 
+      {/* Trust before anything else, the way a platform opens (§11). No
+          heading here: the four numbers are portfolio scale, which a guest
+          reads as reassurance, but "A Portfolio Built on Precision &
+          Performance" is written to an owner and would put owner copy in the
+          second block of a booking page. */}
+      <Stats heading="" />
+
+      {/* One uninterrupted guest run — homes, then what the stay is like.
+          These two used to be separated by the owner hand-off, which made the
+          page change audience twice before the fold-and-a-half. */}
       <PropertyCollections />
-
-      {/* The hand-off to the owner half, placed while the homes are still on
-          screen: "own a property?" lands hardest right after someone has just
-          scrolled past what Frontier does with other people's. */}
-      <OwnAProperty />
-
-      {/* Then back to the guest: having seen the homes, what the stay is
-          actually like. */}
       <GuestManagement />
+
+      {/* The hand-off to the owner half, once, at the end of the guest
+          argument: everything above is written for someone choosing a stay,
+          everything below for someone choosing a manager. */}
+      <OwnAProperty />
 
       <PropertyEvaluator />
       <FAQ />

@@ -1,6 +1,15 @@
 # Frontier Residences — Zielstruktur
 
-**Diese Datei ist die einzige verbindliche Quelle dafür, WAS gebaut wird.**
+> **⚠️ Vorrang:** Für **Layout-Architektur und Section-Reihenfolge** gilt seit
+> dem AvantStay-Refactor `docs/GENERAL-STRUCTURE.md`. Bei Widerspruch gewinnt
+> jene Datei.
+>
+> Diese Datei bleibt verbindlich für die Frage, die §27 nicht beantwortet:
+> **welcher Inhalt auf welche Seite gehört** — also die Trennung zwischen der
+> Gäste-Landingpage und der Eigentümer-Seite. Das ist der historische
+> Hauptfehler des Projekts und keine Layout-Frage.
+
+**Diese Datei ist die verbindliche Quelle dafür, WAS auf welcher Seite steht.**
 
 Die Dokumente in `docs/archive/` erklären das WARUM (Strategie-Brief des Besitzers,
 Content-Audit). Sie sind als Begründung wertvoll, aber **nicht als Bauanweisung zu
@@ -33,21 +42,33 @@ mit. Betrifft aktuell Guest Management (siehe unten).
 
 ## Seite 1 — Booking-Landingpage (`/`)
 
-Gäste-primär, kompakt. Kein Property-Management-Content außer der Übergangs-Section.
+Gäste-primär, kompakt. Kein Property-Management-Content außer der
+Übergangs-Section.
 
-| # | Section | Komponente | Herkunft | Status |
-|---|---|---|---|---|
-| 1 | Navigation | `Navigation.tsx` | main | ✅ umgebaut |
-| 2 | Hero mit Booking-Engine | `Hero.tsx` (enthält `SearchBar`) | main | ✅ neue Headline (Platzhalter) |
-| 3 | Stays You'll Love | `StaysYouLove.tsx` | experiment | ✅ erledigt |
-| 4 | Guest Management | `GuestManagement.tsx` | main, aus `PropertyManagement` extrahiert | ✅ verschoben, ⚠️ Text offen |
-| 5 | **Own a Property?** | `OwnAProperty.tsx` | **neu** | ✅ gebaut — goldenes Band, randlos; Texte als erster Entwurf |
-| 6 | Cashflow Analysis | `PropertyEvaluator.tsx` | main | vorhanden |
-| 7 | Footer | `Footer.tsx` | main | vorhanden |
+| # | Section | Komponente | Zielgruppe |
+|---|---|---|---|
+| 1 | Navigation | `Navigation.tsx` | — |
+| 2 | Hero + Suchleiste (~62 vh, §7–§9) | `Hero.tsx` (enthält `SearchBar`) | Gast |
+| 3 | Trust-Zahlen (§11) | `Stats.tsx` mit `heading=""` | Gast |
+| 4 | Property Collections | `PropertyCollections.tsx` | Gast |
+| 5 | „It's in the details." | `GuestManagement.tsx` | Gast |
+| 6 | **Own a Property?** — die einzige Übergabe | `OwnAProperty.tsx` | Eigentümer |
+| 7 | Cashflow Analysis | `PropertyEvaluator.tsx` | Eigentümer |
+| 8 | FAQ | `FAQ.tsx` | Gast |
+| 9 | Footer | `Footer.tsx` | — |
 
-✅ **Von der Landingpage entfernt** (jetzt auf der PM-Seite):
-`IntroSection.tsx`, `Stats.tsx`, `BusinessAreas.tsx`, `TechnologySection.tsx`,
-`PropertyManagement.tsx`.
+**Warum diese Reihenfolge:** Der Zielgruppenwechsel passiert **genau einmal**,
+bei #6. Vorher standen Collections → Own a Property → Guest Management, was die
+Seite zweimal die Zielgruppe wechseln ließ, bevor der Gast mit dem Lesen fertig
+war.
+
+⚠️ `Stats.tsx` läuft hier **ohne** Überschrift. „A Portfolio Built on Precision
+& Performance" ist an Eigentümer geschrieben; die vier Zahlen selbst sind für
+Gäste lesbarer Trust. Die Überschrift nur auf der PM-Seite zeigen.
+
+⚠️ `OwnAProperty.tsx` zeigt die vier Zahlen **nicht mehr** — sie stehen jetzt
+oben in `Stats`. Wieder einbauen hieße dieselben vier Zahlen zweimal auf einem
+Scroll.
 
 ---
 
@@ -55,30 +76,39 @@ Gäste-primär, kompakt. Kein Property-Management-Content außer der Übergangs-
 
 Eigentümer-primär. Sammelt den gesamten PM-Content.
 
-**Phase 2 (13.08.2026): Kontaktformular als CTA nach vorne, Guest/Property zu
-„Why it makes a difference" verschmolzen, Renovations/Investments als eigene
-Section, Zwei-Modelle-Vergleich als Linienbalken.** Tabelle unten ist der
-aktuelle Ist-Zustand, nicht mehr die Phase-1-Verschiebung.
+**Reihenfolge = `GENERAL-STRUCTURE.md` §27.** Sie ist ein Argument, keine
+Liste: was es einbringt → was es dich an Aufwand kostet → warum wir → wie das
+im Alltag aussieht → wo → wer → wie man anfängt. Ein Block verschoben zerlegt
+den Satz, nicht nur das Layout.
 
-| # | Section | Komponente | Status |
-|---|---|---|---|
-| 1 | Navigation | `Navigation.tsx` | ✅ |
-| 2 | Hero + Kontaktformular (Bild daneben, „Send enquiry" + Cal.com-Termin-Button) | `PropertyManagementPage.tsx` + `OwnerContactForm.tsx` | ✅ — Cal.com-Link ist Almedins eigener, provisorisch (siehe offene Punkte) |
-| 3 | Portfolio-Zahlen + CTA zum Cashflow-Rechner | `Stats.tsx` | ✅ |
-| 4 | „We manage what the property earns." (Financial Performance) | `FinancialPerformance.tsx` | ✅ |
-| 5 | Cashflow-Rechner | `PropertyEvaluator.tsx` | ✅ |
-| 6 | „We manage while you relax." (Listing-Intro, eine Fläche) | `PropertyManagement.tsx` | ✅ — Guest/Property-Pillars ausgelagert nach #8 |
-| 7 | „This is how we work together." (4 Listing-Cards, dunkler Hintergrund) | `ListingWorkflow.tsx` | ✅ **neu** |
-| 8 | „Our Destinations" / Before & After (dunkler Hintergrund, weiße Schrift) | `ProjectsSection.tsx` | ✅ — auch auf `/projects` |
-| 9 | „Why it makes a difference." (Technology + Guest Management + Property Care, reduziert) | `WhyItMakesADifference.tsx` | ✅ **neu**, ersetzt `TechnologySection.tsx` (gelöscht) |
-| 10 | About Us (kompakt) | `AboutMini.tsx` | unverändert |
-| 11 | „What else we do?" (Renovations & Investments, zwei Container) | `BeyondManagement.tsx` | ✅ **neu**, aus `WaysToWorkTogether.tsx` gelöst |
-| 12 | „Two ways to start to work with us." (Linienbalken statt Karten) | `WaysToWorkTogether.tsx` | ✅ redesignt |
-| 13 | FAQ („Frequently Asked Questions", ohne Eyebrow) | `FAQ.tsx` | ✅ — Inhalt bleibt gästeseitig formuliert, siehe offene Punkte |
-| 14 | „Get in touch." (kleine CTA vor dem Footer) | `GetInTouch.tsx` | ✅ **neu** |
-| 15 | Footer | `Footer.tsx` | ✅ erweitert (Adresse, FAQ-Link) |
+| # | §27-Ebene | Komponente |
+|---|---|---|
+| 1 | Navigation | `Navigation.tsx` |
+| 2 | Hero + Kontaktformular (Konversion im ersten Screen) | `PropertyManagementPage.tsx` + `OwnerContactForm.tsx` |
+| 3 | **Trust** — Portfolio-Zahlen | `Stats.tsx` (mit Überschrift) |
+| 4 | **Earns** — „We manage what the property earns." | `FinancialPerformance.tsx` |
+| 5 | **Relax** — „We manage while you relax." | `PropertyManagement.tsx` |
+| 6 | **Different** — Technologie dominant, Guest/Property darunter | `WhyItMakesADifference.tsx` |
+| 7 | **Details** — „It's in the details." | `ListingWorkflow.tsx` |
+| 8 | **Destinations + Transformations** | `ProjectsSection.tsx` (auch auf `/projects`) |
+| 9 | **About / Trust** | `AboutMini.tsx` |
+| 10 | **Two ways to start** (Renovations & Investments darin verschachtelt) | `WaysToWorkTogether.tsx` |
+| 11 | FAQ | `FAQ.tsx` |
+| 12 | **CTA** — „Get in touch." | `GetInTouch.tsx` |
+| 13 | Footer | `Footer.tsx` |
 
-**Phase 1 ist damit abgeschlossen.** Beide Seiten sind strukturell vollständig.
+**Zwingend (§12):** *Earns* steht vor *Relax*. **Zwingend (§15/§16):**
+*Different* steht vor *Details* — der Anspruch muss vor seinem eigenen Beleg
+kommen, sonst trifft der Leser eine Aufgabenliste ohne etwas, woran sie hängt.
+
+**Gewicht ist absichtlich ungleich (§14):** `FinancialPerformance` bekommt
+`size="lg"` und das volle Grid, `PropertyManagement` ist eine ruhige Zeile auf
+`tone="muted"`. Beide gleich stark zu gestalten war ausdrücklich nicht
+gewünscht.
+
+**Der Cashflow-Rechner steht nicht mehr auf dieser Seite (§13)** — nur ein
+Button nach `/evaluate`. `BeyondManagement.tsx` ist aufgelöst, Renovations und
+Investments hängen unter *Guaranteed Income* (§21).
 
 **Guaranteed Income, Renovations, Investments** bleiben eigenständige Unterseiten
 (`/guaranteed-income`, `/renovations`, `/investments`). Die PM-Seite bekommt in
@@ -125,7 +155,7 @@ kompakte `AboutMini`-Variante als Section.
 | Landing-Hero und PM-Hero | Zwei verschiedene Heroes |
 | Bestehende PM-Seite | Bleibt Basis, wird erweitert — nicht neu gebaut |
 | Unterseiten GI/Renovations/Investments | Bleiben bestehen, PM-Seite verlinkt nur |
-| Cashflow Analysis | Auf **beiden** Seiten |
+| Cashflow Analysis | Formular auf `/` und auf `/evaluate`. Die PM-Seite verlinkt nur noch dorthin (§13) — kein zweites eingebettetes Formular. |
 | Projects | Inhalt als Section auf PM-Seite, Nav-Punkt entfällt |
 | About Us | `AboutMini` als Section auf der PM-Seite; `/about` bleibt als Seite **und** als Menüpunkt |
 | Guest Management | Gehört auf die Booking-Landingpage, nicht auf die PM-Seite |
@@ -136,10 +166,9 @@ kompakte `AboutMini`-Variante als Section.
 
 ## Offene Punkte
 
-1. **Guest-Management-Texte sind an Eigentümer gerichtet** („your guests can
-   contact us", Screening-Karte über „unwanted guests"). Auf der Booking-Seite
-   liest ein Gast das über sich selbst. Braucht einen Text-Pass vor dem Livegang —
-   früher als der Rest von Phase 2.
+1. **Guest-Management-Texte:** ✅ gelöst — die vier Punkte sind auf den Gast
+   umgeschrieben (zweite Person), die Screening-Karte formuliert dieselbe
+   Tatsache von der Seite des Lesers.
 2. **Landing-Hero-Headline** ist ein Platzhalter
    („Luxury Villas & Vacation Rentals in Spain and Austria"), vom Besitzer
    abzusegnen.
@@ -168,3 +197,17 @@ kompakte `AboutMini`-Variante als Section.
 10. **Hero-/Formularbild ist eine Zweitverwertung von `about-hero.webp`**
     (bereits das Bild der About-Seite), weil kein dediziertes Bild existierte.
     Über `EditableImage` im Admin austauschbar.
+11. **„It's in the details." steht jetzt auf beiden Seiten.** §16 verlangt die
+    Formulierung als Detailebene der PM-Seite (`ListingWorkflow.tsx`); sie war
+    bereits die Überschrift der Gäste-Section auf `/`
+    (`GuestManagement.tsx`). Zwei Seiten, zwei Zielgruppen — kaputt ist das
+    nicht, aber eine der beiden sollte einen eigenen Titel bekommen. Die
+    Gäste-Fassung nicht ohne Rückfrage ändern: der Text dort ist geprüft.
+12. **`Stats.tsx` hat jetzt einen `heading`-Prop.** Leerer String = nur die
+    Zahlen (Startseite), gesetzt = Kapitelüberschrift (PM-Seite). Wer die
+    Überschrift auf `/` einschaltet, holt Eigentümer-Sprache auf die
+    Gäste-Seite zurück.
+13. **Die drei Before-/After-Rahmen auf der PM-Seite sind weiterhin
+    Platzhalter** („Coming Soon"). Die Bildunterschrift „Before and After"
+    sitzt seit §18 **unter** dem Rahmen — sie funktioniert unverändert
+    weiter, sobald echte Fotos in den Rahmen wandern.

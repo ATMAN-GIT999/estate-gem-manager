@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import EditableText from "./admin/EditableText";
 import SectionIntro from "./SectionIntro";
+import { Section, Grid, Stack } from "./layout";
 
 type Member = { name: string; role: string; avatar_url?: string | null };
 
@@ -127,8 +128,10 @@ const AboutMini = () => {
   };
 
   return (
-    <section id="about-mini" className="py-24 bg-background scroll-mt-20">
-      <div className="container mx-auto px-4">
+    // §19: trust, professionalism, local competence — carried by four faces
+    // and one sentence. No cards; the faces are the content.
+    <Section id="about-mini" tone="muted" size="md">
+      <Stack gap="lg">
         <SectionIntro
           idPrefix="am"
           eyebrow="Who looks after your property"
@@ -136,7 +139,7 @@ const AboutMini = () => {
           lead="Frontier was founded because owners of exceptional homes were being offered standard management — and their guests could tell."
         />
 
-        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-3xl mx-auto">
+        <Grid cols={4} className="max-w-3xl mx-auto">
           {team.map((member, index) => (
             <TeamFace
               key={index}
@@ -146,9 +149,9 @@ const AboutMini = () => {
               onChange={updateMember}
             />
           ))}
-        </div>
+        </Grid>
 
-        <div className="mt-12 text-center">
+        <div className="text-center">
           <Link
             to="/about"
             className="t-meta text-accent-strong hover:underline"
@@ -164,8 +167,8 @@ const AboutMini = () => {
             {" →"}
           </Link>
         </div>
-      </div>
-    </section>
+      </Stack>
+    </Section>
   );
 };
 

@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Loader2, TrendingUp } from "lucide-react";
 import AddressAutocomplete from "./AddressAutocomplete";
 import EditableText from "./admin/EditableText";
+import { Section } from "./layout";
 import {
   Select,
   SelectContent,
@@ -86,11 +87,11 @@ const PropertyEvaluator = () => {
   };
 
   return (
-    <section id="property-evaluation" className="py-20 bg-background scroll-mt-20">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <TrendingUp className="w-16 h-16 text-accent-strong mx-auto mb-6" />
+    <Section id="property-evaluation" size="md" measure="wide">
+      <div>
+        <div>
+          <div className="text-center mb-lg">
+            <TrendingUp className="w-12 h-12 text-accent-strong mx-auto mb-sm" strokeWidth={1.5} />
             <EditableText
               id="pe-section-title"
               value={sectionTitle}
@@ -282,7 +283,7 @@ const PropertyEvaluator = () => {
           </Card>
         </div>
       </div>
-    </section>
+    </Section>
   );
 };
 

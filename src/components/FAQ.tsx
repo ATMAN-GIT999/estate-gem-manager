@@ -8,6 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import EditableText from "./admin/EditableText";
+import { Section, Stack, Surface } from "./layout";
 
 /**
  * Landing-page FAQ, guest-only.
@@ -101,74 +102,68 @@ const FAQ = ({ eyebrow: eyebrowProp = "Questions", heading: headingProp = "Befor
   const [heading, setHeading] = useState(headingProp);
 
   return (
-    <section id="faq" className="py-24 md:py-28 bg-background scroll-mt-20">
-      <div className="container mx-auto px-4">
-        {/* Same silver-shimmer material as the property-management hero
-            panel (`.bg-silver-shimmer` in index.css) — the two are meant to
-            read as the same design element reappearing, not two separately
-            invented "light section" treatments. */}
-        <div className="bg-silver-shimmer max-w-3xl mx-auto rounded-[2rem] px-6 py-10 md:px-12 md:py-14 shadow-soft">
-          {/* Above the sheen overlay (`.bg-silver-shimmer::before`), which is
-              itself positioned and would otherwise paint over in-flow
-              content — this keeps the questions and answers at full
-              contrast regardless. */}
-          <div className="relative z-10">
-            <div className="mb-12">
-              {eyebrow && (
-                <EditableText
-                  id="faq-eyebrow"
-                  value={eyebrow}
-                  onChange={setEyebrow}
-                  as="span"
-                  className="t-meta block text-accent-strong mb-4"
-                >
-                  {eyebrow}
-                </EditableText>
-              )}
+    <Section id="faq" size="md" measure="wide">
+      {/* Same silver material as the property-management hero panel (§23) —
+          the two are meant to read as the same design element reappearing,
+          not two separately invented "light section" treatments. <Surface>
+          owns that material, and the z-index dance the sheen overlay needs. */}
+      <Surface material="silver" pad="lg">
+        <Stack gap="lg">
+          <div className="space-y-sm">
+            {eyebrow && (
               <EditableText
-                id="faq-heading"
-                value={heading}
-                onChange={setHeading}
-                as="h2"
-                className="t-section text-primary"
+                id="faq-eyebrow"
+                value={eyebrow}
+                onChange={setEyebrow}
+                as="span"
+                className="t-meta block text-accent-strong"
               >
-                {heading}
+                {eyebrow}
               </EditableText>
-            </div>
-
-            <Accordion type="single" collapsible className="w-full">
-              {FAQ_ITEMS.map((item, index) => (
-                <AccordionItem
-                  key={index}
-                  value={`item-${index}`}
-                  className="border-primary/15"
-                >
-                  <AccordionTrigger className="t-item text-primary text-left hover:no-underline py-6">
-                    {item.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="t-body text-foreground/70 pb-6">
-                    {index === FAQ_ITEMS.length - 1 ? (
-                      <span className="flex flex-wrap items-center gap-2">
-                        {OWNER_ANSWER_LEAD_IN}
-                        <Link
-                          to="/property-management"
-                          className="inline-flex items-center gap-1.5 text-accent-strong font-semibold hover:gap-2.5 transition-all"
-                        >
-                          see how it works
-                          <ArrowRight className="w-4 h-4" />
-                        </Link>
-                      </span>
-                    ) : (
-                      item.answer
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+            )}
+            <EditableText
+              id="faq-heading"
+              value={heading}
+              onChange={setHeading}
+              as="h2"
+              className="t-section text-primary"
+            >
+              {heading}
+            </EditableText>
           </div>
-        </div>
-      </div>
-    </section>
+
+          <Accordion type="single" collapsible className="w-full">
+            {FAQ_ITEMS.map((item, index) => (
+              <AccordionItem
+                key={index}
+                value={`item-${index}`}
+                className="border-primary/15"
+              >
+                <AccordionTrigger className="t-item text-primary text-left hover:no-underline py-sm">
+                  {item.question}
+                </AccordionTrigger>
+                <AccordionContent className="t-body text-foreground/70 pb-sm max-w-3xl">
+                  {index === FAQ_ITEMS.length - 1 ? (
+                    <span className="flex flex-wrap items-center gap-2">
+                      {OWNER_ANSWER_LEAD_IN}
+                      <Link
+                        to="/property-management"
+                        className="inline-flex items-center gap-1.5 text-accent-strong font-semibold hover:gap-2.5 transition-all"
+                      >
+                        see how it works
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </span>
+                  ) : (
+                    item.answer
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </Stack>
+      </Surface>
+    </Section>
   );
 };
 

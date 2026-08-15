@@ -2,22 +2,27 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import EditableText from "./admin/EditableText";
+import { Section, Grid, Stack } from "./layout";
 
 /**
- * The commercial decision, stated as a decision — and stated as two lines,
- * not two cards. Full-service management and Guaranteed Income are mutually
- * exclusive: an owner picks one. A row each, both closed off by the same
- * full-width hairline regardless of how long the name is, reads as a choice
- * between two options rather than two products on shelves next to each
- * other.
+ * The commercial decision, stated as a decision — and set as an editorial
+ * spread rather than two product cards (§20, §22). Full-service management and
+ * Guaranteed Income are mutually exclusive: an owner picks one. Cards next to
+ * each other say "two things you could buy"; two rows sharing one set of rules
+ * says "one choice, two answers".
+ *
+ * What carries it is line, space and type, not surface: a gold rule opening
+ * and closing the pair, a thin rule between them, the model name set at
+ * section size in the left column with the terms in the right. The letter mark
+ * is a mark, not a bullet — A and B are a choice, 1 and 2 would be a sequence.
  *
  * Renovations and Investments used to be their own section
  * (`BeyondManagement.tsx`, now retired). They only make sense once an owner
  * has already leased the property to Frontier under Guaranteed Income —
  * under full-service management the owner still holds the asset and
- * commissions their own renovation — so they now nest under that row as
- * secondary paths, not a third equal offer competing with the two real
- * models.
+ * commissions their own renovation — so they nest under that row as secondary
+ * paths (§21), visibly smaller, not a third equal offer competing with the two
+ * real models.
  */
 const WaysToWorkTogether = () => {
   const [eyebrow, setEyebrow] = useState("How we work together");
@@ -61,15 +66,15 @@ const WaysToWorkTogether = () => {
   };
 
   return (
-    <section id="ways-to-work" className="py-24 md:py-28 bg-background scroll-mt-20">
-      <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center mb-14">
+    <Section id="ways-to-work" size="lg">
+      <Stack gap="lg">
+        <div className="max-w-3xl mx-auto text-center space-y-sm">
           <EditableText
             id="ways-eyebrow"
             value={eyebrow}
             onChange={setEyebrow}
             as="span"
-            className="block t-meta text-accent-strong mb-4"
+            className="block t-meta text-accent-strong"
           >
             {eyebrow}
           </EditableText>
@@ -84,26 +89,50 @@ const WaysToWorkTogether = () => {
           </EditableText>
         </div>
 
-        <div className="max-w-3xl mx-auto divide-y divide-primary/20 border-y-2 border-accent/60">
+        {/* The gold rules top and bottom bracket the pair; the thin rule
+            between them separates without re-bracketing. Three weights of
+            line doing three different jobs — the architectural detail §22
+            asks for, rather than a border drawn around each option. */}
+        <div className="divide-y divide-primary/20 border-y border-accent/55">
           {models.map((model, index) => (
-            <div key={index} className="py-10">
-              <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 mb-3">
-                <div className="flex items-center gap-3">
-                  {/* A small lettered mark, not a numbered list — this is a
-                      choice between two paths, not a sequence. */}
-                  <span className="flex items-center justify-center w-7 h-7 rounded-full border border-accent-strong t-meta text-accent-strong shrink-0">
-                    {index === 0 ? "A" : "B"}
-                  </span>
-                  <EditableText
-                    id={`ways-model-name-${index}`}
-                    value={model.name}
-                    onChange={(v) => { const u = [...models]; u[index] = { ...u[index], name: v }; setModels(u); }}
-                    as="h3"
-                    className="t-block text-primary"
-                  >
-                    {model.name}
-                  </EditableText>
-                </div>
+            <Grid key={index} gap="sm" className="py-lg">
+              <div className="md:col-span-4 flex items-start gap-4">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full border border-accent-strong t-meta text-accent-strong shrink-0 mt-1">
+                  {index === 0 ? "A" : "B"}
+                </span>
+                <EditableText
+                  id={`ways-model-name-${index}`}
+                  value={model.name}
+                  onChange={(v) => { const u = [...models]; u[index] = { ...u[index], name: v }; setModels(u); }}
+                  as="h3"
+                  className="t-section text-primary text-balance"
+                >
+                  {model.name}
+                </EditableText>
+              </div>
+
+              <div className="md:col-span-8 space-y-sm">
+                <EditableText
+                  id={`ways-model-summary-${index}`}
+                  value={model.summary}
+                  onChange={(v) => { const u = [...models]; u[index] = { ...u[index], summary: v }; setModels(u); }}
+                  as="p"
+                  multiline
+                  className="t-block text-primary"
+                >
+                  {model.summary}
+                </EditableText>
+                <EditableText
+                  id={`ways-model-detail-${index}`}
+                  value={model.detail}
+                  onChange={(v) => { const u = [...models]; u[index] = { ...u[index], detail: v }; setModels(u); }}
+                  as="p"
+                  multiline
+                  className="t-body text-foreground/70 max-w-2xl"
+                >
+                  {model.detail}
+                </EditableText>
+
                 {model.href && (
                   <Link
                     to={model.href}
@@ -113,41 +142,18 @@ const WaysToWorkTogether = () => {
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 )}
-              </div>
-              <EditableText
-                id={`ways-model-summary-${index}`}
-                value={model.summary}
-                onChange={(v) => { const u = [...models]; u[index] = { ...u[index], summary: v }; setModels(u); }}
-                as="p"
-                multiline
-                className="t-body text-foreground/90 mb-2 pl-10"
-              >
-                {model.summary}
-              </EditableText>
-              <EditableText
-                id={`ways-model-detail-${index}`}
-                value={model.detail}
-                onChange={(v) => { const u = [...models]; u[index] = { ...u[index], detail: v }; setModels(u); }}
-                as="p"
-                multiline
-                className="t-body text-foreground/70 pl-10"
-              >
-                {model.detail}
-              </EditableText>
 
-              {/* Renovations & Investments — nested under Guaranteed Income
-                  only, connected by a gold rule so the subordination reads
-                  at a glance rather than needing a label to explain it. */}
-              {index === 1 && (
-                <div className="mt-8 ml-10 pl-6 border-l-2 border-accent/50">
-                  <EditableText id="ways-sub-label" value={subLabel} onChange={setSubLabel} as="span" className="block t-meta text-accent-strong mb-4">
-                    {subLabel}
-                  </EditableText>
-                  <div className="space-y-5">
+                {/* §21 — nested under Guaranteed Income only, connected by a
+                    gold rule so the subordination reads at a glance rather
+                    than needing a label to explain it. */}
+                {index === 1 && (
+                  <div className="mt-md pl-sm border-l-2 border-accent/50 space-y-sm">
+                    <EditableText id="ways-sub-label" value={subLabel} onChange={setSubLabel} as="span" className="block t-meta text-accent-strong">
+                      {subLabel}
+                    </EditableText>
                     {subServices.map((service, si) => (
                       <Link key={si} to={service.href} className="group block">
                         <div className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-accent-strong shrink-0" />
                           <EditableText
                             id={`ways-sub-title-${si}`}
                             value={service.title}
@@ -164,20 +170,20 @@ const WaysToWorkTogether = () => {
                           value={service.description}
                           onChange={(v) => updateSubService(si, "description", v)}
                           as="p"
-                          className="t-body text-foreground/60 ml-3.5 mt-0.5"
+                          className="t-body text-foreground/60"
                         >
                           {service.description}
                         </EditableText>
                       </Link>
                     ))}
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            </Grid>
           ))}
         </div>
-      </div>
-    </section>
+      </Stack>
+    </Section>
   );
 };
 

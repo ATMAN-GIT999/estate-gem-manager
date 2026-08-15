@@ -9,14 +9,30 @@ export default {
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
+    // Kept only for the pages not yet on the <Container> primitive (admin,
+    // /about, /projects, the booking flow). Widened from 1400px to match
+    // --container-max in index.css, so a visitor moving between a migrated
+    // and an unmigrated page does not see the content edge jump.
     container: {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1400px",
+        "2xl": "1440px",
       },
     },
     extend: {
+      // The vertical ladder from index.css, exposed to p-/py-/gap-/space-y-
+      // utilities. Six names, no numbers: a section that wants "a bit more
+      // than lg" has to pick xl, which is the whole point — `py-24` next to
+      // `py-28` next to `py-36` is how the old spacing drifted.
+      spacing: {
+        xs: "var(--space-xs)",
+        sm: "var(--space-sm)",
+        md: "var(--space-md)",
+        lg: "var(--space-lg)",
+        xl: "var(--space-xl)",
+        "2xl": "var(--space-2xl)",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -79,6 +95,12 @@ export default {
           light: "hsl(42 48% 62%)",
           dark: "hsl(38 42% 44%)",
         },
+        /* Darkening layer for text over photography — `from-scrim/55` and so
+           on. Not a new colour: it is --foreground (133 14% 22%) taken
+           further down, the same family as --overlay-media in index.css.
+           Neutral black over this palette reads grey and drains the warmth
+           out of the photos, which is what §10 is about. */
+        scrim: "hsl(133 16% 13% / <alpha-value>)",
         white: "hsl(0, 0%, 100%)", /* #ffffff */
         black: "hsl(0, 0%, 0%)", /* #000000 */
       },

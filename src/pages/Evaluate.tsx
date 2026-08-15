@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ConsultationBooking from "@/components/ConsultationBooking";
+import PropertyEvaluator from "@/components/PropertyEvaluator";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, TrendingUp, Home, DollarSign, Calendar, Percent, CheckCircle2, BarChart3, Sun, Cloud, Snowflake } from "lucide-react";
@@ -82,8 +83,11 @@ const EvaluateContent = () => {
   ];
 
   useEffect(() => {
+    // No property to analyse yet: this is someone arriving at the page
+    // directly rather than through the form. The calculator renders below
+    // instead — see the `!propertyData` branch in the JSX.
     if (!propertyData) {
-      navigate("/");
+      setLoading(false);
       return;
     }
 
@@ -156,7 +160,21 @@ const EvaluateContent = () => {
         schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Cashflow Analysis", path: "/evaluate" }])}
       />
       <Navigation />
-      
+
+      {/* Arrived here without a property to analyse — from the footer's
+          "Property Evaluation" link, from the owner page's CTA, or by typing
+          the URL. This used to `navigate("/")`, which silently dropped the
+          visitor onto the guest landing page with no explanation, and made
+          both of those links dead ends.
+          Rendering the calculator instead is what makes /evaluate the
+          standalone Cashflow Analysis page docs/GENERAL-STRUCTURE.md §13
+          asks for: the form posts back to this same route with the property
+          in router state, and the analysis below takes over. */}
+      {!propertyData ? (
+        <main className="pt-24">
+          <PropertyEvaluator />
+        </main>
+      ) : (
       <section className="pt-24 pb-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
@@ -510,6 +528,7 @@ const EvaluateContent = () => {
           </div>
         </div>
       </section>
+      )}
 
       {!loading && analysis && <ConsultationBooking />}
 

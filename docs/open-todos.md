@@ -401,6 +401,31 @@ Jede Antwort ist aus bereits vorhandener, verifizierter Seiten-Copy hergeleitet
 davon ist neu erfunden. `FAQPage`-JSON-LD über `faqSchema()` in `schema.ts`,
 mit denselben Items wie im Akkordeon — kann nicht auseinanderlaufen.
 
+---
+
+## 8 · `/evaluate` war keine erreichbare Seite — ✅ behoben
+
+**Status:** ✅ erledigt · 15.08.2026 · gefunden beim AvantStay-Layout-Refactor
+
+`Evaluate.tsx` las `location.state?.propertyData` und rief `navigate("/")`,
+wenn nichts da war. Die Route war also nur als **Ergebnisseite** erreichbar —
+über das Absenden von `PropertyEvaluator`.
+
+Damit war der Footer-Link „Property Evaluation" (`<Link to="/evaluate">`) auf
+**jeder Seite der Website** eine Sackgasse: Klick → kommentarloser Sprung auf
+die Startseite. Kein Fehler, keine Meldung. Das stand so seit der
+Lovable-Zeit im Code.
+
+**Jetzt:** ohne `propertyData` rendert die Seite `PropertyEvaluator` selbst.
+Das Formular navigiert auf dieselbe Route mit State zurück, dann übernimmt die
+Analyse. `/evaluate` ist damit die eigenständige „Property Cash Flow Analysis
+Page", die `GENERAL-STRUCTURE.md` §13 voraussetzt — und das Ziel des
+CTA-Buttons in `FinancialPerformance.tsx`, der vorher auf
+`/#property-evaluation` zeigte und einen Eigentümer auf die Gäste-Startseite
+schickte.
+
+---
+
 ## Nicht aus der Notiz, aber offen
 
 - **`collection`-Spalte für die Property-Tabelle.** Die drei Reihen auf der

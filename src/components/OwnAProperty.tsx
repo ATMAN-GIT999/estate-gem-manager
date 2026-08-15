@@ -3,52 +3,40 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
+import { Section, Stack } from "./layout";
 
 /**
  * The hand-off between the two halves of the site: everything above is written
  * for a guest choosing a stay, everything it leads to is written for an owner
  * choosing a manager.
  *
- * Built to match the Portfolio section rather than to stand apart from it —
- * centred heading, the same stat cards, the same light surface. The question
- * itself is what does the work; an owner scrolling past reads "Own a Property?"
- * and stops because it is addressed to them, not because the section shouts.
+ * It used to repeat the four portfolio numbers (41 properties, 1500+
+ * reservations, 8 destinations, 50+ collaborators). Those now open the page as
+ * the trust band directly under the hero (§11), so showing them again here
+ * would be the same four figures twice on one scroll — and it left this
+ * section carrying a full grid when its whole job is one question and one way
+ * out of the page.
  *
- * `bg-background` is the site's light surface (#efe6d9) rather than pure white:
- * the cards are `--card`, which *is* white, so they only read as cards against
- * something slightly darker.
+ * The question is what does the work. An owner scrolling past reads "Own a
+ * Property?" and stops because it is addressed to them, not because the
+ * section shouts.
  */
 const OwnAProperty = () => {
   const [heading, setHeading] = useState("Own a Property?");
   const [subheading, setSubheading] = useState("See what it could earn with us.");
   const [ctaText, setCtaText] = useState("Discover Property Management");
 
-  // The figures the Portfolio section carries on the property management page.
-  const [stats, setStats] = useState([
-    { number: "41", label: "Properties Managed" },
-    { number: "1500+", label: "Successful Reservations" },
-    { number: "8", label: "Destinations" },
-    { number: "50+", label: "Collaborators" },
-  ]);
-
-  const updateStat = (index: number, field: "number" | "label", value: string) => {
-    const updated = [...stats];
-    updated[index] = { ...updated[index], [field]: value };
-    setStats(updated);
-  };
-
   return (
-    <section id="own-a-property" className="py-20 bg-background scroll-mt-20">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          {/* h2, not h1 — the page's h1 is the hero. Sized to match the
-              Portfolio heading it sits alongside. */}
+    <Section id="own-a-property" tone="muted" size="md" measure="text">
+      <Stack gap="md" align="center">
+        <div className="space-y-xs">
+          {/* h2, not h1 — the page's h1 is the hero. */}
           <EditableText
             id="oap-heading"
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="t-section text-primary mb-4"
+            className="t-section text-primary"
           >
             {heading}
           </EditableText>
@@ -66,48 +54,22 @@ const OwnAProperty = () => {
           </EditableText>
         </div>
 
-        {/* Same treatment as the Portfolio numbers: a hairline and space
-            instead of a raised panel. */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-10 gap-y-10 max-w-5xl mx-auto mb-14">
-          {stats.map((stat, index) => (
-            <div key={index} className="border-t border-primary/15 pt-6">
-              <EditableText
-                id={`oap-stat-number-${index}`}
-                value={stat.number}
-                onChange={(v) => updateStat(index, "number", v)}
-                as="p"
-                className="t-display text-accent-strong mb-3 tabular-nums"
-              >
-                {stat.number}
-              </EditableText>
-              <EditableText
-                id={`oap-stat-label-${index}`}
-                value={stat.label}
-                onChange={(v) => updateStat(index, "label", v)}
-                as="p"
-                className="t-meta text-foreground/60"
-              >
-                {stat.label}
-              </EditableText>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center">
-          <Link to="/property-management">
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant px-8 py-6 text-base"
-            >
+        <div>
+          <Button
+            asChild
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant px-8 py-6 text-base"
+          >
+            <Link to="/property-management">
               <EditableText id="oap-cta" value={ctaText} onChange={setCtaText} as="span">
                 {ctaText}
               </EditableText>
               <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
-      </div>
-    </section>
+      </Stack>
+    </Section>
   );
 };
 

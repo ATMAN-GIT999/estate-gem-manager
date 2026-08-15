@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, TrendingUp, LineChart, FileBarChart, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
+import { Section, Grid, Stack } from "./layout";
 
 /**
  * The money layer, and the one thing the page never said in one place.
@@ -55,15 +56,20 @@ const FinancialPerformance = () => {
   const iconMap: Record<string, any> = { TrendingUp, LineChart, FileBarChart };
 
   return (
-    <section id="financial-performance" className="py-20 bg-background scroll-mt-20">
-      <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center mb-14">
+    // `size="lg"` is the one place on the page that gets the widest band of
+    // air. §13 makes this the primary value proposition and §14 is explicit
+    // that "We manage while you relax" underneath must not be weighted the
+    // same — the difference is carried by space and by this section keeping
+    // the full-width grid, rather than by making the other one smaller.
+    <Section id="financial-performance" size="lg">
+      <Stack gap="lg">
+        <div className="max-w-3xl mx-auto text-center space-y-sm">
           <EditableText
             id="fin-eyebrow"
             value={eyebrow}
             onChange={setEyebrow}
             as="span"
-            className="block t-meta text-accent-strong mb-4"
+            className="block t-meta text-accent-strong"
           >
             {eyebrow}
           </EditableText>
@@ -72,7 +78,7 @@ const FinancialPerformance = () => {
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="t-section text-primary text-balance mb-5"
+            className="t-section text-primary text-balance"
           >
             {heading}
           </EditableText>
@@ -88,12 +94,12 @@ const FinancialPerformance = () => {
           </EditableText>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-x-10 gap-y-12 max-w-5xl mx-auto mb-16">
+        <Grid cols={3}>
           {pillars.map((pillar, index) => {
             const Icon = iconMap[pillar.icon] || TrendingUp;
             return (
-              <div key={index} className="border-t border-primary/15 pt-6">
-                <Icon className="w-6 h-6 text-accent-strong mb-4" strokeWidth={1.5} />
+              <div key={index} className="border-t border-primary/15 pt-sm">
+                <Icon className="w-6 h-6 text-accent-strong mb-sm" strokeWidth={1.5} />
                 <EditableText
                   id={`fin-pillar-title-${index}`}
                   value={pillar.title}
@@ -116,9 +122,9 @@ const FinancialPerformance = () => {
               </div>
             );
           })}
-        </div>
+        </Grid>
 
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="text-center space-y-sm">
           <EditableText
             id="fin-outcomes-heading"
             value={outcomesHeading}
@@ -128,11 +134,11 @@ const FinancialPerformance = () => {
                label, not a section heading. It used to be an <h3> at 20px,
                which put it on the same outline level as the three pillar
                titles above without being one. */
-            className="t-meta text-primary mb-6"
+            className="t-meta text-primary"
           >
             {outcomesHeading}
           </EditableText>
-          <ul className="flex flex-wrap justify-center gap-x-8 gap-y-4">
+          <ul className="flex flex-wrap justify-center gap-x-md gap-y-xs">
             {outcomes.map((outcome, index) => (
               <li key={index} className="flex items-center gap-2">
                 <Check className="w-5 h-5 text-accent-strong shrink-0" />
@@ -150,16 +156,18 @@ const FinancialPerformance = () => {
           </ul>
         </div>
 
-        {/* The full calculator used to sit inline here as its own heavy
-            section (`PropertyEvaluator.tsx`) — now just a link to where it
-            actually lives, on the landing page. */}
-        <div className="text-center mt-14">
+        {/* §13: the analysis stays on its own page. The full calculator used
+            to sit inline here as a second heavy form; before that the link
+            pointed at the landing page's copy of it, which sent an owner back
+            onto a page written for guests. /evaluate is the one that also
+            carries the consultation form underneath the result. */}
+        <div className="text-center">
           <Button
             asChild
             size="lg"
             className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant px-8"
           >
-            <Link to="/#property-evaluation">
+            <Link to="/evaluate">
               <EditableText id="fin-cta" value={ctaText} onChange={setCtaText} as="span">
                 {ctaText}
               </EditableText>
@@ -167,8 +175,8 @@ const FinancialPerformance = () => {
             </Link>
           </Button>
         </div>
-      </div>
-    </section>
+      </Stack>
+    </Section>
   );
 };
 

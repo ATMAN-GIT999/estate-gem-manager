@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/frontier-logo.webp";
 import EditableText from "./admin/EditableText";
+import { Container } from "./layout";
 
 const INSTAGRAM_URL = "https://www.instagram.com/frontier.residences/";
 
@@ -44,7 +45,11 @@ const Navigation = () => {
   // `top-20` for the same reason. Change all four together.
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-primary backdrop-blur-sm border-b border-primary-foreground/10">
-      <div className="container mx-auto px-4">
+      {/* Same container as every section below it, so the logo sits exactly
+          above the left edge of the page's content rather than 1rem inside
+          it. That single alignment is most of what makes a header read as
+          part of the page instead of a bar laid on top of it. */}
+      <Container>
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
             <img src={logo} alt="Frontier Residences" className="h-12 md:h-14" />
@@ -209,7 +214,7 @@ const Navigation = () => {
             </div>
           </div>
         )}
-      </div>
+      </Container>
     </nav>
   );
 };

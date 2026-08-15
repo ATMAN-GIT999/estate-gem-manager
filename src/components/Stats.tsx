@@ -1,13 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import EditableText from "./admin/EditableText";
+import { Section, Grid, Stack } from "./layout";
 
 /**
- * Four numbers, no cards, on a full green fill — the one section on the page
- * that is entirely colour rather than a light surface with an accent, so the
- * portfolio scale reads as a statement rather than another paragraph.
+ * Four numbers on the green fill — the one band on either page that is
+ * entirely colour, so portfolio scale reads as a statement rather than another
+ * paragraph.
+ *
+ * It spans the whole container rather than the `max-w-5xl` it used to sit in.
+ * §11 asks for a trust block with real width and weight instead of a small
+ * group floating in the middle, and at 1024px inside a 1440px band the four
+ * numbers were doing the opposite.
+ *
+ * `heading` is optional because the same numbers serve two audiences. On the
+ * property-management page they open a chapter about the portfolio and get a
+ * title. Directly under the booking hero they are a trust bar and get none —
+ * "A Portfolio Built on Precision & Performance" is written to an owner, and
+ * on the guest landing page that is the exact mistake this project keeps
+ * having to undo (CLAUDE.md, "der historische Hauptfehler").
  */
-const Stats = () => {
-  const [sectionTitle, setSectionTitle] = useState("A Portfolio Built on Precision & Performance");
+interface StatsProps {
+  /** Empty string renders the numbers alone, as a band rather than a chapter. */
+  heading?: string;
+}
+
+const Stats = ({ heading: headingProp = "A Portfolio Built on Precision & Performance" }: StatsProps = {}) => {
+  const [sectionTitle, setSectionTitle] = useState(headingProp);
 
   const stats = [
     { number: "41", label: "Properties Managed" },
@@ -37,31 +55,36 @@ const Stats = () => {
   }, [hasAnimated]);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-28 bg-primary border-y-2 border-accent">
-      <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center mb-16">
-          <EditableText
-            id="stats-title"
-            value={sectionTitle}
-            onChange={setSectionTitle}
-            as="h2"
-            className="t-section text-primary-foreground text-balance"
-          >
-            {sectionTitle}
-          </EditableText>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-12 max-w-5xl mx-auto">
-          {stats.map((stat, index) => (
-            <AnimatedStat
-              key={index}
-              stat={stat}
-              index={index}
-              hasAnimated={hasAnimated}
-            />
-          ))}
-        </div>
+    // The gold seam belongs on this band specifically: it is where the light
+    // page meets the green fill, which is the transition §24 reserves the line
+    // for — not a divider dropped between every pair of sections.
+    <Section tone="primary" size={headingProp ? "md" : "sm"} edge="both">
+      <div ref={sectionRef}>
+        <Stack gap="lg">
+          {headingProp && (
+            <EditableText
+              id="stats-title"
+              value={sectionTitle}
+              onChange={setSectionTitle}
+              as="h2"
+              className="t-section text-primary-foreground text-balance max-w-3xl mx-auto text-center"
+            >
+              {sectionTitle}
+            </EditableText>
+          )}
+          <Grid cols={4}>
+            {stats.map((stat, index) => (
+              <AnimatedStat
+                key={index}
+                stat={stat}
+                index={index}
+                hasAnimated={hasAnimated}
+              />
+            ))}
+          </Grid>
+        </Stack>
       </div>
-    </section>
+    </Section>
   );
 };
 
@@ -95,11 +118,11 @@ const AnimatedStat = ({ stat, index, hasAnimated }: { stat: { number: string; la
   }, [hasAnimated, stat.number, index]);
 
   return (
-    <div className="border-t border-primary-foreground/25 pt-6">
+    <div className="border-t border-primary-foreground/25 pt-sm">
       {/* Display size on a non-heading, which is the one deliberate exception
           to "Display appears once per page": in this section the numbers ARE
           the content — the heading only frames them. */}
-      <div className="t-display text-accent-on-primary mb-3 tabular-nums">
+      <div className="t-display text-accent-on-primary mb-xs tabular-nums">
         {displayNumber}
       </div>
       <div className="t-meta text-primary-foreground/70">{stat.label}</div>

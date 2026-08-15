@@ -2,13 +2,22 @@ import { useState } from "react";
 import platformConnections from "@/assets/platform-connections.webp";
 import EditableText from "./admin/EditableText";
 import EditableImage from "./admin/EditableImage";
+import { Section, Grid, Stack } from "./layout";
 
 /**
- * The opening statement of the PM page's operational section: what Frontier
- * takes off an owner's hands, in one line, plus the listing itself. Text
- * left, image large on the right — the layout this section had before the
- * centred-heading pass, restored because the image read as an afterthought
- * at max-w-md.
+ * The counterweight to "We manage what the property earns": that section is
+ * about the money, this one is about the owner's own time — hands-off
+ * ownership, peace of mind, someone else holding the operational end.
+ *
+ * §14 is explicit that the two must not carry the same weight. The money
+ * section opens with the widest band of air on the page and a full-width grid;
+ * this one is a single quiet row on the muted surface, no grid, no list, one
+ * sentence and the image. Reading it after the other should feel like the page
+ * exhaling.
+ *
+ * Text 5 columns, image 7, on the shared 12-column grid rather than the
+ * `lg:grid-cols-2` it used to use — at half and half the image was competing
+ * with the sentence instead of supporting it.
  */
 const PropertyManagement = () => {
   // Synonym for "Short-Term Rental Management".
@@ -18,49 +27,47 @@ const PropertyManagement = () => {
   const [platformImage, setPlatformImage] = useState(platformConnections);
 
   return (
-    <section className="py-24 md:py-28 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div>
-            <EditableText
-              id="pm-section-badge"
-              value={sectionBadge}
-              onChange={setSectionBadge}
-              as="span"
-              className="block t-meta text-accent-strong mb-4"
-            >
-              {sectionBadge}
-            </EditableText>
-            <EditableText
-              id="pm-section-title"
-              value={sectionTitle}
-              onChange={setSectionTitle}
-              as="h2"
-              className="t-section text-primary text-balance mb-5"
-            >
-              {sectionTitle}
-            </EditableText>
-            <EditableText
-              id="pm-listing-desc"
-              value={listingDesc}
-              onChange={setListingDesc}
-              as="p"
-              className="t-body text-foreground/70"
-            >
-              {listingDesc}
-            </EditableText>
-          </div>
+    <Section tone="muted" size="md">
+      <Grid className="items-center">
+        <Stack gap="sm" className="md:col-span-5">
+          <EditableText
+            id="pm-section-badge"
+            value={sectionBadge}
+            onChange={setSectionBadge}
+            as="span"
+            className="block t-meta text-accent-strong"
+          >
+            {sectionBadge}
+          </EditableText>
+          <EditableText
+            id="pm-section-title"
+            value={sectionTitle}
+            onChange={setSectionTitle}
+            as="h2"
+            className="t-section text-primary text-balance"
+          >
+            {sectionTitle}
+          </EditableText>
+          <EditableText
+            id="pm-listing-desc"
+            value={listingDesc}
+            onChange={setListingDesc}
+            as="p"
+            className="t-body text-foreground/70"
+          >
+            {listingDesc}
+          </EditableText>
+        </Stack>
 
-          <EditableImage
-            id="pm-platforms-image"
-            src={platformImage}
-            alt="Connected booking platforms"
-            onChange={setPlatformImage}
-            className="w-full h-auto"
-          />
-        </div>
-      </div>
-    </section>
+        <EditableImage
+          id="pm-platforms-image"
+          src={platformImage}
+          alt="Connected booking platforms"
+          onChange={setPlatformImage}
+          className="w-full h-auto md:col-span-7"
+        />
+      </Grid>
+    </Section>
   );
 };
 

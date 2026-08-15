@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
 import EditableText from "@/components/admin/EditableText";
+import { Container, Section } from "@/components/layout";
 
 /**
  * The portfolio as three collections rather than one undifferentiated list.
@@ -54,13 +55,27 @@ const classify = (property: Property): "coastal" | "city" | "offgrid" | null => 
 };
 
 /**
- * Matches the `container` above it: centred, capped at 1400px, 2rem of gutter.
- * Padding and scroll-padding have to carry the same value or the two disagree.
+ * How many cards a rail may show at once before the rest have to be
+ * revealed with an arrow click — matching the pattern AvantStay's own
+ * "Stays you will love" rails use.
+ *
+ * Without a cap, the rail's width was purely a function of the viewport: on
+ * an ordinary laptop it happened to show 4-5, so the effect passed for a
+ * discovery rail, but at a very wide monitor or a zoomed-out browser (25%
+ * is roughly a 4x-wide viewport) there was room for 12+ cards side by side,
+ * and the rail stopped reading as "a curated few, click for more" — it just
+ * *was* the full list.
  */
-const RAIL_INSET =
-  "px-4 scroll-pl-4 " +
-  "md:px-[max(1rem,calc((100vw-1400px)/2+2rem))] " +
-  "md:scroll-pl-[max(1rem,calc((100vw-1400px)/2+2rem))]";
+const MAX_VISIBLE_CARDS = 6;
+/** w-80 on the card wrapper below. */
+const CARD_WIDTH_PX = 320;
+/** gap-6 on the scrolling track below. */
+const CARD_GAP_PX = 24;
+/** Six cards, five gaps between them — the scrolling track's hard ceiling. */
+const RAIL_MAX_WIDTH_PX =
+  MAX_VISIBLE_CARDS * CARD_WIDTH_PX + (MAX_VISIBLE_CARDS - 1) * CARD_GAP_PX; // 2040
+/** One card plus its gap, so an arrow click always lands on a card edge. */
+const SCROLL_STEP_PX = CARD_WIDTH_PX + CARD_GAP_PX;
 
 const Rail = ({
   collection,
@@ -76,8 +91,7 @@ const Rail = ({
   const scrollRail = (direction: -1 | 1) => {
     const rail = railRef.current;
     if (!rail) return;
-    // One card plus its gap, so a click always lands on a card edge.
-    rail.scrollBy({ left: direction * 344, behavior: "smooth" });
+    rail.scrollBy({ left: direction * SCROLL_STEP_PX, behavior: "smooth" });
   };
 
   // An empty collection renders nothing rather than an empty rail with a
@@ -86,8 +100,8 @@ const Rail = ({
 
   return (
     <div>
-      <div className="container mx-auto px-4">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-8">
+      <Container>
+        <div className="flex flex-wrap items-end justify-between gap-sm mb-md">
           <div className="max-w-xl">
             <EditableText
               id={`coll-${collection.id}-title`}
@@ -133,31 +147,48 @@ const Rail = ({
             </Button>
           </div>
         </div>
-      </div>
+      </Container>
 
-      {/* Full-bleed: the rail runs to the edge of the viewport so the last card
-          is visibly cut off, which is what tells a reader there is more. The
-          inline padding lines the first card up with the container above it,
-          and `scroll-pl` has to repeat that value — without it the snap engine
-          treats the padding as scrollable space and parks the first card flush
-          against the window edge on load. */}
-      <div
-        ref={railRef}
-        className={`flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${RAIL_INSET}`}
-      >
-        {loading
-          ? [1, 2, 3, 4].map((i) => (
-              <div key={i} className="w-80 shrink-0 space-y-4">
-                <Skeleton className="aspect-[4/3] w-full" />
-                <Skeleton className="h-8 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            ))
-          : collection.properties.map((property) => (
-              <div key={property.id} className="w-80 shrink-0 snap-start">
-                <PropertyCard property={property} />
-              </div>
-            ))}
+      {/* Two nested boxes doing two separate jobs.
+          The OUTER box only positions: its `paddingLeft` is
+          `--container-inset`, the same value every other section uses to
+          line its content up with the container above, and it carries no
+          width cap of its own, so it still spans the full bleed width the
+          section gives it.
+
+          The INNER box is the one that scrolls, and it is the one capped to
+          `RAIL_MAX_WIDTH_PX` — exactly six cards. Capping the OUTER box
+          instead (padding and max-width on the same element) was the first
+          version of this fix, and it broke on wide viewports: at 25% zoom
+          `--container-inset` alone can exceed 1600px, more than the 2040px
+          cap, so the padding would have consumed the entire budget and left
+          no room for the cards it was meant to be capping the number of.
+
+          Within its cap, the inner box still runs to that boundary rather
+          than stopping early, so a card straddling the edge is visibly cut
+          off — the same "there is more" hint the original full-bleed
+          version had, just bounded at six instead of at "however many the
+          screen happens to fit". */}
+      <div style={{ paddingLeft: "var(--container-inset)" }}>
+        <div
+          ref={railRef}
+          style={{ maxWidth: `${RAIL_MAX_WIDTH_PX}px` }}
+          className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {loading
+            ? [1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="w-80 shrink-0 space-y-4">
+                  <Skeleton className="aspect-[4/3] w-full" />
+                  <Skeleton className="h-8 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              ))
+            : collection.properties.map((property) => (
+                <div key={property.id} className="w-80 shrink-0 snap-start">
+                  <PropertyCard property={property} />
+                </div>
+              ))}
+        </div>
       </div>
     </div>
   );
@@ -213,33 +244,34 @@ const PropertyCollections = () => {
   ];
 
   return (
-    <section id="stays" className="py-24 bg-background scroll-mt-20">
-      <div className="space-y-20">
+    // `bleed`: the rails set their own inset so they can run past the
+    // container edge. Everything inside them still starts on that edge.
+    <Section id="stays" size="md" bleed>
+      <div className="space-y-xl">
         {collections.map((collection) => (
           <Rail key={collection.id} collection={collection} loading={loading} />
         ))}
       </div>
 
-      <div className="container mx-auto px-4">
-        <div className="mt-16 text-center">
+      <Container className="mt-lg text-center">
+        <Button
+          asChild
+          size="lg"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant"
+        >
           <Link to="/properties">
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant"
+            <EditableText
+              id="collections-view-all"
+              value={viewAllText}
+              onChange={setViewAllText}
+              as="span"
             >
-              <EditableText
-                id="collections-view-all"
-                value={viewAllText}
-                onChange={setViewAllText}
-                as="span"
-              >
-                {viewAllText}
-              </EditableText>
-            </Button>
+              {viewAllText}
+            </EditableText>
           </Link>
-        </div>
-      </div>
-    </section>
+        </Button>
+      </Container>
+    </Section>
   );
 };
 
