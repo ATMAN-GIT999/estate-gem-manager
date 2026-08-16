@@ -1,6 +1,6 @@
 /**
  * The layout system. One design system → many sections, rather than many
- * sections → many ad-hoc CSS decisions (docs/GENERAL-STRUCTURE.md §28).
+ * sections → many ad-hoc CSS decisions (docs/DESIGN.md §2).
  *
  * A new public section should need nothing beyond these plus the `.t-*` type
  * scale in index.css. If it reaches for a raw `max-w-*`, a `py-<number>` or a

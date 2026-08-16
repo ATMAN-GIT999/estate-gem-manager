@@ -46,7 +46,7 @@ const Hero = () => {
    * video: its first bytes are `<!doctype html>`, and Chrome confirms with
    * `DEMUXER_ERROR_COULD_NOT_OPEN`. Wiring it up would have swapped a privacy
    * problem for a blank hero. Left in place in case whoever saved it still
-   * has the real file; tracked in `open-todos.md` point 9.
+   * has the real file; tracked in `docs/PROJECT.md` §6 (C6).
    *
    * `EditableVideo` already offered a "file" tab in its dialog, but
    * `handleVideoChange` silently dropped it (`if (type === "youtube")` with

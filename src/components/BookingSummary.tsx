@@ -152,7 +152,7 @@ const BookingSummary = ({
     open: boolean;
     rawError?: string;
   }>({ open: false });
-  /** Set when no live price could be retrieved. We never guess a price — see docs/guesty-befunde. */
+  /** Set when no live price could be retrieved. We never guess a price — see docs/PROJECT.md §6 (C2). */
   const [quoteError, setQuoteError] = useState<string | null>(null);
   /** Set when the Stripe config could not be loaded, so card payment can't be offered. */
   const [paymentUnavailable, setPaymentUnavailable] = useState(false);

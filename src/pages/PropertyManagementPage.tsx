@@ -38,7 +38,7 @@ const PropertyManagementPageContent = () => {
         ]}
       />
       <Navigation />
-      {/* The section order is docs/GENERAL-STRUCTURE.md §27, and the reason it
+      {/* The section order is docs/PROJECT.md §2, and the reason it
           is worth protecting is that it is an argument rather than a list:
           what it earns → what it costs you in effort → why us → what that
           looks like in practice → where → who → how to start. Moving a block

@@ -14,7 +14,7 @@ import ownerFormImage from "@/assets/about-hero.webp";
 
 /**
  * Provisional — Frontier has no Cal.com/Calendly of its own yet (see
- * docs/open-todos.md, point 5). This is Almedin's own booking link, standing
+ * docs/PROJECT.md §6, B4). This is Almedin's own booking link, standing
  * in until the client provides theirs; swap the href when that arrives.
  */
 const VIDEO_CALL_URL = "https://cal.com/almedin-sinanovic-ff4chx/videocall-mit-mir";

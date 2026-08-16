@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
  * reappearing rather than two invented "light section" treatments.
  *
  * It is not a card. Do not wrap content blocks in it to give them edges —
- * that is the pattern the whole site was moved off (docs/open-todos.md §3).
+ * that is the pattern the whole site was moved off (docs/DESIGN.md §6).
  */
 const materialClass = {
   /** The polished silver-white from §23 — hero panel and FAQ share it. */

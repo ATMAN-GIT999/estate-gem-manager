@@ -167,7 +167,7 @@ const EvaluateContent = () => {
           visitor onto the guest landing page with no explanation, and made
           both of those links dead ends.
           Rendering the calculator instead is what makes /evaluate the
-          standalone Cashflow Analysis page docs/GENERAL-STRUCTURE.md §13
+          standalone Cashflow Analysis page docs/DECISIONS.md §2 (Cashflow Analysis)
           asks for: the form posts back to this same route with the property
           in router state, and the analysis below takes over. */}
       {!propertyData ? (

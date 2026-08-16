@@ -112,7 +112,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             Retreat, THE ONE Higuerón) came back "not available" on every
             window tried and were left untouched — `price_last_synced_at` is
             NULL for those, so nobody mistakes the old value for a checked one.
-            A scheduled sync job is the real fix; see docs/open-todos.md. */}
+            A scheduled sync job is the real fix; see docs/PROJECT.md §6 (C4). */}
         <div>
           {property.guesty_listing_id && (
             <span className="t-meta text-muted-foreground">from </span>

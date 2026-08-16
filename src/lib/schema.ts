@@ -131,7 +131,7 @@ interface PropertySchemaInput {
  * costs a rich snippet; a wrong one is a mismatch between markup and page, and
  * it is the kind a guest discovers at checkout.
  *
- * Point 1 of `docs/open-todos.md` — a scheduled job that keeps every listing's
+ * Point C4 of `docs/PROJECT.md` — a scheduled job that keeps every listing's
  * rate current — is what unlocks this. Add `offers` here on the day that exists.
  */
 export const propertySchema = (property: PropertySchemaInput) => ({

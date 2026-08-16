@@ -212,7 +212,7 @@ All colors MUST be HSL.
    or synthesise a fake bold.
 
    Rule this enforces: no `text-xs` … `text-7xl` in a public component.
-   Full rationale in docs/design-finalisierung.md.
+   Full rationale in docs/DESIGN.md §5.
    --------------------------------------------------------------------------- */
 @layer components {
   .t-display,
