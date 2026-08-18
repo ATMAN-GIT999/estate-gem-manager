@@ -24,18 +24,29 @@ interface StatsProps {
   heading?: string;
 }
 
-const Stats = ({ heading: headingProp = "A Portfolio Built on Precision & Performance" }: StatsProps = {}) => {
-  const [sectionTitle, setSectionTitle] = useState(headingProp);
+/**
+ * Marketing copy held in code, not live data — see docs/PROJECT.md (D4), which
+ * also records that "41" sits awkwardly next to the 23 listings in the sitemap.
+ * Exported because the owner page's Proof section shows the same four numbers
+ * inside a larger green band; two copies of these strings is exactly how they
+ * would end up disagreeing with each other.
+ */
+export const PORTFOLIO_STATS = [
+  { number: "41", label: "Properties Managed" },
+  { number: "1500+", label: "Successful Reservations" },
+  { number: "8", label: "Destinations" },
+  { number: "50+", label: "Collaborators" },
+];
 
-  const stats = [
-    { number: "41", label: "Properties Managed" },
-    { number: "1500+", label: "Successful Reservations" },
-    { number: "8", label: "Destinations" },
-    { number: "50+", label: "Collaborators" },
-  ];
-
+/**
+ * The four numbers and their count-up, with no band around them.
+ *
+ * Split out so a section that already paints its own green fill can show them
+ * without nesting a second <Section> (and its padding) inside itself.
+ */
+export const StatsRow = () => {
   const [hasAnimated, setHasAnimated] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -47,43 +58,51 @@ const Stats = ({ heading: headingProp = "A Portfolio Built on Precision & Perfor
       { threshold: 0.3 }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    if (rowRef.current) {
+      observer.observe(rowRef.current);
     }
 
     return () => observer.disconnect();
   }, [hasAnimated]);
 
   return (
+    <div ref={rowRef}>
+      <Grid cols={4}>
+        {PORTFOLIO_STATS.map((stat, index) => (
+          <AnimatedStat
+            key={index}
+            stat={stat}
+            index={index}
+            hasAnimated={hasAnimated}
+          />
+        ))}
+      </Grid>
+    </div>
+  );
+};
+
+const Stats = ({ heading: headingProp = "A Portfolio Built on Precision & Performance" }: StatsProps = {}) => {
+  const [sectionTitle, setSectionTitle] = useState(headingProp);
+
+  return (
     // The gold seam belongs on this band specifically: it is where the light
     // page meets the green fill, which is the transition §24 reserves the line
     // for — not a divider dropped between every pair of sections.
     <Section tone="primary" size={headingProp ? "md" : "sm"} edge="both">
-      <div ref={sectionRef}>
-        <Stack gap="lg">
-          {headingProp && (
-            <EditableText
-              id="stats-title"
-              value={sectionTitle}
-              onChange={setSectionTitle}
-              as="h2"
-              className="t-section text-primary-foreground text-balance max-w-3xl mx-auto text-center"
-            >
-              {sectionTitle}
-            </EditableText>
-          )}
-          <Grid cols={4}>
-            {stats.map((stat, index) => (
-              <AnimatedStat
-                key={index}
-                stat={stat}
-                index={index}
-                hasAnimated={hasAnimated}
-              />
-            ))}
-          </Grid>
-        </Stack>
-      </div>
+      <Stack gap="lg">
+        {headingProp && (
+          <EditableText
+            id="stats-title"
+            value={sectionTitle}
+            onChange={setSectionTitle}
+            as="h2"
+            className="t-section text-primary-foreground text-balance max-w-3xl mx-auto text-center"
+          >
+            {sectionTitle}
+          </EditableText>
+        )}
+        <StatsRow />
+      </Stack>
     </Section>
   );
 };

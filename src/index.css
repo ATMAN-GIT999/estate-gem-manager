@@ -293,6 +293,52 @@ All colors MUST be HSL.
   }
 }
 
+/* The vertical gold thread running down the six steps of "the system".
+   Held to the accent token, and faded at both ends so it reads as a line
+   drawn through the section rather than a border that got stuck to one side
+   of it. Defined here rather than as an inline arbitrary gradient because it
+   is the one place on the site where the gold runs vertically, and that is a
+   decision worth being able to find. */
+@layer components {
+  .spine-gold {
+    background-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      hsl(var(--accent)) 5%,
+      hsl(var(--accent)) 95%,
+      transparent 100%
+    );
+  }
+}
+
+/* The hatched fill behind a picture that has not arrived yet.
+   §6 of DESIGN.md keeps real placeholder areas as one of the two deliberate
+   exceptions to "fewer boxes": an unbounded empty region reads as a layout
+   fault, a bounded one reads as a frame waiting to be filled. Woven out of the
+   palette (gold at two opacities over --secondary), never a neutral grey, so a
+   half-finished page still looks like this brand rather than like a wireframe.
+
+   The `-on-primary` variant is the same idea on the sage-green fill, where the
+   hatch has to lighten instead of darken to be visible at all. */
+@layer components {
+  .bg-placeholder-hatch {
+    background-color: hsl(var(--secondary));
+    background-image: repeating-linear-gradient(
+      115deg,
+      hsl(var(--accent-strong) / 0.14) 0 8px,
+      hsl(var(--accent-strong) / 0.05) 8px 16px
+    );
+  }
+  .bg-placeholder-hatch-on-primary {
+    background-color: hsl(var(--primary));
+    background-image: repeating-linear-gradient(
+      115deg,
+      hsl(var(--primary-foreground) / 0.13) 0 8px,
+      hsl(var(--primary-foreground) / 0.06) 8px 16px
+    );
+  }
+}
+
 /* The one content container. Everything public sits inside this, so the page
    has a single left and right edge from the header to the footer.
 

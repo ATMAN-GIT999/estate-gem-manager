@@ -79,31 +79,93 @@ Eigentümer-Sprache auf die Gäste-Seite zurück.
 
 ### Property-Management-Seite — tatsächliche Reihenfolge
 
-| # | Ebene | Komponente |
+Umgebaut am 16.08.2026 nach der Design-Referenz in
+`docs/property-management-page.html`. Zehn Sections statt dreizehn; die
+Begründungen stehen in [DECISIONS.md](DECISIONS.md) §11.
+
+| # | Ebene | Komponente | Gewicht |
+|---|---|---|---|
+| 1 | **Hero** — Bild, H1, zwei CTAs | `OwnerHero` | hoch |
+| 2 | **Das System** — 6 Schritte auf einer Goldlinie | `TheSystem` | sehr hoch |
+| 3 | **Proof** — 4 Zahlen + 3 Case Studies, auf Grün | `Proof` | hoch |
+| 4 | **Relax** — „We manage while you relax." | `PropertyManagement` | leicht |
+| 5 | **About** — 4 Gesichter + „Contact Us" | `AboutMini` | mittel |
+| 6 | **Zwei Wege** — Full-service vs. Guaranteed Income | `WaysToWorkTogether` | hoch |
+| 7 | **Renovations & Investments** | `RenovationsAndInvestments` | mittel |
+| 8 | FAQ | `FAQ` | mittel |
+| 9 | **Get in touch** — Formular, Bookend zum Hero | `OwnerContactForm` | hoch |
+| 10 | Footer | `Footer` | leicht |
+
+**Der Rhythmus ist Teil der Struktur.** Nach Section 3 dürfen nie zwei schwere
+Sections direkt aufeinander folgen — die Eröffnungssequenz 1–3 ist die einzige
+Ausnahme. Deshalb läuft `RenovationsAndInvestments` auf `size="md"` und nicht
+auf `lg`: zwei `lg`-Bänder hintereinander legen ~280 px Leere zwischen
+„Guaranteed income" und das erste Bild, was sich liest, als sei die Seite
+vorbei.
+
+**Verbindlich und nicht „aufzuräumen":**
+
+- **System vor Proof.** Erst was wir tun, dann was es gebracht hat.
+- **Relax nach Proof, nicht davor.** Die Entlastung ist die Antwort auf die
+  Dichte davor; vor Proof wäre sie eine Pause vor dem Anfang.
+- **Investments zuletzt.** Es zielt auf einen Käufer, nicht auf den
+  Eigentümer, für den der Rest der Seite geschrieben ist.
+
+### Was der Umbau ersetzt hat
+
+| Alte Komponente | Wohin |
+|---|---|
+| Hero-Panel in `PropertyManagementPage` | `OwnerHero` (Bild statt Silver-Surface) |
+| `FinancialPerformance` · `WhyItMakesADifference` · `ListingWorkflow` | verschmolzen zu `TheSystem` — **verwaist, zum Löschen** |
+| `GetInTouch` | entfällt; das Formular steht jetzt selbst am Seitenende — **verwaist, zum Löschen** |
+| `Stats` | lebt weiter für `/`; `Proof` nutzt `StatsRow` + `PORTFOLIO_STATS` daraus |
+| `ProjectsSection` | lebt weiter für `/projects`; `Proof` nutzt `FEATURED_PROJECTS` daraus |
+| „Our Destinations" auf der PM-Seite | ersatzlos (Entscheidung R1, siehe DESIGN.md §9) |
+
+⚠️ Die vier verwaisten Dateien sind von nichts mehr importiert, liegen aber
+noch im Repo — das Löschen wurde von den Berechtigungen abgelehnt. Zu
+entfernen: `src/components/FinancialPerformance.tsx`,
+`WhyItMakesADifference.tsx`, `ListingWorkflow.tsx`, `GetInTouch.tsx` und
+`src/assets/property-1.png`.
+
+### EditableText-IDs nach dem Umbau
+
+Wo ein Satz wörtlich weiterlebt, ist die ID mitgewandert — auch über
+Komponentengrenzen hinweg. Das ist Absicht und darf nicht „vereinheitlicht"
+werden:
+
+| ID | steht jetzt in | kam aus |
 |---|---|---|
-| 1 | Navigation | `Navigation` |
-| 2 | Hero + Kontaktformular (Konversion im ersten Screen) | Hero in `PropertyManagementPage` + `OwnerContactForm` |
-| 3 | **Trust** — Portfolio-Zahlen | `Stats` (mit Überschrift) |
-| 4 | **Earns** — „We manage what the property earns." | `FinancialPerformance` |
-| 5 | **Relax** — „We manage while you relax." | `PropertyManagement` |
-| 6 | **Different** — Technologie dominant | `WhyItMakesADifference` |
-| 7 | **Details** — „It's in the details." | `ListingWorkflow` |
-| 8 | **Destinations + Transformations** | `ProjectsSection` |
-| 9 | **About / Trust** | `AboutMini` |
-| 10 | **Two ways to start** (Renovations & Investments verschachtelt) | `WaysToWorkTogether` |
-| 11 | FAQ | `FAQ` |
-| 12 | **CTA** — „Get in touch." | `GetInTouch` |
-| 13 | Footer | `Footer` |
+| `wid-eyebrow` · `wid-heading` · `wid-lead` | `TheSystem` (Kopf) | `WhyItMakesADifference` |
+| `listing-workflow-desc-0` | `TheSystem`, Schritt 1 | `ListingWorkflow` |
+| `fin-pillar-desc-0/1` | `TheSystem`, Schritt 2 | `FinancialPerformance` |
+| `pm-listing-desc` | `TheSystem`, Schritt 3 | `PropertyManagement` |
+| `wid-guest-desc` · `wid-feature-1` | `TheSystem`, Schritt 4 | `WhyItMakesADifference` |
+| `wid-property-desc` · `listing-workflow-desc-3` | `TheSystem`, Schritt 5 | beide |
+| `fin-pillar-desc-2` | `TheSystem`, Schritt 6 | `FinancialPerformance` |
+| `fin-outcome-0…4` | `TheSystem` (Outcome-Zeile) | `FinancialPerformance` |
+| `stats-title` | `Proof` | `Stats` |
+| `proj-fp-*` | `Proof` | `ProjectsSection` (dort weiterhin gültig für `/projects`) |
+| `pm-section-title` | `PropertyManagement` | unverändert |
+| `ways-sub-title-0/1` · `ways-sub-desc-0/1` | `RenovationsAndInvestments` | `WaysToWorkTogether` |
+| alle `owner-form-*` | `OwnerContactForm` | unverändert |
 
-Zwei Reihenfolgen sind **verbindlich** und dürfen nicht „aufgeräumt" werden:
+**Neu vergeben:** `pmp-hero-eyebrow` · `pmp-hero-cta-1/2` · `pmp-hero-image` ·
+`sys-label-0…5` · `proof-eyebrow` · `proof-cases-label` ·
+`proof-cta` · `proof-case-image-0…2` · `pm-relax-line` · `pm-relax-image` ·
+`am-cta` · `beyond-title-0/1` · `beyond-image-0/1` · `owner-form-eyebrow`
 
-- **Earns vor Relax.** Erst was es einbringt, dann wie wenig Aufwand es macht.
-- **Different vor Details.** Der Anspruch muss vor seinem Beleg kommen, sonst
-  liest der Eigentümer eine Aufgabenliste ohne etwas, woran sie hängt.
+⚠️ **Nachbesserung 18.08.2026:** `sys-title-0…5` ist wieder entfallen — die
+sechs erfundenen Zahnrad-Überschriften sind gestrichen, `sys-label-0…5` trägt
+jetzt allein sowohl Text als auch Überschriften-Auszeichnung (`t-block`).
+Siehe DECISIONS.md §12.
 
-Das Gewicht ist **absichtlich ungleich**: `FinancialPerformance` bekommt
-`size="lg"` und das volle Grid, `PropertyManagement` ist eine ruhige Zeile auf
-`tone="muted"`.
+**Ersatzlos entfallen:** `pmp-page-subtitle` · `fin-eyebrow` · `fin-heading` ·
+`fin-cta` · `fin-outcomes-heading` · `wid-tech-heading` · `wid-feature-0/2/3` ·
+`listing-workflow-heading` · `listing-workflow-lead` ·
+`listing-workflow-desc-1/2` · `listing-workflow-title-*` · `listing-routine-*` ·
+`pm-section-badge` · `pm-platforms-image` · `ways-sub-label` ·
+`get-in-touch-*` · `proj-fp-type-*` (nur auf der PM-Seite)
 
 ### Navigation
 
@@ -241,7 +303,8 @@ Umgesetzt und verifiziert:
 | B1 | **Stripe-Publishable-Key.** `guesty-stripe-config` antwortet HTTP 500 („Stripe publishable key not configured"). Guesty hat genau ein Payment-Provider-Konto (`acct_1Pqi8YRsGzWWYqz8`, ACTIVE, alle 24 Objekte), verbunden von `aschbacher@frontier-residences.com`. Almedin muss den `pk_live_…` aus **genau diesem** Konto besorgen und als `GUESTY_STRIPE_PUBLISHABLE_KEY` in die Supabase Edge Function Secrets eintragen. Ohne den Key bleibt der Buchungsabschluss tot, egal was am Code passiert. |
 | B2 | **City Tax ist in Guesty falsch konfiguriert.** Am Objekt Vienna Ottakring steht `PERCENTAGE` kombiniert mit `PER_GUEST_PER_NIGHT` → Guesty rechnet `3,2 % × Unterkunft × Gäste × Nächte` und kommt auf 97–144 % Steuer (bei einer Buchung kippt `subTotalPrice` auf −777,13 €). Zu ändern in **Guesty**, nicht im Code: Quantifier auf `PER_STAY`. **Erst danach** die Total-Berechnung im Code umstellen — sonst zeigt und bucht die Website einen um ~645 € zu hohen Betrag. |
 | B3 | **Guesty-Webhook ist nicht registriert.** `…/functions/v1/guesty-webhook` steht in Guesty nicht in der Webhook-Liste (registriert sind nur Chekin, Nuki, PriceLabs). Es kann nie ein Event angekommen sein. Reihenfolge beim Einrichten: Webhook anlegen → Secret abrufen → **sofort** als `GUESTY_WEBHOOK_SECRET` in Supabase eintragen. Der Handler ist inzwischen **fail-closed** (ohne Secret → 503), das Fenster ist also eng. |
-| B4 | **Material vom Besitzer:** Vorher/Nachher-Fotos für die drei Projekte (aktuell „Coming Soon"-Platzhalter), Eigentümer-Testimonials, ein eigener Cal.com-Link (aktuell zeigt `OwnerContactForm` auf Almedins persönlichen Link). |
+| B4 | **Material vom Besitzer:** Vorher/Nachher-Fotos für die drei Projekte, Eigentümer-Testimonials, ein eigener Cal.com-Link (aktuell zeigt `OwnerContactForm` auf Almedins persönlichen Link). |
+| B5 | **Der PM-Hero läuft auf dem falschen Motiv.** Seit der Nachbesserung vom 18.08.2026 (DECISIONS §12) zeigt `OwnerHero.tsx` `villa-higueron.webp` — auf Almedins Anweisung dorthin verschoben, weil der Landing-Hero das Bild nicht mehr braucht (Video ist zurück). Das Bild ist aber ein **Innenraum** (Marmorboden, Glasfront, Pool/Meer nur durch die Scheibe), nicht die Villa-Außenansicht mit Infinity-Pool aus der ursprünglichen Spezifikation, und es ist **byteweise identisch** mit `property-3.webp`, das dieselbe Villa schon auf `/property/…` und ihrer Karte zeigt. Almedin hat auf diesen konkreten Punkt noch nicht geantwortet. Relax-, Kontakt- und die zwei Renovations/Investments-Slots bleiben leere `MediaFrame`-Plätze mit Bild-Briefing als `note` — dort reicht ein Pfad rein, ohne weitere Änderung. Dazu kommen die drei Case-Study-Bilder aus B4. |
 
 ### 🔴 Offen im Code
 
@@ -252,7 +315,7 @@ Umgesetzt und verifiziert:
 | C3 | **Endlos-Spinner statt Fehlermeldung.** Schlägt `guesty-stripe-config` fehl, landet der Fehler nur in der Konsole; das Kartenfeld rendert nie, der Button bleibt dauerhaft `disabled`. Es braucht einen sichtbaren Fehlerzustand plus den Anfrage-Weg als Ausweichpfad. |
 | C4 | **Nächtlicher Preis-Sync ist geschrieben, aber nicht angewendet.** `supabase/migrations/20260813200000_nightly_price_sync.sql` — der Header der Datei dokumentiert genau, was live verifiziert wurde und was nicht. Vor dem Vertrauen: in den Supabase-SQL-Editor einfügen und `SELECT * FROM public.sync_guesty_prices();` von Hand laufen lassen. Bis dahin altert der manuelle Sync vom 13.08.2026 weiter ab. |
 | C5 | **Das Layout-System endet fast überall.** `src/components/layout/` ist verdrahtet in `PropertyManagementPage.tsx` sowie den Komponenten `ProjectsSection.tsx` und `PropertyCollections.tsx` — **sonst nirgends.** Alle Unterseiten (`/renovations`, `/investments`, `/guaranteed-income`, `/about`, `/properties`, `/business-areas`) laufen noch auf `container mx-auto px-4` plus eigenem `max-w-*`. Wer über „Two ways to start with us" auf `/renovations` klickt, landet spürbar auf einer anderen Website. Größter sichtbarer Bruch im aktuellen Stand. |
-| C6 | **`public/videos/hero-background.mp4` ist kaputt.** 900 KB, passend benannt, nie verdrahtet — aber die ersten Bytes sind `<!doctype html>`. Chrome quittiert mit `DEMUXER_ERROR_COULD_NOT_OPEN`. Bewusst liegen gelassen, falls die echte Datei noch existiert. Sobald ein funktionierendes MP4 unter `public/videos/` liegt, reicht in `Hero.tsx` `videoType: "file"` plus Pfad. |
+| C6 | **`public/videos/hero-background.mp4` ist kaputt.** 900 KB, passend benannt, nie verdrahtet — aber die ersten Bytes sind `<!doctype html>`. Chrome quittiert mit `DEMUXER_ERROR_COULD_NOT_OPEN`. Bewusst liegen gelassen, falls die echte Datei noch existiert. `Hero.tsx` läuft seit der Nachbesserung vom 18.08.2026 wieder auf dem YouTube-Embed (`videoId: "tqmWpFCv_1M"`, DECISIONS §12) — sobald ein funktionierendes MP4 unter `public/videos/` liegt, reicht `videoType: "file"` plus Pfad als neuer Default, um vom Embed auf selbst gehostet umzustellen. |
 | C7 | **Texte sind nicht dauerhaft im CMS änderbar.** `EditableText` / `EditableImage` / `EditableVideo` schreiben nur in lokalen React-State — nach einem Reload ist jede Änderung weg. Es gibt keine Persistenz-Tabelle; der einzige Override-Mechanismus (`PageWrapper` → Tabelle `pages`) ist für keine Seite aktiv. **Konsequenz:** Was im Code steht, ist der Text. „Das ändert der Kunde später selbst" stimmt heute nicht. |
 
 ### 🟡 Offen, braucht eine Entscheidung
@@ -261,10 +324,11 @@ Umgesetzt und verifiziert:
 |---|---|
 | D1 | **Der einzige gefüllte Header-Button ist ein Gäste-Login** („Sign In"), auf einer Seite, deren primäre Zielgruppe Eigentümer sind. Vorschlag aus dem CX-Teardown: „Talk to us about your property" als einziger gefüllter Button. Das ist eine Design-Entscheidung, kein Bugfix — braucht Freigabe. |
 | D2 | **`/business-areas`** ist kein Menüpunkt mehr, die Route lebt weiter und trägt eine ältere, widersprüchliche Version der Positionierung („Business Areas", „Guaranteed Income Program" mit „Included"-Badge). Zwei Seiten konkurrieren um dieselben Keywords. Vorschlag: 301 auf `/property-management`. |
-| D3 | **„It's in the details." steht auf beiden Seiten** — als Gäste-Section auf `/` (`GuestManagement.tsx`) und als Detailebene der PM-Seite (`ListingWorkflow.tsx`). Zwei Seiten, zwei Zielgruppen — kaputt ist das nicht, aber eine der beiden sollte einen eigenen Titel bekommen. **Die Gäste-Fassung nicht ohne Rückfrage ändern:** der Text dort ist geprüft. |
+| ~~D3~~ | ~~„It's in the details." steht auf beiden Seiten~~ — **erledigt am 16.08.2026.** `ListingWorkflow` ist im Umbau aufgegangen; die Überschrift steht jetzt nur noch auf `/` (`GuestManagement.tsx`). Die Gäste-Fassung ist unverändert und bleibt es ohne Rückfrage. |
 | D4 | **Die Kennzahlen sind hartkodierte Copy** (`41 Properties Managed · 1500+ Successful Reservations · 8 Destinations · 50+ Collaborators`), keine Live-Daten — und sie stehen auf `/` und der PM-Seite identisch. Der Sitemap-Build meldet **23 Objekte**, `ProjectsSection` nennt „20+ premium properties" für Spanien. Gegenüber „41" ist das erklärungsbedürftig. Offen ist auch, ob die „8 Destinations" kroatische Orte mitzählen — Kroatien ist kein Bestandsmarkt. |
 | D5 | **Keine Fee-Transparenz.** `WaysToWorkTogether` stellt beide Modelle klar gegenüber, nennt aber nirgends eine Provisionsspanne. Für die *Details* ist die Verlagerung ins Gespräch richtig; für die **Größenordnung** kostet es Anfragen. |
-| D6 | **Der Eigentümer-Funnel ist nicht messbar.** Im gesamten öffentlichen Code existiert ein einziger Tracking-Aufruf: `page_view` auf `/`. Vier Events würden genügen: `pm_page_view`, `evaluator_submitted`, `evaluator_result_viewed`, `owner_enquiry_submitted`. Ohne die lässt sich kein anderer Punkt dieser Liste nach der Umsetzung verifizieren. |
+| D6 | **Der Eigentümer-Funnel ist nicht messbar.** Im gesamten öffentlichen Code existiert ein einziger Tracking-Aufruf: `page_view` auf `/`. Vier Events würden genügen: `pm_page_view`, `evaluator_submitted`, `evaluator_result_viewed`, `owner_enquiry_submitted`. Ohne die lässt sich kein anderer Punkt dieser Liste nach der Umsetzung verifizieren. **Seit dem Umbau dringlicher:** das Kontaktformular ist vom ersten Screen ans Seitenende gewandert (DECISIONS §11). Ob das mehr oder weniger Anfragen bringt, ist genau die Frage, die diese Events beantworten würden — und aktuell beantwortet sie niemand. |
+| D11 | **Owner-FAQ.** Die Design-Referenz schlägt statt der Gäste-FAQ echte Eigentümerfragen vor (Kosten, Vertragslaufzeit, Eigennutzung, Auszahlung, Onboarding-Dauer) und markiert ihre eigenen Antworten ausdrücklich als Platzhalter. Umgesetzt ist das **nicht** — die FAQ bleibt wie angefordert die Gäste-Fassung. Es wäre inhaltlich die stärkere Lösung, berührt aber D5 (Fee-Transparenz) und braucht belastbare Antworten vom Kunden, keine erfundenen. |
 | D7 | **Landing-Hero-Headline ist ein Platzhalter** („Luxury Villas & Vacation Rentals in Spain and Austria"), vom Besitzer abzusegnen. Ebenso die „Own a Property?"-Texte — insbesondere „earn **with** us" (Provisionsmodell) gegenüber „earn **from** us" (das wäre Guaranteed Income, also Festmiete). |
 | D8 | **`collection`-Spalte für die Property-Tabelle.** Die drei Reihen in `PropertyCollections.tsx` leiten die Zuordnung aus `location` und dem Namen ab. Eine Immobilie in einem neuen Ort erscheint in **keiner** Reihe, bis jemand den Ort im Code ergänzt. |
 | D9 | **Objekt mit 63 Nächten Mindestaufenthalt im Buchungsfluss.** „6th floor Malaga Soho" steht auf Langzeitmiete (`terms.minNights = 63`). Ein Gast, der Daten wählt, bekommt dort ausnahmslos eine Absage. Produktfrage: soll es im normalen Flow überhaupt auftauchen? |
@@ -276,8 +340,10 @@ Umgesetzt und verifiziert:
   mit neuer Überschrift. Das ist die Umkehrung des Projekt-Hauptfehlers — von
   Almedin bewusst so angefordert. Wenn eigentümer-spezifische Fragen gewünscht
   sind, braucht es eigenen Content vom Kunden.
-- **Das Hero-/Formularbild der PM-Seite ist `about-hero.webp`**, also eine
-  Zweitverwertung des About-Seiten-Bildes. Über `EditableImage` austauschbar.
+- **Die Bildslots der PM-Seite sind leer und zeigen ihr Briefing** statt ein
+  vorhandenes Foto ein zweites Mal (B5). Vorher lief das Formularbild auf
+  `about-hero.webp` — dasselbe Foto, das die Relax-Section jetzt bekommen
+  soll.
 - **Die Detailfragen zum Guaranteed Income** (Festbetrag, Vertragsdauer,
   Kostenträger, Eigennutzung) werden absichtlich nicht auf der Website
   beantwortet — das klärt sich im Gespräch.

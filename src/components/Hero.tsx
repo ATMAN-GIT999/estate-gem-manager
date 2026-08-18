@@ -5,7 +5,6 @@ import SearchBar from "./SearchBar";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
 import { Container, Stack } from "./layout";
-import villaHigueron from "@/assets/villa-higueron.webp";
 
 /**
  * Headline, one supporting line and the search bar, as a single block over a
@@ -35,26 +34,25 @@ const Hero = () => {
   const [subheadline, setSubheadline] = useState("Handpicked homes on the Costa del Sol, in Málaga, Vienna and the Austrian Alps — booked directly with the team that manages them.");
 
   /**
-   * Defaults to a static image, not a video. This used to hard-code a
-   * YouTube ID and load `youtube.com/embed` unconditionally for every
-   * visitor before anyone had clicked anything — the same class of problem
-   * the self-hosted fonts comment in index.css describes, just for video
-   * instead of typography.
+   * Defaults to the YouTube embed, restored on Almedin's explicit direction
+   * (docs/DECISIONS.md §12) after a brief window where it was replaced with a
+   * still image. The privacy trade-off named at the time still applies —
+   * `youtube.com/embed` loads for every visitor before anyone has clicked
+   * anything, the same class of problem the self-hosted-fonts comment in
+   * index.css describes, just for video instead of typography — but this is
+   * a business call about the guest-facing landing page, not an engineering
+   * default, and Almedin has made it.
    *
-   * `public/videos/hero-background.mp4` looked like the obvious self-hosted
-   * replacement — present, plausibly named, never wired up — but it isn't a
-   * video: its first bytes are `<!doctype html>`, and Chrome confirms with
-   * `DEMUXER_ERROR_COULD_NOT_OPEN`. Wiring it up would have swapped a privacy
-   * problem for a blank hero. Left in place in case whoever saved it still
-   * has the real file; tracked in `docs/PROJECT.md` §6 (C6).
-   *
-   * `EditableVideo` already offered a "file" tab in its dialog, but
-   * `handleVideoChange` silently dropped it (`if (type === "youtube")` with
-   * no `else`), so choosing a self-hosted file there did nothing — fixed
-   * below regardless, so a real MP4 works once one exists.
+   * `public/videos/hero-background.mp4` looked like the self-hosted
+   * replacement that would remove that trade-off — present, plausibly named,
+   * never wired up — but it isn't a video: its first bytes are
+   * `<!doctype html>`, and Chrome confirms with `DEMUXER_ERROR_COULD_NOT_OPEN`.
+   * Tracked in `docs/PROJECT.md` §6 (C6). Swap `videoId` for a self-hosted
+   * file, or use the "file" tab in the editor, the moment a real MP4 exists —
+   * `EditableVideo` and the branch below already support it.
    */
-  const [videoType, setVideoType] = useState<"youtube" | "file" | "none">("none");
-  const [videoId, setVideoId] = useState("");
+  const [videoType, setVideoType] = useState<"youtube" | "file" | "none">("youtube");
+  const [videoId, setVideoId] = useState("tqmWpFCv_1M");
   const [videoFileSrc, setVideoFileSrc] = useState("");
 
   const handleSearch = () => {
@@ -112,11 +110,17 @@ const Hero = () => {
               playsInline
             />
           ) : (
-            <img
-              src={villaHigueron}
-              alt="A Frontier Residences managed villa"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            // Reached only if the video is cleared in the editor with nothing
+            // swapped in yet — the same hatched placeholder MediaFrame uses
+            // elsewhere, rather than a photograph borrowed from another page.
+            <div
+              className="absolute inset-0 bg-placeholder-hatch flex items-end justify-end p-sm"
+              aria-hidden="true"
+            >
+              <p className="t-meta text-accent-strong/70 text-balance text-right">
+                Hero video — replace via the editor
+              </p>
+            </div>
           )}
           {/* Palette-derived, not black — see --overlay-media in index.css. */}
           <div className="absolute inset-0 overlay-media" aria-hidden="true" />

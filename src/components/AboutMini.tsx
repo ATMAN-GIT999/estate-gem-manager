@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import EditableText from "./admin/EditableText";
 import SectionIntro from "./SectionIntro";
@@ -100,6 +101,7 @@ const AboutMini = () => {
   const [team, setTeam] = useState<Member[]>(FALLBACK_TEAM);
   const [fromDatabase, setFromDatabase] = useState(false);
   const [linkText, setLinkText] = useState("Read our story");
+  const [ctaText, setCtaText] = useState("Contact Us");
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -151,7 +153,23 @@ const AboutMini = () => {
           ))}
         </Grid>
 
-        <div className="text-center">
+        {/* The one call to action in the middle of the page. It sits here
+            rather than anywhere else because this is the section that answers
+            the question an owner actually decides on — who am I giving the
+            keys to — and that is the moment to offer them a person. */}
+        <div className="flex flex-col items-center gap-sm">
+          <Button
+            asChild
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant px-8 py-6 text-base"
+          >
+            <a href="#get-in-touch">
+              <EditableText id="am-cta" value={ctaText} onChange={setCtaText} as="span">
+                {ctaText}
+              </EditableText>
+            </a>
+          </Button>
+
           <Link
             to="/about"
             className="t-meta text-accent-strong hover:underline"

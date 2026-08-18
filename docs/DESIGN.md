@@ -294,7 +294,7 @@ Zoom-Out-Test, Palette unverändert. Das ist bereits gebaut.
 
 | # | Vorschlag | Konflikt mit heute |
 |---|---|---|
-| R1 | **„Our Destinations" vollständig entfernen** und Feature Transformations direkt hinter „It's in the Details" ziehen, als Proof-/Case-Study-Section. | 🔴 **Direkter Widerspruch.** Heute steht `ProjectsSection` als Ebene 8 auf der PM-Seite und ist dort ausdrücklich als Discovery-/Portfolio-Kapitel gewollt. Beides geht nicht. |
+| ~~R1~~ | ~~„Our Destinations" entfernen, Transformations als Proof-Section~~ | ✅ **Entschieden und umgesetzt am 16.08.2026.** Der PM-Umbau hat es erzwungen: Section 3 ist jetzt `Proof` (Zahlen + drei Case Studies auf einem grünen Band). „Our Destinations" ist von der PM-Seite verschwunden und steht vollständig auf `/projects`. |
 | R2 | **Visuelle Gewichtung als explizites System** — Level 1 (Major Statement) / Level 2 (Supporting) / Level 3 (Detail), Rhythmus `BIG → SMALL → BIG → MEDIUM → BIG` statt durchgehend MEDIUM. | Ergänzung, kein Widerspruch. Teilweise schon gelebt (`FinancialPerformance` vs. `PropertyManagement`). |
 | R3 | **Operating-System-Darstellung** statt Service-Liste: Technology → Revenue → Guest Experience → Operations → Property Care → Owner Visibility als *ein* verbundenes System. | Ergänzung. |
 | R4 | **Owner-Visibility-Visual** — eine UI-Darstellung von Revenue, Occupancy, Bookings, Reviews. Ausdrücklich als Visual, nicht als echtes Backend. | Neu. Aufwand nicht trivial. |
@@ -303,5 +303,42 @@ Zoom-Out-Test, Palette unverändert. Das ist bereits gebaut.
 | R7 | **Microinteractions** — sanfter Bild-Zoom, dezente Shadow-Änderung, Hover-Reveal, Light Sweep. Subtil, performant, nicht verspielt. | Neu. `prefers-reduced-motion` beachten (`website-stack`). |
 | R8 | **Portfolio als kuratierter Editorial-Katalog** statt Grid identischer Airbnb-Cards — große Bilder, Nummerierung, ruhige Typografie. | Betrifft `/properties`, das ohnehin noch auf dem alten Layout läuft. |
 
-**R1 ist die Entscheidung, die zuerst fallen muss** — sie ändert die
-Section-Reihenfolge der PM-Seite und damit die Tabelle in PROJECT.md §2.
+R1 ist gefallen (siehe oben). R2 und R3 sind mit dem PM-Umbau ebenfalls
+weitgehend eingelöst: der Rhythmus steht als benanntes Gewicht pro Section in
+PROJECT.md §2, und `TheSystem` ist genau die Operating-System-Darstellung aus
+R3 — ein verbundener Ablauf auf einer Linie statt einer Leistungsliste. R4 bis
+R8 sind weiterhin offen.
+
+---
+
+## 10 · Zwei Primitives, die mit dem PM-Umbau dazugekommen sind
+
+**`layout/MediaFrame`** — ein Bildslot, der entweder das Foto rendert oder
+eine schraffierte Fläche mit dem Briefing, was dort hingehört. Grund steht in
+PROJECT.md B5: Die Seite braucht fünf große Bilder, das Repo hat vier Motive,
+zwei davon doppelt abgelegt. Ein Motiv zweimal auf einem Scroll wäre der
+sichtbarere Fehler als ein ehrlich leerer Rahmen. Ein Pfad in `src` und der
+Slot ist das Bild — kein weiterer Eingriff.
+
+Die Platzhalterfläche ist aus der Palette gewoben (`.bg-placeholder-hatch`,
+Gold über `--secondary`; auf Grün die aufgehellte Variante), **nie neutrales
+Grau** — eine halbfertige Seite soll nach dieser Marke aussehen und nicht nach
+Wireframe.
+
+**`Navigation overlay`** — die Leiste liegt transparent über einem
+Vollbild-Hero und füllt sich nach 0,6 Bildschirmhöhen grün. Die Leiste selbst
+(`bg-transparent`, 80px hoch) trägt **keinen** eigenen Verlauf — der saß
+zunächst direkt auf der Nav-Box und endete deshalb exakt dort, wo die Box
+endete: eine harte waagerechte Kante quer über Foto oder Video. Die
+Lesbarkeit im transparenten Zustand kommt stattdessen von zwei unabhängigen
+Schichten: `.overlay-media` auf dem Hero selbst (oben am dunkelsten) plus ein
+eigenständiges Scrim-Element in der Nav, **doppelt so hoch wie die Leiste**
+(160px) und innerhalb dieser Höhe vollständig auf Transparent auslaufend —
+dort, wo seine Box endet, ist ohnehin schon nichts mehr zu sehen. Nur im
+transparenten Zustand gerendert; eine gefüllte Leiste braucht keine Hilfe von
+unten.
+
+> **`overlay` gehört nur an Seiten mit Bild-Hero** — heute `/` und
+> `/property-management`. Auf dem beigen Seitenhintergrund wären weiße Links
+> unsichtbar. Seiten mit `overlay` setzen **kein** `pt-24` auf `<main>`: das
+> Bild läuft absichtlich unter die Leiste.

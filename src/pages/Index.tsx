@@ -47,7 +47,10 @@ const IndexContent = () => {
         description="Book luxury villas and apartments in Marbella, Málaga and Vienna directly with Frontier Residences — and see what your own property could earn under our management."
         schema={[organizationSchema(), faqSchema(FAQ_ITEMS)]}
       />
-      <Navigation />
+      {/* The other page that opens on a photograph, so the bar sits on the
+          image and fills in on scroll. Every other route keeps the opaque
+          header — white links on the beige page background would vanish. */}
+      <Navigation overlay />
       <Hero />
 
       {/* Trust before anything else, the way a platform opens (§11). No

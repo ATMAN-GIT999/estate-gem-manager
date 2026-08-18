@@ -30,6 +30,44 @@ import { Section, Grid, Stack, Divider } from "@/components/layout";
  * `headingAs` is why: the standalone page needs "Our Destinations" to be its
  * h1, the property management page needs it to be one h2 among many.
  */
+export interface FeaturedProject {
+  title: string;
+  location: string;
+  type: string;
+  description: string;
+  highlights: string[];
+  stats: { occupancy: string; revenue: string; rating: string };
+}
+
+/**
+ * Three real properties of the owner's, with real numbers attached.
+ *
+ * Exported because the owner page's Proof section shows the same three, in its
+ * own layout on the green fill. Kept as one definition on purpose: these are
+ * claims about actual houses (docs/DECISIONS.md §5), and a second copy is how
+ * one of them quietly ends up saying +120% while the other says +140%.
+ */
+export const FEATURED_PROJECTS: FeaturedProject[] = [
+  {
+    title: "Villa Hoyo 19", location: "La Quinta, Marbella", type: "Luxury Villa",
+    description: "A stunning contemporary villa overlooking the golf course with panoramic sea views. Complete renovation transformed this property into one of the most sought-after rentals in the area.",
+    highlights: ["Complete interior redesign", "Infinity pool installation", "Smart home integration", "Professional photography"],
+    stats: { occupancy: "85%", revenue: "+120%", rating: "4.9" },
+  },
+  {
+    title: "Soho Boho", location: "Soho Arts District, Málaga", type: "Urban Apartment",
+    description: "Transformed from €13,000 to €65,000 annual income through strategic renovation and positioning in Málaga's vibrant Soho Arts District.",
+    highlights: ["Boho-style design with earthy tones", "Optimized layout for guests", "Premium location positioning", "Full staging & photography"],
+    stats: { occupancy: "92%", revenue: "+400%", rating: "4.8" },
+  },
+  {
+    title: "Alpine Retreat", location: "Carinthia, Austria", type: "Mountain Property",
+    description: "A charming Alpine property converted into a year-round rental with exceptional winter and summer appeal.",
+    highlights: ["Traditional meets modern design", "Ski-in/ski-out access", "Spa facilities added", "Seasonal revenue optimization"],
+    stats: { occupancy: "78%", revenue: "+85%", rating: "4.9" },
+  },
+];
+
 const ProjectsSection = ({ headingAs = "h2" }: { headingAs?: "h1" | "h2" }) => {
   const [destinationsTitle, setDestinationsTitle] = useState("Our Destinations");
   const [destinationsLead, setDestinationsLead] = useState("Where Frontier operates — and what each destination means for an owner.");
@@ -41,26 +79,7 @@ const ProjectsSection = ({ headingAs = "h2" }: { headingAs?: "h1" | "h2" }) => {
     { name: "Austria", subtitle: "Vienna & Carinthia", description: "Urban elegance and Alpine retreats with exceptional rental yields", projects: "Cosmopolitan apartments and leisure properties", icon: "🇦🇹" },
   ]);
 
-  const [featuredProjects, setFeaturedProjects] = useState([
-    {
-      title: "Villa Hoyo 19", location: "La Quinta, Marbella", type: "Luxury Villa",
-      description: "A stunning contemporary villa overlooking the golf course with panoramic sea views. Complete renovation transformed this property into one of the most sought-after rentals in the area.",
-      highlights: ["Complete interior redesign", "Infinity pool installation", "Smart home integration", "Professional photography"],
-      stats: { occupancy: "85%", revenue: "+120%", rating: "4.9" },
-    },
-    {
-      title: "Soho Boho", location: "Soho Arts District, Málaga", type: "Urban Apartment",
-      description: "Transformed from €13,000 to €65,000 annual income through strategic renovation and positioning in Málaga's vibrant Soho Arts District.",
-      highlights: ["Boho-style design with earthy tones", "Optimized layout for guests", "Premium location positioning", "Full staging & photography"],
-      stats: { occupancy: "92%", revenue: "+400%", rating: "4.8" },
-    },
-    {
-      title: "Alpine Retreat", location: "Carinthia, Austria", type: "Mountain Property",
-      description: "A charming Alpine property converted into a year-round rental with exceptional winter and summer appeal.",
-      highlights: ["Traditional meets modern design", "Ski-in/ski-out access", "Spa facilities added", "Seasonal revenue optimization"],
-      stats: { occupancy: "78%", revenue: "+85%", rating: "4.9" },
-    },
-  ]);
+  const [featuredProjects, setFeaturedProjects] = useState(FEATURED_PROJECTS);
 
   const updateRegion = (index: number, field: string, value: string) => {
     const u = [...regions]; u[index] = { ...u[index], [field]: value }; setRegions(u);

@@ -16,13 +16,14 @@ import { Section, Grid, Stack } from "./layout";
  * section size in the left column with the terms in the right. The letter mark
  * is a mark, not a bullet — A and B are a choice, 1 and 2 would be a sequence.
  *
- * Renovations and Investments used to be their own section
- * (`BeyondManagement.tsx`, now retired). They only make sense once an owner
- * has already leased the property to Frontier under Guaranteed Income —
- * under full-service management the owner still holds the asset and
- * commissions their own renovation — so they nest under that row as secondary
- * paths (§21), visibly smaller, not a third equal offer competing with the two
- * real models.
+ * Renovations and Investments used to nest inside the Guaranteed Income row
+ * here, indented behind a gold rule. They are their own section now
+ * (`RenovationsAndInvestments`), directly underneath: the indent made the
+ * subordination unmistakable but also made the Guaranteed Income row twice
+ * the height of the one above it, so the "one choice, two answers" reading
+ * this section is built on had a lopsided B. Their connection to Guaranteed
+ * Income is now carried by the copy — "before you hand it over" — rather than
+ * by a border.
  */
 const WaysToWorkTogether = () => {
   const [eyebrow, setEyebrow] = useState("How we work together");
@@ -44,26 +45,6 @@ const WaysToWorkTogether = () => {
       linkText: "See how it works",
     },
   ]);
-
-  const [subLabel, setSubLabel] = useState("Also part of this path");
-  const [subServices, setSubServices] = useState([
-    {
-      title: "Renovations & Design",
-      description: "Timeless Mediterranean interiors, run start to finish, before the lease begins.",
-      href: "/renovations",
-    },
-    {
-      title: "Investments",
-      description: "Curated acquisitions across Spain, Austria and Croatia for owners building a portfolio.",
-      href: "/investments",
-    },
-  ]);
-
-  const updateSubService = (index: number, field: string, value: string) => {
-    const u = [...subServices];
-    u[index] = { ...u[index], [field]: value };
-    setSubServices(u);
-  };
 
   return (
     <Section id="ways-to-work" size="lg">
@@ -141,42 +122,6 @@ const WaysToWorkTogether = () => {
                     {model.linkText}
                     <ArrowRight className="w-4 h-4" />
                   </Link>
-                )}
-
-                {/* §21 — nested under Guaranteed Income only, connected by a
-                    gold rule so the subordination reads at a glance rather
-                    than needing a label to explain it. */}
-                {index === 1 && (
-                  <div className="mt-md pl-sm border-l-2 border-accent/50 space-y-sm">
-                    <EditableText id="ways-sub-label" value={subLabel} onChange={setSubLabel} as="span" className="block t-meta text-accent-strong">
-                      {subLabel}
-                    </EditableText>
-                    {subServices.map((service, si) => (
-                      <Link key={si} to={service.href} className="group block">
-                        <div className="flex items-center gap-2">
-                          <EditableText
-                            id={`ways-sub-title-${si}`}
-                            value={service.title}
-                            onChange={(v) => updateSubService(si, "title", v)}
-                            as="span"
-                            className="t-item text-primary group-hover:text-accent-strong transition-colors"
-                          >
-                            {service.title}
-                          </EditableText>
-                          <ArrowRight className="w-3.5 h-3.5 text-accent-strong opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                        <EditableText
-                          id={`ways-sub-desc-${si}`}
-                          value={service.description}
-                          onChange={(v) => updateSubService(si, "description", v)}
-                          as="p"
-                          className="t-body text-foreground/60"
-                        >
-                          {service.description}
-                        </EditableText>
-                      </Link>
-                    ))}
-                  </div>
                 )}
               </div>
             </Grid>

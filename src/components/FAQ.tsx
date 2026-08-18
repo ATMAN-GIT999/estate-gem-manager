@@ -1,14 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import * as AccordionPrimitive from "@radix-ui/react-accordion";
+import { ArrowRight, Minus, Plus } from "lucide-react";
 import EditableText from "./admin/EditableText";
-import { Section, Stack, Surface } from "./layout";
+import { Section, Stack } from "./layout";
 
 /**
  * Landing-page FAQ, guest-only.
@@ -103,46 +98,63 @@ const FAQ = ({ eyebrow: eyebrowProp = "Questions", heading: headingProp = "Befor
 
   return (
     <Section id="faq" size="md" measure="wide">
-      {/* Same silver material as the property-management hero panel (§23) —
-          the two are meant to read as the same design element reappearing,
-          not two separately invented "light section" treatments. <Surface>
-          owns that material, and the z-index dance the sheen overlay needs. */}
-      <Surface material="silver" pad="lg">
-        <Stack gap="lg">
-          <div className="space-y-sm">
-            {eyebrow && (
-              <EditableText
-                id="faq-eyebrow"
-                value={eyebrow}
-                onChange={setEyebrow}
-                as="span"
-                className="t-meta block text-accent-strong"
-              >
-                {eyebrow}
-              </EditableText>
-            )}
+      <Stack gap="lg">
+        <div className="space-y-sm">
+          {eyebrow && (
             <EditableText
-              id="faq-heading"
-              value={heading}
-              onChange={setHeading}
-              as="h2"
-              className="t-section text-primary"
+              id="faq-eyebrow"
+              value={eyebrow}
+              onChange={setEyebrow}
+              as="span"
+              className="t-meta block text-accent-strong"
             >
-              {heading}
+              {eyebrow}
             </EditableText>
-          </div>
+          )}
+          <EditableText
+            id="faq-heading"
+            value={heading}
+            onChange={setHeading}
+            as="h2"
+            className="t-section text-primary"
+          >
+            {heading}
+          </EditableText>
+        </div>
 
-          <Accordion type="single" collapsible className="w-full">
-            {FAQ_ITEMS.map((item, index) => (
-              <AccordionItem
-                key={index}
-                value={`item-${index}`}
-                className="border-primary/15"
-              >
-                <AccordionTrigger className="t-item text-primary text-left hover:no-underline py-sm">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent className="t-body text-foreground/70 pb-sm max-w-3xl">
+        {/* Hairlines and a gold +/− rather than the shadcn Accordion's boxed
+            chevron — the design-reference mockup for this section (the one
+            exception to "don't copy the mockup"; see docs/DECISIONS.md §12)
+            gets this right, and it is what §6 asks for everywhere else on the
+            site: a line above each item instead of a bordered, shadowed card.
+            Built on the bare Radix primitive rather than `ui/accordion.tsx`
+            because that wrapper hard-codes a rotating chevron; the a11y and
+            the open/close animation come from Radix and the keyframes in
+            tailwind.config.ts either way. */}
+        <AccordionPrimitive.Root type="single" collapsible className="w-full">
+          {FAQ_ITEMS.map((item, index) => (
+            <AccordionPrimitive.Item
+              key={index}
+              value={`item-${index}`}
+              className="border-t border-primary/15 last:border-b"
+            >
+              <AccordionPrimitive.Header>
+                <AccordionPrimitive.Trigger
+                  className="group flex w-full items-baseline justify-between gap-6 py-sm text-left"
+                >
+                  <span className="t-block text-primary">{item.question}</span>
+                  {/* A genuine glyph swap, not a rotating chevron — Plus and
+                      Minus stacked in the same box, toggled by the trigger's
+                      own `data-state` the same way `ui/accordion.tsx` toggles
+                      its chevron's rotation. */}
+                  <span className="relative w-5 h-5 shrink-0 text-accent-strong">
+                    <Plus className="absolute inset-0 w-5 h-5 group-data-[state=open]:opacity-0 transition-opacity" />
+                    <Minus className="absolute inset-0 w-5 h-5 opacity-0 group-data-[state=open]:opacity-100 transition-opacity" />
+                  </span>
+                </AccordionPrimitive.Trigger>
+              </AccordionPrimitive.Header>
+              <AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                <div className="pb-sm max-w-3xl t-body text-foreground/70">
                   {index === FAQ_ITEMS.length - 1 ? (
                     <span className="flex flex-wrap items-center gap-2">
                       {OWNER_ANSWER_LEAD_IN}
@@ -157,12 +169,12 @@ const FAQ = ({ eyebrow: eyebrowProp = "Questions", heading: headingProp = "Befor
                   ) : (
                     item.answer
                   )}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </Stack>
-      </Surface>
+                </div>
+              </AccordionPrimitive.Content>
+            </AccordionPrimitive.Item>
+          ))}
+        </AccordionPrimitive.Root>
+      </Stack>
     </Section>
   );
 };

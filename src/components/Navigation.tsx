@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, Menu, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/frontier-logo.webp";
@@ -9,10 +10,44 @@ import { Container } from "./layout";
 
 const INSTAGRAM_URL = "https://www.instagram.com/frontier.residences/";
 
-const Navigation = () => {
+interface NavigationProps {
+  /**
+   * Sit transparently on top of a full-bleed image hero and fill in on scroll.
+   *
+   * Only the two pages that open on a photograph pass this. Everywhere else
+   * the bar stays opaque, because a transparent header over the beige page
+   * background is white-on-nothing — the links simply disappear.
+   */
+  overlay?: boolean;
+}
+
+const Navigation = ({ overlay = false }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+
+  /**
+   * Measured against the viewport rather than a fixed pixel count, because the
+   * two heroes are not the same height (~62vh on the landing page, ~88vh on
+   * the owner page). 0.6 of a screen is inside both of them, so the bar has
+   * always filled by the time the picture ends.
+   */
+  useEffect(() => {
+    if (!overlay) return;
+
+    const onScroll = () => {
+      setScrolled(window.scrollY > window.innerHeight * 0.6);
+    };
+
+    onScroll(); // a reload part-way down the page must not start transparent
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [overlay]);
+
+  // The open mobile menu needs a surface under it whatever the scroll position
+  // is, or its links sit directly on the photograph.
+  const filled = !overlay || scrolled || isOpen;
 
   const [navLabel1, setNavLabel1] = useState("Property Management");
   const [navLabel3, setNavLabel3] = useState("About Us");
@@ -43,8 +78,40 @@ const Navigation = () => {
   // on their <main> — the 5rem of header plus 1rem of breathing room. Anchor
   // targets use `scroll-mt-20` and the sticky filter bar on /properties uses
   // `top-20` for the same reason. Change all four together.
+  //
+  // In overlay mode the page does NOT clear it: the hero image runs up under
+  // the bar on purpose, and the hero's own top padding keeps the headline out
+  // from behind it.
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-primary backdrop-blur-sm border-b border-primary-foreground/10">
+    <nav
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
+        filled
+          ? "bg-primary backdrop-blur-sm border-b border-primary-foreground/10"
+          : "bg-transparent border-b border-transparent"
+      )}
+    >
+      {/* A dedicated legibility scrim for the transparent state — taller than
+          the bar itself and faded to fully transparent by its own bottom
+          edge, not a gradient painted onto the bar's own background.
+
+          An earlier version put the gradient on the nav's own `h-20` box, so
+          it necessarily ended exactly where the bar did — a hard horizontal
+          line drawn straight across whatever photo or video sat behind it,
+          visible the moment the frame under it was mid-brightness. This one
+          is taller (40 = 160px vs the bar's 80px) purely so its fade-out has
+          room to finish before the box does; nothing below it is solid, so
+          there is no edge to see. Both heroes already darken their own top
+          with `.overlay-media`, so this is the second, independent layer that
+          keeps the logo and links readable specifically over whatever is
+          brightest right under the fixed bar — hidden once filled, since a
+          solid fill needs no help from underneath. */}
+      {overlay && !filled && (
+        <div
+          className="absolute inset-x-0 top-0 h-40 pointer-events-none bg-gradient-to-b from-scrim/55 to-transparent"
+          aria-hidden="true"
+        />
+      )}
       {/* Same container as every section below it, so the logo sits exactly
           above the left edge of the page's content rather than 1rem inside
           it. That single alignment is most of what makes a header read as

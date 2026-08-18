@@ -1,116 +1,91 @@
-import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema, organizationSchema } from "@/lib/schema";
-import Stats from "@/components/Stats";
-import WhyItMakesADifference from "@/components/WhyItMakesADifference";
+import OwnerHero from "@/components/OwnerHero";
+import TheSystem from "@/components/TheSystem";
+import Proof from "@/components/Proof";
 import PropertyManagement from "@/components/PropertyManagement";
-import ListingWorkflow from "@/components/ListingWorkflow";
 import AboutMini from "@/components/AboutMini";
-import ProjectsSection from "@/components/ProjectsSection";
-import OwnerContactForm from "@/components/OwnerContactForm";
-import FinancialPerformance from "@/components/FinancialPerformance";
 import WaysToWorkTogether from "@/components/WaysToWorkTogether";
+import RenovationsAndInvestments from "@/components/RenovationsAndInvestments";
+import OwnerContactForm from "@/components/OwnerContactForm";
 import FAQ from "@/components/FAQ";
-import GetInTouch from "@/components/GetInTouch";
-import { Section, Stack, Surface } from "@/components/layout";
 
-const PropertyManagementPageContent = () => {
-  const [pageTitle, setPageTitle] = useState("Luxury Rental Management");
-  const [pageLead, setPageLead] = useState("We offer bespoke Property Management");
-  const [pageSubtitle, setPageSubtitle] = useState("And treat your home with care, strategy and the precision it needs — while preserving your asset we are maximising revenue.");
+const PropertyManagementPageContent = () => (
+  <div className="min-h-screen flex flex-col">
+    <Seo
+      title="Bespoke Property Management in Marbella, Málaga & Vienna"
+      description="Full-service short-term rental management for luxury homes on the Costa del Sol and in Austria — listing, dynamic pricing, guests, housekeeping and owner reporting. Or lease your property to us for a fixed monthly income."
+      path="/property-management"
+      schema={[
+        organizationSchema(),
+        breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Property Management", path: "/property-management" },
+        ]),
+      ]}
+    />
+    {/* Transparent over the hero photograph, filling in on scroll. The page
+        therefore does NOT clear the fixed header with `pt-24` the way the
+        content pages do — the image runs up underneath it on purpose. */}
+    <Navigation overlay />
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Seo
-        title="Bespoke Property Management in Marbella, Málaga & Vienna"
-        description="Full-service short-term rental management for luxury homes on the Costa del Sol and in Austria — listing, dynamic pricing, guests, housekeeping and owner reporting. Or lease your property to us for a fixed monthly income."
-        path="/property-management"
-        schema={[
-          organizationSchema(),
-          breadcrumbSchema([
-            { name: "Home", path: "/" },
-            { name: "Property Management", path: "/property-management" },
-          ]),
-        ]}
-      />
-      <Navigation />
-      {/* The section order is docs/PROJECT.md §2, and the reason it
-          is worth protecting is that it is an argument rather than a list:
-          what it earns → what it costs you in effort → why us → what that
-          looks like in practice → where → who → how to start. Moving a block
-          breaks the sentence, not just the layout.
+    {/* The order is docs/PROJECT.md §2, and it is worth protecting because it
+        is an argument rather than a list: here is the house → here is
+        everything we do to it → here is what that produced on real ones →
+        here is what it costs you in attention → here is who we are → here is
+        how you'd engage us → here are the two side doors → here is what people
+        ask → here is how to start. Moving a block breaks the sentence, not
+        just the layout.
 
-          overflow-x-clip is the safety net for the full-bleed image blocks
-          (OwnerContactForm): `100vw` can be a hair wider than the visible
-          viewport when a scrollbar is present, and without this the page
-          would gain a few pixels of horizontal scroll. */}
-      <main className="flex-1 pt-24 overflow-x-clip">
-        {/* 1 — Hero + conversion in one screen. The title states what this
-            is, the form underneath is the first thing an owner can act on —
-            no more scrolling past eight sections to find a way to talk to
-            someone. */}
-        <Section size="md" className="pt-md">
-          {/* The silver panel is its own contained, rounded element — not a
-              full-bleed section fill — so it reads as a deliberate material
-              rather than just "the page background got lighter". It shares
-              that material with the FAQ at the foot of the page (§23). */}
-          <Surface material="silver" pad="lg">
-            {/* Soft green shading tucked into the corners on top of the
-                shimmer — decoration only, harmonising the panel with the
-                rest of the palette. */}
-            <div className="pointer-events-none absolute -left-16 top-0 w-72 h-72 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
-            <div className="pointer-events-none absolute -right-16 bottom-0 w-72 h-72 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
-            <Stack gap="sm" align="center" className="animate-fade-in">
-              {/* Full panel width, not the narrower measure below — at this
-                  width the title has room to sit on one line rather than
-                  breaking after "Rental". */}
-              <EditableText id="pmp-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="t-display text-primary">{pageTitle}</EditableText>
-              <div className="max-w-2xl mx-auto space-y-sm">
-                <EditableText id="pmp-page-lead" value={pageLead} onChange={setPageLead} as="p" multiline className="t-block text-primary text-balance">{pageLead}</EditableText>
-                <EditableText id="pmp-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="t-body text-foreground/70">{pageSubtitle}</EditableText>
-              </div>
-            </Stack>
-          </Surface>
-        </Section>
-        <OwnerContactForm />
+        The rhythm alternates on purpose and should stay alternating: heavy,
+        heavy, heavy (the opening sequence earns three) → light → medium →
+        heavy → medium → medium → heavy. Two heavy sections back to back
+        anywhere below Proof is the signal something has grown.
 
-        {/* 2 — Trust: the portfolio behind the promise, before any claim. */}
-        <Stats />
+        overflow-x-clip is the safety net for the full-bleed bands: `100vw` can
+        be a hair wider than the visible viewport when a scrollbar is present,
+        and without this the page would gain a few pixels of horizontal
+        scroll. */}
+    <main className="flex-1 overflow-x-clip">
+      {/* 1 — The house, the promise, and the two things to do about it. */}
+      <OwnerHero />
 
-        {/* 3-4 — The two halves of the offer, deliberately unequal (§12-§14).
-            What the property earns is the primary value proposition and gets
-            the widest band; what it costs you in effort answers it and stays
-            quiet. This order is binding. */}
-        <FinancialPerformance />
-        <PropertyManagement />
+      {/* 2 — Everything Frontier does, once, in the order it happens. The
+          page's centre of gravity; it replaces three sections that each told
+          a slice of the same story. */}
+      <TheSystem />
 
-        {/* 5 — Why us, and only then what that looks like day to day (§15,
-            §16). The claim has to precede its own evidence; the other way
-            round the reader meets a list of tasks with nothing to hang it
-            on. */}
-        <WhyItMakesADifference />
-        <ListingWorkflow />
+      {/* 3 — The evidence, at two scales: the portfolio, then three houses. */}
+      <Proof />
 
-        {/* 6 — Where the work happens, with the transformations under it. */}
-        <ProjectsSection />
+      {/* 4 — The exhale. One picture, one sentence. It must not grow. */}
+      <PropertyManagement />
 
-        {/* 7-8 — Who runs it, and the two ways to start (Renovations and
-            Investments nest inside Guaranteed Income there). */}
-        <AboutMini />
-        <WaysToWorkTogether />
+      {/* 5 — Who gets the keys. The one call to action mid-page sits here,
+          because this is the question an owner actually decides on. */}
+      <AboutMini />
 
-        <FAQ eyebrow="" heading="Frequently Asked Questions" />
+      {/* 6-7 — The commercial decision, then the two side doors for owners
+          it does not fit yet. Investments comes last of the three on purpose:
+          it addresses an investor looking to buy, not the owner the rest of
+          the page is written for (DECISIONS §2). */}
+      <WaysToWorkTogether />
+      <RenovationsAndInvestments />
 
-        <GetInTouch />
-      </main>
-      <Footer />
-    </div>
-  );
-};
+      {/* 8 — Deliberately the guest FAQ with a new heading, as requested;
+          owner-specific questions need content from the client
+          (PROJECT.md §6, "Bewusst so gelassen"). */}
+      <FAQ eyebrow="" heading="Frequently Asked Questions" />
+
+      {/* 9 — The bookend to the hero: every "Contact Us" above lands here. */}
+      <OwnerContactForm />
+    </main>
+    <Footer />
+  </div>
+);
 
 const PropertyManagementPage = () => (<PageWrapper slug="site--property-management"><PropertyManagementPageContent /></PageWrapper>);
 export default PropertyManagementPage;
