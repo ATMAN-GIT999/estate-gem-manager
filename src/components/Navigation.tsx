@@ -200,8 +200,15 @@ const Navigation = ({ overlay = false }: NavigationProps) => {
                 over the transparent/overlay nav state it looked like the
                 button had been pushed back into the photo. `shadow-soft` is
                 the same warm shadow family at roughly a third of the spread. */}
+            {/* Signed-in guest destination was `/book` — a Lovable-era mockup
+                with four hardcoded fictional properties, no Guesty data, no
+                real booking list behind it. Deleted rather than fixed (see
+                docs/DECISIONS.md); there is no real "my bookings" page
+                anywhere in the app to send this to instead (docs/PROJECT.md
+                C7), so this points at the property browser until one exists —
+                closer to true than a page that only pretended to be one. */}
             {user ? (
-              <Link to={isAdmin ? "/admin/dashboard" : "/book"}>
+              <Link to={isAdmin ? "/admin/dashboard" : "/properties"}>
                 <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-soft">
                   <EditableText id="nav-auth-btn" value={isAdmin ? dashboardLabel : myBookingsLabel} onChange={isAdmin ? setDashboardLabel : setMyBookingsLabel} as="span">{isAdmin ? dashboardLabel : myBookingsLabel}</EditableText>
                 </Button>
@@ -276,7 +283,7 @@ const Navigation = ({ overlay = false }: NavigationProps) => {
               </Link>
 
               {user ? (
-                <Link to={isAdmin ? "/admin/dashboard" : "/book"} className="w-full mt-3">
+                <Link to={isAdmin ? "/admin/dashboard" : "/properties"} className="w-full mt-3">
                   <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
                     {isAdmin ? dashboardLabel : myBookingsLabel}
                   </Button>

@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
 import { Container, MediaFrame, Stack } from "./layout";
-import villaHigueron from "@/assets/villa-higueron.webp";
+import pmpHeroImage from "@/assets/pmp-hero-villa-higueron.webp";
 
 /**
  * The owner page's opening: a photograph, the promise, and the two things an
@@ -32,19 +32,15 @@ const OwnerHero = () => {
   const [secondaryCta, setSecondaryCta] = useState("See what yours could earn");
 
   /**
-   * The photograph the landing-page hero used before its video came back
-   * (docs/DECISIONS.md §12) — moved here rather than duplicated, per
-   * Almedin's instruction to relocate the exact file instead of guessing a
-   * new one from `src/assets`.
-   *
-   * Flagged, not silently accepted: this is an interior — marble floor,
-   * glass doors, sea and a corner of pool visible through them — not the
-   * exterior infinity-pool shot the brief described, and it is byte-for-byte
-   * `property-3.webp`, already used for this listing on `/property/…` and
-   * its card. It stays until a dedicated PM-hero photograph exists; swap it
-   * via the editor the moment one does. See docs/PROJECT.md B5.
+   * The dedicated PM-hero photograph docs/PROJECT.md B5 was waiting on —
+   * "Villa Higueron-11.jpg" from the same Drive folder as `villa-higueron.webp`
+   * (Peninsula Villa A), supplied directly by Almedin rather than picked from
+   * `src/assets`. Bedroom with the sea through floor-to-ceiling glass and a
+   * marble floor, not the exterior infinity-pool shot the original brief
+   * described, but a real, high-resolution photograph of the villa itself
+   * rather than a reused card image (docs/DECISIONS.md §17).
    */
-  const [heroImage, setHeroImage] = useState(villaHigueron);
+  const [heroImage, setHeroImage] = useState(pmpHeroImage);
 
   return (
     // Not a <Section>: this band is a picture with text on it rather than a

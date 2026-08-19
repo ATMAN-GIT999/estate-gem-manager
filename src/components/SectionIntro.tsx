@@ -35,6 +35,15 @@ interface SectionIntroProps {
    * with no newlines.
    */
   headingBreak?: boolean;
+  /**
+   * "normal" (default) is the `max-w-3xl` this block has always used — right
+   * for a one-sentence lede under a headline. "wide" is for a header that
+   * genuinely needs the room: `TheSystem`'s two-line headline and its longer
+   * subheadline read as cramped at the same measure a single short lede uses
+   * elsewhere. Widens both the block and the lead paragraph together, so the
+   * two don't end up at two different edges.
+   */
+  measure?: "normal" | "wide";
 }
 
 const SectionIntro = ({
@@ -46,17 +55,19 @@ const SectionIntro = ({
   align = "center",
   className,
   headingBreak = false,
+  measure = "normal",
 }: SectionIntroProps) => {
   const [eyebrowText, setEyebrowText] = useState(eyebrow);
   const [headingText, setHeadingText] = useState(heading);
   const [leadText, setLeadText] = useState(lead ?? "");
 
   const onPrimary = tone === "primary";
+  const wide = measure === "wide";
 
   return (
     <div
       className={cn(
-        "max-w-3xl",
+        wide ? "max-w-5xl" : "max-w-3xl",
         align === "center" ? "mx-auto text-center" : "",
         className
       )}
@@ -99,7 +110,8 @@ const SectionIntro = ({
           className={cn(
             "mt-5 t-body",
             onPrimary ? "text-primary-foreground/80" : "text-foreground/70",
-            align === "center" ? "mx-auto max-w-2xl" : "max-w-2xl"
+            wide ? "max-w-3xl" : "max-w-2xl",
+            align === "center" ? "mx-auto" : ""
           )}
         >
           {leadText}

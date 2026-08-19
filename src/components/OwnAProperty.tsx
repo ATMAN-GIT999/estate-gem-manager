@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
 import { Container, MediaFrame } from "./layout";
-import propertyFive from "@/assets/property-5.webp";
+import oapVillaEntrance from "@/assets/oap-villa-entrance.webp";
 
 /**
  * The hand-off between the two halves of the site: everything above is written
@@ -32,7 +32,7 @@ const OwnAProperty = () => {
   const [heading, setHeading] = useState("Own a Property?");
   const [subheading, setSubheading] = useState("See what it could earn with us.");
   const [ctaText, setCtaText] = useState("Discover Property Management");
-  const [image, setImage] = useState(propertyFive);
+  const [image, setImage] = useState(oapVillaEntrance);
 
   return (
     <section className="relative flex items-center overflow-hidden min-h-[clamp(20rem,52vh,28rem)]">

@@ -27,11 +27,15 @@ import property3 from "@/assets/property-3.webp";
 import property4 from "@/assets/property-4.webp";
 import property5 from "@/assets/property-5.webp";
 import villaHigueron from "@/assets/villa-higueron.webp";
+import losMonterosCard from "@/assets/los-monteros-card.webp";
 
 const propertyImages: Record<string, string[]> = {
   "villa-in-higueron": [villaHigueron, property5],
   "peninsula-corner-villa-higueron": [property2],
-  "los-monteros-retreat": [property3],
+  // Was [property3] — the same file villa-in-higueron uses above, so two
+  // different villas' detail pages showed an identical room. Now its own
+  // real photo (see PropertyCard.tsx for the matching fix).
+  "los-monteros-retreat": [losMonterosCard],
   "puente-romano-hideaway": [property4],
 };
 

@@ -268,15 +268,15 @@ Schritt 2, keine vierte Section.
 „predictive" ist eine Behauptung in derselben Klasse wie das schon einmal
 gestrichene „Zero operational errors".
 
-### Kein Dashboard mehr behaupten
+### Owner-Dashboard bestätigt
 
-„Transparent reporting" sagte an zwei Stellen zu viel: „plus a live dashboard
-anytime" und „Full transparency with live dashboards". **Es gibt kein
-Owner-Dashboard** (PROJECT.md D6). Das Mockup schlug „full visibility anytime"
-vor, was dasselbe Versprechen mit weicheren Worten ist.
-
-Heute steht dort: **„Monthly statement, with every booking and every cost
-itemised."** Das ist konkreter als das, was es ersetzt, und es stimmt.
+Frühere Fassung dieses Abschnitts (Stand vor dem 19.08.2026): „Transparent
+reporting" sagte an zwei Stellen zu viel — „plus a live dashboard anytime" und
+„Full transparency with live dashboards" —, weil es kein Owner-Dashboard gab
+(PROJECT.md D6). Das ist überholt: **der Kunde hat bestätigt, dass ein
+Owner-Dashboard real ist bzw. eingeplant ist.** „Live dashboards" ist damit
+eine korrekte Aussage, kein unbelegter Claim mehr, und Zahnrad 6 in
+`TheSystem` darf sie wieder tragen.
 
 ### Plattform-Logos als Wortmarken
 
@@ -528,3 +528,295 @@ sonst im Projekt üblich genau einmal (CLAUDE.md, „der historische
 Hauptfehler"). Umgesetzt wie angefordert, aber unkommentiert stehen lassen
 wäre falsch gewesen — sollte sich das FAQ-Ende in der Praxis sperrig lesen,
 ist das der Grund.
+
+---
+
+## 14 · Nachbesserung vom 19.08.2026 — Bildmaterial, Icons, letzte Textrunde
+
+### Bildmaterial kommt jetzt aus dem echten Google-Drive-Ordner „Listing Pictures"
+
+§13 hatte die drei Proof-Case-Bilder als Platzhalter stehen lassen, weil
+Supabase pausiert war und sich „Villa Hoyo 19" / „Soho Boho" / „Alpine
+Retreat" nicht gegen echte Objektnamen verifizieren ließen. Almedin hat
+stattdessen Zugriff auf den Google-Drive-Ordner der echten Objektfotos
+gegeben (`aschbacher@frontier-residences.com`, „Listing Pictures"). Abgleich
+lief über den **Ordnernamen**, nicht über Supabase:
+
+| Case-Study-Name | Drive-Ordner | Abgleich |
+|---|---|---|
+| Villa Hoyo 19 | „Hoyo 19 2C, Los Flamingos" | Zwei echte Einheiten existieren (1A und 2C) — **von Almedin ausdrücklich als 2C bestätigt**, nicht geraten |
+| Soho Boho | „Soho Art, Calle Alemania" | Name + Bildinhalt (urbanes Apartment) passen; einziger Unterordner heißt „pics bad quali" |
+| Alpine Retreat | „Lima Alpine Lodges" | Bestätigt über die Drohnenaufnahme „Theresia-Drohne-1.jpg" — zeigt exakt die Holzhütte mit Bergwiese und Weidevieh aus der Case-Study-Beschreibung |
+
+Zusätzlich, nicht angefragt aber angeboten und angenommen: **„Los Monteros 3
+bed Diana"** existiert ebenfalls als echter Ordner. Sein Foto füllt jetzt die
+Relax-Section (`PropertyManagement.tsx`), die vorher komplett leer war —
+nicht `property-2.webp`/`about-hero.webp`, wie ein früherer Prompt-Entwurf
+annahm; der Slot war schlicht nie befüllt (PROJECT.md B5).
+
+**Qualitätsunterschied offen benannt:** Villa Hoyo 19 und Alpine Retreat
+stammen aus echten Hochauflösungs-Ordnern (4562×3041 bzw. gecroppt aus
+2048×1534). Soho Boho kommt aus dem einzigen vorhandenen Ordner für dieses
+Objekt, der selbst „bad quali" heißt — Quelle war 1200×800. Alle vier Bilder
+wurden zentriert auf 4:3 (Case-Studies) bzw. 3:2 (Relax, volle Bildbreite)
+zugeschnitten und als WebP re-encodiert (Pillow, Qualität 82), **nie
+hochskaliert** — jeder Zuschnitt blieb kleiner als seine Quelle.
+
+**Die Vorher/Nachher-Beschriftung ist mitgezogen.** Diese vier Fotos sind
+aktuelle Bestandsfotos der Objekte, keine Renovierungs-Vorher/Nachher-Paare
+(die aus PROJECT.md B4 bleiben offen, kommen vom Eigentümer). Das Label unter
+den drei Case-Cards heißt deshalb jetzt „Featured Property" statt „Before and
+After" — der alte Text wäre schlicht falsch gewesen.
+
+### Icons an den sechs Zahnrad-Punkten — Kurskorrektur gegenüber §13
+
+§13 hatte Icons an dieser Stelle **geprüft und abgelehnt**: der Panel-Rahmen,
+die Nummer und der Spine-Kreis trügen schon genug visuelles Gewicht, ein
+viertes Element wäre Überladung. Dieser Prompt hat das nicht als Vorschlag,
+sondern als feste Anweisung mit exakter Zuordnung wiederholt — keine
+Ermessensfrage mehr, umgesetzt:
+
+01 Optimal Listing → `Image` · 02 Dynamic Pricing → `DollarSign` · 03
+Advertised Everywhere → `Globe` · 04 Guest Management → `MessageSquare` · 05
+Property Care → `Home` · 06 Transparent Reporting → `BarChart3` — alle
+`lucide-react`, Gold (`text-accent-strong`), `strokeWidth={1.5}`, im
+Spine-Kreis selbst statt zusätzlich daneben, damit kein fünftes Element
+entsteht.
+
+`RenovationsAndInvestments` bekam aus demselben Set einen Icon-Tausch:
+`HardHat` → `Palette` (Renovations, passt zu Gestaltung statt Bauausführung),
+`Search` → `Handshake` (Investments, passt zu Begleitung statt reiner
+Marktrecherche) — beide bereits im selben `lucide-react`-Import verfügbar,
+kein neuer Import nötig.
+
+### CTA-Übergänge: eine Stelle statt vieler
+
+„Smoother Übergang" ist jetzt in `buttonVariants` (`ui/button.tsx`) selbst
+verdrahtet — `transition-colors` → `transition-all duration-200 ease-out` im
+Basis-String, nicht an jeder einzelnen Button-Stelle gepatcht. Betrifft damit
+automatisch jeden Button der Seite, auch künftige. Kein Transform/Scale
+ergänzt — das hätte auf einer bewusst zurückhaltenden Seite (DESIGN.md §6)
+verspielt gewirkt, gefragt war „smoother", nicht „mehr Bewegung".
+
+## 15 · Nachbesserung vom 19.08.2026 (zweite Runde) — /book, Links, Relax-Zusammenlegung
+
+### `/book` gelöscht — war eine Lovable-Attrappe, kein echter Buchungsflow
+
+`Book.tsx` sah aus wie Buchungsfunktionalität, war es aber nicht: fest
+codierte Fantasie-Objekte („Villa El Campanario" etc.), keinerlei Anbindung an
+Guesty, Stripe oder Supabase. Das unterscheidet es klar von dem, was CLAUDE.md
+unter „Buchungs-Engine, Guesty-Anbindung, Stripe-Fluss" schützt — dort ist
+gemeint, was echte Reservierungen/Zahlungen auslöst, nicht alles, was wie eine
+Buchungsseite aussieht. Geprüft (vollständiger Quelltext gelesen, keine
+Supabase-/Guesty-Imports gefunden), dann gelöscht: Route in `App.tsx`, Eintrag
+in der Admin-Seitenbau-Liste (`admin/Builder.tsx`).
+
+Drei Verweise darauf zeigten noch auf `/book` und wurden auf `/properties`
+umgebogen (es gibt keine eigene „Meine Buchungen"-Seite, `/properties` ist
+die sinnvollste bestehende Zielseite): beide „My Bookings"-Links in
+`Navigation.tsx` (Desktop + Mobile) und der „Contact us"-Button in
+`GuestManagement.tsx`. Der geschützte Gast-Text dort selbst blieb unangetastet.
+
+### Footer-Links: vier Owner-Links zeigten alle auf dieselbe verwaiste Seite
+
+`Footer.tsx` verlinkte „Property Management", „Guaranteed Income",
+„Renovations" und „Investments" allesamt auf `/business-areas` — eine Seite,
+die keine der vier Unterscheidungen trifft. Nicht vom Prompt benannt, beim
+Link-Audit gefunden und auf die vier echten Zielrouten korrigiert
+(`/property-management`, `/guaranteed-income`, `/renovations`,
+`/investments`).
+
+### `los-monteros-retreat` zeigte auf ein fremdes Foto
+
+Nebenbefund beim Bildaustausch: `PropertyCard.tsx` und `PropertyDetail.tsx`
+ließen den Fallback für `los-monteros-retreat` exakt dieselbe Datei wie
+`villa-in-higueron` verwenden — zwei verschiedene echte Villen zeigten
+dasselbe Bild. Mit einem eigenen Los-Monteros-Foto aus dem Drive
+(`los-monteros-card.webp`) behoben.
+
+### Smooth Scroll: die Regel fehlte komplett, nicht nur an einer Stelle
+
+`index.css` hatte einen `prefers-reduced-motion`-Override, der
+`scroll-behavior: smooth` zurücksetzt — aber die Grundregel selbst war nirgends
+gesetzt (toter Code). Ergänzt in `@layer base` auf `html`. Deckt beides ab, was
+der Prompt wollte: native `<a href="#anchor">`-Sprünge innerhalb einer Seite
+UND alle `scrollIntoView()`-Aufrufe laufen jetzt animiert statt abrupt.
+
+Für Routenwechsel (andere Seite, nicht Anker) ist Sofort-Scroll weiterhin
+richtig — ein neuer Seitenaufruf soll oben starten, nicht von der alten
+Scroll-Position aus hochanimieren. Dafür `ScrollToTop.tsx`: bei jedem
+Pfadwechsel ohne Hash `window.scrollTo(0, 0)` in der Zwei-Parameter-Form, die
+laut Spezifikation immer sofort scrollt und die CSS-Regel ignoriert
+(die Objekt-Form `{top, behavior}` würde sie respektieren und wäre hier falsch).
+
+### Reeller Bug beim Verifizieren gefunden: `MediaFrame` mit `src` blies Bilder auf
+
+Bei der Browser-Kontrolle der neuen quadratischen Case-Bilder (siehe unten)
+saß der „See what yours could earn"-Button mitten auf der Soho-Boho-Karte statt
+darunter. Ursache in `layout/MediaFrame.tsx`: der `src`-Zweig setzte `w-full
+h-full` **zusammen mit** einer `aspect-*`-Klasse auf das `<img>` selbst, ohne
+dass ein Vorfahre eine definierte Höhe hätte. `h-full` ohne gültige
+Prozent-Basis plus `aspect-square` in einem CSS-Grid-Item mit
+`grid-auto-rows: auto` erzeugt einen Zirkelschluss: das Bild bläst sich auf die
+Zeilenhöhe auf, die Zeilenhöhe wächst mit dem Bild — am Ende war das Bild
+~800px hoch statt quadratisch ~450px, und der restliche Karteninhalt (Titel,
+Text, Zahlen) wurde nach unten aus dem Grid-Item hinausgedrückt.
+
+Der Placeholder-Zweig (kein `src`) hatte das schon immer richtig gemacht —
+nur `w-full` plus die Aspect-Klasse, kein `h-full`. Fix: den `src`-Zweig
+genauso. Betraf nur die drei Proof-Case-Bilder, weil `MediaFrame` sonst nur
+mit `fill` (Hero, Kontaktbild — dort ist `h-full` korrekt, der Elternknoten ist
+positioniert) oder mit leerem `src` (Renovations/Investments-Platzhalter)
+verwendet wird.
+
+### „The Benefits": Eyebrow-Reihenfolge, Größe, quadratischer Zuschnitt
+
+Eyebrow („What that looks like on three homes") stand unter der Überschrift
+statt darüber — gedreht auf dieselbe Reihenfolge wie jeder andere
+`SectionIntro`-Block. Überschrift „The Benefits" von `t-block` auf `t-section`
+angehoben, damit sie exakt so groß wirkt wie „A Portfolio Built on Precision &
+Performance" darüber — beide sind gleichrangige Kapitelüberschriften, nicht
+Überschrift + Unterüberschrift.
+
+Die drei Case-Bilder liefen vorher auf `aspect="photo"` (4:3) mit Quellmaterial,
+das teils deutlich höher als breit war — auf `aspect="square"` umgestellt und
+aus den Original-Rohdateien (nicht aus dem bereits zugeschnittenen 4:3-WebP,
+um keinen doppelten Qualitätsverlust zu erzeugen) neu auf 1200×1200 zugeschnitten.
+Der gemeldete „Abstand zur nächsten Section stimmt nicht" war identisch mit dem
+`MediaFrame`-Bug oben — mit dem Fix behoben, kein separater Abstandswert nötig.
+
+### „We manage while you relax" zieht in die Kontaktebene um
+
+Die Relax-Section war die einzige Stelle auf der Owner-Seite ohne eigenen Job
+im Argument der Seite (§2) — sie stand zwischen Proof und der kommerziellen
+Entscheidung, ohne selbst eine zu transportieren. Auf Ansage zusammengelegt
+mit dem Kontaktformular in `OwnerContactForm.tsx`: das Los-Monteros-Foto
+(`los-monteros-relax.webp`) ersetzt das alte, nichtssagende Kontaktbild,
+„We manage while you relax." ersetzt „Less hassle, higher income." als
+Formular-Überschrift. Die PM-Seite hat dadurch acht Sections statt neun
+(`PropertyManagementPage.tsx`, Kommentar aktualisiert).
+
+Die alte, jetzt leere `PropertyManagement.tsx` (die frühere eigenständige
+Relax-Section) wurde gelöscht, nachdem kein Import mehr auf sie zeigte.
+
+### Bildaustausch aus dem Drive: höhere Auflösung, ein offener Rest
+
+Zusätzlich zu den in §14 genannten vier Fotos wurden zwei weitere über
+Ordnernamen im Drive gefunden und ersetzt: `villa-higueron.webp` (Peninsula
+Villa A, Ordner „wetransfer_villa-higueron-1-jpg…", 4200×2800 Quelle) und
+`property-4.webp` (Torre Verde Puente Romano, „Villa Puente Romano-1.jpg",
+4200×2801 Quelle).
+
+**Offen:** `property-2.webp` (Peninsula Villa C) ist NICHT ersetzt. Vier
+Download-Versuche auf verschiedene Datei-IDs aus genau diesem einen
+Drive-Ordner scheiterten wiederholt mit „session expired", während
+`get_file_metadata` und Downloads aus allen anderen Ordnern im selben Zeitraum
+funktionierten — kein allgemeiner Verbindungsausfall, sondern etwas an diesem
+spezifischen Ordner/diesen Dateien. Nicht weiter erzwungen, um keine Retry-Schleife
+gegen eine erkennbar gestörte Verbindung zu fahren. `property-5.webp` und
+`about-hero.webp` sind aus einer früheren Runde ebenfalls unverändert
+geblieben — für beide gab es keine eindeutige Drive-Entsprechung.
+
+## 16 · Nachbesserung vom 19.08.2026 (dritte Runde) — Renovations/Investments in Zwei Wege
+
+Almedin lieferte eine Referenz-Skizze (KI-generiertes Layoutbild): „Two ways
+to start to work with us." (A/B-Karten), darunter eine goldene Linie mit
+zentriertem Label „Beyond management", darunter „More ways we create value."
+und die zwei Renovations-/Investments-Karten. Direkt danach soll About Us Mini
+folgen.
+
+`RenovationsAndInvestments.tsx` ist als eigene Datei gelöscht; ihr Inhalt lebt
+jetzt als zweite Hälfte in `WaysToWorkTogether.tsx`, in einem gemeinsamen
+`<Section>`. Die PM-Seite hat dadurch sieben Ebenen statt acht — About Us Mini
+folgt jetzt direkt auf die zusammengelegte Section, ohne dass Renovations/
+Investments noch einmal drei Ebenen weiter unten als eigener schwerer Block
+auftaucht.
+
+**Die goldene Trennlinie mit Label ist eine bewusste Ausnahme** von der Regel
+„Gold ist Akzent, kein Trenner zwischen jeder Section" (DESIGN.md §24): die
+Regel meint Trennung zwischen Sections, nicht innerhalb einer — und genau das
+ist hier der Fall, ein echter Unterkapitel-Bruch innerhalb eines durchgehenden
+Bands, keine Trennung zweier Sections voneinander.
+
+**Die Bild-Slots der beiden Renovations-/Investments-Karten entfallen.** Die
+Referenzskizze zeigt Icon + Text ohne Foto; da für diese beiden Karten ohnehin
+nie ein Bild geliefert wurde (`beyond-image-0/1` liefen seit §7 als leere
+`MediaFrame`-Platzhalter), ist der Slot mit dem Umzug ersatzlos entfallen statt
+weiter als unbefüllter Platzhalter mitgeführt zu werden.
+
+## 17 · Nachbesserung vom 19.08.2026 (vierte Runde) — echtes Hero-Foto
+
+Almedin hat ein Foto direkt per Drive-Link geliefert (`Villa Higueron-11.jpg`,
+`fileId 1NaHN_5VArxgzaWg2z5t33cR0p5tGimaf`) — Schlafzimmer mit Meerblick durch
+bodentiefe Glasfronten, Marmorboden, aus demselben Ordner wie
+`villa-higueron.webp` (Peninsula Villa A). Ersetzt das bisherige Hero-Bild in
+`OwnerHero.tsx`, das laut eigenem Kommentar dort nur als Übergangslösung stand
+(byte-identisch mit `property-3.webp`, wiederverwendet statt eines eigenen
+PM-Hero-Fotos, PROJECT.md B5). B5 ist damit erledigt.
+
+Neue Datei `src/assets/pmp-hero-villa-higueron.webp`, 1920×1280 (Quelle
+4200×2800, nicht zugeschnitten — `fill`/`object-cover` übernimmt den Ausschnitt
+pro Viewport), WebP Qualität 82. `villa-higueron.webp` selbst bleibt unverändert
+im Einsatz für `PropertyCard`/`PropertyDetail` (villa-in-higueron).
+
+**Bild-Übertragung technisch gelöst:** Ein direkt in den Chat eingefügtes Bild
+lässt sich nicht ins Dateisystem übernehmen — Claude sieht es, hat aber keinen
+Pfad dazu. Ein Drive-Link (wie hier) funktioniert dagegen wie jeder andere
+Drive-Download dieser Session. Für zukünftige Bild-Übergaben ist der Drive-Link
+der zuverlässige Weg, nicht das Einfügen ins Chatfenster.
+
+### „Own a Property"-Bild (`property-5.webp`): Herkunft ungeklärt
+
+Almedin fragte, welche Immobilie hinter dem Bild auf `/` unter „Own a
+Property" steckt, um eine hochauflösende Version nachzuliefern. Der Code
+(`PropertyDetail.tsx`) ordnet `property-5.webp` „villa-in-higueron" zu — aber
+das Bild (beiges Sofa, gemusterte Tapete, klassisches Sideboard mit TV) passt
+stilistisch nicht zu den bestätigten Villa-Higuerón-Fotos (durchgehend
+minimalistisch, Marmor, Glasfronten, siehe oben). Die Zuordnung im Code stammt
+vermutlich noch aus der Lovable-Zeit und ist wahrscheinlich falsch.
+
+Eine blinde Bildsuche über alle ~23 Ordner in „Listing Pictures" (mehrere
+Hundert Fotos, keine Vorschau ohne Volldownload) wurde nicht begonnen — zu
+teuer für eine Vermutung ins Blaue, und genau die Art von Rätselraten zwischen
+zwei möglichen Immobilien, die dieses Projekt vermeiden soll. Offen, bis
+Almedin den richtigen Ordner benennt oder das Foto direkt per Drive-Link
+liefert (siehe Antwort an ihn im Chat).
+
+## 18 · Nachbesserung vom 19.08.2026 (fünfte Runde) — drei weitere Drive-Links
+
+Almedin lieferte drei konkrete Drive-Links: eins für „Own a Property" auf `/`,
+zwei für Case-Study-Bilder unter „The Benefits" (Hoyo 19, Soho Boho), plus die
+Anweisung, für Alpine Retreat irgendein anderes Foto zu nehmen, das den
+**Innenraum** des Hauses zeigt statt der Außenansicht.
+
+**„Own a Property" (`OwnAProperty.tsx`, Landingpage):** `property-5.webp`
+ersetzt durch `oap-villa-entrance.webp` (aus `DSC09264-HDR.jpg`, Ordner
+„calidad web" unter Hoyo 19 1A — reine Hintergrundaufnahme, keine
+Namenszuordnung zu einem bestimmten Case-Study nötig, da diese Section
+generisch für „ein Zuhause" steht, nicht für eine benannte Immobilie).
+`property-5.webp` selbst bleibt unverändert im Einsatz für `PropertyDetail.tsx`
+(§17, B6 — Herkunft dort weiterhin ungeklärt).
+
+**Soho Boho:** neues Foto aus demselben „pics bad quali"-Ordner (Soho Art) —
+bestätigt korrekt, nur ein anderes, helleres Bild aus demselben, einzigen
+verfügbaren Material für diese Immobilie.
+
+**Alpine Retreat:** Innenaufnahme aus „Lima Alpine Lodges" → „Pictures" →
+„final thomas" → `Theresia-36.jpg` — derselbe Ferienhaus-Einheit („Theresia"),
+aus der auch die bisherige Drohnenaufnahme stammt (§14), also keine neue
+Zuordnungsfrage. Zwei andere Kandidaten aus demselben Ordner (`Theresia-14.jpg`
+= überdachte Terrasse, `Theresia-34.jpg` = Bad) wurden verworfen, weil sie
+entweder kein echter Innenraum oder kein Raum sind, der die Geschichte
+„gemütliches Alpen-Chalet" trägt — die gewählte Aufnahme (Holz-Empore mit Bett,
+Karo-Bettwäsche) trifft das direkter.
+
+**Hoyo 19 — offener Rest:** Der gelieferte Link
+(`fileId 1OXIS14fystkzAgEI7RraNDTV3-_0qWNW`, „DSC01161-HDR.jpg", Ordner
+„calidad maxima" unter Hoyo 19 2C — also die bestätigt richtige Einheit)
+scheiterte bei fünf Download-Versuchen durchgehend mit „session expired",
+während im selben Zeitraum mehrere andere Downloads (Own a Property, Soho
+Boho, drei Theresia-Kandidaten) problemlos liefen. Exakt dasselbe Muster wie
+bei `property-2.webp` in §14 — ein Problem an dieser spezifischen Datei, kein
+allgemeiner Verbindungsausfall. Nicht weiter erzwungen. Villa Hoyo 19 zeigt
+weiterhin die Sonnenuntergangs-Außenaufnahme aus §14, bis der Download
+erfolgreich ist oder Almedin eine andere Quelle nennt.

@@ -6,6 +6,24 @@ import EditableText from "./admin/EditableText";
 import { StatsRow } from "./Stats";
 import { FEATURED_PROJECTS } from "./ProjectsSection";
 import { Section, Grid, Stack, Divider, MediaFrame } from "./layout";
+import villaHoyo19 from "@/assets/villa-hoyo-19.webp";
+import sohoBoho from "@/assets/soho-boho.webp";
+import alpineRetreat from "@/assets/alpine-retreat.webp";
+
+/**
+ * Real photographs, sourced from the owner's own Drive ("Listing Pictures"),
+ * matched by folder name against the three case-study names — not guessed.
+ * Villa Hoyo 19 is confirmed as the "2C" unit specifically (there are two,
+ * 1A and 2C, and Almedin named 2C) — still on the exterior sunset shot from
+ * §14, a direct-link replacement (`docs/DECISIONS.md §18`) failed to download
+ * four times running and was not forced. Soho Boho and Alpine Retreat are both
+ * on photos Almedin supplied directly by Drive link (§18): Soho Boho's is
+ * still from the "pics bad quali" folder — the only material that exists for
+ * this listing — but a brighter, better-composed shot than the one it
+ * replaces; Alpine Retreat swapped its exterior chalet shot for a genuine
+ * interior (the same unit, "Theresia", confirmed via its Drive folder name).
+ */
+const CASE_IMAGES = [villaHoyo19, sohoBoho, alpineRetreat];
 
 /**
  * The evidence, in two registers: the portfolio at a glance, then three houses
@@ -34,7 +52,15 @@ const Proof = () => {
   const [ctaText, setCtaText] = useState("See what yours could earn");
 
   const [projects, setProjects] = useState(FEATURED_PROJECTS);
-  const [beforeAfterLabel, setBeforeAfterLabel] = useState("Before and After");
+  // Was "Before and After" — accurate once B4's renovation photography
+  // arrives, wrong today: these are each property's current listing photos,
+  // not a before/after pair. Swap the label back when the real pairs land.
+  const [beforeAfterLabel, setBeforeAfterLabel] = useState("Featured Property");
+  const [caseImages, setCaseImages] = useState(CASE_IMAGES);
+
+  const updateCaseImage = (index: number, url: string) => {
+    const u = [...caseImages]; u[index] = url; setCaseImages(u);
+  };
 
   const updateProject = (index: number, field: string, value: string) => {
     const u = [...projects]; u[index] = { ...u[index], [field]: value }; setProjects(u);
@@ -74,48 +100,52 @@ const Proof = () => {
         <StatsRow />
 
         <Stack gap="lg">
-          <div className="text-center space-y-xs">
-            {/* The prominent heading Almedin asked for, sitting above the
-                existing small-caps label rather than instead of it — "The
-                Benefits" names the chapter, the label underneath still says
-                specifically what these three cases are. */}
+          {/* Eyebrow-then-heading, the order every other header on the site
+              uses (SectionIntro) — this one had drifted to heading-then-label
+              because "The Benefits" was added after the fact rather than
+              designed in from the start. Fixed, and "The Benefits" is now
+              t-section: the same size as "A Portfolio Built on..." above it,
+              not a size down (t-block), so the two read as equally weighted
+              chapter headings rather than one looking like a subheading of
+              the other. */}
+          <div className="text-center space-y-sm">
+            <EditableText
+              id="proof-cases-label"
+              value={casesLabel}
+              onChange={setCasesLabel}
+              as="span"
+              className="block t-meta text-accent-on-primary"
+            >
+              {casesLabel}
+            </EditableText>
             <EditableText
               id="proof-benefits-heading"
               value={benefitsHeading}
               onChange={setBenefitsHeading}
               as="h3"
-              className="t-block text-primary-foreground"
+              className="t-section text-primary-foreground text-balance"
             >
               {benefitsHeading}
-            </EditableText>
-            <EditableText
-              id="proof-cases-label"
-              value={casesLabel}
-              onChange={setCasesLabel}
-              as="p"
-              className="t-meta text-accent-on-primary"
-            >
-              {casesLabel}
             </EditableText>
           </div>
 
           <Grid cols={3}>
             {projects.map((project, index) => (
               <div key={index}>
-                {/* Waiting on the owner's before/after photography — the one
-                    item in docs/PROJECT.md B4 this section cannot fake.
-
-                    Almedin asked for each placeholder to be swapped for that
-                    property's real first photo, but the Supabase project
-                    (odloyonqqsgnpxvqrrep) was paused when this was checked —
-                    the query timed out rather than confirming or denying that
-                    "Villa Hoyo 19" / "Soho Boho" / "Alpine Retreat" match real
-                    listings. Left as placeholders rather than guessed; see
-                    docs/PROJECT.md B4/B5 for the follow-up. */}
+                {/* Real photos, not the owner's actual before/after pairs —
+                    docs/PROJECT.md B4 (renovation before/after shots) is
+                    still open, the client hasn't supplied those. These are
+                    each property's own current listing photography, sourced
+                    from the "Listing Pictures" Drive and matched by folder
+                    name (see docs/DECISIONS.md §14) after Supabase stayed
+                    unreachable for confirming the match by database lookup. */}
                 <MediaFrame
                   id={`proof-case-image-${index}`}
-                  note={`Before / after — ${project.title}`}
-                  aspect="photo"
+                  src={caseImages[index]}
+                  onChange={(url) => updateCaseImage(index, url)}
+                  alt={`${project.title}, a Frontier Residences managed property`}
+                  note={`Featured property — ${project.title}`}
+                  aspect="square"
                   onPrimary
                 />
                 <EditableText

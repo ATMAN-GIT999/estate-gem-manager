@@ -47,7 +47,7 @@ Zielgruppenwechsel auf `/` passiert **genau einmal**, bei „Own a Property?".
 |---|---|---|
 | `/` | `Index.tsx` | Gast |
 | `/property-management` | `PropertyManagementPage.tsx` | Eigentümer |
-| `/properties` · `/property/:slug` · `/book` · `/booking-confirmation` | Buchungsflow | Gast |
+| `/properties` · `/property/:slug` · `/booking-confirmation` | Buchungsflow | Gast |
 | `/evaluate` | Cashflow-Analyse | Eigentümer |
 | `/about` · `/projects` | Vertrauen / Portfolio | beide |
 | `/guaranteed-income` · `/renovations` · `/investments` | Unterseiten PM | Eigentümer |
@@ -57,6 +57,10 @@ Zielgruppenwechsel auf `/` passiert **genau einmal**, bei „Own a Property?".
 | `/p/:slug` | `DynamicPage` (CMS-Seiten aus Tabelle `pages`) | — |
 
 Admin-Routen liegen unter `/admin/*` und sind einzeln `lazy()`-geladen.
+
+`/book` ist am 19.08.2026 gelöscht worden (DECISIONS.md §15) — eine
+Lovable-Attrappe ohne echte Guesty-/Stripe-/Supabase-Anbindung, kein Verlust
+an Buchungsfunktionalität. Verweise darauf zeigen jetzt auf `/properties`.
 
 ### Landingpage `/` — tatsächliche Reihenfolge
 
@@ -83,34 +87,36 @@ Umgebaut am 16.08.2026 nach der Design-Referenz in
 `docs/property-management-page.html`. Zehn Sections statt dreizehn; die
 Begründungen stehen in [DECISIONS.md](DECISIONS.md) §11. Reihenfolge von
 Ebene 5/6 am 18.08.2026 getauscht (§13) — Zwei Wege liegt jetzt vor About.
+Am 19.08.2026 (§15) auf acht Sections reduziert: „We manage while you relax"
+hat keine eigene Ebene mehr, sondern lebt jetzt als Bild + Überschrift im
+Kontaktformular am Seitenende. Noch am selben Tag (§16) auf sieben Sections
+weiter reduziert: Renovations & Investments ist keine eigene Ebene mehr,
+sondern die zweite Hälfte von „Zwei Wege", hinter einer goldenen
+Trennlinie mit Label („Beyond management").
 
 | # | Ebene | Komponente | Gewicht |
 |---|---|---|---|
 | 1 | **Hero** — Bild, H1, zwei CTAs | `OwnerHero` | hoch |
 | 2 | **Das System** — 6 Schritte auf einer Goldlinie, jetzt als Panel-Cards | `TheSystem` | sehr hoch |
 | 3 | **Proof** — 4 Zahlen + 3 Case Studies, auf Grün | `Proof` | hoch |
-| 4 | **Relax** — „We manage while you relax." | `PropertyManagement` | leicht |
-| 5 | **Zwei Wege** — Full-service vs. Guaranteed Income, als Panel-Cards | `WaysToWorkTogether` | hoch |
-| 6 | **About** — 4 Gesichter + „Contact Us" | `AboutMini` | mittel |
-| 7 | **Renovations & Investments**, als Panel-Cards mit Icon | `RenovationsAndInvestments` | mittel |
-| 8 | FAQ | `FAQ` | mittel |
-| 9 | **Get in touch** — Formular, Bookend zum Hero | `OwnerContactForm` | hoch |
-| 10 | Footer | `Footer` | leicht |
+| 4 | **Zwei Wege** — Full-service vs. Guaranteed Income, dann „Beyond management" mit Renovations & Investments, alles Panel-Cards | `WaysToWorkTogether` | hoch |
+| 5 | **About** — 4 Gesichter + „Contact Us" | `AboutMini` | mittel |
+| 6 | FAQ | `FAQ` | mittel |
+| 7 | **Get in touch** — „We manage while you relax", Los-Monteros-Bild, Formular | `OwnerContactForm` | hoch |
+| — | Footer | `Footer` | leicht |
 
 **Der Rhythmus ist Teil der Struktur.** Nach Section 3 dürfen nie zwei schwere
 Sections direkt aufeinander folgen — die Eröffnungssequenz 1–3 ist die einzige
-Ausnahme. Deshalb läuft `RenovationsAndInvestments` auf `size="md"` und nicht
-auf `lg`: zwei `lg`-Bänder hintereinander legen ~280 px Leere zwischen
-„Guaranteed income" und das erste Bild, was sich liest, als sei die Seite
-vorbei.
+Ausnahme.
 
 **Verbindlich und nicht „aufzuräumen":**
 
 - **System vor Proof.** Erst was wir tun, dann was es gebracht hat.
-- **Relax nach Proof, nicht davor.** Die Entlastung ist die Antwort auf die
-  Dichte davor; vor Proof wäre sie eine Pause vor dem Anfang.
-- **Investments zuletzt.** Es zielt auf einen Käufer, nicht auf den
-  Eigentümer, für den der Rest der Seite geschrieben ist.
+- **Investments zuletzt innerhalb von „Zwei Wege".** Es zielt auf einen
+  Käufer, nicht auf den Eigentümer, für den der Rest der Seite geschrieben ist.
+- **„We manage while you relax" schließt die Seite, nicht die Mitte.** Die
+  Entlastung ist jetzt der letzte Ton vor dem Formular, nicht mehr eine
+  eigene Pause zwischen Proof und der kommerziellen Entscheidung (§15).
 
 ### Was der Umbau ersetzt hat
 
@@ -119,15 +125,17 @@ vorbei.
 | Hero-Panel in `PropertyManagementPage` | `OwnerHero` (Bild statt Silver-Surface) |
 | `FinancialPerformance` · `WhyItMakesADifference` · `ListingWorkflow` | verschmolzen zu `TheSystem` — **verwaist, zum Löschen** |
 | `GetInTouch` | entfällt; das Formular steht jetzt selbst am Seitenende — **verwaist, zum Löschen** |
+| `PropertyManagement` (eigenständige „We manage while you relax"-Section) | am 19.08.2026 **gelöscht** (§15); Bild + Überschrift leben jetzt in `OwnerContactForm` |
+| `Book.tsx` (`/book`) | am 19.08.2026 **gelöscht** (§15) — Lovable-Attrappe ohne echte Buchungsanbindung |
 | `Stats` | lebt weiter für `/`; `Proof` nutzt `StatsRow` + `PORTFOLIO_STATS` daraus |
 | `ProjectsSection` | lebt weiter für `/projects`; `Proof` nutzt `FEATURED_PROJECTS` daraus |
 | „Our Destinations" auf der PM-Seite | ersatzlos (Entscheidung R1, siehe DESIGN.md §9) |
 
-⚠️ Die vier verwaisten Dateien sind von nichts mehr importiert, liegen aber
-noch im Repo — das Löschen wurde von den Berechtigungen abgelehnt. Zu
-entfernen: `src/components/FinancialPerformance.tsx`,
-`WhyItMakesADifference.tsx`, `ListingWorkflow.tsx`, `GetInTouch.tsx` und
-`src/assets/property-1.png`.
+⚠️ Drei verwaiste Dateien sind von nichts mehr importiert, liegen aber noch im
+Repo — das Löschen wurde von den Berechtigungen abgelehnt. Zu entfernen:
+`src/components/FinancialPerformance.tsx`, `WhyItMakesADifference.tsx`,
+`ListingWorkflow.tsx`, `GetInTouch.tsx` und `src/assets/property-1.png`.
+(`PropertyManagement.tsx` und `Book.tsx` selbst sind bereits gelöscht.)
 
 ### EditableText-IDs nach dem Umbau
 
@@ -147,9 +155,9 @@ werden:
 | `fin-outcome-0…4` | `TheSystem` (Outcome-Zeile) | `FinancialPerformance` |
 | `stats-title` | `Proof` | `Stats` |
 | `proj-fp-*` | `Proof` | `ProjectsSection` (dort weiterhin gültig für `/projects`) |
-| `pm-section-title` | `PropertyManagement` | unverändert |
-| `ways-sub-title-0/1` · `ways-sub-desc-0/1` | `RenovationsAndInvestments` | `WaysToWorkTogether` |
-| alle `owner-form-*` | `OwnerContactForm` | unverändert |
+| `pm-section-title` · `pm-relax-image` | `OwnerContactForm` (Formular-Kopf) | `PropertyManagement`, gelöscht §15 |
+| `ways-sub-title-0/1` · `beyond-title-0/1` · `ways-sub-desc-0/1` | `WaysToWorkTogether` (Beyond-management-Hälfte) | `RenovationsAndInvestments.tsx`, gelöscht §16 |
+| `owner-form-eyebrow` · `owner-form-lead` · `owner-form-*` (Formularfelder) | `OwnerContactForm` | unverändert |
 
 **Neu vergeben:** `pmp-hero-eyebrow` · `pmp-hero-cta-1/2` · `pmp-hero-image` ·
 `sys-label-0…5` · `proof-eyebrow` · `proof-cases-label` ·
@@ -166,11 +174,40 @@ trägt jetzt allein sowohl Text als auch Überschriften-Auszeichnung (`t-block`)
 `property-5.webp` befüllt statt leer). `am-cta` bleibt, sitzt aber jetzt hinter
 `WaysToWorkTogether` statt davor (Reihenfolge getauscht, IDs unverändert).
 
+⚠️ **Dritte Nachbesserung 19.08.2026 (§14):** Alle sechs Zahnrad-Fließtexte in
+`TheSystem` sind neu geschriebene, von Almedin freigegebene Copy — keine
+verschobenen Sätze mehr, deshalb neue IDs statt der bisher vererbten:
+`sys-body-0…5` ersetzt `listing-workflow-desc-0` · `fin-pillar-desc-0/1` ·
+`pm-listing-desc` · `wid-guest-desc` · `wid-feature-1` · `wid-property-desc` ·
+`listing-workflow-desc-3` · `fin-pillar-desc-2`. `sys-label-0…5` (die
+Überschriften) bleiben unverändert. Die Outcome-Zeile ist einer kursiven
+Abschlusszeile gewichen: `sys-closing-line` neu, `fin-outcome-0…4` entfällt.
+`proj-fp-ba-0…2` trägt jetzt „Featured Property" statt „Before and After" —
+gleiche ID, veränderter Standardtext, weil die neuen Bilder aktuelle
+Bestandsfotos sind, keine Vorher/Nachher-Paare.
+
+⚠️ **Vierte Nachbesserung 19.08.2026, zweite Runde (§15):** `pm-section-title`
+und `pm-relax-image` ziehen von der gelöschten `PropertyManagement.tsx` in
+`OwnerContactForm` um und ersetzen dort `owner-form-heading` /
+`owner-form-image` — gleiche Rolle (Formular-Überschrift, Formular-Bild),
+neuer Ort, weil „We manage while you relax" jetzt der Formular-Kopf ist statt
+einer eigenen Section.
+
+⚠️ **Fünfte Nachbesserung 19.08.2026, dritte Runde (§16):** `beyond-eyebrow`
+und `beyond-heading` neu — der Kopf der „Beyond management"-Hälfte, die es als
+eigene Section vorher nicht gab. `beyond-image-0/1` entfällt ersatzlos: die
+Referenzskizze läuft ohne Foto-Slot bei den beiden Karten, und da nie ein Bild
+dafür geliefert wurde, gibt es keinen Inhalt, der eine ID bräuchte.
+
 **Ersatzlos entfallen:** `pmp-page-subtitle` · `fin-eyebrow` · `fin-heading` ·
 `fin-cta` · `fin-outcomes-heading` · `wid-tech-heading` · `wid-feature-0/2/3` ·
 `listing-workflow-heading` · `listing-workflow-lead` ·
 `listing-workflow-desc-1/2` · `listing-workflow-title-*` · `listing-routine-*` ·
 `pm-section-badge` · `pm-platforms-image` · `ways-sub-label` ·
+`fin-outcome-0…4` · `wid-eyebrow` · `wid-heading` · `wid-lead` ·
+`listing-workflow-desc-0` · `fin-pillar-desc-0/1/2` · `pm-listing-desc` ·
+`wid-guest-desc` · `wid-feature-1` · `wid-property-desc` ·
+`listing-workflow-desc-3` (alle acht: Text ersetzt, siehe §14 oben) ·
 `get-in-touch-*` · `proj-fp-type-*` (nur auf der PM-Seite)
 
 ### Navigation
@@ -309,8 +346,9 @@ Umgesetzt und verifiziert:
 | B1 | **Stripe-Publishable-Key.** `guesty-stripe-config` antwortet HTTP 500 („Stripe publishable key not configured"). Guesty hat genau ein Payment-Provider-Konto (`acct_1Pqi8YRsGzWWYqz8`, ACTIVE, alle 24 Objekte), verbunden von `aschbacher@frontier-residences.com`. Almedin muss den `pk_live_…` aus **genau diesem** Konto besorgen und als `GUESTY_STRIPE_PUBLISHABLE_KEY` in die Supabase Edge Function Secrets eintragen. Ohne den Key bleibt der Buchungsabschluss tot, egal was am Code passiert. |
 | B2 | **City Tax ist in Guesty falsch konfiguriert.** Am Objekt Vienna Ottakring steht `PERCENTAGE` kombiniert mit `PER_GUEST_PER_NIGHT` → Guesty rechnet `3,2 % × Unterkunft × Gäste × Nächte` und kommt auf 97–144 % Steuer (bei einer Buchung kippt `subTotalPrice` auf −777,13 €). Zu ändern in **Guesty**, nicht im Code: Quantifier auf `PER_STAY`. **Erst danach** die Total-Berechnung im Code umstellen — sonst zeigt und bucht die Website einen um ~645 € zu hohen Betrag. |
 | B3 | **Guesty-Webhook ist nicht registriert.** `…/functions/v1/guesty-webhook` steht in Guesty nicht in der Webhook-Liste (registriert sind nur Chekin, Nuki, PriceLabs). Es kann nie ein Event angekommen sein. Reihenfolge beim Einrichten: Webhook anlegen → Secret abrufen → **sofort** als `GUESTY_WEBHOOK_SECRET` in Supabase eintragen. Der Handler ist inzwischen **fail-closed** (ohne Secret → 503), das Fenster ist also eng. |
-| B4 | **Material vom Besitzer:** Vorher/Nachher-Fotos für die drei Projekte, Eigentümer-Testimonials, ein eigener Cal.com-Link (aktuell zeigt `OwnerContactForm` auf Almedins persönlichen Link). |
-| B5 | **Der PM-Hero läuft auf dem falschen Motiv.** Seit der Nachbesserung vom 18.08.2026 (DECISIONS §12) zeigt `OwnerHero.tsx` `villa-higueron.webp` — auf Almedins Anweisung dorthin verschoben, weil der Landing-Hero das Bild nicht mehr braucht (Video ist zurück). Das Bild ist aber ein **Innenraum** (Marmorboden, Glasfront, Pool/Meer nur durch die Scheibe), nicht die Villa-Außenansicht mit Infinity-Pool aus der ursprünglichen Spezifikation, und es ist **byteweise identisch** mit `property-3.webp`, das dieselbe Villa schon auf `/property/…` und ihrer Karte zeigt. Almedin hat auf diesen konkreten Punkt noch nicht geantwortet. Relax-, Kontakt- und die zwei Renovations/Investments-Slots bleiben leere `MediaFrame`-Plätze mit Bild-Briefing als `note` — dort reicht ein Pfad rein, ohne weitere Änderung. Dazu kommen die drei Case-Study-Bilder aus B4. |
+| B4 | **Material vom Besitzer:** Echte Vorher/Nachher-Fotos für die drei Case-Studies (Proof zeigt seit 19.08.2026 stattdessen jedes Objekts aktuelles Bestandsfoto aus dem Drive-Ordner „Listing Pictures" — kein Vorher/Nachher-Paar, siehe DECISIONS §14), Eigentümer-Testimonials, ein eigener Cal.com-Link (aktuell zeigt `OwnerContactForm` auf Almedins persönlichen Link). |
+| ~~B5~~ | ~~Der PM-Hero läuft auf dem falschen Motiv~~ — **erledigt am 19.08.2026** (DECISIONS §17). `OwnerHero.tsx` zeigt jetzt ein eigenes, von Almedin per Drive-Link geliefertes Foto (`pmp-hero-villa-higueron.webp`, „Villa Higueron-11.jpg"), kein wiederverwendetes Karten-/Detailbild mehr. |
+| B6 | **`property-5.webp` (Bild hinter „Own a Property" auf `/`) hat keine bestätigte Herkunft.** Der Code ordnet es `villa-in-higueron` zu, aber das Motiv (beiges Sofa, gemusterte Tapete, klassisches TV-Sideboard) passt stilistisch nicht zu den bestätigten Villa-Higuerón-Fotos (durchgehend minimalistisch, Marmor, Glasfronten). Vermutlich eine falsche Lovable-Altlast. Wartet darauf, dass Almedin den richtigen Drive-Ordner nennt oder das Foto direkt liefert (DECISIONS §17). |
 
 ### 🔴 Offen im Code
 
@@ -346,10 +384,10 @@ Umgesetzt und verifiziert:
   mit neuer Überschrift. Das ist die Umkehrung des Projekt-Hauptfehlers — von
   Almedin bewusst so angefordert. Wenn eigentümer-spezifische Fragen gewünscht
   sind, braucht es eigenen Content vom Kunden.
-- **Die Bildslots der PM-Seite sind leer und zeigen ihr Briefing** statt ein
-  vorhandenes Foto ein zweites Mal (B5). Vorher lief das Formularbild auf
-  `about-hero.webp` — dasselbe Foto, das die Relax-Section jetzt bekommen
-  soll.
+- **Verbliebene leere Bildslots zeigen ihr Briefing statt ein vorhandenes Foto
+  ein zweites Mal.** Hero, Relax/Kontakt und die drei Case-Studies sind seit
+  §14–§17 alle mit echten Fotos befüllt; offen sind nur noch die Slots, für
+  die es nie eine Aufnahme gab.
 - **Die Detailfragen zum Guaranteed Income** (Festbetrag, Vertragsdauer,
   Kostenträger, Eigennutzung) werden absichtlich nicht auf der Website
   beantwortet — das klärt sich im Gespräch.

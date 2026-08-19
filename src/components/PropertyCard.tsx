@@ -5,6 +5,7 @@ import property2 from "@/assets/property-2.webp";
 import property3 from "@/assets/property-3.webp";
 import property4 from "@/assets/property-4.webp";
 import villaHigueron from "@/assets/villa-higueron.webp";
+import losMonterosCard from "@/assets/los-monteros-card.webp";
 
 export interface Property {
   id: string;
@@ -29,7 +30,10 @@ interface PropertyCardProps {
 const propertyImages: Record<string, string> = {
   "villa-in-higueron": villaHigueron,
   "peninsula-corner-villa-higueron": property2,
-  "los-monteros-retreat": property3,
+  // Used to fall back to property3 — the exact photo villa-in-higueron uses
+  // above, so two different villas showed the same room. Now its own real
+  // photo from the "Los Monteros 3 bed Diana" Drive folder.
+  "los-monteros-retreat": losMonterosCard,
   "puente-romano-hideaway": property4,
 };
 

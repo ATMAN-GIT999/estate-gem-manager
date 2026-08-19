@@ -9,6 +9,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { InlineEditProvider } from "./contexts/InlineEditContext";
 import EditModeToggle from "./components/admin/EditModeToggle";
 import WhatsAppButton from "./components/WhatsAppButton";
+import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
@@ -18,7 +19,6 @@ import Evaluate from "./pages/Evaluate";
 import Auth from "./pages/Auth";
 import PropertyDetail from "./pages/PropertyDetail";
 import Properties from "./pages/Properties";
-import Book from "./pages/Book";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import PropertyManagementPage from "./pages/PropertyManagementPage";
 import GuaranteedIncomePage from "./pages/GuaranteedIncomePage";
@@ -70,6 +70,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <InlineEditProvider>
+            <ScrollToTop />
             <EditModeToggle />
             <WhatsAppButton />
             <Suspense fallback={<RouteFallback />}>
@@ -86,7 +87,6 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/update-password" element={<UpdatePassword />} />
             <Route path="/properties" element={<Properties />} />
-            <Route path="/book" element={<Book />} />
             <Route path="/booking-confirmation" element={<BookingConfirmation />} />
             <Route path="/property/:slug" element={<PropertyDetail />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />

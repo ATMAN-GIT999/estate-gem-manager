@@ -48,7 +48,6 @@ const SITE_PAGES = [
   { name: "Investments", route: "/investments", slug: "site--investments" },
   { name: "Business Areas", route: "/business-areas", slug: "site--business-areas" },
   { name: "Evaluate", route: "/evaluate", slug: "site--evaluate" },
-  { name: "Book", route: "/book", slug: "site--book" },
 ];
 
 interface PageData {

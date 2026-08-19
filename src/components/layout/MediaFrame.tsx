@@ -56,9 +56,18 @@ const MediaFrame = ({
   onPrimary = false,
   className,
 }: MediaFrameProps) => {
+  // `h-full` only makes sense in the `fill` case, where the parent is
+  // positioned and gives the image a definite height to fill. In flow
+  // (non-`fill`), the image's own box IS the height source via its aspect
+  // class — adding `h-full` here has no definite parent height to resolve
+  // against, and inside a Grid row that auto-sizes to content it creates a
+  // circular blowup (image inflates to fill the row, row grew to fit the
+  // image, ad infinitum) that pushes everything below the image out of its
+  // container. Caught when the Proof case-study cards' text spilled past
+  // the CTA button below them (docs/DECISIONS.md §15).
   const shape = fill
     ? "absolute inset-0 w-full h-full object-cover"
-    : cn("w-full h-full object-cover", aspectClass[aspect]);
+    : cn("w-full object-cover", aspectClass[aspect]);
 
   if (src) {
     return (

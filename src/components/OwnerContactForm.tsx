@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, CalendarClock, CheckCircle2, Loader2 } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Container, MediaFrame, Section } from "./layout";
-import propertyFour from "@/assets/property-4.webp";
+import losMonterosRelax from "@/assets/los-monteros-relax.webp";
 
 /**
  * Provisional — Frontier has no Cal.com/Calendly of its own yet (see
@@ -81,23 +81,24 @@ const LABEL_CLASS = "text-primary-foreground/80";
 const OwnerContactForm = () => {
   const { toast } = useToast();
   const [eyebrow, setEyebrow] = useState("Get in touch");
-  // "protected value" dropped on Almedin's direction — the two claims left
-  // are the ones the form itself can make good on (less admin, more income);
-  // "protected value" belonged to a section about asset care that isn't this
-  // one.
-  const [heading, setHeading] = useState("Less hassle, higher income.");
+  /* "We manage while you relax." and its photo both moved down from the
+     standalone `PropertyManagement` section, which is retired (see
+     docs/DECISIONS.md §15) — that section's whole job was to be a single
+     quiet exhale between Proof and the rest of the page, and folding it into
+     the form it now sits directly above does that with one section instead
+     of two. "Less hassle, higher income." is gone, not just relocated: it
+     said plainly what the form already goes on to ask for, which "We manage
+     while you relax." does not. */
+  const [heading, setHeading] = useState("We manage while you relax.");
   const [lead, setLead] = useState("Tell us about your property and we'll come back to you with what managing it with us would look like — usually within one working day.");
   const [ctaText, setCtaText] = useState("Send enquiry");
   const [callCtaText, setCallCtaText] = useState("Book a video call");
   const [sentHeading, setSentHeading] = useState("Thank you — we have your details.");
   const [sentBody, setSentBody] = useState("One of the founders will read this personally and come back to you within one working day.");
-  /* `property-4.webp` — a wide pergola terrace with a deep sightline to the
-     mountains, which crops gracefully into this column's tall aspect (the
-     foreground table and the background view both survive an object-cover
-     crop; a more symmetrical, centred shot would not). Distinct from
-     `property-2.webp`/`about-hero.webp`, the motif specified for the Relax
-     band, so this scroll doesn't show the same photograph twice. */
-  const [formImage, setFormImage] = useState(propertyFour);
+  // Los Monteros' garden — the same photo the Relax band used before it was
+  // retired, not a new one, so nothing about the page's photography changed,
+  // only where this particular image sits.
+  const [formImage, setFormImage] = useState(losMonterosRelax);
 
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
@@ -204,14 +205,17 @@ const OwnerContactForm = () => {
            meet the browser edge. */
         <div className="grid md:grid-cols-2 items-stretch">
           {/* A minimum height so the picture is still a picture on a phone,
-              where it stacks above the form instead of sitting beside it. */}
-          <div className="relative min-h-[16rem]">
+              where it stacks above the form instead of sitting beside it.
+              Trimmed with the rest of the band (18rem → 15rem, the same ~10%
+              this whole section came down by) rather than left at its old
+              size while everything around it shrank. */}
+          <div className="relative min-h-[13rem]">
             <MediaFrame
-              id="owner-form-image"
+              id="pm-relax-image"
               src={formImage}
-              alt="A Frontier Residences managed property"
+              alt="A terrace at one of the managed properties"
               onChange={setFormImage}
-              note="Contact — warm property image, same tone as Relax"
+              note="Relax — sunlit rooftop terrace, golden hour"
               fill
               onPrimary
             />
@@ -221,8 +225,12 @@ const OwnerContactForm = () => {
               measure wider than a form usually gets: against 700-odd px of
               photograph, a 448px column pushed to the left edge leaves the
               right third of the band empty and the two halves stop reading as
-              halves. */}
-          <div className="flex flex-col justify-center px-sm py-xl md:px-lg">
+              halves.
+
+              py-lg, not py-xl: one step down the spacing ladder (DESIGN.md
+              §2) for the ~10% more compact band Almedin asked for — a step on
+              the existing ladder rather than an arbitrary new value. */}
+          <div className="flex flex-col justify-center px-sm py-lg md:px-lg">
             <div className="w-full max-w-lg mx-auto">
               <div className="mb-md">
                 <EditableText
@@ -235,7 +243,7 @@ const OwnerContactForm = () => {
                   {eyebrow}
                 </EditableText>
                 <EditableText
-                  id="owner-form-heading"
+                  id="pm-section-title"
                   value={heading}
                   onChange={setHeading}
                   as="h2"

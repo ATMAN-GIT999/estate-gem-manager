@@ -10,8 +10,19 @@
    three woff subsets are small enough that Vite base64-inlines them straight
    into this stylesheet — 15 KB that barely compress, sitting in the render
    path. latin covers U+0000-00FF, so Málaga, Wien and Sauerwald are safe;
-   latin-ext is Polish, Czech and Hungarian, which this site does not use. */
+   latin-ext is Polish, Czech and Hungarian, which this site does not use.
+
+   The italic import adds one real italic face (38 KB, latin range) for the
+   single closing line in TheSystem that asks for it — added deliberately
+   rather than left to `font-style: italic` alone, which without a matching
+   @font-face the browser fakes by skewing the upright glyphs. A slanted
+   serif done that way reads as broken kerning up close, which is worse than
+   not being italic at all. Like the normal-weight import above, this pulls
+   in unicode-range blocks (cyrillic, vietnamese, latin-ext) this site never
+   uses — harmless, since a browser only fetches the woff2 for a range that
+   actually appears in the page, so only the latin file downloads. */
 @import '@fontsource-variable/playfair-display';
+@import '@fontsource-variable/playfair-display/wght-italic.css';
 @import '@fontsource/lato/latin-300.css';
 @import '@fontsource/lato/latin-400.css';
 @import '@fontsource/lato/latin-700.css';
@@ -170,6 +181,17 @@ All colors MUST be HSL.
 }
 
 @layer base {
+  /* Every same-page `href="#anchor"` on the site (Contact Us, footer FAQ
+     link, the mobile nav) is a plain anchor tag, not a JS scrollIntoView
+     call — its jump is entirely up to this property. It was never set: the
+     `prefers-reduced-motion` block further down already overrides it back to
+     `auto`, which only does something if a `smooth` baseline exists here for
+     it to override. Until now that override was dead code and every hash
+     jump on the site was an instant cut, not a scroll. */
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
     @apply border-border;
   }

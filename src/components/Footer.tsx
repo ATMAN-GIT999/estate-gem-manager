@@ -90,9 +90,13 @@ const Footer = () => {
             >
               {servicesTitle}
             </EditableText>
+            {/* Each of these four used to point at `/business-areas` — one
+                orphaned, out-of-date page (docs/PROJECT.md D2) standing in
+                for four actual destinations. Now each links to the real page
+                it names. */}
             <ul className="space-y-2">
               <li>
-                <Link to="/business-areas" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <Link to="/property-management" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-pm-link"
                     value={pmLink}
@@ -105,7 +109,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/business-areas" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <Link to="/guaranteed-income" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-gi-link"
                     value={giLink}
@@ -118,7 +122,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/business-areas" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <Link to="/renovations" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-renovations-link"
                     value={renovationsLink}
@@ -131,7 +135,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/business-areas" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
+                <Link to="/investments" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
                   <EditableText
                     id="footer-investments-link"
                     value={investmentsLink}

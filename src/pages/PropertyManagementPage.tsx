@@ -6,10 +6,8 @@ import { breadcrumbSchema, organizationSchema } from "@/lib/schema";
 import OwnerHero from "@/components/OwnerHero";
 import TheSystem from "@/components/TheSystem";
 import Proof from "@/components/Proof";
-import PropertyManagement from "@/components/PropertyManagement";
 import AboutMini from "@/components/AboutMini";
 import WaysToWorkTogether from "@/components/WaysToWorkTogether";
-import RenovationsAndInvestments from "@/components/RenovationsAndInvestments";
 import OwnerContactForm from "@/components/OwnerContactForm";
 import FAQ from "@/components/FAQ";
 
@@ -35,15 +33,23 @@ const PropertyManagementPageContent = () => (
     {/* The order is docs/PROJECT.md §2, and it is worth protecting because it
         is an argument rather than a list: here is the house → here is
         everything we do to it → here is what that produced on real ones →
-        here is what it costs you in attention → here is how you'd engage us →
-        here is who we are → here are the two side doors → here is what people
-        ask → here is how to start. Moving a block breaks the sentence, not
-        just the layout.
+        here is how you'd engage us → here is who we are → here are the two
+        side doors → here is what people ask → here is how to start. Moving a
+        block breaks the sentence, not just the layout.
+
+        Seven sections now, not eight — Renovations/Investments no longer has
+        a band of its own after About. It is now the second half of the
+        commercial-decision section, under a labelled gold break ("Beyond
+        management"), so the whole argument from "how you'd engage us" through
+        "here are the two side doors" reads as one continuous band instead of
+        being split by About in between (docs/DECISIONS.md §16). "We manage
+        while you relax" moved even earlier (§15) — it lives in the contact
+        form's own image and heading now.
 
         The rhythm alternates on purpose and should stay alternating: heavy,
-        heavy, heavy (the opening sequence earns three) → light → medium →
-        heavy → medium → medium → heavy. Two heavy sections back to back
-        anywhere below Proof is the signal something has grown.
+        heavy, heavy (the opening sequence earns three) → heavy → medium →
+        medium → heavy. Two heavy sections back to back anywhere below Proof
+        is the signal something has grown.
 
         overflow-x-clip is the safety net for the full-bleed bands: `100vw` can
         be a hair wider than the visible viewport when a scrollbar is present,
@@ -61,31 +67,26 @@ const PropertyManagementPageContent = () => (
       {/* 3 — The evidence, at two scales: the portfolio, then three houses. */}
       <Proof />
 
-      {/* 4 — The exhale. One picture, one sentence. It must not grow. */}
-      <PropertyManagement />
-
-      {/* 5-7 — The commercial decision, then who runs it, then the two side
-          doors for owners it does not fit yet. Swapped from Team-then-Two-ways
-          on Almedin's direction: the decision now leads straight into "who
-          gets the keys", and Renovations/Investments still sits directly
-          under Guaranteed Income, which is what its own copy ("before you
-          hand it over") assumes. Investments stays last of the three on
-          purpose — it addresses an investor looking to buy, not the owner the
+      {/* 4 — The commercial decision, in two halves under one band: the two
+          engagement models first, then — behind a labelled gold break — the
+          two side doors for owners it does not fit yet (a renovation first,
+          or not an owner here yet). Investments stays last of the four
+          because it targets an investor looking to buy, not the owner the
           rest of the page is written for (DECISIONS §2). */}
       <WaysToWorkTogether />
 
-      {/* The one call to action mid-page sits at the end of this section,
-          because this is the question an owner actually decides on. */}
+      {/* 5 — Who runs it. The one call to action mid-page sits at the end of
+          this section, because this is the question an owner actually
+          decides on. */}
       <AboutMini />
 
-      <RenovationsAndInvestments />
-
-      {/* 8 — Deliberately the guest FAQ with a new heading, as requested;
+      {/* 6 — Deliberately the guest FAQ with a new heading, as requested;
           owner-specific questions need content from the client
           (PROJECT.md §6, "Bewusst so gelassen"). */}
       <FAQ eyebrow="" heading="Frequently Asked Questions" />
 
-      {/* 9 — The bookend to the hero: every "Contact Us" above lands here. */}
+      {/* 7 — The bookend to the hero: every "Contact Us" above lands here,
+          now carrying "We manage while you relax" as its own opening beat. */}
       <OwnerContactForm />
     </main>
     <Footer />

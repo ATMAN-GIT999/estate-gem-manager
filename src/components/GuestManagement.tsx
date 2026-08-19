@@ -75,12 +75,18 @@ const GuestManagement = () => {
           })}
         </Grid>
 
+        {/* Was `/book` — a hardcoded mockup page with four fictional
+            properties, no real Guesty data behind it (deleted, see
+            docs/DECISIONS.md). "Contact us" leading there was already the
+            wrong destination for its own label; there is no dedicated guest
+            contact page on this site, so `/properties` is the honest next
+            step for someone reading this section and wanting to act on it. */}
         <div>
           <Button
             asChild
             className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-soft px-8 py-6 text-base"
           >
-            <Link to="/book">
+            <Link to="/properties">
               <EditableText id="pm-contact-btn-2" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
             </Link>
           </Button>
