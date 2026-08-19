@@ -4,7 +4,7 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import logo from "@/assets/frontier-logo.webp";
+import logo from "@/assets/frontier-logo-transparent.webp";
 import EditableText from "./admin/EditableText";
 import { Container } from "./layout";
 
@@ -122,8 +122,11 @@ const Navigation = ({ overlay = false }: NavigationProps) => {
             <img src={logo} alt="Frontier Residences" className="h-12 md:h-14" />
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          {/* Desktop Navigation. whitespace-nowrap on every label: the bar is
+              a fixed row with no space to give back, and a label that wraps
+              to two lines collides with the row below it in the hover
+              dropdown as well as the bar itself. */}
+          <div className="hidden lg:flex items-center gap-8 whitespace-nowrap">
             {/* Property Management — link, plus a hover dropdown that holds
                 the Property Evaluator, which used to be its own top-level
                 item. */}
@@ -190,15 +193,22 @@ const Navigation = ({ overlay = false }: NavigationProps) => {
               <EditableText id="nav-3" value={navLabel3} onChange={setNavLabel3} as="span" className="text-primary-foreground">{navLabel3}</EditableText>
             </Link>
 
+            {/* `shadow-gold` (0 10px 40px, 0.35 alpha) is tuned for a large
+                standalone CTA — the hero and contact-form buttons use it and
+                read crisp there. Compressed into an h-10 bar button, a 40px
+                blur reads as a smudge under the label rather than a lift, and
+                over the transparent/overlay nav state it looked like the
+                button had been pushed back into the photo. `shadow-soft` is
+                the same warm shadow family at roughly a third of the spread. */}
             {user ? (
               <Link to={isAdmin ? "/admin/dashboard" : "/book"}>
-                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
+                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-soft">
                   <EditableText id="nav-auth-btn" value={isAdmin ? dashboardLabel : myBookingsLabel} onChange={isAdmin ? setDashboardLabel : setMyBookingsLabel} as="span">{isAdmin ? dashboardLabel : myBookingsLabel}</EditableText>
                 </Button>
               </Link>
             ) : (
               <Link to="/auth">
-                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold">
+                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-soft">
                   <EditableText id="nav-signin-btn" value={signInLabel} onChange={setSignInLabel} as="span">{signInLabel}</EditableText>
                 </Button>
               </Link>

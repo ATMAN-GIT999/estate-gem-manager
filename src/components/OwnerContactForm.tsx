@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, CalendarClock, CheckCircle2, Loader2 } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Container, MediaFrame, Section } from "./layout";
+import propertyFour from "@/assets/property-4.webp";
 
 /**
  * Provisional — Frontier has no Cal.com/Calendly of its own yet (see
@@ -80,17 +81,23 @@ const LABEL_CLASS = "text-primary-foreground/80";
 const OwnerContactForm = () => {
   const { toast } = useToast();
   const [eyebrow, setEyebrow] = useState("Get in touch");
-  const [heading, setHeading] = useState("Less hassle, higher income, protected value.");
+  // "protected value" dropped on Almedin's direction — the two claims left
+  // are the ones the form itself can make good on (less admin, more income);
+  // "protected value" belonged to a section about asset care that isn't this
+  // one.
+  const [heading, setHeading] = useState("Less hassle, higher income.");
   const [lead, setLead] = useState("Tell us about your property and we'll come back to you with what managing it with us would look like — usually within one working day.");
   const [ctaText, setCtaText] = useState("Send enquiry");
   const [callCtaText, setCallCtaText] = useState("Book a video call");
   const [sentHeading, setSentHeading] = useState("Thank you — we have your details.");
   const [sentBody, setSentBody] = useState("One of the founders will read this personally and come back to you within one working day.");
-  /* Was `about-hero.webp`, which is byte-for-byte the same photograph as
-     `property-2.webp` — the one the Relax band is specified to use. Rather
-     than show one picture twice in a single scroll, this slot waits for its
-     own. See MediaFrame. */
-  const [formImage, setFormImage] = useState("");
+  /* `property-4.webp` — a wide pergola terrace with a deep sightline to the
+     mountains, which crops gracefully into this column's tall aspect (the
+     foreground table and the background view both survive an object-cover
+     crop; a more symmetrical, centred shot would not). Distinct from
+     `property-2.webp`/`about-hero.webp`, the motif specified for the Relax
+     band, so this scroll doesn't show the same photograph twice. */
+  const [formImage, setFormImage] = useState(propertyFour);
 
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);

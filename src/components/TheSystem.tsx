@@ -1,6 +1,7 @@
 import { useState } from "react";
 import EditableText from "./admin/EditableText";
-import { Section, SectionIntro, Stack, Divider } from "./layout";
+import { Section, SectionIntro, Stack, Panel, Grid, Divider } from "./layout";
+import platformConnections from "@/assets/platform-connections.webp";
 
 /**
  * The heart of the owner page: everything Frontier does, once, in the order it
@@ -16,10 +17,14 @@ import { Section, SectionIntro, Stack, Divider } from "./layout";
  * the sentences are the surviving ones, collected under the step they belong
  * to. The ids they carry are the ids they had.
  *
- * Laid out on a single gold thread rather than a card grid, because six equal
- * boxes say "six products" and this is one operation with six parts. The rule
- * above each step and the numbered marker do the work a border used to
- * (DESIGN.md §6).
+ * Laid out on a single gold thread threading through six `<Panel>`s, one per
+ * step — a reversal of the section's first cut, which ran the six as bare
+ * text on a hairline specifically to avoid "six products" (DESIGN.md §6).
+ * Almedin asked for the boxed treatment back for exactly this kind of
+ * side-by-side, scanned content (docs/DESIGN.md §11, the "1b" container), so
+ * the thread now runs past six bordered cards instead of six plain blocks —
+ * still one operation, not six products, because the thread and the shared
+ * numbering carry that reading even with the boxes back.
  *
  * The thread and its markers are desktop only. On a phone the steps stack into
  * one column anyway, and a decorative rail down the left would cost a quarter
@@ -47,19 +52,6 @@ interface Step {
   bodyId: string;
   noteId?: string;
 }
-
-/**
- * The platforms, as words rather than logos.
- *
- * The brief asked for the marks lifted out of `platform-connections.webp`
- * (§2, step 3). That file is a single flat illustration of logos wired to a
- * hub — there are no separate logo assets behind it, and cutting them out of
- * a raster would leave us redistributing eleven companies' trademarks at
- * whatever quality survived the crop. Set as text they cost no asset, carry
- * no trademark question, and match the "fewer boxes" register better than a
- * row of white tiles would.
- */
-const PLATFORMS = ["Airbnb", "Booking.com", "Google", "Tripadvisor", "Vrbo", "Expedia"];
 
 const TheSystem = () => {
   const [steps, setSteps] = useState<Step[]>([
@@ -127,16 +119,24 @@ const TheSystem = () => {
       <Stack gap="xl">
         <SectionIntro
           idPrefix="wid"
-          eyebrow="One team, every part of it"
-          heading="Less for you to manage. More for your property to earn."
+          eyebrow="How it works"
+          heading={"Less for you to manage.\nMore for your property to earn."}
+          headingBreak
           lead="One integrated system gives us full control of your portfolio, so every guest, every price and every euro is handled before it becomes your problem."
         />
 
         {/* `relative` is the anchor for the thread and the markers. Both are
             absolutely positioned, which §8 asks to avoid — justified here
             because they are ornament: if either failed to position, every
-            word would still be exactly where it is. */}
-        <ol className="relative space-y-xl">
+            word would still be exactly where it is.
+
+            gap-md (28→40px), not the old space-y-xl (56→96px): once each step
+            became its own bordered Panel, the old gap was doing two jobs at
+            once — separating items AND giving the un-boxed text room to
+            breathe. The Panel's own padding does the second job now, so the
+            gap between panels could come down to the tighter figure Almedin
+            asked for. */}
+        <ol className="relative space-y-md">
           <div
             className="hidden md:block absolute left-[11px] top-6 bottom-6 w-px spine-gold"
             aria-hidden="true"
@@ -145,70 +145,89 @@ const TheSystem = () => {
           {steps.map((step, index) => (
             <li key={index} className="relative md:pl-16">
               {/* Sits at x=0..24 while the text starts at x=64, so the marker
-                  centre (12px) lands exactly on the thread above. */}
+                  centre (12px) lands exactly on the thread above. top-[30px]
+                  matches the Panel's own top padding (26px) plus half the
+                  heading's cap-height, so the ring sits on the card's own
+                  inner top edge rather than floating above it. */}
               <span
-                className="hidden md:flex absolute left-0 top-4 w-6 h-6 rounded-full border border-accent bg-background"
+                className="hidden md:flex absolute left-0 top-[30px] w-6 h-6 rounded-full border border-accent bg-background"
                 aria-hidden="true"
               />
 
-              <Divider className="mb-sm" />
+              <Panel>
+                {/* The number is structure, not copy — it stays outside the
+                    editable span so the client edits "Optimal listing" and
+                    cannot accidentally renumber the sequence. `items-baseline`
+                    lines the small numeral up with the heading's baseline
+                    rather than its cap-height, which is what a plain
+                    `items-center` produces between an 11px and a 28px line. */}
+                <div className="flex items-baseline gap-3 mb-2">
+                  <span className="t-meta text-foreground/40 shrink-0" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <EditableText
+                    id={`sys-label-${index}`}
+                    value={step.label}
+                    onChange={(v) => updateStep(index, "label", v)}
+                    as="h3"
+                    className="t-block text-primary text-balance"
+                  >
+                    {step.label}
+                  </EditableText>
+                </div>
 
-              {/* The number is structure, not copy — it stays outside the
-                  editable span so the client edits "Optimal listing" and
-                  cannot accidentally renumber the sequence. `items-baseline`
-                  lines the small numeral up with the heading's baseline
-                  rather than its cap-height, which is what a plain
-                  `items-center` produces between an 11px and a 28px line. */}
-              <div className="flex items-baseline gap-3 mb-2">
-                <span className="t-meta text-foreground/40 shrink-0" aria-hidden="true">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <EditableText
-                  id={`sys-label-${index}`}
-                  value={step.label}
-                  onChange={(v) => updateStep(index, "label", v)}
-                  as="h3"
-                  className="t-block text-primary text-balance"
-                >
-                  {step.label}
-                </EditableText>
-              </div>
+                {/* Step 3 alone splits into text + the complete distribution
+                    illustration, on Almedin's direction: the whole graphic,
+                    not logos cropped out of it (which was the earlier,
+                    trademark-cautious compromise it replaces). */}
+                {index === 2 ? (
+                  <Grid className="items-center" gap="sm">
+                    <div className="md:col-span-7">
+                      <EditableText
+                        id={step.bodyId}
+                        value={step.body}
+                        onChange={(v) => updateStep(index, "body", v)}
+                        as="p"
+                        multiline
+                        className="t-body text-foreground/70 max-w-2xl"
+                      >
+                        {step.body}
+                      </EditableText>
+                    </div>
+                    <img
+                      src={platformConnections}
+                      alt="Frontier Residences distributed across Airbnb, Booking.com, Google, Tripadvisor, Vrbo and Expedia"
+                      className="md:col-span-5 w-full max-w-xs mx-auto"
+                    />
+                  </Grid>
+                ) : (
+                  <>
+                    <EditableText
+                      id={step.bodyId}
+                      value={step.body}
+                      onChange={(v) => updateStep(index, "body", v)}
+                      as="p"
+                      multiline
+                      className="t-body text-foreground/70 max-w-2xl"
+                    >
+                      {step.body}
+                    </EditableText>
 
-              <EditableText
-                id={step.bodyId}
-                value={step.body}
-                onChange={(v) => updateStep(index, "body", v)}
-                as="p"
-                multiline
-                className="t-body text-foreground/70 max-w-2xl"
-              >
-                {step.body}
-              </EditableText>
-
-              {step.note && step.noteId && (
-                <EditableText
-                  id={step.noteId}
-                  value={step.note}
-                  onChange={(v) => updateStep(index, "note", v)}
-                  as="p"
-                  multiline
-                  className="t-body text-foreground/70 max-w-2xl mt-2"
-                >
-                  {step.note}
-                </EditableText>
-              )}
-
-              {/* The one place in this section that shows rather than states.
-                  It belongs to distribution and nowhere else. */}
-              {index === 2 && (
-                <ul className="flex flex-wrap items-center gap-x-md gap-y-xs mt-sm">
-                  {PLATFORMS.map((platform) => (
-                    <li key={platform} className="t-meta text-foreground/45">
-                      {platform}
-                    </li>
-                  ))}
-                </ul>
-              )}
+                    {step.note && step.noteId && (
+                      <EditableText
+                        id={step.noteId}
+                        value={step.note}
+                        onChange={(v) => updateStep(index, "note", v)}
+                        as="p"
+                        multiline
+                        className="t-body text-foreground/70 max-w-2xl mt-2"
+                      >
+                        {step.note}
+                      </EditableText>
+                    )}
+                  </>
+                )}
+              </Panel>
             </li>
           ))}
         </ol>

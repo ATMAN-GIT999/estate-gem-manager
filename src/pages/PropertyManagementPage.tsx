@@ -35,8 +35,8 @@ const PropertyManagementPageContent = () => (
     {/* The order is docs/PROJECT.md §2, and it is worth protecting because it
         is an argument rather than a list: here is the house → here is
         everything we do to it → here is what that produced on real ones →
-        here is what it costs you in attention → here is who we are → here is
-        how you'd engage us → here are the two side doors → here is what people
+        here is what it costs you in attention → here is how you'd engage us →
+        here is who we are → here are the two side doors → here is what people
         ask → here is how to start. Moving a block breaks the sentence, not
         just the layout.
 
@@ -64,15 +64,20 @@ const PropertyManagementPageContent = () => (
       {/* 4 — The exhale. One picture, one sentence. It must not grow. */}
       <PropertyManagement />
 
-      {/* 5 — Who gets the keys. The one call to action mid-page sits here,
+      {/* 5-7 — The commercial decision, then who runs it, then the two side
+          doors for owners it does not fit yet. Swapped from Team-then-Two-ways
+          on Almedin's direction: the decision now leads straight into "who
+          gets the keys", and Renovations/Investments still sits directly
+          under Guaranteed Income, which is what its own copy ("before you
+          hand it over") assumes. Investments stays last of the three on
+          purpose — it addresses an investor looking to buy, not the owner the
+          rest of the page is written for (DECISIONS §2). */}
+      <WaysToWorkTogether />
+
+      {/* The one call to action mid-page sits at the end of this section,
           because this is the question an owner actually decides on. */}
       <AboutMini />
 
-      {/* 6-7 — The commercial decision, then the two side doors for owners
-          it does not fit yet. Investments comes last of the three on purpose:
-          it addresses an investor looking to buy, not the owner the rest of
-          the page is written for (DECISIONS §2). */}
-      <WaysToWorkTogether />
       <RenovationsAndInvestments />
 
       {/* 8 — Deliberately the guest FAQ with a new heading, as requested;

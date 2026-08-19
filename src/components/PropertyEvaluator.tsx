@@ -31,10 +31,14 @@ const PropertyEvaluator = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Editable content state
-  const [sectionTitle, setSectionTitle] = useState("Property Cashflow Analysis");
+  // Editable content state. Renamed from "Property Cashflow Analysis" /
+  // "Get Free Cash Flow Analysis" to match the nav's existing "Property
+  // Evaluator" label and the page this section leads to — three different
+  // names for the same tool was the actual problem, not the old wording on
+  // its own.
+  const [sectionTitle, setSectionTitle] = useState("Property Evaluator");
   const [sectionSubtitle, setSectionSubtitle] = useState("Find out your property's short term and long term rental income potential using live market data");
-  const [buttonText, setButtonText] = useState("Get Free Cash Flow Analysis");
+  const [buttonText, setButtonText] = useState("Get Your Free Property Evaluation");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

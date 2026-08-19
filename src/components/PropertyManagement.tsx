@@ -29,7 +29,11 @@ const PropertyManagement = () => {
     // Shorter than the hero on purpose — this is a breath, not a second
     // opening. Not a <Section>: like the hero, it is a picture with text on it
     // rather than a container of content.
-    <section className="relative flex items-center justify-center overflow-hidden min-h-[clamp(24rem,60vh,34rem)]">
+    //
+    // Trimmed ~15% further on Almedin's direction (24/60/34 → 20/50/29): it
+    // still needs to hold a two-line heading plus one sentence without
+    // crowding, which is the floor on how short "a breath" can get.
+    <section className="relative flex items-center justify-center overflow-hidden min-h-[clamp(20rem,50vh,29rem)]">
       <MediaFrame
         id="pm-relax-image"
         src={relaxImage}

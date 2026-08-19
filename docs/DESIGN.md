@@ -342,3 +342,39 @@ unten.
 > `/property-management`. Auf dem beigen Seitenhintergrund wären weiße Links
 > unsichtbar. Seiten mit `overlay` setzen **kein** `pt-24` auf `<main>`: das
 > Bild läuft absichtlich unter die Leiste.
+
+---
+
+## 11 · Das „1b"-Boxsystem (18.08.2026)
+
+Ein drittes Primitive, `layout/Panel`, für Inhalte, die tatsächlich **Seite an
+Seite gescannt** werden: die sechs Zahnrad-Punkte in `TheSystem`, die vier
+Proof-Zahlen, die zwei Modelle in `WaysToWorkTogether`, die zwei Karten in
+`RenovationsAndInvestments`. §6 („weniger Boxen") gilt weiter für alles
+andere — das hier ist die bewusste Ausnahme, kein Rückbau des Prinzips.
+
+```
+border-top: 2px solid <accent>
+background: <primary bei ~5,5%>  /* helle Bänder */
+background: <primary-foreground bei ~6%>  /* grüne Bänder */
+padding: 26px oben, 24–30px seitlich, 30px unten
+```
+
+Kein Radius, kein Schatten, keine Seitenränder außer oben — das unterscheidet
+`Panel` von `Surface` (die den `rounded-[2rem]`-Schatten-Look für Formulare
+und die FAQ-Silbermaterie trägt, siehe DESIGN.md, gestrichen mit §12). Zwei
+verschiedene Boxen für zwei verschiedene Jobs; nicht verwechseln.
+
+**Keine neue Farbe nötig.** Die drei Werte aus der Referenz (`#b8964f` und
+zwei Fläche-`rgba()`s) sind Rundungsfehler von `--accent`, `--primary` und
+`--primary-foreground` — nicht neu erfunden, nur neu kombiniert. Die
+Innenabstände (26/24/30) sind die eine bewusste Ausnahme von „keine neuen
+`py-<Zahl>`": ein expliziter Client-Spec-Wert für genau diese eine Form, nicht
+geraten und nicht auf die Spacing-Leiter gerundet, weil Runden hier den Spec
+still überschrieben hätte.
+
+**`Divider tone="bar"`** ergänzt die Zwei-Gewichte-Linie um ein drittes: 56×2px
+Gold, für den Fall, dass eine Linie **ein Card-Textblock öffnet** statt Zeilen
+in einer Liste zu trennen. Nicht für Listen mit echten Zeilen (FAQ) — dort
+bleibt die volle Haarlinie, sonst zerfällt die Liste optisch. Aktuell nur an
+einer Stelle im Einsatz: den drei Proof-Case-Karten.

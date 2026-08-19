@@ -81,17 +81,18 @@ Eigentümer-Sprache auf die Gäste-Seite zurück.
 
 Umgebaut am 16.08.2026 nach der Design-Referenz in
 `docs/property-management-page.html`. Zehn Sections statt dreizehn; die
-Begründungen stehen in [DECISIONS.md](DECISIONS.md) §11.
+Begründungen stehen in [DECISIONS.md](DECISIONS.md) §11. Reihenfolge von
+Ebene 5/6 am 18.08.2026 getauscht (§13) — Zwei Wege liegt jetzt vor About.
 
 | # | Ebene | Komponente | Gewicht |
 |---|---|---|---|
 | 1 | **Hero** — Bild, H1, zwei CTAs | `OwnerHero` | hoch |
-| 2 | **Das System** — 6 Schritte auf einer Goldlinie | `TheSystem` | sehr hoch |
+| 2 | **Das System** — 6 Schritte auf einer Goldlinie, jetzt als Panel-Cards | `TheSystem` | sehr hoch |
 | 3 | **Proof** — 4 Zahlen + 3 Case Studies, auf Grün | `Proof` | hoch |
 | 4 | **Relax** — „We manage while you relax." | `PropertyManagement` | leicht |
-| 5 | **About** — 4 Gesichter + „Contact Us" | `AboutMini` | mittel |
-| 6 | **Zwei Wege** — Full-service vs. Guaranteed Income | `WaysToWorkTogether` | hoch |
-| 7 | **Renovations & Investments** | `RenovationsAndInvestments` | mittel |
+| 5 | **Zwei Wege** — Full-service vs. Guaranteed Income, als Panel-Cards | `WaysToWorkTogether` | hoch |
+| 6 | **About** — 4 Gesichter + „Contact Us" | `AboutMini` | mittel |
+| 7 | **Renovations & Investments**, als Panel-Cards mit Icon | `RenovationsAndInvestments` | mittel |
 | 8 | FAQ | `FAQ` | mittel |
 | 9 | **Get in touch** — Formular, Bookend zum Hero | `OwnerContactForm` | hoch |
 | 10 | Footer | `Footer` | leicht |
@@ -155,10 +156,15 @@ werden:
 `proof-cta` · `proof-case-image-0…2` · `pm-relax-line` · `pm-relax-image` ·
 `am-cta` · `beyond-title-0/1` · `beyond-image-0/1` · `owner-form-eyebrow`
 
-⚠️ **Nachbesserung 18.08.2026:** `sys-title-0…5` ist wieder entfallen — die
-sechs erfundenen Zahnrad-Überschriften sind gestrichen, `sys-label-0…5` trägt
-jetzt allein sowohl Text als auch Überschriften-Auszeichnung (`t-block`).
-Siehe DECISIONS.md §12.
+⚠️ **Nachbesserung 18.08.2026 (§12):** `sys-title-0…5` ist wieder entfallen —
+die sechs erfundenen Zahnrad-Überschriften sind gestrichen, `sys-label-0…5`
+trägt jetzt allein sowohl Text als auch Überschriften-Auszeichnung (`t-block`).
+
+⚠️ **Zweite Nachbesserung 18.08.2026 (§13), design-system-weit:**
+`proof-benefits-heading` neu (die zusätzliche „The Benefits"-Überschrift in
+`Proof`). `oap-image` neu (`OwnAProperty` läuft jetzt über `MediaFrame`, mit
+`property-5.webp` befüllt statt leer). `am-cta` bleibt, sitzt aber jetzt hinter
+`WaysToWorkTogether` statt davor (Reihenfolge getauscht, IDs unverändert).
 
 **Ersatzlos entfallen:** `pmp-page-subtitle` · `fin-eyebrow` · `fin-heading` ·
 `fin-cta` · `fin-outcomes-heading` · `wid-tech-heading` · `wid-feature-0/2/3` ·

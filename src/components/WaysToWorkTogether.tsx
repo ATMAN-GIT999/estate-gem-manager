@@ -2,28 +2,32 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import EditableText from "./admin/EditableText";
-import { Section, Grid, Stack } from "./layout";
+import { Section, Grid, Stack, Panel } from "./layout";
 
 /**
- * The commercial decision, stated as a decision — and set as an editorial
- * spread rather than two product cards (§20, §22). Full-service management and
- * Guaranteed Income are mutually exclusive: an owner picks one. Cards next to
- * each other say "two things you could buy"; two rows sharing one set of rules
- * says "one choice, two answers".
+ * The commercial decision, stated as a decision.
  *
- * What carries it is line, space and type, not surface: a gold rule opening
- * and closing the pair, a thin rule between them, the model name set at
- * section size in the left column with the terms in the right. The letter mark
- * is a mark, not a bullet — A and B are a choice, 1 and 2 would be a sequence.
+ * This used to be an editorial spread rather than two product cards (§20,
+ * §22 of the original brief): a gold rule opening and closing the pair, a
+ * thin rule between the two rows, the model name in a left column with the
+ * terms in the right — on the reasoning that cards side by side say "two
+ * things you could buy", while Full-service management and Guaranteed Income
+ * are mutually exclusive, so "one choice, two answers" fit better as two
+ * rows sharing one set of rules than as two cards.
+ *
+ * Almedin asked for the card treatment back regardless — the site-wide "1b"
+ * container (docs/DESIGN.md §11) now covers exactly this kind of side-by-side
+ * comparison, and by his own account the two-rows-not-cards distinction was
+ * reading as more inconsistency (why do these two get special treatment when
+ * the six system steps and the two Renovations/Investments paths are boxed)
+ * than as a meaningful signal. The A/B letter mark stays — it is still a
+ * choice, not a sequence — now as the opening mark inside each card instead
+ * of the left column of a shared row.
  *
  * Renovations and Investments used to nest inside the Guaranteed Income row
  * here, indented behind a gold rule. They are their own section now
- * (`RenovationsAndInvestments`), directly underneath: the indent made the
- * subordination unmistakable but also made the Guaranteed Income row twice
- * the height of the one above it, so the "one choice, two answers" reading
- * this section is built on had a lopsided B. Their connection to Guaranteed
- * Income is now carried by the copy — "before you hand it over" — rather than
- * by a border.
+ * (`RenovationsAndInvestments`), directly underneath, connected by copy
+ * ("before you hand it over") rather than by indentation.
  */
 const WaysToWorkTogether = () => {
   const [eyebrow, setEyebrow] = useState("How we work together");
@@ -70,36 +74,32 @@ const WaysToWorkTogether = () => {
           </EditableText>
         </div>
 
-        {/* The gold rules top and bottom bracket the pair; the thin rule
-            between them separates without re-bracketing. Three weights of
-            line doing three different jobs — the architectural detail §22
-            asks for, rather than a border drawn around each option. */}
-        <div className="divide-y divide-primary/20 border-y border-accent/55">
+        <Grid cols={2}>
           {models.map((model, index) => (
-            <Grid key={index} gap="sm" className="py-lg">
-              <div className="md:col-span-4 flex items-start gap-4">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full border border-accent-strong t-meta text-accent-strong shrink-0 mt-1">
-                  {index === 0 ? "A" : "B"}
-                </span>
-                <EditableText
-                  id={`ways-model-name-${index}`}
-                  value={model.name}
-                  onChange={(v) => { const u = [...models]; u[index] = { ...u[index], name: v }; setModels(u); }}
-                  as="h3"
-                  className="t-section text-primary text-balance"
-                >
-                  {model.name}
-                </EditableText>
-              </div>
+            <Panel key={index}>
+              <Stack gap="sm">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full border border-accent-strong t-meta text-accent-strong shrink-0">
+                    {index === 0 ? "A" : "B"}
+                  </span>
+                  <EditableText
+                    id={`ways-model-name-${index}`}
+                    value={model.name}
+                    onChange={(v) => { const u = [...models]; u[index] = { ...u[index], name: v }; setModels(u); }}
+                    as="h3"
+                    className="t-block text-primary text-balance"
+                  >
+                    {model.name}
+                  </EditableText>
+                </div>
 
-              <div className="md:col-span-8 space-y-sm">
                 <EditableText
                   id={`ways-model-summary-${index}`}
                   value={model.summary}
                   onChange={(v) => { const u = [...models]; u[index] = { ...u[index], summary: v }; setModels(u); }}
                   as="p"
                   multiline
-                  className="t-block text-primary"
+                  className="t-item text-primary"
                 >
                   {model.summary}
                 </EditableText>
@@ -109,7 +109,7 @@ const WaysToWorkTogether = () => {
                   onChange={(v) => { const u = [...models]; u[index] = { ...u[index], detail: v }; setModels(u); }}
                   as="p"
                   multiline
-                  className="t-body text-foreground/70 max-w-2xl"
+                  className="t-body text-foreground/70"
                 >
                   {model.detail}
                 </EditableText>
@@ -123,10 +123,10 @@ const WaysToWorkTogether = () => {
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 )}
-              </div>
-            </Grid>
+              </Stack>
+            </Panel>
           ))}
-        </div>
+        </Grid>
       </Stack>
     </Section>
   );

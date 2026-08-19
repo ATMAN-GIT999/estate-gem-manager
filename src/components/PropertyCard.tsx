@@ -117,7 +117,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           {property.guesty_listing_id && (
             <span className="t-meta text-muted-foreground">from </span>
           )}
-          <span className="t-item text-primary">€{property.price_per_night}</span>
+          {/* Display rounding only — Math.ceil, not the value itself. A price
+              with cents (from a live Guesty quote snapshot) reads as more
+              precise than a "from" figure should; the underlying
+              `price_per_night`, the sync job and the booking-flow quote are
+              untouched. */}
+          <span className="t-item text-primary">€{Math.ceil(property.price_per_night)}</span>
           <span className="t-meta text-muted-foreground"> / night</span>
         </div>
       </div>

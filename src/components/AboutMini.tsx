@@ -134,9 +134,14 @@ const AboutMini = () => {
     // and one sentence. No cards; the faces are the content.
     <Section id="about-mini" tone="muted" size="md">
       <Stack gap="lg">
+        {/* "About Ourselves" replaces the eyebrow, not the heading below it.
+            "A small team, on the ground in every region we host." is one of
+            the few substantiated differentiators the site has (see the
+            text-derivation notes in docs/DECISIONS.md) — it stays exactly as
+            it is; only the short label above it changes. */}
         <SectionIntro
           idPrefix="am"
-          eyebrow="Who looks after your property"
+          eyebrow="About Ourselves"
           heading="A small team, on the ground in every region we host."
           lead="Frontier was founded because owners of exceptional homes were being offered standard management — and their guests could tell."
         />

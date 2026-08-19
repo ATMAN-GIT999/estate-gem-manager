@@ -356,8 +356,10 @@ const PropertyDetail = () => {
                       </div>
                     ) : (
                       <div className="flex items-baseline gap-2">
+                        {/* Display rounding only, same as PropertyCard.tsx —
+                            price_per_night itself is untouched. */}
                         <span className="text-3xl font-bold text-primary">
-                          €{property.price_per_night}
+                          €{Math.ceil(property.price_per_night)}
                         </span>
                         <span className="text-muted-foreground">/ night</span>
                       </div>

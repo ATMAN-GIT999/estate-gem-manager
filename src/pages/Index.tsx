@@ -2,7 +2,6 @@ import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import PropertyCollections from "@/components/PropertyCollections";
-import Stats from "@/components/Stats";
 import GuestManagement from "@/components/GuestManagement";
 import OwnAProperty from "@/components/OwnAProperty";
 import PropertyEvaluator from "@/components/PropertyEvaluator";
@@ -53,18 +52,17 @@ const IndexContent = () => {
       <Navigation overlay />
       <Hero />
 
-      {/* Trust before anything else, the way a platform opens (§11). No
-          heading here: the four numbers are portfolio scale, which a guest
-          reads as reassurance, but "A Portfolio Built on Precision &
-          Performance" is written to an owner and would put owner copy in the
-          second block of a booking page. */}
-      <Stats heading="" />
-
       {/* One uninterrupted guest run — homes, then what the stay is like.
-          These two used to be separated by the owner hand-off, which made the
-          page change audience twice before the fold-and-a-half. */}
+          The portfolio-numbers trust band that used to open here is gone
+          (Almedin: drop the stats section from the landing page); these two
+          now follow the hero directly instead of behind a green band. */}
       <PropertyCollections />
       <GuestManagement />
+
+      {/* FAQ moved ahead of the owner hand-off, on Almedin's direction: a
+          guest with a question gets it answered before the page asks them to
+          switch audiences, rather than after. */}
+      <FAQ />
 
       {/* The hand-off to the owner half, once, at the end of the guest
           argument: everything above is written for someone choosing a stay,
@@ -72,7 +70,6 @@ const IndexContent = () => {
       <OwnAProperty />
 
       <PropertyEvaluator />
-      <FAQ />
       <Footer />
     </div>
   );

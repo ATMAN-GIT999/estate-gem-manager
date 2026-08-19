@@ -27,6 +27,14 @@ interface SectionIntroProps {
   tone?: SectionTone;
   align?: "center" | "left";
   className?: string;
+  /**
+   * Allow a literal `\n` in `heading` to force a line break, instead of
+   * leaving wrap entirely to the viewport width. Off by default — most
+   * headings should wrap wherever they wrap — and harmless to leave off even
+   * when `heading` has no `\n` in it, since `pre-line` is a no-op on a string
+   * with no newlines.
+   */
+  headingBreak?: boolean;
 }
 
 const SectionIntro = ({
@@ -37,6 +45,7 @@ const SectionIntro = ({
   tone = "light",
   align = "center",
   className,
+  headingBreak = false,
 }: SectionIntroProps) => {
   const [eyebrowText, setEyebrowText] = useState(eyebrow);
   const [headingText, setHeadingText] = useState(heading);
@@ -70,8 +79,10 @@ const SectionIntro = ({
         value={headingText}
         onChange={setHeadingText}
         as="h2"
+        multiline={headingBreak}
         className={cn(
-          "t-section text-balance",
+          "t-section",
+          headingBreak ? "whitespace-pre-line" : "text-balance",
           onPrimary ? "text-primary-foreground" : "text-primary"
         )}
       >

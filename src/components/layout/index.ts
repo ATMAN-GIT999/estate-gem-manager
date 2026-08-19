@@ -15,6 +15,7 @@ export { default as Stack } from "./Stack";
 export { default as Surface } from "./Surface";
 export { default as Divider } from "./Divider";
 export { default as MediaFrame } from "./MediaFrame";
+export { default as Panel } from "./Panel";
 
 /** The shared eyebrow + heading + lead header. Predates this folder. */
 export { default as SectionIntro, type SectionTone } from "../SectionIntro";

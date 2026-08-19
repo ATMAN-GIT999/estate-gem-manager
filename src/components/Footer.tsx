@@ -4,7 +4,7 @@ import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react
 import EditableText from "./admin/EditableText";
 import { Container } from "./layout";
 import { BUSINESS } from "@/lib/siteMeta";
-import logo from "@/assets/frontier-logo.webp";
+import logo from "@/assets/frontier-logo-transparent.webp";
 
 /**
  * Only networks with a real profile are rendered. Facebook and LinkedIn are
@@ -74,7 +74,10 @@ const Footer = () => {
             >
               {tagline}
             </EditableText>
-            <img src={logo} alt="Frontier Residences" className="h-12 mt-6" />
+            {/* Matches the header logo's own height exactly (h-12 md:h-14) —
+                it was a flat h-12 before, which read small next to a footer
+                carrying four columns of its own weight. */}
+            <img src={logo} alt="Frontier Residences" className="h-12 md:h-14 mt-6" />
           </div>
 
           <div>
@@ -270,6 +273,12 @@ const Footer = () => {
                 </EditableText>
               </li>
             </ul>
+            {/* w-4 h-4, no padding on the anchor: the contact list above uses
+                16px icons flush with the column's left edge. The old w-5 h-5
+                plus p-1.5 wrapper made the Instagram mark both bigger and
+                offset from that edge, which is the "schief" (crooked)
+                Almedin flagged — it wasn't crooked, it just wasn't aligned to
+                its own column. */}
             <div className="flex gap-4 mt-4">
               {SOCIAL_LINKS.map(({ label, href, Icon }) => (
                 <a
@@ -278,9 +287,9 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Frontier Residences on ${label}`}
-                  className="inline-block p-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors"
+                  className="inline-block text-primary-foreground/80 hover:text-accent-on-primary transition-colors"
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 h-4" />
                 </a>
               ))}
             </div>

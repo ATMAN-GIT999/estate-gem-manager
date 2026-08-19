@@ -29,6 +29,7 @@ import { Section, Grid, Stack, Divider, MediaFrame } from "./layout";
 const Proof = () => {
   const [eyebrow, setEyebrow] = useState("Built to perform");
   const [heading, setHeading] = useState("A Portfolio Built on Precision & Performance");
+  const [benefitsHeading, setBenefitsHeading] = useState("The Benefits");
   const [casesLabel, setCasesLabel] = useState("What that looks like on three homes");
   const [ctaText, setCtaText] = useState("See what yours could earn");
 
@@ -73,21 +74,44 @@ const Proof = () => {
         <StatsRow />
 
         <Stack gap="lg">
-          <EditableText
-            id="proof-cases-label"
-            value={casesLabel}
-            onChange={setCasesLabel}
-            as="p"
-            className="t-meta text-accent-on-primary text-center"
-          >
-            {casesLabel}
-          </EditableText>
+          <div className="text-center space-y-xs">
+            {/* The prominent heading Almedin asked for, sitting above the
+                existing small-caps label rather than instead of it — "The
+                Benefits" names the chapter, the label underneath still says
+                specifically what these three cases are. */}
+            <EditableText
+              id="proof-benefits-heading"
+              value={benefitsHeading}
+              onChange={setBenefitsHeading}
+              as="h3"
+              className="t-block text-primary-foreground"
+            >
+              {benefitsHeading}
+            </EditableText>
+            <EditableText
+              id="proof-cases-label"
+              value={casesLabel}
+              onChange={setCasesLabel}
+              as="p"
+              className="t-meta text-accent-on-primary"
+            >
+              {casesLabel}
+            </EditableText>
+          </div>
 
           <Grid cols={3}>
             {projects.map((project, index) => (
               <div key={index}>
                 {/* Waiting on the owner's before/after photography — the one
-                    item in docs/PROJECT.md B4 this section cannot fake. */}
+                    item in docs/PROJECT.md B4 this section cannot fake.
+
+                    Almedin asked for each placeholder to be swapped for that
+                    property's real first photo, but the Supabase project
+                    (odloyonqqsgnpxvqrrep) was paused when this was checked —
+                    the query timed out rather than confirming or denying that
+                    "Villa Hoyo 19" / "Soho Boho" / "Alpine Retreat" match real
+                    listings. Left as placeholders rather than guessed; see
+                    docs/PROJECT.md B4/B5 for the follow-up. */}
                 <MediaFrame
                   id={`proof-case-image-${index}`}
                   note={`Before / after — ${project.title}`}
@@ -104,7 +128,11 @@ const Proof = () => {
                   {beforeAfterLabel}
                 </EditableText>
 
-                <Divider onPrimary className="mb-sm" />
+                {/* The short gold bar, not the full-width hairline: this
+                    opens one card's own text block rather than separating
+                    rows in a list, which is exactly the distinction
+                    Divider's `bar` tone exists to carry. */}
+                <Divider tone="bar" onPrimary className="mb-sm" />
 
                 <EditableText
                   id={`proj-fp-title-${index}`}

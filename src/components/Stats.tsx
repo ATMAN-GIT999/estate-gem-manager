@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import EditableText from "./admin/EditableText";
-import { Section, Grid, Stack } from "./layout";
+import { Section, Grid, Stack, Panel } from "./layout";
 
 /**
  * Four numbers on the green fill — the one band on either page that is
@@ -137,7 +137,11 @@ const AnimatedStat = ({ stat, index, hasAnimated }: { stat: { number: string; la
   }, [hasAnimated, stat.number, index]);
 
   return (
-    <div className="border-t border-primary-foreground/25 pt-sm">
+    // The "1b" container (docs/DESIGN.md §11) — this is now StatsRow's only
+    // caller (Index.tsx dropped its own Stats band), so the boxed treatment
+    // here is scoped entirely to Proof on the owner page, not a change to
+    // how the landing page shows trust numbers.
+    <Panel tone="primary">
       {/* Display size on a non-heading, which is the one deliberate exception
           to "Display appears once per page": in this section the numbers ARE
           the content — the heading only frames them. */}
@@ -145,7 +149,7 @@ const AnimatedStat = ({ stat, index, hasAnimated }: { stat: { number: string; la
         {displayNumber}
       </div>
       <div className="t-meta text-primary-foreground/70">{stat.label}</div>
-    </div>
+    </Panel>
   );
 };
 

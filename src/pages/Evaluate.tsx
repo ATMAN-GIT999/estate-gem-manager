@@ -154,10 +154,10 @@ const EvaluateContent = () => {
   return (
     <div className="min-h-screen">
       <Seo
-        title="Property Cashflow Analysis"
+        title="Property Evaluator"
         description="Enter your property's address and details and receive a realistic short-term and long-term rental income projection based on live market data."
         path="/evaluate"
-        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Cashflow Analysis", path: "/evaluate" }])}
+        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Property Evaluator", path: "/evaluate" }])}
       />
       <Navigation />
 
@@ -167,9 +167,10 @@ const EvaluateContent = () => {
           visitor onto the guest landing page with no explanation, and made
           both of those links dead ends.
           Rendering the calculator instead is what makes /evaluate the
-          standalone Cashflow Analysis page docs/DECISIONS.md §2 (Cashflow Analysis)
-          asks for: the form posts back to this same route with the property
-          in router state, and the analysis below takes over. */}
+          standalone Property Evaluator page docs/DECISIONS.md §2
+          (Property Evaluator) asks for: the form posts back to this same
+          route with the property in router state, and the analysis below
+          takes over. */}
       {!propertyData ? (
         <main className="pt-24">
           <PropertyEvaluator />
@@ -225,8 +226,11 @@ const EvaluateContent = () => {
               <>
                 <div className="text-center mb-12">
                   <TrendingUp className="w-16 h-16 text-accent-strong mx-auto mb-4" />
+                  {/* Matches PropertyEvaluator.tsx's section title and the
+                      nav's "Property Evaluator" label — the tool had three
+                      different names across the site before this. */}
                   <h1 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">
-                    Cash Flow Analysis
+                    Property Evaluator
                   </h1>
                   <p className="text-xl text-foreground/80">
                     {propertyData?.address}

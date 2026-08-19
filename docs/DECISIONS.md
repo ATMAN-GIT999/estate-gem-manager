@@ -37,7 +37,7 @@ ließ, bevor der Gast mit dem Lesen fertig war.
 | Guaranteed Income | Bleibt unter Property Management, keine eigene „Zwei Modelle"-Hauptrubrik. Es ist aber ein **zweites Geschäftsmodell** (Festmiete statt Provision), kein „Additional Service" — deshalb prominent in „Two ways to start with us" |
 | Renovations & Investments | Bleiben eigenständige Unterseiten, unter *Guaranteed Income* verschachtelt. Als eigenständige große Boxen aufgelöst |
 | Investments-Persona | Investments zielt auf einen **Investor, der kaufen will**, nicht auf den Eigentümer, der verwalten lassen will. Deshalb bewusst sekundär auf der PM-Seite |
-| Cashflow Analysis | Formular auf `/` und auf `/evaluate`. Die PM-Seite **verlinkt nur noch dorthin** — kein zweites eingebettetes Formular |
+| Property Evaluator (vormals „Cashflow Analysis") | Formular auf `/` und auf `/evaluate`. Die PM-Seite **verlinkt nur noch dorthin** — kein zweites eingebettetes Formular. Umbenannt am 18.08.2026 (§12) — vorher liefen drei verschiedene Namen für dasselbe Werkzeug nebeneinander (Nav „Property Evaluator", Sektion „Property Cashflow Analysis", Button „Get Free Cash Flow Analysis") |
 | Projects | Inhalt als Section auf der PM-Seite, Nav-Punkt entfällt |
 | About Us | `AboutMini` als Section auf der PM-Seite; `/about` bleibt als Seite **und** als Menüpunkt |
 | Guest Management | Gehört auf die Booking-Landingpage, nicht auf die PM-Seite |
@@ -404,3 +404,127 @@ beiden Fällen von Radix bzw. den bereits vorhandenen Keyframes in
 ⚠️ `FAQ.tsx` läuft auch auf der Landingpage — die Optik ändert sich dort mit,
 was konsistent ist (dort gibt es ebenfalls kein Silver-Panel mehr), aber
 außerhalb dessen liegt, was für diese Nachbesserung angefragt war.
+
+---
+
+## 13 · Nachbesserung vom 18.08.2026 (zweite Runde) — Design-System, PM-Seite, Landingpage
+
+Ausgangspunkt: drei Claude-Design-Screenshots plus eine Sperrklausel, die
+ausdrücklich nur **visuelle** Werte daraus erlaubte (Abstände, Box-Stil,
+Farben, Schriftgewichte) — jeglicher Text kam entweder aus dem bestehenden,
+geprüften Content oder aus expliziten Textanweisungen im Prompt, nie von dem,
+was auf einem Screenshot zu lesen war. Die erfundenen Platzhaltertexte aus den
+Screenshots ("Your home, shown at its best." usw.) sind exakt das Problem, das
+§12 bereits einmal korrigiert hat.
+
+### Das „1b"-Boxsystem: neuer Primitive, keine neue Farbpalette
+
+Sechs Zahnrad-Punkte, vier Proof-Zahlen, die zwei "Two ways"-Modelle und die
+zwei Renovations/Investments-Karten bekommen jetzt eine Box — Goldrahmen oben,
+schwacher Flächenton, feste Innenabstände, kein Radius, kein Schatten. Neu
+dafür: `layout/Panel.tsx`.
+
+**Wichtig: Das brauchte keine einzige neue Farbe.** Die drei Werte aus dem
+Prompt (`#b8964f` Rahmen, zwei Fläche-rgba()s) sind per HSL-Umrechnung
+praktisch exakt `--accent`, `--primary` bei 5,5 % und `--primary-foreground`
+bei 6 % — alles Tokens, die es schon gab. `Panel` nutzt ausschließlich diese
+drei. CLAUDE.md listet die Farbpalette als „nicht anfassen ohne Rückfrage";
+diese Umsetzung berührt sie nicht, weil sie nicht musste.
+
+Der einzige Wert ohne Token-Entsprechung war `#3f4a41` (ein dunkleres Grün als
+`--primary`, in der Referenz als Footer-Hintergrund erkennbar). Rückgefragt —
+**Almedin hat sich für „Footer bleibt bei `--primary`" entschieden**, kein
+neuer Token. Die Palette ist durch diese Nachbesserung also komplett
+unverändert geblieben.
+
+### Wo die kurze Goldlinie NICHT hinkam
+
+Der Prompt listete Hero/Cases/Relax/Team/FAQ/Contact als Stellen, an denen die
+dünne graue Linie einer kurzen goldenen (56×2px) weichen sollte. Rückgefragt,
+weil FAQ seine Haarlinien als **volle Zeilentrenner** zwischen den Fragen
+nutzt — eine kurze Linie hätte dort nur unter der ersten Frage gestanden und
+die Liste wäre optisch auseinandergefallen. **Almedin hat FAQ ausdrücklich
+ausgenommen.** Umgesetzt ist die kurze Linie (`Divider tone="bar"`, neu) nur
+dort, wo tatsächlich eine Linie ein Card-Textblock öffnet — konkret die drei
+Proof-Case-Karten. Hero, Relax und Team hatten ohnehin keine Linie, an der
+etwas zu tauschen gewesen wäre.
+
+### Zwei Kurskorrekturen, die eigene frühere Entscheidungen umdrehen
+
+`WaysToWorkTogether` trug bisher eine ausführliche Begründung, **warum** die
+zwei Modelle bewusst *keine* Cards sind (editorial statt Produktvergleich).
+Almedin hat das Boxsystem trotzdem für diese Section angefordert — die
+Begründung war laut ihm mehr Inkonsistenz (warum sind ausgerechnet diese zwei
+Zeilen anders behandelt als die sechs System-Punkte) als ein tragendes Signal.
+Umgesetzt als zwei `Panel`-Cards nebeneinander; der Kommentar in der
+Komponente ist entsprechend umgeschrieben, nicht stillschweigend überschrieben.
+
+`RenovationsAndInvestments` war zuvor bewusst von der `WaysToWorkTogether`-Box
+gelöst worden (siehe deren eigener Kommentar zur Begradigung). Läuft jetzt
+ebenfalls auf `Panel`, mit Icon — `HardHat` und `Search`, beide direkt von den
+echten Unterseiten `/renovations` und `/investments` übernommen (deren erste
+bzw. thematisch naheliegendste Service-Icons), nicht neu erfunden.
+
+### Bildmaterial — was neu belegt wurde und was offen bleibt
+
+Von den drei bislang unbenutzten, eindeutigen Fotomotiven (`property-4.webp`,
+`property-5.webp`; `property-2.webp`/`about-hero.webp` ist weiterhin offen)
+sind jetzt zwei vergeben: `property-4.webp` im Kontaktformular (Ersatz für
+„protected value" in der Überschrift, dazu ein Bild mit Tiefenwirkung, das
+einen hohen, schmalen Ausschnitt verträgt), `property-5.webp` bei „Own a
+Property?" auf der Landingpage, die jetzt als Bildband mit linksbündiger
+Überschrift läuft (OmniVillas-Muster, dieselbe `MediaFrame`+`overlay-media`-
+Mechanik wie Hero und Relax). `property-2.webp`/`about-hero.webp` bleibt
+unbelegt — für die Relax-Section vorgesehen (ihr `MediaFrame`-Briefing
+beschreibt exakt dieses Motiv), aber das war in dieser Runde nicht angefragt.
+
+**Die drei Proof-Case-Bilder (Villa Hoyo 19 / Soho Boho / Alpine Retreat)
+bleiben Platzhalter.** Versucht: Live-Abgleich gegen die Supabase-`properties`-
+Tabelle (Projekt `odloyonqqsgnpxvqrrep`). Das Projekt war beim Testen pausiert
+(`status: INACTIVE`), die Anfrage lief in einen Timeout. Ob diese drei Namen
+echten Objekten entsprechen, ist damit **weiterhin ungeklärt** — nicht geraten,
+sondern offen gelassen. Sobald das Projekt reaktiviert ist, ist das eine
+Ein-Zeilen-Abfrage.
+
+### Logo: Hintergrund freigestellt, nicht neu gezeichnet
+
+`frontier-logo.webp`/`.png` hatten das Sage-Grün **im Bild selbst** eingebrannt
+— kein CSS-Hintergrund, sondern ein massives Rechteck im Pixelmaterial. Per
+Farbschlüssel-Freistellung (Toleranzband um den exakt gesampelten Hintergrund-
+Ton `rgb(84,100,88)`, mit weichem Übergang an den Kanten gegen ein hartes
+Cutout) entfernt; Ergebnis auf Grün und auf einem mittleren Fototon gegen-
+geprüft, keine sichtbaren Ränder. Läuft jetzt als eigene Datei
+(`frontier-logo-transparent.webp`), verdrahtet in `Navigation.tsx` und
+`Footer.tsx`. Die alten opaken Dateien liegen unverändert weiter im Repo (wie
+die übrigen bewusst aufgehobenen alten Assets, PROJECT.md §6).
+
+### Was bewusst nicht angefasst wurde
+
+- **„It's in the details." (Landingpage, `GuestManagement.tsx`)** — laut
+  CLAUDE.md und laut diesem Prompt selbst nur als Vorschlag zu behandeln, nicht
+  automatisch zu ersetzen. Der Text dort ist geprüft. Ein Vorschlag ist im
+  Chat-Verlauf dieser Session festgehalten, nicht im Code.
+- **Icons an den sechs Zahnrad-Punkten** — als „Nebenidee, nicht erzwingen"
+  angefragt. Geprüft und dagegen entschieden: jeder Punkt trägt durch den
+  neuen Panel-Rahmen bereits sichtbares Gewicht, dazu die Nummer und den
+  Spine-Kreis als Sequenz-Marker. Ein viertes visuelles Element (Icon) pro
+  Punkt wäre genau die Überladung, vor der der Prompt selbst warnt.
+- **Typografie-Gewichte** — im Code bereits `t-body: 400` und alle Playfair-
+  Überschriften `700`. Der Prompt ging von „aktuell 300 / 400" aus; das trifft
+  auf den heutigen Stand nicht zu. Da die Absicht ("dünne Schnitte wirken zu
+  schwach") mit 700 bereits stärker erfüllt ist als mit dem vorgeschlagenen
+  500, keine Änderung — ein Rückschritt auf 500 hätte die Überschriften
+  dünner, nicht kräftiger gemacht.
+
+### FAQ-Reihenfolge auf der Landingpage — ein Zielkonflikt, offen benannt
+
+FAQ steht jetzt vor „Own a Property?" (wie angefordert). Die FAQ trägt aber
+selbst eine letzte, eigentümer-gerichtete Frage, die laut ihrem eigenen
+Kommentar bewusst **auf** „Own a Property?" verweist, statt einen eigenen
+Übergang zu bauen. Mit dem Tausch kommt dieser Eigentümer-Hinweis jetzt vor
+„Own a Property?" statt danach — die Seite wechselt die Zielgruppe damit
+technisch zweimal (einmal in der FAQ, einmal in „Own a Property?"), statt wie
+sonst im Projekt üblich genau einmal (CLAUDE.md, „der historische
+Hauptfehler"). Umgesetzt wie angefordert, aber unkommentiert stehen lassen
+wäre falsch gewesen — sollte sich das FAQ-Ende in der Praxis sperrig lesen,
+ist das der Grund.
