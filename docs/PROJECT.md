@@ -208,20 +208,39 @@ dafür geliefert wurde, gibt es keinen Inhalt, der eine ID bräuchte.
 `listing-workflow-desc-0` · `fin-pillar-desc-0/1/2` · `pm-listing-desc` ·
 `wid-guest-desc` · `wid-feature-1` · `wid-property-desc` ·
 `listing-workflow-desc-3` (alle acht: Text ersetzt, siehe §14 oben) ·
-`get-in-touch-*` · `proj-fp-type-*` (nur auf der PM-Seite)
+`get-in-touch-*` · `proj-fp-type-*` (nur auf der PM-Seite) · `nav-4` ·
+`nav-4-properties` · `nav-4-posts` · `nav-5` (die „Stay With Us"/„Property
+Evaluator"-Dropdowns, siehe §28 unten — kein Ersatz, die Aktionen dahinter
+bleiben über den goldenen „Book a Stay"-Button bzw. die Seite selbst
+erreichbar) · `footer-gi-link` · `footer-renovations-link` ·
+`footer-investments-link` · `footer-projects-link` (§32/§33: Guaranteed
+Income und Projects ganz aus dem Footer entfernt, Renovations/Investments
+zu einer „Beyond Management"-Zeile zusammengelegt — die Seiten
+`/guaranteed-income`, `/renovations`, `/investments`, `/projects` selbst
+existieren weiterhin unverändert, nur ihre Footer-Zeilen sind weg)
 
 ### Navigation
 
-**Property Management** ⌄ · **Stay With Us** ⌄ · **About Us** · **Sign In**
+`Navigation.tsx` hat seit §28 nur noch zwei Varianten (`variant`-Prop), beide
+flach (keine Dropdowns) und **immer** auf solidem `bg-primary` — die frühere
+transparente „legt sich über das Hero-Foto und füllt beim Scrollen auf"-
+Variante ist komplett weg (§28: der Verlaufs-Scrim dafür ließ den Header-Text
+wie abgedunkelt wirken, und OmniVillas' eigener Referenz-Header ist ohnehin
+immer eine solide Leiste, nie transparent über einem Foto).
 
-| Label | Ziel | Dropdown |
-|---|---|---|
-| Property Management | `/property-management` | → Property Management · Property Evaluator (Anker `#property-evaluation`) |
-| Stay With Us | `/properties` | → Properties · Our Newest Posts (Instagram, extern) |
-| About Us | `/about` | — |
-| Sign In | `/auth` | — |
+**`variant="default"`** (jede Seite außer der PM-Seite, inkl. `/`) —
+Property Management (`/property-management`) · About Us (`/about`) ·
+Sprach-/Währungs-Switcher (`LanguageCurrencySwitcher.tsx`, geschlossene
+Pille mit Dropdown-Panel, DE/EN/ES + EUR/USD/GBP) · Sign In (Klartext-Link
+statt Button, `/auth` bzw. `/admin/dashboard`/`/properties` eingeloggt) ·
+goldener, abgerundeter Button „Book a Stay →" → `/properties`.
 
-`/business-areas` und `/projects` sind keine Menüpunkte mehr.
+**`variant="propertyManagement"`** (`PropertyManagementPage.tsx`,
+`/property-management`) — Property Management (smooth-scroll zu
+`#the-system`, keine Navigation) · About Us · Switcher (nur Sprache, alle
+drei immer sichtbar nebeneinander, kein Dropdown-Panel) · „Book a Stay"
+(Klartext-Link → `/`) · goldener, abgerundeter Button „Apply →" →
+`#get-in-touch`.
 
 ---
 
@@ -393,7 +412,7 @@ Umgesetzt und verifiziert:
 
 | # | Punkt |
 |---|---|
-| D1 | **Der einzige gefüllte Header-Button ist ein Gäste-Login** („Sign In"), auf einer Seite, deren primäre Zielgruppe Eigentümer sind. Vorschlag aus dem CX-Teardown: „Talk to us about your property" als einziger gefüllter Button. Das ist eine Design-Entscheidung, kein Bugfix — braucht Freigabe. |
+| ~~D1~~ | ~~Der einzige gefüllte Header-Button ist ein Gäste-Login~~ — **erledigt am 20.08.2026** (DECISIONS §27). Der neue `variant="propertyManagement"`-Header hat kein „Sign In" mehr; der einzige gefüllte Button ist „Apply" (→ `#get-in-touch`, das Kontaktformular) — ein eigentümer-relevanter CTA statt eines Gäste-Logins. |
 | D2 | **`/business-areas`** ist kein Menüpunkt mehr, die Route lebt weiter und trägt eine ältere, widersprüchliche Version der Positionierung („Business Areas", „Guaranteed Income Program" mit „Included"-Badge). Zwei Seiten konkurrieren um dieselben Keywords. Vorschlag: 301 auf `/property-management`. |
 | ~~D3~~ | ~~„It's in the details." steht auf beiden Seiten~~ — **erledigt am 16.08.2026.** `ListingWorkflow` ist im Umbau aufgegangen; die Überschrift steht jetzt nur noch auf `/` (`GuestManagement.tsx`). Die Gäste-Fassung ist unverändert und bleibt es ohne Rückfrage. |
 | D4 | **Die Kennzahlen sind hartkodierte Copy** (`41 Properties Managed · 1500+ Successful Reservations · 8 Destinations · 50+ Collaborators`), keine Live-Daten — und sie stehen auf `/` und der PM-Seite identisch. Der Sitemap-Build meldet **23 Objekte**, `ProjectsSection` nennt „20+ premium properties" für Spanien. Gegenüber „41" ist das erklärungsbedürftig. Offen ist auch, ob die „8 Destinations" kroatische Orte mitzählen — Kroatien ist kein Bestandsmarkt. |

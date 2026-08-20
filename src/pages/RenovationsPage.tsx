@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Lightbulb, Calculator, HardHat, Package, Palette, Camera, TrendingUp } from "lucide-react";
@@ -7,6 +7,8 @@ import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema } from "@/lib/schema";
 import { Section, Container, Grid, Panel, SectionIntro } from "@/components/layout";
+import { useLocale } from "@/contexts/LocaleContext";
+import type { TranslationKey } from "@/lib/translations";
 
 /**
  * One of the three "side door" content pages (`/renovations`,
@@ -23,24 +25,35 @@ import { Section, Container, Grid, Panel, SectionIntro } from "@/components/layo
  * leftover Lovable polish effect, not a real design signature worth a
  * primitive of its own.
  */
+const SERVICE_ICONS = ["Lightbulb", "Calculator", "HardHat", "Package", "Palette", "Camera", "TrendingUp"];
+
 const RenovationsPageContent = () => {
-  const [servicesTitle, setServicesTitle] = useState("What We Handle");
-  const [processTitle, setProcessTitle] = useState("Our Process");
-  const [processText, setProcessText] = useState("From initial concept to final staging, we manage every detail to ensure your property reaches its full potential.");
+  const { t, language } = useLocale();
+  const [servicesTitle, setServicesTitle] = useState(t("reno-services-title"));
+  const [processTitle, setProcessTitle] = useState(t("reno-process-title"));
+  const [processText, setProcessText] = useState(t("reno-process-text"));
 
   const iconMap: Record<string, any> = { Lightbulb, Calculator, HardHat, Package, Palette, Camera, TrendingUp };
 
-  const [processSteps, setProcessSteps] = useState(["Concept", "Construction", "Delivery", "Staging"]);
+  const buildProcessSteps = () => [0, 1, 2, 3].map((i) => t(`reno-step-${i}` as TranslationKey));
+  const [processSteps, setProcessSteps] = useState(buildProcessSteps());
 
-  const [services, setServices] = useState([
-    { icon: "Lightbulb", title: "Architectural concept & mood boards", description: "We create inspiring visual concepts that capture the Mediterranean essence." },
-    { icon: "Calculator", title: "Budget planning", description: "Transparent cost estimation and financial planning for your project." },
-    { icon: "HardHat", title: "Renovation management", description: "End-to-end project oversight ensuring quality and timely delivery." },
-    { icon: "Package", title: "Material & furniture sourcing", description: "Curated selection of premium materials and furnishings." },
-    { icon: "Palette", title: "Full interior design", description: "Complete design solutions from layout to final styling." },
-    { icon: "Camera", title: "Styling & photography", description: "Professional staging and photography to showcase your property." },
-    { icon: "TrendingUp", title: "Rental optimisation post-renovation", description: "Maximise your return with strategic positioning and pricing." },
-  ]);
+  const buildServices = () =>
+    SERVICE_ICONS.map((icon, i) => ({
+      icon,
+      title: t(`reno-service-title-${i}` as TranslationKey),
+      description: t(`reno-service-desc-${i}` as TranslationKey),
+    }));
+  const [services, setServices] = useState(buildServices());
+
+  useEffect(() => {
+    setServicesTitle(t("reno-services-title"));
+    setProcessTitle(t("reno-process-title"));
+    setProcessText(t("reno-process-text"));
+    setProcessSteps(buildProcessSteps());
+    setServices(buildServices());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -55,9 +68,9 @@ const RenovationsPageContent = () => {
         <Section size="lg" tone="muted">
           <SectionIntro
             idPrefix="reno-hero"
-            eyebrow="Renovations & Design"
-            heading="Timeless Mediterranean Interiors. Elevated Asset Value."
-            lead="Our renovation and design team transforms properties into refined, contemporary Mediterranean spaces. We oversee the entire process with a focus on craftsmanship, functionality, and increased rental performance."
+            eyebrow={t("reno-hero-eyebrow")}
+            heading={t("reno-hero-heading")}
+            lead={t("reno-hero-lead")}
             headingAs="h1"
           />
         </Section>

@@ -1318,3 +1318,438 @@ Kollektion aus, nicht an einer für alle drei Reihen geltenden Annahme.
 **Verifikation:** `tsc --noEmit` und `npm run build` liefen sauber. `npm run
 lint` zeigt dieselben vorbestehenden Fehler wie in §25, keine neuen. Browser-
 Prüfung weiterhin nicht möglich — chrome-devtools-MCP bleibt getrennt.
+
+## 27 · Header-Neuaufbau (Landing + PM), Standort-Dropdown-Bug, Lightbox, Studio-Anzeige, Mobile-Rail
+
+Phase-0-gated (Analyse zuerst), mit zwei ausdrücklich zurückzumeldenden
+Punkten statt sie zu erraten: der vermutlich fabrizierten Property (§ unten)
+und der Währungsliste (offen, siehe Almedin-Nachricht).
+
+**Punkt 0 — Fabrizierte Properties: es sind drei, nicht eine.** Per
+DB-Abfrage bestätigt: „Peninsula Corner Villa Higueron", „Los Flamingos Golf
+Resort" **und** „Puente Romano Hideaway" haben alle denselben
+`created_at`-Zeitstempel (die ursprüngliche Seed-Migration), alle
+`guesty_listing_id = null`, alle `featured = true` — keine einzige ist an
+Guesty angebunden. Das sind exakt die drei Properties, die seit §24 als
+„keine Badge-Inflation, nur 3/26 featured" bekannt waren; erst jetzt wird
+klar, dass diese drei selbst das Problem sind, nicht eine Ausnahme davon.
+Der Slug `villa-in-higueron`, auf den `villa-higueron.webp` in
+`propertyImages` gemappt war, gehörte zu **keiner** existierenden Property —
+die Bildzuordnung war bereits tot, bevor irgendetwas gelöscht wurde. Vor dem
+Löschen per SQL geprüft, ob `bookings`, `conversations`, `campaign_events`
+oder `tasks` auf eine der drei IDs verweisen (0 Treffer in allen vieren) —
+Almedin hat sich für „Löschen" entschieden, alle drei Zeilen sind entfernt
+(23 statt 26 Properties, Sitemap bestätigt das). Die jetzt toten Einträge in
+`propertyImages` (`PropertyCard.tsx`, `PropertyDetail.tsx`) sowie die vier
+dadurch ungenutzten Bild-Imports (`property2`, `property4`, `property5`,
+`villaHigueron`) sind mit entfernt — die Bilddateien selbst bleiben, `grep`
+zeigt sie noch in `OwnerHero.tsx`/`MediaFrame.tsx` in Verwendung.
+
+**Punkt 7 — der Standort-Dropdown-Bug war ein Portal-Problem, kein
+z-index-Problem**, wie im Prompt selbst vermutet. `LocationAutocomplete.tsx`
+rendert seine Vorschlagsliste als einfaches `<div className="absolute">`,
+nicht portalt — anders als Check-in/Check-out/Guests in `SearchBar.tsx`, die
+alle drei ein Radix-`Popover` verwenden (portalt nach `document.body`).
+`Hero.tsx`s äußere `<section>` trägt `overflow-hidden` (nötig, um das
+Hintergrundvideo zu croppen); das schneidet jeden nicht portalten
+Nachfahren ab, der über den Rand der ~62vh-Hero-Sektion hinausragt —
+unabhängig vom z-index. Fix: `LocationAutocomplete` läuft jetzt auch auf
+einem Radix-`Popover` (`PopoverAnchor` statt `PopoverTrigger`, da der
+„Trigger" hier ein Texteingabefeld mit eigener Fokus-/Tipp-Logik ist, kein
+Klick-Button) — `PopoverAnchor` neu in `ui/popover.tsx` exportiert, dieselbe
+Portal-Mechanik wie bei den anderen drei Feldern. Der manuelle
+`mousedown`-Listener für „Klick außerhalb schließt" ist damit überflüssig
+geworden (Radix regelt das über `onOpenChange`) und wurde entfernt.
+
+**Header — zwei neue `Navigation`-Varianten, alte bleibt unverändert.** Der
+bisherige dropdown-lastige Header (Property-Management-Untermenü, Stay-
+With-Us-Untermenü, gefüllter Sign-In-Button) läuft unverändert auf jeder
+Seite außer den zwei angefragten weiter (`variant="default"`, der
+Default-Wert). Neu: `variant="landing"` (`Index.tsx`) und
+`variant="propertyManagement"` (`PropertyManagementPage.tsx`), beide flach
+(keine Untermenüs) nach dem OmniVillas-Muster. Die PM-Variante zentriert den
+Sprach-Switcher zwischen Logo und Link-Cluster über zwei `flex-1`-Wrapper
+mit Zero-Basis (Standardtrick: beide Seiten wachsen exakt gleich, unabhängig
+davon, wie breit Logo bzw. Link-Cluster tatsächlich sind — nur so bleibt die
+Mitte wirklich mittig). „Property Management" auf der PM-Seite scrollt smooth
+zu `#the-system` (existierte schon als ID); „Apply" verlinkt auf
+`#get-in-touch` (`OwnerContactForm.tsx`, ebenfalls schon vorhandene ID).
+„Book a Stay" existiert bewusst zweimal mit unterschiedlichem Ziel: als
+schlichter Link auf der PM-Seite → `/` (zurück zur Gästeseite), als
+goldener Button auf der Landing-Seite → `/properties` (weiter zu den
+Listings) — beide Richtungen ergeben im jeweiligen Kontext Sinn.
+
+**Neue Komponente `LanguageCurrencySwitcher.tsx`** — transparente Pille
+(Rahmen statt Füllung, auf Almedins Wunsch, obwohl die Site-CTAs sonst
+gefüllt-gold sind), zeigt geschlossen nur die aktive Auswahl (`EN` bzw.
+`EN · EUR`), nie die volle Optionsliste. Sprachen nur DE/EN/ES (nicht die
+fünf aus dem OmniVillas-Bild). **Reine Auswahl-UI** — es gibt in diesem
+Codebase weder ein i18n-System noch eine Währungsumrechnung für
+`price_per_night`; die Komponente hält die Auswahl nur in lokalem State,
+übersetzt keine Seiteninhalte und rechnet keine Preise um. Beides wäre ein
+separates, deutlich größeres Vorhaben. Währungsliste EUR/USD/GBP war der im
+Prompt selbst vorgeschlagene Default, von Almedin bestätigt.
+
+**`PropertyDetail.tsx`: echte Solo-Lightbox ergänzt.** Bisher öffnete jeder
+Bild-Klick nur den vorhandenen Grid-Dialog (alle Fotos auf einmal) — nie ein
+einzelnes Bild groß, trotz der Behauptung im vorherigen Prompt-Teil, es gäbe
+gar keine Lightbox (es gab schon einen Dialog, nur keinen Solo-Viewer).
+Klick auf das Hauptbild oder eines der vier Nebenbilder öffnet jetzt direkt
+den neuen Solo-Dialog (`object-contain`, nicht `object-cover` — kein
+Beschnitt) mit Vor/Zurück-Pfeilen und Zähler; „Show all X photos" öffnet
+weiterhin den Grid-Überblick, von dem aus ein Klick in den Solo-Viewer
+wechselt.
+
+**Studio-Anzeige.** Nur eine Property hat `bedrooms = 0`
+(„Sol, Arena y Mar First Line Beach Studio", `type: "Studio"`) — echte
+Dateneingabe, keine Lücke. `PropertyCard.tsx` und `PropertyDetail.tsx` zeigen
+jetzt „Studio" statt „0 bedrooms"/„0 Bedrooms".
+
+**Mobile-Rail-Nachbesserung in `PropertyCollections.tsx`.** Karten liefen auf
+festem `w-80` (320px) unabhängig von der Viewportbreite — auf einem
+~360px-Phone blieb kaum ein Anriss der nächsten Karte sichtbar. Jetzt
+`w-[85vw] max-w-80`: konsistenter Anriss bei jeder Handybreite, gedeckelt auf
+dieselben 320px, die die Desktop-Breitenrechnung schon annimmt.
+`snap-mandatory` → `snap-proximity` — auf iOS Safari fühlt sich „mandatory"
+beim Swipen oft ruckartig/erzwungen an, „proximity" rastet nur ein, wenn man
+ohnehin nah dran landet.
+
+**Gold-Konsistenz (Punkt 8) bereits erfüllt, bis auf eine bekannt
+ausgelassene Seite.** Einzige Fundstelle für das falsche, zu kontrastarme
+`text-accent` (statt `text-accent-strong`) ist `BusinessAreas.tsx` — laut §11
+bereits als verwaist markiert und Kandidat für ein 301-Redirect, deshalb
+bewusst nicht angefasst (dieselbe Begründung wie in §23 für
+`/business-areas`).
+
+**Logo/About-Us/Sign-In wirkten „ausgeschattet" — zwei getrennte, echte
+Ursachen, keine erfunden.** (1) Der Logo-Wortmark ist keine reine Farbe,
+sondern ein Cremeton (~#ECE3D2) fest ins Bild gebacken — direkt neben
+reinweißem (`text-primary-foreground`) Nav-Text wirkt er dadurch
+unvermeidlich etwas gedämpfter; das lässt sich nicht per CSS beheben, ohne
+an einem Markenwert-Asset zu drehen (CLAUDE.md: „Nicht anfassen ohne
+Rückfrage"), also unangetastet gelassen — bei Bedarf müsste eine reinweiße
+Logo-Variante vom Designer kommen. (2) „About Us"/„Sign In" hatten im Code
+dieselbe `text-primary-foreground`-Klasse wie „Property Management"/„Stay
+With Us" — der Dimm-Eindruck kam vom fehlenden Chevron/Dropdown-Gewicht der
+anderen beiden, nicht von der Farbe. Da die neuen `landing`/
+`propertyManagement`-Varianten alle Chevrons entfernen, verschwindet dieser
+Effekt als Nebenwirkung des Umbaus.
+
+**Verifikation:** `tsc --noEmit` und `npm run build` liefen sauber. `npm run
+lint` zeigt nur zwei vorbestehende `any`-Fehler in `PropertyDetail.tsx`
+(unverändert von mir angefasste Zeilen), keine neuen. Browser-Prüfung
+weiterhin nicht möglich, chrome-devtools-MCP bleibt getrennt.
+
+## 28 · Header-Feinschliff: transparente Hero-Variante ersatzlos gestrichen, ein Header für die ganze Seite, abgerundete CTAs, Preis-Sortierung
+
+Direktes Feedback zu §27, in einem Punkt eine echte Korrektur, nicht nur
+Politur.
+
+**„Der Text wird abgedeckt/schattiert" — das war der Scrim, nicht eine neue
+Regression.** `landing`/`propertyManagement` liefen über `overlay`
+transparent über dem Hero-Foto und füllten sich erst beim Scrollen zu
+`bg-primary` — bis dahin sorgte ein Verlaufs-Scrim
+(`bg-gradient-to-b from-scrim/55 to-transparent`) über den obersten 160px
+für Lesbarkeit des weißen Textes auf hellem Foto/Video. Genau dieser Scrim
+ist das, was als „Schrift wird in den Hintergrund geschattet" ankam — vorher
+kaschierten ein gefüllter Gold-Button („Sign In") und zwei fette
+Dropdown-Chevrons das etwas, der neue, bewusst leichtere Flach-Header
+brachte es erst richtig zur Geltung. Fix: die ganze transparente Variante
+ist weg, nicht nur abgeschwächt — `Navigation` rendert jetzt **immer**
+solides `bg-primary`, auf jeder Seite, kein `overlay`-Prop, kein
+Scroll-Listener, kein Scrim-Div mehr. Passt auch besser zum eigentlichen
+OmniVillas-Referenzbild: deren Header ist selbst nie transparent über einem
+Foto, sondern durchgehend eine solide helle Leiste.
+
+**Ein Header für die ganze Seite, nicht nur zwei.** Die alte
+dropdown-lastige `"default"`-Variante (Property-Management-Untermenü mit
+Property Evaluator, Stay-With-Us-Untermenü mit Properties/Instagram) ist
+komplett ersetzt durch den flachen Aufbau, den §27 nur für die Landingpage
+gebaut hatte — jetzt einfach `variant="default"`, ohne dass irgendeine der
+~15 Seiten, die nur `<Navigation />` ohne Props schreiben, angefasst werden
+musste (der Wechsel passiert zentral in der Komponente). Property Evaluator
+und der Instagram-Link aus dem alten „Stay With Us"-Untermenü haben im Nav
+keinen Ersatz — beide bleiben über die Seiten selbst bzw. den goldenen
+„Book a Stay"-Button (→ `/properties`) erreichbar, nicht mehr über ein
+Dropdown im Header. `nav-4`, `nav-4-properties`, `nav-4-posts`, `nav-5`
+entsprechend ersatzlos entfallen (PROJECT.md).
+
+**PM-Seite: Sprach-Switcher jetzt inline statt Dropdown, aus der Mitte nach
+rechts.** `LanguageCurrencySwitcher.tsx` bekam einen zweiten Modus,
+`variant="inline"` — alle drei Sprachen (DE/EN/ES) immer sichtbar,
+Punkt-getrennt, ohne Popover-Panel, exakt das zweite Referenzbild
+(„EN · DE · FR · ES · PT", bei uns auf die bestätigten drei Sprachen
+reduziert). Da der Switcher nicht mehr die einzige Mitte-Komponente ist, für
+die sich das eigene Drei-Zonen-Layout aus §27 gelohnt hätte, ist die
+PM-Variante jetzt strukturell identisch mit der Default-Variante (Logo links,
+alles andere rechts, `justify-between`) — nur mit anderem Link-Inhalt. Der
+Zwei-`flex-1`-Zentrier-Trick aus §27 ist damit hinfällig und raus.
+
+**Gold-CTAs: Pfeil-Icon, abgerundet wie die grünen Buttons.** „Apply" und
+„Book a Stay" bekommen `<ArrowRight>` nach dem Label (Referenzbild:
+„Book direct →"). Beide liefen bisher auf dem Button-Default `rounded-md` —
+neben den durchgehend `rounded-full` gebauten grünen/salbeifarbenen Buttons
+(Suchleisten-Such-Button, Gäste-Stepper) sah das nach zwei verschiedenen
+Button-Familien aus. Jetzt `rounded-full` für beide.
+
+**`/properties`: Default-Sortierung auf „Price: high to low".** Bisher
+„Recommended" (DB-Reihenfolge, featured zuerst). Neuer Default zeigt die
+teuersten — in diesem Portfolio auch die eindrucksvollsten — Objekte zuerst.
+
+**Verifikation:** `tsc --noEmit` und `npm run build` liefen sauber. `npm run
+lint` zeigt dieselben vorbestehenden Fehler wie in §27, keine neuen.
+Browser-Prüfung weiterhin nicht möglich, chrome-devtools-MCP bleibt
+getrennt — die Scrim-Diagnose in diesem Abschnitt beruht auf Code-Lektüre
+(Stacking-/Opacity-Analyse), nicht auf einem visuellen Vergleich; sollte sie
+nicht die ganze Ursache gewesen sein, bitte konkret zurückmelden, was noch
+zu sehen ist.
+
+## 29 · Transparenter Header zurück (als durchgehende Fläche statt Verlauf), echte Preisumrechnung, Switcher-Feinschliff
+
+Korrektur zu §28: Almedin wollte die transparente Header-Variante nicht
+loswerden, sondern nur den Verlauf, der sie hatte „abgeschattet" wirken
+lassen — Referenzbild zeigt OmniVillas' eigenen Header, eine durchgehend
+getönte Fläche über dem Foto, nicht ein- und ausfaltend.
+
+**`overlay`-Prop zurück, aber neu gebaut.** `Navigation` hat wieder ein
+`overlay`-Prop (nur `Index.tsx`, `PropertyManagementPage.tsx`), aber ohne
+den separaten Verlaufs-Scrim-Div aus der alten Version — stattdessen trägt
+die `<nav>` selbst im ungefüllten Zustand `bg-primary/55 backdrop-blur-md`,
+eine konstante getönte Fläche über die ganze Leiste, kein Fade. Füllt sich
+beim Scrollen (oder offenem Mobile-Menü) weiterhin zu vollem `bg-primary` —
+dasselbe Verhalten wie vorher, nur die Zwischenstufe ist jetzt gleichmäßig
+statt verlaufend.
+
+**Echte Preisumrechnung, keine Auswahl-Attrappe mehr.** Neuer
+`LocaleContext.tsx` (`LocaleProvider` in `App.tsx`, neben `AuthProvider`/
+`InlineEditProvider`) hält `language`/`currency` jetzt global statt lokal im
+Switcher — `PropertyCard.tsx` und `PropertyDetail.tsx`s Preisanzeige lesen
+`convertPrice()`/`currencySymbol` von dort, Auswahl im Header wirkt sich
+jetzt sichtbar aus. Kurse sind statisch und angenähert (EUR 1 / USD 1,08 /
+GBP 0,85, Stand 20.08.2026) — kein Live-Kurs-Feed, das wäre eine eigene
+Supabase-Function mit externem API-Key. Bewusst nur auf die
+Marketing-Preisanzeige beschränkt: `BookingSummary.tsx`, die
+Guesty-Live-Quote und der Stripe-Checkout bleiben unangetastet und laufen
+weiter ausschließlich in EUR (CLAUDE.md: Buchungs-/Zahlungsfluss nicht ohne
+Einzelrückfrage anfassen) — der bestehende Hinweistext im Switcher-Panel
+sagt das auch explizit („every stay is billed in EUR").
+
+**Sprache übersetzt weiterhin nichts.** Die Auswahl ist jetzt zwar global
+sichtbar (`LocaleContext`), aber es gibt keine Übersetzungs-Infrastruktur
+im Projekt und keine deutschen/spanischen Texte für die Seite — das ist ein
+separates, deutlich größeres Vorhaben (i18n-System plus tatsächliche
+Übersetzung jedes Textbausteins). Noch nicht begonnen, siehe Rückfrage an
+Almedin im Chat.
+
+**Switcher-Feinschliff:** mehr Innenabstand (`px-3.5/py-1.5` →
+`px-4–5/py-2–2.5`, näher am OmniVillas-Referenzbild), `ChevronDown`-Icon
+entfernt — der Klick auf die Pille öffnet das Dropdown weiterhin über Radix'
+`PopoverTrigger`, unabhängig vom Icon. Größenkontrast zum CTA-Button: Switcher
+`size="sm"`, Button auf `h-11 px-6 text-base` (über dem Default `h-10 px-4
+text-sm`) angehoben — bewusster Unterschied zwischen der einen soliden CTA
+und der zurückhaltenderen Outline-Pille daneben, wie im OmniVillas-Header.
+
+**Verifikation:** `tsc --noEmit` und `npm run build` liefen sauber. `npm run
+lint` zeigt nur die zwei vorbestehenden `any`-Fehler in `PropertyDetail.tsx`
+und eine `react-refresh/only-export-components`-Warnung in
+`LocaleContext.tsx` — dieselbe Warnung, die `AuthContext.tsx` schon hat
+(Context + Hook in einer Datei, etabliertes Muster in diesem Projekt), keine
+neuen Fehler. Browser-Prüfung weiterhin nicht möglich.
+
+## 30 · Erste i18n-Runde — DE/ES-Übersetzung von Header, Footer, Suche und der gesamten Landing Page
+
+Almedin wollte die ganze Seite übersetzt, KI-Entwurf zur späteren Durchsicht
+(„Ganze Seite, KI-Entwurf zur Durchsicht"). Diese Runde deckt Header, Footer,
+Suchleiste und jede Section der Landing Page ab — nicht die komplette Website
+auf einmal, siehe „Noch offen" unten.
+
+**Architektur:** `src/lib/translations.ts` — ein `en`/`de`/`es`-Wörterbuch,
+Schlüssel sind wo möglich identisch mit den bereits vorhandenen
+`EditableText`-`id`s (ein Bezeichner statt zweier paralleler Namensschemata).
+`LocaleContext.tsx` (schon aus §29 für die Währung da) bekam `t(key)` dazu,
+plus `language` selbst. Jede Komponente mit `EditableText`-State liest ihren
+Default jetzt über `t()` statt eines Literals und synchronisiert per
+`useEffect` auf `[language]` neu — das setzt manuelle Inline-CMS-Edits beim
+Sprachwechsel zurück auf den neuen Default, was nichts verliert, das ein
+Reload nicht ohnehin schon verlieren würde (PROJECT.md C7: Edits persistieren
+heute nicht). Komponenten ohne CMS-Editierung (SearchBar, LocationAutocomplete,
+PropertyCard-Meta-Zeile) rufen `t()` direkt im JSX auf, ganz ohne eigenen
+State.
+
+**Abgedeckt:** `Navigation.tsx`, `Footer.tsx`, `SearchBar.tsx` +
+`LocationAutocomplete.tsx` (Feld-Label, Platzhalter, Gäste-Panel),
+`PropertyCard.tsx` (Meta-Zeile, „from"/„night"/„Featured"),
+`Properties.tsx`-Kopfbereich (Eyebrow, Headline, Sortierung, Leerzustand),
+und jede Section der Landing Page: `Hero.tsx`, `PropertyCollections.tsx`
+(alle drei Rail-Titel/Leads), `GuestManagement.tsx` („It's in the
+details." + die vier Punkte), `FAQ.tsx` (nur Eyebrow/Headline),
+`OwnAProperty.tsx`, `PropertyEvaluator.tsx` (nur Sektionstitel/Untertitel/
+Button).
+
+**Noch offen, bewusst nicht in dieser Runde:**
+- Die sieben FAQ-Frage/Antwort-Paare selbst (`FAQ_ITEMS` in `FAQ.tsx`) —
+  längere Fließtext-Absätze mit Zahlen/Fakten, nicht nur Überschriften.
+- `PropertyEvaluator.tsx`s Formularfelder (Bedrooms/Bathrooms/Property
+  Type/Size/Guests-Labels und ca. 40 Dropdown-Optionen).
+- `/about`, `/renovations`, `/investments`, `/guaranteed-income`.
+- Die Property-Management-Seite selbst (`OwnerHero`, `TheSystem`, `Proof`,
+  `WaysToWorkTogether`, `AboutMini`, `OwnerContactForm`) — nur ihr Header ist
+  über die geteilte `Navigation`/`FAQ`-Wörterbucheinträge mit abgedeckt.
+- `PropertyDetail.tsx`s Fließtext (Beschreibung, Amenities-Namen kommen
+  ohnehin aus der DB, nicht aus dem Code).
+- Das Admin-Gebiet — nie gästeseitig, bewusst ausgenommen.
+
+Alles davon folgt demselben, jetzt etablierten Muster (`t()` +
+`useEffect`-Reset) — reine Fortsetzungsarbeit, kein neues Konzept nötig.
+
+**Qualität:** DE/ES sind von mir (Claude) übersetzt, nicht von einem
+Muttersprachler geprüft — das war ausdrücklich als Entwurf angefragt.
+Insbesondere die Rechts-/Marketingsprache (Impressum-Verlinkung „Aviso
+Legal" ↔ „Impressum" auf Deutsch) sollte vor Veröffentlichung von jemandem
+mit Sprachkenntnis gegengelesen werden.
+
+**Verifikation:** `tsc --noEmit` und `npm run build` liefen sauber. `npm run
+lint` zeigt dieselben vorbestehenden Fehler wie in §29, keine neuen. Browser-
+Prüfung weiterhin nicht möglich — insbesondere der Sprachwechsel selbst
+(löst er wirklich re-render + korrekten Reset auf allen State-Variablen aus,
+ohne einen Flackereffekt oder eine vergessene Stelle) ist nur durch
+Code-Lektüre geprüft, nicht visuell.
+
+## 31 · i18n zweite Runde — About/Renovations/Investments/Guaranteed Income, komplette Property-Management-Seite, PropertyDetail-UI
+
+Fortsetzung von §30, auf Almedins „ja" zur Frage, ob mit den restlichen
+Seiten weitergemacht werden soll. Deckt jetzt praktisch die gesamte
+öffentliche Seite ab, mit den unten aufgeführten bewussten Ausnahmen.
+
+**FAQ-Antworten jetzt auch übersetzt — als Anzeige-Text getrennt vom
+Schema.** `FAQ_ITEMS` in `FAQ.tsx` bleibt englisch, weil es die
+`FAQPage`-JSON-LD auf `Index.tsx` speist und strukturierte Daten den
+kanonischen (englischen) Inhalt abbilden sollten, den ein Crawler indexiert
+— nicht einen Client-seitigen Sprach-Toggle. Neue `faq-q-0…6`/`faq-a-0…6`-
+Schlüssel im Wörterbuch versorgen stattdessen nur die sichtbare Anzeige;
+`FAQ.tsx` rendert jetzt `t(...)` statt `item.question`/`item.answer` direkt.
+
+**`SectionIntro.tsx` bekam einen Resync-Effect.** Renovations/Investments/
+Guaranteed Income übergeben `eyebrow`/`heading`/`lead` als literale Props
+(nicht eigenen State) — ein einfacher `useEffect(() => { setEyebrowText(eyebrow); ... }, [eyebrow, heading, lead])`
+synchronisiert jetzt neu, sobald der Aufrufer selbst neu übersetzte Strings
+liefert (Sprachwechsel). Kein `language`-Import in `SectionIntro.tsx` nötig
+— die Props selbst sind bereits das Signal.
+
+**Property-Management-Seite komplett:** `OwnerHero.tsx`, `AboutMini.tsx`
+(Team-Rollen nur im Fallback-Zustand übersetzt — echte Daten aus
+`team_members` werden nie von einem Sprachwechsel überschrieben),
+`TheSystem.tsx` (alle sechs Schritte + Closing-Line), `WaysToWorkTogether.tsx`
+(beide Modelle + beide „Beyond management"-Pfade), `OwnerContactForm.tsx`
+(alle Formularfelder, Platzhalter, Toast-Meldungen, Datenschutzhinweis).
+
+**`Proof.tsx`: nur die strukturellen Labels, nicht `FEATURED_PROJECTS`.**
+Die drei Fallstudien (Titel/Lage/Beschreibung/Kennzahlen) kommen aus
+`ProjectsSection.tsx`, geteilt mit `/projects` — das liegt näher an
+verifizierten Fall-Daten als an generischem Marketingtext und bleibt
+bewusst unangetastet. „Occupancy"/„Revenue"/„Rating" sind jetzt übersetzt.
+
+**`PropertyDetail.tsx`: UI-Chrome übersetzt, DB-Inhalt nicht.**
+Zurück-Button, Galerie-Button, Bedrooms/Bathrooms/Guests-Zeile,
+Sektionsüberschriften, Live-Preise-Hinweis, Buchungskarte, alle
+Toast-Meldungen. `property.description`/`property.amenities` kommen aus der
+Datenbank, nicht aus dem Code — unverändert. Ein `useEffect`, der `slug`
+lädt, bekam bewusst **kein** `t` in seinen Dependencies (Kommentar im Code):
+Ansonsten hätte ein Sprachwechsel einen unnötigen Refetch der ganzen
+Property ausgelöst, nur um den Wortlaut eines Fehler-Toasts aktuell zu
+halten.
+
+**Bewusst weiterhin nicht übersetzt:** die Zod-Validierungsmeldungen in
+`PropertyEvaluator.tsx`/`OwnerContactForm.tsx` (nur bei ungültiger Eingabe
+sichtbar, niedrigere Priorität), `FEATURED_PROJECTS`, das Admin-Gebiet (nie
+gästeseitig). Die vollständige Coverage-Liste steht im Kopfkommentar von
+`src/lib/translations.ts`.
+
+**Verifikation:** `tsc --noEmit` und `npm run build` liefen sauber. `npm run
+lint` zeigt nur vorbestehende Fehler (`any`-Typen in mehreren `iconMap`-
+Deklarationen, unverändert von mir angefasste Zeilen) und dieselbe
+`react-refresh/only-export-components`-Warnung wie in §30 — eine neue
+`react-hooks/exhaustive-deps`-Warnung in `PropertyDetail.tsx` wurde bewusst
+mit Kommentar + `eslint-disable-next-line` unterdrückt (siehe oben), keine
+sonstigen neuen Fehler. Browser-Prüfung weiterhin nicht möglich.
+
+## 32 · Neues Hero-Video, höher aufgelöstes About-Bild, Contact-Us-Ziele, Footer-Überarbeitung
+
+**Hero-Video ersetzt.** Almedin lieferte `VID PUENTE ROMANO 1 (1).mp4`
+(4K, 3840×2160, 30fps, 27,8s, 290 MB) direkt aus seinen Downloads. Gleiches
+Rezept wie beim ersten Mal (§22): mit dem winget-installierten `ffmpeg` auf
+1280×720 skaliert, `libx264 -crf 30 -maxrate 2500k -bufsize 5000k`, ohne Ton
+(`-an`), `+faststart`. Ergebnis: 6,4 MB, überschreibt
+`public/videos/hero-background.mp4` direkt — kein Code in `Hero.tsx` musste
+sich ändern, der Pfad blieb gleich.
+
+**About-Hero-Bild ersetzt.** `DSC01050-HDR.jpg` (4597×3065, 5,1 MB JPEG) auf
+2400px Breite skaliert und nach WebP konvertiert (Projekt-Konvention: keine
+rohen JPGs unter `src/assets`), 390 KB. Überschreibt
+`src/assets/about-hero.webp` direkt (vorher 1200×800, 108 KB) — auch hier
+kein Code-Wechsel nötig, nur die Datei selbst.
+
+**„Contact us"-Buttons zeigen jetzt auf die einzige echte Kontaktform der
+Seite — mit einem offenen Punkt.** `GuestManagement.tsx`s „Contact us"
+(Landing Page) zeigte vorher auf `/properties` — laut eigenem Code-Kommentar
+selbst schon als Notlösung markiert, weil es „keine eigene Gäste-Kontaktseite
+gibt". Jetzt zeigt der Button wie angefragt auf
+`/property-management#get-in-touch`, dieselbe Adresse, die auch der neue
+„Contact Us"-Button am Ende von `About.tsx` bekommen hat (dort gab es vorher
+gar keinen Call-to-Action). **Aber:** Dieses Formular fragt „Where is the
+property? *" als Pflichtfeld ab — eine Eigentümer-Frage, keine Gäste-Frage.
+Ein Gast, der über die Landing Page oder About Us auf „Contact us" klickt,
+landet damit auf einem Formular, das ihm eine für ihn unpassende Pflichtangabe
+abverlangt. Das ist keine Verletzung von CLAUDE.mds Eigentümer-/Gäste-Trennung
+in der Wortwahl (der Text „Contact us" bleibt unverändert, wie in
+`GuestManagement.tsx` per CLAUDE.md vorgeschrieben), aber ein echtes
+UX-Problem, das ich nicht stillschweigend gelöst habe — die richtige Lösung
+(ein eigenes, kürzeres Gäste-Anfrageformular) ist ein größeres, eigenes
+Vorhaben, kein Link-Wechsel. Absichtlich so umgesetzt, wie angefragt, mit
+diesem Vermerk statt einer eigenmächtigen Änderung der Anfrage.
+
+**`WaysToWorkTogether.tsx` bekam einen neuen Anker,** `id="beyond-management"`
+mit `scroll-mt-24` (dieselbe Kopfzeilen-Freistellung wie jeder andere Anker
+auf der Seite) auf dem Div mit der Gold-Linie/„Beyond management"-Eyebrow —
+nicht auf der ganzen `#ways-to-work`-Section, damit ein Link direkt bei den
+Renovations-/Investments-Karten landet statt bei den zwei
+Engagement-Modellen darüber.
+
+**Footer überarbeitet:**
+- Logo von `h-12 md:h-14` (identisch zur Kopfzeile) auf `h-16 md:h-20`
+  vergrößert — allein in einer ganzen Footer-Spalte wirkte die
+  Kopfzeilen-Größe klein.
+- „Guaranteed Income" als eigene Zeile ersatzlos entfernt (Almedins
+  ausdrücklicher Wunsch) — die Seite `/guaranteed-income` existiert
+  unverändert weiter, ist nur nicht mehr im Footer verlinkt.
+- „Renovations" und „Investments" zu einer Zeile „Beyond Management"
+  zusammengelegt, verlinkt auf `/property-management#beyond-management` —
+  exakt das Label, das die PM-Seite selbst für genau diesen Abschnitt
+  verwendet (statt zwei Footer-Zeilen für das, was auf der Seite selbst als
+  ein Angebot unter einer Überschrift läuft).
+- Neu: „Browse Homes" → `/properties`. Der Footer hatte bisher **keinen**
+  Link zur eigentlichen Objektsuche — bei einer Seite, deren zentrale
+  Gäste-Funktion genau das ist, eine echte Lücke, keine Geschmacksfrage.
+- FAQ-Link korrigiert: lief auf `/property-management#faq` (die
+  Eigentümer-Instanz von `FAQ.tsx`), zeigt jetzt auf `/#faq` — dieselbe
+  Komponente läuft gästeseitig auch direkt auf der Landing Page, und ein
+  Gast, der im Footer auf „FAQ" klickt, sollte auf dem für ihn geschriebenen
+  Text landen, nicht im Eigentümer-Kontext der PM-Seite.
+- `footer-gi-link`/`footer-renovations-link`/`footer-investments-link`
+  ersatzlos entfallen (PROJECT.md), neue Keys `footer-beyond-link`/
+  `footer-browse-link`.
+
+**Verifikation:** `tsc --noEmit` und `npm run build` liefen sauber. `npm run
+lint` zeigt nur denselben vorbestehenden `any`-Fehler in `GuestManagement.tsx`
+(unveränderte `iconMap`-Zeile), keine neuen Fehler. Browser-Prüfung weiterhin
+nicht möglich — insbesondere der neue `#beyond-management`-Anker und der
+größere Footer-Logo-Sprung sind nur durch Code-Lektüre geprüft.
+
+## 33 · Footer: FAQ-Link bestätigt, Projects entfernt
+
+FAQ war bereits korrekt auf `/#faq` verlinkt (§32) — nichts weiter zu tun.
+„Projects" als eigene Footer-Zeile ersatzlos entfernt (Almedins Wunsch);
+`/projects` existiert als Seite unverändert weiter, nur ohne Footer-Link.
+`footer-projects-link` aus allen drei Wörterbüchern und `projectsLink`-State
+aus `Footer.tsx` entfernt, in PROJECT.md als entfallen vermerkt.
+`tsc --noEmit`/`npm run build` sauber.

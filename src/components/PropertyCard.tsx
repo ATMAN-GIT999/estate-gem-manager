@@ -1,10 +1,8 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import property2 from "@/assets/property-2.webp";
+import { useLocale } from "@/contexts/LocaleContext";
 import property3 from "@/assets/property-3.webp";
-import property4 from "@/assets/property-4.webp";
-import villaHigueron from "@/assets/villa-higueron.webp";
 import losMonterosCard from "@/assets/los-monteros-card.webp";
 
 export interface Property {
@@ -27,18 +25,20 @@ interface PropertyCardProps {
   property: Property;
 }
 
+// "villa-in-higueron", "peninsula-corner-villa-higueron" and
+// "puente-romano-hideaway" used to be mapped here too — all three were
+// fabricated seed rows with no real Guesty listing behind them (one of them,
+// "villa-in-higueron", didn't even match any property that ever existed).
+// Deleted from the database on 2026-08-20 (docs/DECISIONS.md §27); the image
+// imports went with them since nothing else referenced those files.
 const propertyImages: Record<string, string> = {
-  "villa-in-higueron": villaHigueron,
-  "peninsula-corner-villa-higueron": property2,
-  // Used to fall back to property3 — the exact photo villa-in-higueron uses
-  // above, so two different villas showed the same room. Now its own real
-  // photo from the "Los Monteros 3 bed Diana" Drive folder.
+  // Real photo from the "Los Monteros 3 bed Diana" Drive folder.
   "los-monteros-retreat": losMonterosCard,
-  "puente-romano-hideaway": property4,
 };
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const [searchParams] = useSearchParams();
+  const { convertPrice, currencySymbol, t } = useLocale();
   
   // Use Guesty images if available, otherwise fall back to hardcoded images
   const guestyImage = property.images?.[0]?.url;
@@ -74,7 +74,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
         />
         {property.featured && (
           <Badge className="absolute top-4 right-4 bg-background/90 text-primary backdrop-blur-sm">
-            Featured
+            {t("propertycard.featured")}
           </Badge>
         )}
       </div>
@@ -90,7 +90,9 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
         </div>
 
         <p className="mb-3 text-foreground/60 t-body">
-          {property.guests} {property.guests === 1 ? "guest" : "guests"} · {property.bedrooms} {property.bedrooms === 1 ? "bedroom" : "bedrooms"} · {property.bathrooms} {property.bathrooms === 1 ? "bath" : "baths"}
+          {property.guests} {property.guests === 1 ? t("propertycard.guest") : t("propertycard.guests")} ·{" "}
+          {property.bedrooms === 0 ? t("propertycard.studio") : `${property.bedrooms} ${property.bedrooms === 1 ? t("propertycard.bedroom") : t("propertycard.bedrooms")}`} ·{" "}
+          {property.bathrooms} {property.bathrooms === 1 ? t("propertycard.bathroom") : t("propertycard.bathrooms")}
         </p>
 
         {/* `price_per_night` is a snapshot matched against a live Guesty quote
@@ -105,15 +107,14 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             A scheduled sync job is the real fix; see docs/PROJECT.md §6 (C4). */}
         <div>
           {property.guesty_listing_id && (
-            <span className="t-meta text-muted-foreground">from </span>
+            <span className="t-meta text-muted-foreground">{t("propertycard.from")} </span>
           )}
-          {/* Display rounding only — Math.ceil, not the value itself. A price
-              with cents (from a live Guesty quote snapshot) reads as more
-              precise than a "from" figure should; the underlying
-              `price_per_night`, the sync job and the booking-flow quote are
-              untouched. */}
-          <span className="t-item text-primary">€{Math.ceil(property.price_per_night)}</span>
-          <span className="t-meta text-muted-foreground"> / night</span>
+          {/* Display rounding/currency only — the underlying `price_per_night`,
+              the sync job and the booking-flow quote (always EUR) are
+              untouched. A price with cents (from a live Guesty quote
+              snapshot) reads as more precise than a "from" figure should. */}
+          <span className="t-item text-primary">{currencySymbol}{convertPrice(property.price_per_night)}</span>
+          <span className="t-meta text-muted-foreground"> {t("propertycard.perNight")}</span>
         </div>
       </div>
     </Link>

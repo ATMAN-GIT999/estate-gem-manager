@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InlineEditProvider } from "./contexts/InlineEditContext";
+import { LocaleProvider } from "./contexts/LocaleContext";
 import EditModeToggle from "./components/admin/EditModeToggle";
 import WhatsAppButton from "./components/WhatsAppButton";
 import ScrollToTop from "./components/ScrollToTop";
@@ -70,6 +71,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <InlineEditProvider>
+          <LocaleProvider>
             <ScrollToTop />
             <EditModeToggle />
             <WhatsAppButton />
@@ -108,6 +110,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
             </Suspense>
+          </LocaleProvider>
           </InlineEditProvider>
         </AuthProvider>
       </BrowserRouter>

@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabaseClient";
 import EditableText from "./admin/EditableText";
 import SectionIntro from "./SectionIntro";
 import { Section, Grid, Stack } from "./layout";
+import { useLocale } from "@/contexts/LocaleContext";
+import type { TranslationKey } from "@/lib/translations";
 
 type Member = { name: string; role: string; avatar_url?: string | null };
 
@@ -22,12 +24,7 @@ type Member = { name: string; role: string; avatar_url?: string | null };
  * populated. Fill `team_members` (including `avatar_url`) and this section
  * switches to real portraits on its own.
  */
-const FALLBACK_TEAM: Member[] = [
-  { name: "Alejandro Marinetto Rohr", role: "Co-Founder" },
-  { name: "Lorenz Aschbacher", role: "Co-Founder" },
-  { name: "Olek", role: "Marketing" },
-  { name: "Julien", role: "Guest Manager" },
-];
+const TEAM_NAMES = ["Alejandro Marinetto Rohr", "Lorenz Aschbacher", "Olek", "Julien"];
 
 const initialsOf = (name: string) =>
   name
@@ -98,10 +95,14 @@ const TeamFace = ({
 );
 
 const AboutMini = () => {
-  const [team, setTeam] = useState<Member[]>(FALLBACK_TEAM);
+  const { t, language } = useLocale();
+  const buildFallbackTeam = (): Member[] =>
+    TEAM_NAMES.map((name, i) => ({ name, role: t(`am-member-role-${i}` as TranslationKey) }));
+
+  const [team, setTeam] = useState<Member[]>(buildFallbackTeam());
   const [fromDatabase, setFromDatabase] = useState(false);
-  const [linkText, setLinkText] = useState("Read our story");
-  const [ctaText, setCtaText] = useState("Contact Us");
+  const [linkText, setLinkText] = useState(t("am-link"));
+  const [ctaText, setCtaText] = useState(t("am-cta"));
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -118,6 +119,15 @@ const AboutMini = () => {
 
     fetchTeam();
   }, []);
+
+  useEffect(() => {
+    setLinkText(t("am-link"));
+    setCtaText(t("am-cta"));
+    // Real team data from Supabase is never overwritten by a language
+    // switch — only the placeholder fallback re-translates.
+    if (!fromDatabase) setTeam(buildFallbackTeam());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   const updateMember = (
     index: number,
@@ -141,9 +151,9 @@ const AboutMini = () => {
             it is; only the short label above it changes. */}
         <SectionIntro
           idPrefix="am"
-          eyebrow="About Ourselves"
-          heading="A small team, on the ground in every region we host."
-          lead="Frontier was founded because owners of exceptional homes were being offered standard management — and their guests could tell."
+          eyebrow={t("am-eyebrow")}
+          heading={t("am-heading")}
+          lead={t("am-lead")}
         />
 
         <Grid cols={4} className="max-w-3xl mx-auto">

@@ -8,13 +8,14 @@ import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
-import { MapPin, Bed, Bath, Users, ArrowLeft, Images } from "lucide-react";
+import { MapPin, Bed, Bath, Users, ArrowLeft, Images, ChevronLeft, ChevronRight } from "lucide-react";
 import { getAmenityIcon } from "@/lib/amenityIcons";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useLocale } from "@/contexts/LocaleContext";
 import {
   Dialog,
   DialogContent,
@@ -22,21 +23,14 @@ import {
 } from "@/components/ui/dialog";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema, propertySchema } from "@/lib/schema";
-import property2 from "@/assets/property-2.webp";
 import property3 from "@/assets/property-3.webp";
-import property4 from "@/assets/property-4.webp";
-import property5 from "@/assets/property-5.webp";
-import villaHigueron from "@/assets/villa-higueron.webp";
 import losMonterosCard from "@/assets/los-monteros-card.webp";
 
+// See PropertyCard.tsx's propertyImages comment — the other three entries
+// this map used to have were fabricated seed rows, deleted 2026-08-20
+// (docs/DECISIONS.md §27).
 const propertyImages: Record<string, string[]> = {
-  "villa-in-higueron": [villaHigueron, property5],
-  "peninsula-corner-villa-higueron": [property2],
-  // Was [property3] — the same file villa-in-higueron uses above, so two
-  // different villas' detail pages showed an identical room. Now its own
-  // real photo (see PropertyCard.tsx for the matching fix).
   "los-monteros-retreat": [losMonterosCard],
-  "puente-romano-hideaway": [property4],
 };
 
 const PropertyDetail = () => {
@@ -44,10 +38,12 @@ const PropertyDetail = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { convertPrice, currencySymbol, t } = useLocale();
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showBookingSummary, setShowBookingSummary] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [datesValid, setDatesValid] = useState(false);
   
   // Initialize booking state with URL params if available
@@ -83,8 +79,8 @@ const PropertyDetail = () => {
       if (error || !data) {
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Property not found",
+          title: t("pd-toast-not-found-title"),
+          description: t("pd-toast-not-found-desc"),
         });
         navigate("/");
         return;
@@ -95,6 +91,10 @@ const PropertyDetail = () => {
     };
 
     fetchProperty();
+    // `t` deliberately excluded — refetching the property on every language
+    // switch just to keep an error-path toast's wording current isn't worth
+    // the extra request.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, navigate, toast]);
 
   const handleBookNow = () => {
@@ -102,16 +102,16 @@ const PropertyDetail = () => {
     if (!booking.checkIn || !booking.checkOut) {
       toast({
         variant: "destructive",
-        title: "Select your dates",
-        description: "Please choose check-in and check-out dates to continue.",
+        title: t("pd-toast-select-dates-title"),
+        description: t("pd-toast-select-dates-desc"),
       });
       return;
     }
     if (new Date(booking.checkOut) <= new Date(booking.checkIn)) {
       toast({
         variant: "destructive",
-        title: "Invalid dates",
-        description: "Check-out must be after check-in.",
+        title: t("pd-toast-invalid-dates-title"),
+        description: t("pd-toast-invalid-dates-desc"),
       });
       return;
     }
@@ -145,7 +145,7 @@ const PropertyDetail = () => {
   // result will actually display, otherwise a sentence built from its facts.
   const metaDescription = property.description
     ? String(property.description).replace(/\s+/g, " ").trim().slice(0, 155)
-    : `${property.bedrooms}-bedroom ${String(property.type ?? "property").toLowerCase()} in ${property.location}, sleeping up to ${property.guests}. Book directly with Frontier Residences.`;
+    : `${property.bedrooms === 0 ? "Studio" : `${property.bedrooms}-bedroom`} ${String(property.type ?? "property").toLowerCase()} in ${property.location}, sleeping up to ${property.guests}. Book directly with Frontier Residences.`;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -187,7 +187,7 @@ const PropertyDetail = () => {
             className="mb-6 mt-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Properties
+            {t("pd-back")}
           </Button>
 
           {/* Gallery — one lead image with four beside it, capped at half the
@@ -200,7 +200,7 @@ const PropertyDetail = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 h-[50vh] min-h-[320px] max-h-[560px] rounded-2xl overflow-hidden">
               <button
                 type="button"
-                onClick={() => setGalleryOpen(true)}
+                onClick={() => setLightboxIndex(0)}
                 className="md:col-span-2 md:row-span-2 group relative overflow-hidden"
               >
                 <img
@@ -216,7 +216,7 @@ const PropertyDetail = () => {
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => setGalleryOpen(true)}
+                  onClick={() => setLightboxIndex(idx + 1)}
                   className="hidden md:block group relative overflow-hidden"
                 >
                   <img
@@ -235,11 +235,14 @@ const PropertyDetail = () => {
                 className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm hover:bg-background shadow-elegant"
               >
                 <Images className="w-4 h-4 mr-2" />
-                Show all {images.length} photos
+                {t("pd-show-all-photos").replace("{n}", String(images.length))}
               </Button>
             )}
           </div>
 
+          {/* Overview grid — every photo at once, for scanning rather than
+              looking closely. Clicking one hands off to the solo lightbox
+              below instead of enlarging inline. */}
           <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
             <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto">
               <DialogTitle className="font-playfair text-2xl text-primary">
@@ -247,14 +250,70 @@ const PropertyDetail = () => {
               </DialogTitle>
               <div className="grid sm:grid-cols-2 gap-3 mt-2">
                 {images.map((img: string, idx: number) => (
-                  <img
+                  <button
                     key={idx}
-                    src={img}
-                    alt={`${property.name} — ${idx + 1}`}
-                    className="w-full aspect-[4/3] object-cover rounded-lg"
-                  />
+                    type="button"
+                    onClick={() => {
+                      setGalleryOpen(false);
+                      setLightboxIndex(idx);
+                    }}
+                    className="group relative overflow-hidden rounded-lg"
+                  >
+                    <img
+                      src={img}
+                      alt={`${property.name} — ${idx + 1}`}
+                      className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </button>
                 ))}
               </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Solo lightbox — one photo at a time, uncropped
+              (`object-contain`, not `object-cover`, so nothing gets sliced
+              off to fill the frame the way the grid thumbnails do). */}
+          <Dialog open={lightboxIndex !== null} onOpenChange={(open) => !open && setLightboxIndex(null)}>
+            <DialogContent className="max-w-6xl w-[calc(100vw-2rem)] h-[calc(100vh-4rem)] p-0 bg-background/95 border-0 [&>button]:text-foreground [&>button]:opacity-100">
+              <DialogTitle className="sr-only">
+                {property.name} — photo {lightboxIndex !== null ? lightboxIndex + 1 : 0} of {images.length}
+              </DialogTitle>
+              {lightboxIndex !== null && (
+                <div className="relative flex h-full items-center justify-center">
+                  <img
+                    src={images[lightboxIndex]}
+                    alt={`${property.name} — ${lightboxIndex + 1}`}
+                    className="max-h-full max-w-full object-contain"
+                  />
+                  {images.length > 1 && (
+                    <>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="icon"
+                        aria-label={t("pd-previous-photo")}
+                        onClick={() => setLightboxIndex((lightboxIndex - 1 + images.length) % images.length)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="icon"
+                        aria-label={t("pd-next-photo")}
+                        onClick={() => setLightboxIndex((lightboxIndex + 1) % images.length)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </Button>
+                      <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-background/90 px-3 py-1 text-xs text-foreground shadow-elegant">
+                        {lightboxIndex + 1} / {images.length}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
             </DialogContent>
           </Dialog>
 
@@ -280,29 +339,29 @@ const PropertyDetail = () => {
                     </div>
                   </div>
                   {property.featured && (
-                    <Badge className="bg-primary text-primary-foreground">Featured</Badge>
+                    <Badge className="bg-primary text-primary-foreground">{t("propertycard.featured")}</Badge>
                   )}
                 </div>
 
                 <div className="flex items-center gap-8 text-foreground">
                   <div className="flex items-center gap-2">
                     <Bed className="w-5 h-5" />
-                    <span>{property.bedrooms} Bedrooms</span>
+                    <span>{property.bedrooms === 0 ? t("propertycard.studio") : `${property.bedrooms} ${t("pd-bedrooms")}`}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Bath className="w-5 h-5" />
-                    <span>{property.bathrooms} Bathrooms</span>
+                    <span>{property.bathrooms} {t("pd-bathrooms")}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
-                    <span>{property.guests} Guests</span>
+                    <span>{property.guests} {t("pd-guests")}</span>
                   </div>
                 </div>
               </div>
 
               <div className="border-t border-border pt-6">
                 <h2 className="font-playfair text-2xl font-bold text-primary mb-4">
-                  About this property
+                  {t("pd-about-title")}
                 </h2>
                 <p className="text-foreground/80 leading-relaxed whitespace-pre-line">
                   {property.description}
@@ -312,7 +371,7 @@ const PropertyDetail = () => {
               {property.amenities && property.amenities.length > 0 && (
                 <div className="border-t border-border pt-6">
                   <h2 className="font-playfair text-2xl font-bold text-primary mb-4">
-                    Amenities
+                    {t("pd-amenities-title")}
                   </h2>
                   <div className="grid md:grid-cols-2 gap-3">
                     {property.amenities.map((amenity: string, idx: number) => {
@@ -330,7 +389,7 @@ const PropertyDetail = () => {
 
               <div className="border-t border-border pt-6">
                 <h2 className="font-playfair text-2xl font-bold text-primary mb-4">
-                  Location
+                  {t("pd-location-title")}
                 </h2>
                 <p className="text-muted-foreground">
                   {property.address || property.location}
@@ -340,7 +399,7 @@ const PropertyDetail = () => {
               {property.registration_number && (
                 <div className="border-t border-border pt-6">
                   <p className="text-sm text-muted-foreground">
-                    Registration Number: {property.registration_number}
+                    {t("pd-registration-number")} {property.registration_number}
                   </p>
                 </div>
               )}
@@ -353,19 +412,20 @@ const PropertyDetail = () => {
                   <div className="mb-3">
                     {property.guesty_listing_id ? (
                       <div>
-                        <span className="text-lg font-bold text-primary">Live pricing</span>
+                        <span className="text-lg font-bold text-primary">{t("pd-live-pricing")}</span>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          Rates are calculated in real-time in the booking engine.
+                          {t("pd-live-pricing-note")}
                         </p>
                       </div>
                     ) : (
                       <div className="flex items-baseline gap-2">
-                        {/* Display rounding only, same as PropertyCard.tsx —
-                            price_per_night itself is untouched. */}
+                        {/* Display rounding/currency only, same as
+                            PropertyCard.tsx — price_per_night itself is
+                            untouched. */}
                         <span className="text-3xl font-bold text-primary">
-                          €{Math.ceil(property.price_per_night)}
+                          {currencySymbol}{convertPrice(property.price_per_night)}
                         </span>
-                        <span className="text-muted-foreground">/ night</span>
+                        <span className="text-muted-foreground">{t("pd-per-night")}</span>
                       </div>
                     )}
                   </div>
@@ -382,7 +442,7 @@ const PropertyDetail = () => {
                     />
 
                     <div className="flex items-center gap-3">
-                      <Label htmlFor="guests" className="shrink-0">Guests</Label>
+                      <Label htmlFor="guests" className="shrink-0">{t("pd-guests-label")}</Label>
                       <Input
                         id="guests"
                         type="number"
@@ -401,7 +461,7 @@ const PropertyDetail = () => {
                       className="w-full"
                       disabled={!datesValid}
                     >
-                      Book Now
+                      {t("pd-book-now")}
                     </Button>
                   </div>
                 </CardContent>
@@ -415,7 +475,7 @@ const PropertyDetail = () => {
       {/* Booking Summary Dialog */}
       <Dialog open={showBookingSummary} onOpenChange={setShowBookingSummary}>
         <DialogContent className="sm:max-w-md p-0 overflow-y-auto max-h-[95vh] w-[calc(100vw-1rem)] sm:w-full rounded-lg">
-          <DialogTitle className="sr-only">Booking Summary</DialogTitle>
+          <DialogTitle className="sr-only">{t("pd-booking-summary-title")}</DialogTitle>
           {showBookingSummary && booking.checkIn && booking.checkOut && (
             <BookingSummary
               property={property}

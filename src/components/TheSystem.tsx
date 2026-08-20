@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BarChart3, DollarSign, Globe, Home, Image, MessageSquare, type LucideIcon } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Section, SectionIntro, Stack, Panel, Grid, Divider } from "./layout";
 import platformConnections from "@/assets/platform-connections.webp";
+import { useLocale } from "@/contexts/LocaleContext";
+import type { TranslationKey } from "@/lib/translations";
 
 /**
  * The heart of the owner page: everything Frontier does, once, in the order it
@@ -55,56 +57,31 @@ interface Step {
   Icon: LucideIcon;
 }
 
+const STEP_ICONS: LucideIcon[] = [Image, DollarSign, Globe, MessageSquare, Home, BarChart3];
+const STEP_BODY_IDS = ["sys-body-0", "sys-body-1", "sys-body-2", "sys-body-3", "sys-body-4", "sys-body-5"];
+
 const TheSystem = () => {
-  const [steps, setSteps] = useState<Step[]>([
-    {
-      label: "Optimal Listing",
-      body: "Professional listings built to attract more guests and turn every property into a high-performing asset.",
-      bodyId: "sys-body-0",
-      Icon: Image,
-    },
-    {
-      label: "Dynamic Pricing",
-      body: "Real-time market analysis and automated rate adjustments to capture the best available revenue.",
-      bodyId: "sys-body-1",
-      Icon: DollarSign,
-    },
-    {
-      label: "Advertised Everywhere",
-      body: "Your property stays visible across major booking platforms, with listings continuously optimized and updated.",
-      bodyId: "sys-body-2",
-      Icon: Globe,
-    },
-    {
-      label: "Guest Management",
-      body: "AI-supported multilingual communication handles bookings, arrivals and guest requests before they become your problem.",
-      bodyId: "sys-body-3",
-      Icon: MessageSquare,
-    },
-    {
-      label: "Property Care",
-      body: "Smart cleaning, maintenance and operational coordination keep your property ready for every arrival.",
-      bodyId: "sys-body-4",
-      Icon: Home,
-    },
-    {
-      label: "Transparent Reporting",
-      // "Live dashboards" — deliberately avoided in the first rewrite
-      // (docs/DECISIONS.md, "Owner-Dashboard bestätigt") because no owner
-      // dashboard existed. The client has since confirmed one is real or
-      // planned, so the claim is accurate again.
-      body: "Live dashboards and detailed reporting give you a clear view of bookings, performance and operations.",
-      bodyId: "sys-body-5",
-      Icon: BarChart3,
-    },
-  ]);
+  const { t, language } = useLocale();
+  const buildSteps = (): Step[] =>
+    STEP_ICONS.map((Icon, i) => ({
+      label: t(`sys-label-${i}` as TranslationKey),
+      body: t(STEP_BODY_IDS[i] as TranslationKey),
+      bodyId: STEP_BODY_IDS[i],
+      Icon,
+    }));
+
+  const [steps, setSteps] = useState<Step[]>(buildSteps());
 
   // The closing line under the gold rule — new copy this round, replacing
   // the five-tag outcome list ("Higher occupancy" etc.) the first rewrite
   // used to close the section.
-  const [closingLine, setClosingLine] = useState(
-    "We don't just manage homes.\nWe engineer high-performance assets."
-  );
+  const [closingLine, setClosingLine] = useState(t("sys-closing-line"));
+
+  useEffect(() => {
+    setSteps(buildSteps());
+    setClosingLine(t("sys-closing-line"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   const updateStep = (index: number, field: "label" | "body", value: string) => {
     const next = [...steps];
@@ -117,10 +94,10 @@ const TheSystem = () => {
       <Stack gap="xl">
         <SectionIntro
           idPrefix="wid"
-          eyebrow="AI-driven hospitality & operations"
-          heading={"Less for you to manage.\nMore for your property to earn."}
+          eyebrow={t("wid-eyebrow")}
+          heading={t("wid-heading")}
           headingBreak
-          lead="One integrated AI-driven system gives us full control of your property — from pricing and guest communication to maintenance, operations and reporting."
+          lead={t("wid-lead")}
           measure="wide"
         />
 

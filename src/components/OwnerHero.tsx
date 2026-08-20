@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
 import { Container, MediaFrame, Stack } from "./layout";
 import pmpHeroImage from "@/assets/pmp-hero-villa-higueron.webp";
+import { useLocale } from "@/contexts/LocaleContext";
 
 /**
  * The owner page's opening: a photograph, the promise, and the two things an
@@ -23,13 +24,21 @@ import pmpHeroImage from "@/assets/pmp-hero-villa-higueron.webp";
  * with a number.
  */
 const OwnerHero = () => {
-  const [eyebrow, setEyebrow] = useState("For owners · Property management");
-  const [pageTitle, setPageTitle] = useState("Luxury Rental Management");
-  const [pageLead, setPageLead] = useState(
-    "We offer bespoke property management and treat your home with care."
-  );
-  const [primaryCta, setPrimaryCta] = useState("Contact Us");
-  const [secondaryCta, setSecondaryCta] = useState("See what yours could earn");
+  const { t, language } = useLocale();
+  const [eyebrow, setEyebrow] = useState(t("pmp-hero-eyebrow"));
+  const [pageTitle, setPageTitle] = useState(t("pmp-page-title"));
+  const [pageLead, setPageLead] = useState(t("pmp-page-lead"));
+  const [primaryCta, setPrimaryCta] = useState(t("pmp-hero-cta-1"));
+  const [secondaryCta, setSecondaryCta] = useState(t("pmp-hero-cta-2"));
+
+  useEffect(() => {
+    setEyebrow(t("pmp-hero-eyebrow"));
+    setPageTitle(t("pmp-page-title"));
+    setPageLead(t("pmp-page-lead"));
+    setPrimaryCta(t("pmp-hero-cta-1"));
+    setSecondaryCta(t("pmp-hero-cta-2"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   /**
    * The dedicated PM-hero photograph docs/PROJECT.md B5 was waiting on —

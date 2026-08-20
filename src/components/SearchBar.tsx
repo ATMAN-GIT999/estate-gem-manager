@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/contexts/LocaleContext";
 
 /** Scroll offset at which the collapsible bar folds into its summary chip. */
 const COLLAPSE_AT = 80;
@@ -62,6 +63,7 @@ const SearchBar = ({
   onSearch,
   collapsible = false,
 }: SearchBarProps) => {
+  const { t } = useLocale();
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [checkOutOpen, setCheckOutOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
@@ -135,9 +137,9 @@ const SearchBar = ({
         ? `${format(checkInDate, "d MMM")} – ${format(checkOutDate, "d MMM")}`
         : `from ${format(checkInDate, "d MMM")}`
       : null;
-    const rest = [dates, guestCount > 0 ? `${guestCount} guests` : null].filter(Boolean);
+    const rest = [dates, guestCount > 0 ? `${guestCount} ${t("searchbar.guestsPlural")}` : null].filter(Boolean);
     return {
-      primary: location || "Anywhere",
+      primary: location || t("searchbar.wherePlaceholder"),
       secondary: rest.length ? rest.join(" · ") : "Any dates · Any guests",
     };
   };
@@ -179,15 +181,15 @@ const SearchBar = ({
         className="flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-0"
       >
         <div className={cn("flex-1", fieldPad, fieldDivider)}>
-          <LocationAutocomplete value={location} onChange={onLocationChange} label="WHERE" />
+          <LocationAutocomplete value={location} onChange={onLocationChange} label={t("searchbar.whereLabel")} />
         </div>
 
         <div className={cn("relative flex-1 shrink-0", fieldPad, fieldDivider)}>
-          <span className={fieldLabel}>CHECK-IN</span>
+          <span className={fieldLabel}>{t("searchbar.checkInLabel")}</span>
           <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
             <PopoverTrigger asChild>
               <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-sm text-foreground")}>
-                <span className="truncate">{checkInDate ? format(checkInDate, "d MMM yyyy") : "Check-in"}</span>
+                <span className="truncate">{checkInDate ? format(checkInDate, "d MMM yyyy") : t("searchbar.checkIn")}</span>
                 <CalendarIcon className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               </Button>
             </PopoverTrigger>
@@ -204,11 +206,11 @@ const SearchBar = ({
         </div>
 
         <div className={cn("relative flex-1 shrink-0", fieldPad, fieldDivider)}>
-          <span className={fieldLabel}>CHECK-OUT</span>
+          <span className={fieldLabel}>{t("searchbar.checkOutLabel")}</span>
           <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
             <PopoverTrigger asChild>
               <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-sm text-foreground")}>
-                <span className="truncate">{checkOutDate ? format(checkOutDate, "d MMM yyyy") : "Check-out"}</span>
+                <span className="truncate">{checkOutDate ? format(checkOutDate, "d MMM yyyy") : t("searchbar.checkOut")}</span>
                 <CalendarIcon className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               </Button>
             </PopoverTrigger>
@@ -228,18 +230,18 @@ const SearchBar = ({
         {/* A little wider than the other fields (`min-w`, not `flex-1`) so a
             two-digit guest count has room instead of looking squeezed. */}
         <div className={cn("relative shrink-0 min-w-[84px]", fieldPad)}>
-          <span className={fieldLabel}>WHO</span>
+          <span className={fieldLabel}>{t("searchbar.whoLabel")}</span>
           <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
             <PopoverTrigger asChild>
               <Button variant="ghost" className={cn(triggerClass, "text-sm text-foreground")}>
-                {guestCount > 0 ? `${guestCount} ${guestCount === 1 ? "guest" : "guests"}` : "Guests"}
+                {guestCount > 0 ? `${guestCount} ${guestCount === 1 ? t("searchbar.guest") : t("searchbar.guestsPlural")}` : t("searchbar.guests")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="z-[70] w-72 p-4" align="start">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-foreground">Guests</p>
-                  <p className="text-xs text-muted-foreground">Up to {MAX_GUESTS} per stay</p>
+                  <p className="text-sm font-medium text-foreground">{t("searchbar.guestsPanelTitle")}</p>
+                  <p className="text-xs text-muted-foreground">{t("searchbar.guestsPanelHint").replace("{max}", String(MAX_GUESTS))}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   {/* type="button" matters — these sit inside the search form
@@ -275,7 +277,7 @@ const SearchBar = ({
                 </div>
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
-                Leave at 0 to see every property.
+                {t("searchbar.leaveAtZero")}
               </p>
             </PopoverContent>
           </Popover>
@@ -287,7 +289,7 @@ const SearchBar = ({
           className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-none rounded-full h-10 px-5 gap-2 shrink-0"
         >
           <Search className="h-4 w-4" />
-          Search
+          {t("searchbar.search")}
         </Button>
       </form>
     </Card>

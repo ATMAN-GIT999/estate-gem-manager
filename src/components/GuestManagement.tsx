@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Users, Shield, Key, Clock, BookOpen, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
 import { Section, Grid, Stack } from "./layout";
+import { useLocale } from "@/contexts/LocaleContext";
+import type { TranslationKey } from "@/lib/translations";
 
 /**
  * Lifted out of PropertyManagement, where it was the middle of three pillars,
@@ -22,18 +23,32 @@ import { Section, Grid, Stack } from "./layout";
  * answer — the green band already separates this from the page, so the items
  * on it need a hairline and space, not four more frames.
  */
-const GuestManagement = () => {
-  const [guestTitle, setGuestTitle] = useState("It's in the details.");
-  const [guestDesc, setGuestDesc] = useState("From the moment you book to the morning you leave, the same team that looks after the home looks after you — and you can reach us at any hour.");
-  const [guestBadge, setGuestBadge] = useState("Every stay, looked after");
-  const [contactBtnText, setContactBtnText] = useState("Contact us");
+const ITEM_ICONS = ["Shield", "Key", "Clock", "BookOpen"];
 
-  const [guestManagement, setGuestManagement] = useState([
-    { icon: "Shield", title: "Confirmed by a person", description: "Every booking is reviewed by someone on our team before it's confirmed — which is also why these homes stay in the condition you'd want to arrive to." },
-    { icon: "Key", title: "Self check-in", description: "Arrive when it suits you. Your personal key-box code reaches you before you travel, so there's no handover to wait around for." },
-    { icon: "Clock", title: "24/7 availability", description: "Message us at any hour and a real person answers — the same people who manage the home you're staying in, not an outsourced line." },
-    { icon: "BookOpen", title: "Your guide to the home", description: "A handbook written for the place you've booked: the Wi-Fi code, how everything works, and the spots nearby we'd send a friend to." },
-  ]);
+const GuestManagement = () => {
+  const { t, language } = useLocale();
+  const [guestTitle, setGuestTitle] = useState(t("pm-guest-title"));
+  const [guestDesc, setGuestDesc] = useState(t("pm-guest-desc"));
+  const [guestBadge, setGuestBadge] = useState(t("pm-guest-badge"));
+  const [contactBtnText, setContactBtnText] = useState(t("pm-contact-btn-2"));
+
+  const buildItems = () =>
+    ITEM_ICONS.map((icon, i) => ({
+      icon,
+      title: t(`pm-guest-title-${i}` as TranslationKey),
+      description: t(`pm-guest-desc-${i}` as TranslationKey),
+    }));
+
+  const [guestManagement, setGuestManagement] = useState(buildItems());
+
+  useEffect(() => {
+    setGuestTitle(t("pm-guest-title"));
+    setGuestDesc(t("pm-guest-desc"));
+    setGuestBadge(t("pm-guest-badge"));
+    setContactBtnText(t("pm-contact-btn-2"));
+    setGuestManagement(buildItems());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   const iconMap: Record<string, any> = { Users, Shield, Key, Clock, BookOpen, Package };
 
@@ -75,20 +90,22 @@ const GuestManagement = () => {
           })}
         </Grid>
 
-        {/* Was `/book` — a hardcoded mockup page with four fictional
-            properties, no real Guesty data behind it (deleted, see
-            docs/DECISIONS.md). "Contact us" leading there was already the
-            wrong destination for its own label; there is no dedicated guest
-            contact page on this site, so `/properties` is the honest next
-            step for someone reading this section and wanting to act on it. */}
+        {/* Was `/properties` (see docs/DECISIONS.md §32 for the `/book`
+            history before that) — Almedin asked "Contact us" to lead to the
+            actual contact form, and `#get-in-touch` on the PM page is the
+            only one that exists on this site. It asks for a property
+            address as a required field, which is an owner's question, not a
+            guest's — flagged in the same decision entry rather than silently
+            fixed, since the right answer (a separate guest enquiry form) is
+            a bigger piece of work than a link change. */}
         <div>
           <Button
             asChild
             className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-soft px-8 py-6 text-base"
           >
-            <Link to="/properties">
+            <a href="/property-management#get-in-touch">
               <EditableText id="pm-contact-btn-2" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
-            </Link>
+            </a>
           </Button>
         </div>
       </Stack>

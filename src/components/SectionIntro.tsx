@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import EditableText from "./admin/EditableText";
 
@@ -69,6 +69,16 @@ const SectionIntro = ({
   const [eyebrowText, setEyebrowText] = useState(eyebrow);
   const [headingText, setHeadingText] = useState(heading);
   const [leadText, setLeadText] = useState(lead ?? "");
+
+  // Resyncs when the caller's own translated strings change (a language
+  // switch — see e.g. RenovationsPage.tsx, which passes `t(...)` literals
+  // here) — same reset-over-preserving-an-edit tradeoff as Navigation.tsx's
+  // identical pattern, and for the same reason (docs/PROJECT.md C7).
+  useEffect(() => {
+    setEyebrowText(eyebrow);
+    setHeadingText(heading);
+    setLeadText(lead ?? "");
+  }, [eyebrow, heading, lead]);
 
   const onPrimary = tone === "primary";
   const wide = measure === "wide";

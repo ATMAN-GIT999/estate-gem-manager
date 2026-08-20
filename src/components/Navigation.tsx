@@ -1,222 +1,188 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/frontier-logo-transparent.webp";
 import EditableText from "./admin/EditableText";
 import { Container } from "./layout";
-
-const INSTAGRAM_URL = "https://www.instagram.com/frontier.residences/";
+import LanguageCurrencySwitcher from "./LanguageCurrencySwitcher";
+import { useLocale } from "@/contexts/LocaleContext";
 
 interface NavigationProps {
   /**
-   * Sit transparently on top of a full-bleed image hero and fill in on scroll.
+   * "default" — every page except Property Management: Property Management
+   *             and About Us as plain links (no submenus), the language +
+   *             currency switcher, Sign In (or Dashboard / My Bookings once
+   *             logged in) as plain text, and one gold "Book a Stay" button
+   *             routing to `/properties`.
+   * "propertyManagement" — the same flat pattern for `/property-management`
+   *             itself: "Property Management" smooth-scrolls to the page's
+   *             own first section instead of linking anywhere, "Book a
+   *             Stay" is a plain link back to `/`, the switcher shows every
+   *             language at once with no panel to open (its own reference
+   *             screenshot), and the one gold button is "Apply", to the
+   *             contact form.
    *
-   * Only the two pages that open on a photograph pass this. Everywhere else
-   * the bar stays opaque, because a transparent header over the beige page
-   * background is white-on-nothing — the links simply disappear.
+   */
+  variant?: "default" | "propertyManagement";
+  /**
+   * Sit transparently on top of a full-bleed hero photo/video instead of the
+   * plain `bg-primary` bar every other page uses. Only the two pages that
+   * open on one pass this (`Index.tsx`, `PropertyManagementPage.tsx`).
+   *
+   * A first version of this used a `bg-primary` fill plus a separate
+   * gradient scrim that faded out over the top 160px, for legibility over a
+   * bright photo. That fade is what read as the header text being dimmed —
+   * the darkening was inconsistent by design (strong at the very top, gone
+   * by 160px down), so the text sitting on it looked unevenly shaded rather
+   * than cleanly readable. This is the OmniVillas approach instead: one
+   * constant translucent panel (`bg-primary/55` + `backdrop-blur`) across
+   * the whole bar, so contrast is the same everywhere on it regardless of
+   * what's behind — a wall, not a fade. Fills to fully solid on scroll, same
+   * as before.
    */
   overlay?: boolean;
 }
 
-const Navigation = ({ overlay = false }: NavigationProps) => {
+const Navigation = ({ variant = "default", overlay = false }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { t, language } = useLocale();
+  const isPM = variant === "propertyManagement";
 
-  /**
-   * Measured against the viewport rather than a fixed pixel count, because the
-   * two heroes are not the same height (~62vh on the landing page, ~88vh on
-   * the owner page). 0.6 of a screen is inside both of them, so the bar has
-   * always filled by the time the picture ends.
-   */
   useEffect(() => {
     if (!overlay) return;
-
-    const onScroll = () => {
-      setScrolled(window.scrollY > window.innerHeight * 0.6);
-    };
-
-    onScroll(); // a reload part-way down the page must not start transparent
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.6);
+    onScroll(); // a reload part-way down the page must not start solid-less
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [overlay]);
 
-  // The open mobile menu needs a surface under it whatever the scroll position
-  // is, or its links sit directly on the photograph.
   const filled = !overlay || scrolled || isOpen;
 
-  const [navLabel1, setNavLabel1] = useState("Property Management");
-  const [navLabel3, setNavLabel3] = useState("About Us");
-  const [navLabel4, setNavLabel4] = useState("Stay With Us");
-  const [navLabel5, setNavLabel5] = useState("Property Evaluator");
-  const [propertiesLabel, setPropertiesLabel] = useState("Properties");
-  const [postsLabel, setPostsLabel] = useState("Our Newest Posts");
-  const [signInLabel, setSignInLabel] = useState("Sign In");
+  const [navLabel1, setNavLabel1] = useState(t("nav-1"));
+  const [navLabel3, setNavLabel3] = useState(t("nav-3"));
+  const [signInLabel, setSignInLabel] = useState(t("nav-signin-btn"));
+  // Admin-only label — never guest-facing, so it stays out of the
+  // translation dictionary on purpose (see src/lib/translations.ts's scope note).
   const [dashboardLabel, setDashboardLabel] = useState("Dashboard");
-  const [myBookingsLabel, setMyBookingsLabel] = useState("My Bookings");
+  const [myBookingsLabel, setMyBookingsLabel] = useState(t("nav-auth-btn"));
+  const [bookAStayLabel, setBookAStayLabel] = useState(t("nav-book-stay-cta"));
+  const [applyLabel, setApplyLabel] = useState(t("nav-apply"));
 
-  const handleEvaluationClick = (e: React.MouseEvent) => {
+  // Switching language resets these to the new dictionary default rather
+  // than preserving a manual inline-CMS edit — there is nothing to preserve
+  // today (docs/PROJECT.md C7: EditableText edits don't persist past a
+  // reload anyway), so this doesn't lose anything a page refresh wouldn't
+  // already have lost.
+  useEffect(() => {
+    setNavLabel1(t("nav-1"));
+    setNavLabel3(t("nav-3"));
+    setSignInLabel(t("nav-signin-btn"));
+    setMyBookingsLabel(t("nav-auth-btn"));
+    setBookAStayLabel(t("nav-book-stay-cta"));
+    setApplyLabel(t("nav-apply"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
+
+  /** Only rendered on `/property-management` itself, so this always has the
+   * section on the current page — the route fallback is defensive, not the
+   * common case. */
+  const handleSystemScrollClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Ask the page rather than the route: the evaluator lives on the landing
-    // page and the property management page, and hard-coding "/" sent anyone
-    // on the latter back to the homepage to reach a section already on screen.
-    const element = document.getElementById("property-evaluation");
+    const element = document.getElementById("the-system");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     } else {
-      navigate("/#property-evaluation");
+      navigate("/property-management#the-system");
     }
     setIsOpen(false);
   };
 
-  // The bar is fixed, so it sits outside the document flow: h-20 (5rem) of page
-  // content would be hidden underneath it. Content pages clear it with `pt-24`
-  // on their <main> — the 5rem of header plus 1rem of breathing room. Anchor
-  // targets use `scroll-mt-20` and the sticky filter bar on /properties uses
-  // `top-20` for the same reason. Change all four together.
-  //
-  // In overlay mode the page does NOT clear it: the hero image runs up under
-  // the bar on purpose, and the hero's own top padding keeps the headline out
-  // from behind it.
+  const authDestination = isAdmin ? "/admin/dashboard" : "/properties";
+  const authLabel = isAdmin ? dashboardLabel : myBookingsLabel;
+  const setAuthLabel = isAdmin ? setDashboardLabel : setMyBookingsLabel;
+
+  const linkClass = "text-primary-foreground hover:text-accent-on-primary transition-colors font-medium";
+  // `rounded-full`: the gold CTA used to inherit the button default
+  // (`rounded-md`), which next to the fully round green/sage buttons
+  // elsewhere on the site (the search bar's Search button, the guest
+  // stepper) read as a different, squarer button family. Same shape now.
+  // Sized up a step (`h-11 px-6 text-base` over the button default `h-10
+  // px-4 text-sm`) opposite the switcher's `size="sm"` — deliberate
+  // contrast between the one solid CTA and the quieter outlined utility
+  // pill beside it, the same relationship the OmniVillas header has.
+  const ctaButtonClass = "rounded-full h-11 px-6 text-base bg-accent hover:bg-accent/90 text-accent-foreground shadow-soft gap-1.5";
+
+  // The bar is fixed, so it sits outside the document flow: h-20 (5rem) of
+  // page content would be hidden underneath it. Content pages clear it with
+  // `pt-24` on their <main> — the 5rem of header plus 1rem of breathing
+  // room. Anchor targets use `scroll-mt-20` and the sticky filter bar on
+  // /properties uses `top-20` for the same reason. Change all three
+  // together. Hero.tsx/OwnerHero.tsx run their own background under the bar
+  // and clear it for their own text with an internal `pt-20` — neither
+  // needs anything from here.
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
+        "fixed top-0 left-0 right-0 z-50 border-b transition-colors duration-300",
         filled
-          ? "bg-primary backdrop-blur-sm border-b border-primary-foreground/10"
-          : "bg-transparent border-b border-transparent"
+          ? "bg-primary border-primary-foreground/10"
+          : "bg-primary/55 backdrop-blur-md border-primary-foreground/15",
       )}
     >
-      {/* A dedicated legibility scrim for the transparent state — taller than
-          the bar itself and faded to fully transparent by its own bottom
-          edge, not a gradient painted onto the bar's own background.
-
-          An earlier version put the gradient on the nav's own `h-20` box, so
-          it necessarily ended exactly where the bar did — a hard horizontal
-          line drawn straight across whatever photo or video sat behind it,
-          visible the moment the frame under it was mid-brightness. This one
-          is taller (40 = 160px vs the bar's 80px) purely so its fade-out has
-          room to finish before the box does; nothing below it is solid, so
-          there is no edge to see. Both heroes already darken their own top
-          with `.overlay-media`, so this is the second, independent layer that
-          keeps the logo and links readable specifically over whatever is
-          brightest right under the fixed bar — hidden once filled, since a
-          solid fill needs no help from underneath. */}
-      {overlay && !filled && (
-        <div
-          className="absolute inset-x-0 top-0 h-40 pointer-events-none bg-gradient-to-b from-scrim/55 to-transparent"
-          aria-hidden="true"
-        />
-      )}
-      {/* Same container as every section below it, so the logo sits exactly
-          above the left edge of the page's content rather than 1rem inside
-          it. That single alignment is most of what makes a header read as
-          part of the page instead of a bar laid on top of it. */}
       <Container>
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
             <img src={logo} alt="Frontier Residences" className="h-12 md:h-14" />
           </Link>
 
-          {/* Desktop Navigation. whitespace-nowrap on every label: the bar is
-              a fixed row with no space to give back, and a label that wraps
-              to two lines collides with the row below it in the hover
-              dropdown as well as the bar itself. */}
+          {/* whitespace-nowrap: the bar is a fixed row with no space to give
+              back, and a label wrapping to two lines would collide with the
+              row below it. */}
           <div className="hidden lg:flex items-center gap-8 whitespace-nowrap">
-            {/* Property Management — link, plus a hover dropdown that holds
-                the Property Evaluator, which used to be its own top-level
-                item. */}
-            <div className="relative group">
-              <Link
-                to="/property-management"
-                className="flex items-center gap-1 text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
-              >
+            {isPM ? (
+              <a href="#the-system" onClick={handleSystemScrollClick} className={linkClass}>
                 <EditableText id="nav-1" value={navLabel1} onChange={setNavLabel1} as="span" className="text-primary-foreground">{navLabel1}</EditableText>
-                <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:rotate-180" />
+              </a>
+            ) : (
+              <Link to="/property-management" className={linkClass}>
+                <EditableText id="nav-1" value={navLabel1} onChange={setNavLabel1} as="span" className="text-primary-foreground">{navLabel1}</EditableText>
               </Link>
-              <div className="absolute left-0 top-full pt-2 invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150">
-                <div className="bg-primary border border-primary-foreground/15 rounded-lg shadow-elegant py-2 min-w-[220px]">
-                  <Link
-                    to="/property-management"
-                    className="block px-4 py-2 text-primary-foreground hover:text-accent-on-primary hover:bg-primary-foreground/5 transition-colors"
-                  >
-                    {navLabel1}
-                  </Link>
-                  <button
-                    onClick={handleEvaluationClick}
-                    className="block w-full text-left px-4 py-2 text-primary-foreground hover:text-accent-on-primary hover:bg-primary-foreground/5 transition-colors"
-                  >
-                    <EditableText id="nav-5" value={navLabel5} onChange={setNavLabel5} as="span" className="text-primary-foreground">{navLabel5}</EditableText>
-                  </button>
-                </div>
-              </div>
-            </div>
+            )}
 
-            {/* Stay With Us — link to /properties, plus a dropdown offering
-                the listings and the Instagram feed. */}
-            <div className="relative group">
-              <Link
-                to="/properties"
-                className="flex items-center gap-1 text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
-              >
-                <EditableText id="nav-4" value={navLabel4} onChange={setNavLabel4} as="span" className="text-primary-foreground">{navLabel4}</EditableText>
-                <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:rotate-180" />
-              </Link>
-              <div className="absolute left-0 top-full pt-2 invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150">
-                <div className="bg-primary border border-primary-foreground/15 rounded-lg shadow-elegant py-2 min-w-[220px]">
-                  <Link
-                    to="/properties"
-                    className="block px-4 py-2 text-primary-foreground hover:text-accent-on-primary hover:bg-primary-foreground/5 transition-colors"
-                  >
-                    <EditableText id="nav-4-properties" value={propertiesLabel} onChange={setPropertiesLabel} as="span" className="text-primary-foreground">{propertiesLabel}</EditableText>
-                  </Link>
-                  <a
-                    href={INSTAGRAM_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block px-4 py-2 text-primary-foreground hover:text-accent-on-primary hover:bg-primary-foreground/5 transition-colors"
-                  >
-                    <EditableText id="nav-4-posts" value={postsLabel} onChange={setPostsLabel} as="span" className="text-primary-foreground">{postsLabel}</EditableText>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <Link
-              to="/about"
-              className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium"
-            >
+            <Link to="/about" className={linkClass}>
               <EditableText id="nav-3" value={navLabel3} onChange={setNavLabel3} as="span" className="text-primary-foreground">{navLabel3}</EditableText>
             </Link>
 
-            {/* `shadow-gold` (0 10px 40px, 0.35 alpha) is tuned for a large
-                standalone CTA — the hero and contact-form buttons use it and
-                read crisp there. Compressed into an h-10 bar button, a 40px
-                blur reads as a smudge under the label rather than a lift, and
-                over the transparent/overlay nav state it looked like the
-                button had been pushed back into the photo. `shadow-soft` is
-                the same warm shadow family at roughly a third of the spread. */}
-            {/* Signed-in guest destination was `/book` — a Lovable-era mockup
-                with four hardcoded fictional properties, no Guesty data, no
-                real booking list behind it. Deleted rather than fixed (see
-                docs/DECISIONS.md); there is no real "my bookings" page
-                anywhere in the app to send this to instead (docs/PROJECT.md
-                C7), so this points at the property browser until one exists —
-                closer to true than a page that only pretended to be one. */}
-            {user ? (
-              <Link to={isAdmin ? "/admin/dashboard" : "/properties"}>
-                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-soft">
-                  <EditableText id="nav-auth-btn" value={isAdmin ? dashboardLabel : myBookingsLabel} onChange={isAdmin ? setDashboardLabel : setMyBookingsLabel} as="span">{isAdmin ? dashboardLabel : myBookingsLabel}</EditableText>
-                </Button>
+            <LanguageCurrencySwitcher showCurrency={!isPM} variant={isPM ? "inline" : "dropdown"} size="sm" />
+
+            {isPM ? (
+              <Link to="/" className={linkClass}>
+                <EditableText id="nav-pm-book-stay" value={bookAStayLabel} onChange={setBookAStayLabel} as="span" className="text-primary-foreground">{bookAStayLabel}</EditableText>
               </Link>
             ) : (
-              <Link to="/auth">
-                <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-soft">
-                  <EditableText id="nav-signin-btn" value={signInLabel} onChange={setSignInLabel} as="span">{signInLabel}</EditableText>
+              <Link to={user ? authDestination : "/auth"} className={linkClass}>
+                <EditableText id={user ? "nav-auth-btn" : "nav-signin-btn"} value={user ? authLabel : signInLabel} onChange={user ? setAuthLabel : setSignInLabel} as="span" className="text-primary-foreground">{user ? authLabel : signInLabel}</EditableText>
+              </Link>
+            )}
+
+            {isPM ? (
+              <a href="#get-in-touch">
+                <Button variant="default" className={ctaButtonClass}>
+                  <EditableText id="nav-apply" value={applyLabel} onChange={setApplyLabel} as="span">{applyLabel}</EditableText>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </a>
+            ) : (
+              <Link to="/properties">
+                <Button variant="default" className={ctaButtonClass}>
+                  <EditableText id="nav-book-stay-cta" value={bookAStayLabel} onChange={setBookAStayLabel} as="span">{bookAStayLabel}</EditableText>
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
             )}
@@ -231,67 +197,70 @@ const Navigation = ({ overlay = false }: NavigationProps) => {
           </button>
         </div>
 
-        {/* Mobile Navigation — dropdowns become an indented sub-list under
-            each parent, always expanded, rather than a second level of
-            tap-to-open menus. */}
+        {/* Mobile Navigation — the same flat set, stacked. */}
         {isOpen && (
           <div className="lg:hidden py-4 border-t border-primary-foreground/10 animate-fade-in bg-primary">
             <div className="flex flex-col gap-1">
-              <Link
-                to="/property-management"
-                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
-                onClick={() => setIsOpen(false)}
-              >
-                {navLabel1}
-              </Link>
-              <button
-                onClick={handleEvaluationClick}
-                className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors py-2 pl-4 text-left text-sm"
-              >
-                {navLabel5}
-              </button>
-
-              <Link
-                to="/properties"
-                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2 mt-3"
-                onClick={() => setIsOpen(false)}
-              >
-                {navLabel4}
-              </Link>
-              <Link
-                to="/properties"
-                className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors py-2 pl-4 text-sm"
-                onClick={() => setIsOpen(false)}
-              >
-                {propertiesLabel}
-              </Link>
-              <a
-                href={INSTAGRAM_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary-foreground/80 hover:text-accent-on-primary transition-colors py-2 pl-4 text-sm"
-              >
-                {postsLabel}
-              </a>
+              {isPM ? (
+                <a
+                  href="#the-system"
+                  onClick={handleSystemScrollClick}
+                  className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
+                >
+                  {navLabel1}
+                </a>
+              ) : (
+                <Link
+                  to="/property-management"
+                  className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {navLabel1}
+                </Link>
+              )}
 
               <Link
                 to="/about"
-                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2 mt-3"
+                className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
                 onClick={() => setIsOpen(false)}
               >
                 {navLabel3}
               </Link>
 
-              {user ? (
-                <Link to={isAdmin ? "/admin/dashboard" : "/properties"} className="w-full mt-3">
-                  <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
-                    {isAdmin ? dashboardLabel : myBookingsLabel}
-                  </Button>
+              {isPM ? (
+                <Link
+                  to="/"
+                  className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {bookAStayLabel}
                 </Link>
               ) : (
-                <Link to="/auth" className="w-full mt-3">
-                  <Button variant="default" className="bg-accent hover:bg-accent/90 text-accent-foreground w-full">
-                    {signInLabel}
+                <Link
+                  to={user ? authDestination : "/auth"}
+                  className="text-primary-foreground hover:text-accent-on-primary transition-colors font-medium py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {user ? authLabel : signInLabel}
+                </Link>
+              )}
+
+              <div className="py-2">
+                <LanguageCurrencySwitcher showCurrency={!isPM} variant={isPM ? "inline" : "dropdown"} />
+              </div>
+
+              {isPM ? (
+                <a href="#get-in-touch" className="w-full mt-2" onClick={() => setIsOpen(false)}>
+                  <Button variant="default" className={cn(ctaButtonClass, "w-full justify-center")}>
+                    {applyLabel}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </a>
+              ) : (
+                <Link to="/properties" className="w-full mt-2" onClick={() => setIsOpen(false)}>
+                  <Button variant="default" className={cn(ctaButtonClass, "w-full justify-center")}>
+                    {bookAStayLabel}
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
               )}

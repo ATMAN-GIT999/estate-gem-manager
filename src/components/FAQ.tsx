@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ArrowRight, Minus, Plus } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Section, Stack } from "./layout";
+import { useLocale } from "@/contexts/LocaleContext";
+import type { TranslationKey } from "@/lib/translations";
 
 /**
  * Landing-page FAQ, guest-only.
@@ -77,24 +79,25 @@ export const FAQ_ITEMS: Array<{ question: string; answer: string }> = [
   },
 ];
 
-/**
- * The lead-in sentence for the last FAQ item, rendered before the link to
- * /property-management. Kept as its own constant rather than trimmed out of
- * `FAQ_ITEMS[last].answer` at render time, so the JSON-LD text (which needs
- * the full sentence, since schema has no concept of a link) and the on-page
- * text can't drift apart from a fragile string match.
- */
-const OWNER_ANSWER_LEAD_IN = "Yes. If you own a property here or in Austria,";
-
 interface FAQProps {
   /** Empty string hides the eyebrow entirely — the PM page has no use for one. */
   eyebrow?: string;
   heading?: string;
 }
 
-const FAQ = ({ eyebrow: eyebrowProp = "Questions", heading: headingProp = "Before you book." }: FAQProps = {}) => {
-  const [eyebrow, setEyebrow] = useState(eyebrowProp);
-  const [heading, setHeading] = useState(headingProp);
+const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp }: FAQProps = {}) => {
+  const { t, language } = useLocale();
+  // `??`, not `||`: the PM page passes eyebrow="" on purpose to hide it
+  // entirely, and that explicit empty string must not be overridden by the
+  // translated default the way a falsy-string check would.
+  const [eyebrow, setEyebrow] = useState(eyebrowProp ?? t("faq-eyebrow"));
+  const [heading, setHeading] = useState(headingProp ?? t("faq-heading"));
+
+  useEffect(() => {
+    if (eyebrowProp === undefined) setEyebrow(t("faq-eyebrow"));
+    if (headingProp === undefined) setHeading(t("faq-heading"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   return (
     <Section id="faq" size="md" measure="wide">
@@ -132,7 +135,7 @@ const FAQ = ({ eyebrow: eyebrowProp = "Questions", heading: headingProp = "Befor
             the open/close animation come from Radix and the keyframes in
             tailwind.config.ts either way. */}
         <AccordionPrimitive.Root type="single" collapsible className="w-full">
-          {FAQ_ITEMS.map((item, index) => (
+          {FAQ_ITEMS.map((_item, index) => (
             <AccordionPrimitive.Item
               key={index}
               value={`item-${index}`}
@@ -142,7 +145,7 @@ const FAQ = ({ eyebrow: eyebrowProp = "Questions", heading: headingProp = "Befor
                 <AccordionPrimitive.Trigger
                   className="group flex w-full items-baseline justify-between gap-6 py-sm text-left"
                 >
-                  <span className="t-block text-primary">{item.question}</span>
+                  <span className="t-block text-primary">{t(`faq-q-${index}` as TranslationKey)}</span>
                   {/* A genuine glyph swap, not a rotating chevron — Plus and
                       Minus stacked in the same box, toggled by the trigger's
                       own `data-state` the same way `ui/accordion.tsx` toggles
@@ -157,17 +160,17 @@ const FAQ = ({ eyebrow: eyebrowProp = "Questions", heading: headingProp = "Befor
                 <div className="pb-sm max-w-3xl t-body text-foreground/70">
                   {index === FAQ_ITEMS.length - 1 ? (
                     <span className="flex flex-wrap items-center gap-2">
-                      {OWNER_ANSWER_LEAD_IN}
+                      {t("faq-owner-lead-in")}
                       <Link
                         to="/property-management"
                         className="inline-flex items-center gap-1.5 text-accent-strong font-semibold hover:gap-2.5 transition-all"
                       >
-                        see how it works
+                        {t("faq-see-how-it-works")}
                         <ArrowRight className="w-4 h-4" />
                       </Link>
                     </span>
                   ) : (
-                    item.answer
+                    t(`faq-a-${index}` as TranslationKey)
                   )}
                 </div>
               </AccordionPrimitive.Content>

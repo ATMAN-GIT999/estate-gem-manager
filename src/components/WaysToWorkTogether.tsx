@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Handshake, Palette } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Section, Grid, Stack, Panel, Divider } from "./layout";
+import { useLocale } from "@/contexts/LocaleContext";
 
 /**
  * The commercial decision, stated as a decision — plus the two side doors for
@@ -27,47 +28,60 @@ import { Section, Grid, Stack, Panel, Divider } from "./layout";
  * and no photograph existed to fill it anyway (`beyond-image-0/1` retired).
  */
 const WaysToWorkTogether = () => {
-  const [eyebrow, setEyebrow] = useState("How we work together");
-  const [heading, setHeading] = useState("Two ways to start to work with us.");
+  const { t, language } = useLocale();
+  const [eyebrow, setEyebrow] = useState(t("ways-eyebrow"));
+  const [heading, setHeading] = useState(t("ways-heading"));
 
-  const [models, setModels] = useState([
+  const buildModels = () => [
     {
-      name: "Full-service management",
-      summary: "We run the property and you earn what it earns.",
-      detail: "Your income moves with the season, the market and how well the home performs. In a strong year you keep the upside.",
+      name: t("ways-model-name-0"),
+      summary: t("ways-model-summary-0"),
+      detail: t("ways-model-detail-0"),
       href: "",
       linkText: "",
     },
     {
-      name: "Guaranteed income",
-      summary: "We lease the property from you and pay a fixed amount every month.",
-      detail: "Booked or empty, the payment is the same, and we maintain the home throughout. You trade the strong months for certainty in the weak ones.",
+      name: t("ways-model-name-1"),
+      summary: t("ways-model-summary-1"),
+      detail: t("ways-model-detail-1"),
       href: "/guaranteed-income",
-      linkText: "See how it works",
+      linkText: t("ways-model-link-1"),
     },
-  ]);
+  ];
+  const [models, setModels] = useState(buildModels());
 
-  const [beyondEyebrow, setBeyondEyebrow] = useState("Beyond management");
-  const [beyondHeading, setBeyondHeading] = useState("More ways we create value.");
+  const [beyondEyebrow, setBeyondEyebrow] = useState(t("beyond-eyebrow"));
+  const [beyondHeading, setBeyondHeading] = useState(t("beyond-heading"));
 
-  const [paths, setPaths] = useState([
+  const buildPaths = () => [
     {
-      label: "Renovations & Design",
-      title: "Your property deserves a make-over before you hand it over.",
-      description: "Timeless Mediterranean interiors, run start to finish, before the lease begins.",
+      label: t("ways-sub-title-0"),
+      title: t("beyond-title-0"),
+      description: t("ways-sub-desc-0"),
       href: "/renovations",
-      linkText: "See what we do",
+      linkText: t("ways-sub-link-0"),
       Icon: Palette,
     },
     {
-      label: "Investments",
-      title: "Not a homeowner here yet? We'll help you find one worth managing.",
-      description: "Curated acquisitions across Spain, Austria and Croatia for owners building a portfolio.",
+      label: t("ways-sub-title-1"),
+      title: t("beyond-title-1"),
+      description: t("ways-sub-desc-1"),
       href: "/investments",
-      linkText: "See what we look for",
+      linkText: t("ways-sub-link-1"),
       Icon: Handshake,
     },
-  ]);
+  ];
+  const [paths, setPaths] = useState(buildPaths());
+
+  useEffect(() => {
+    setEyebrow(t("ways-eyebrow"));
+    setHeading(t("ways-heading"));
+    setModels(buildModels());
+    setBeyondEyebrow(t("beyond-eyebrow"));
+    setBeyondHeading(t("beyond-heading"));
+    setPaths(buildPaths());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   const updatePath = (index: number, field: string, value: string) => {
     const u = [...paths]; u[index] = { ...u[index], [field]: value }; setPaths(u);
@@ -154,8 +168,14 @@ const WaysToWorkTogether = () => {
         </Stack>
 
         {/* The one deliberate exception to "gold is an accent, not a
-            divider" — see the file comment above. */}
-        <div className="flex items-center gap-4 max-w-3xl mx-auto w-full">
+            divider" — see the file comment above. `id`/`scroll-mt-24`: the
+            footer's "Beyond Management" link (docs/DECISIONS.md §32) lands
+            here rather than at the top of the whole `#ways-to-work` section,
+            so it opens straight on the Renovations/Investments cards
+            instead of the two engagement models above them. scroll-mt-24
+            matches the fixed header's own clearance everywhere else an
+            anchor is used on this site. */}
+        <div id="beyond-management" className="scroll-mt-24 flex items-center gap-4 max-w-3xl mx-auto w-full">
           <Divider tone="gold" className="flex-1" />
           <EditableText
             id="beyond-eyebrow"

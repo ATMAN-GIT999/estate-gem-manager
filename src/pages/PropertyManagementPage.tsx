@@ -25,10 +25,7 @@ const PropertyManagementPageContent = () => (
         ]),
       ]}
     />
-    {/* Transparent over the hero photograph, filling in on scroll. The page
-        therefore does NOT clear the fixed header with `pt-24` the way the
-        content pages do — the image runs up underneath it on purpose. */}
-    <Navigation overlay />
+    <Navigation overlay variant="propertyManagement" />
 
     {/* The order is docs/PROJECT.md §2, and it is worth protecting because it
         is an argument rather than a list: here is the house → here is

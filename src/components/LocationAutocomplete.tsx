@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { MapPin, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { useLocale } from "@/contexts/LocaleContext";
 
 interface LocationAutocompleteProps {
   value: string;
@@ -80,29 +81,19 @@ const useRealLocations = () => {
   return locations;
 };
 
-const LocationAutocomplete = ({ value, onChange, placeholder = "Anywhere", label }: LocationAutocompleteProps) => {
+const LocationAutocomplete = ({ value, onChange, placeholder, label }: LocationAutocompleteProps) => {
+  const { t } = useLocale();
   const realLocations = useRealLocations();
   const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [inputValue, setInputValue] = useState(value);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     setInputValue(value);
   }, [value]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const searchLocations = async (query: string) => {
     if (query.length < 1) {
@@ -202,38 +193,53 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Anywhere", label
   };
 
   return (
-    <div ref={wrapperRef} className="relative">
-      {label && (
-        <span className="block text-[10px] font-bold uppercase tracking-wide text-accent-strong mb-0.5">
-          {label}
-        </span>
-      )}
-      <div className="flex items-center gap-1.5">
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={handleFocus}
-          placeholder={placeholder}
-          className="w-full min-w-0 bg-transparent border-0 p-0 h-auto text-sm text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground placeholder:opacity-100"
-        />
-        {isLoading && (
-          <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground shrink-0" />
-        )}
-        <button
-          type="button"
-          onClick={toggleDropdown}
-          aria-label={showSuggestions ? "Hide location suggestions" : "Show location suggestions"}
-          aria-expanded={showSuggestions}
-          className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showSuggestions && "rotate-180")} />
-        </button>
-      </div>
+    // Popover instead of a hand-rolled absolute div, and for exactly the
+    // reason Check-in/Check-out/Guests already use one: PopoverContent
+    // portals to document.body, so it isn't clipped by Hero.tsx's own
+    // `overflow-hidden` (there to crop the background video) the way a
+    // plain nested absolute div was — that clipping, not a z-index problem,
+    // was why the location dropdown used to vanish on the landing page.
+    <Popover open={showSuggestions} onOpenChange={setShowSuggestions}>
+      <PopoverAnchor asChild>
+        <div className="relative">
+          {label && (
+            <span className="block text-[10px] font-bold uppercase tracking-wide text-accent-strong mb-0.5">
+              {label}
+            </span>
+          )}
+          <div className="flex items-center gap-1.5">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onFocus={handleFocus}
+              placeholder={placeholder ?? t("searchbar.wherePlaceholder")}
+              className="w-full min-w-0 bg-transparent border-0 p-0 h-auto text-sm text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground placeholder:opacity-100"
+            />
+            {isLoading && (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground shrink-0" />
+            )}
+            <button
+              type="button"
+              onClick={toggleDropdown}
+              aria-label={showSuggestions ? "Hide location suggestions" : "Show location suggestions"}
+              aria-expanded={showSuggestions}
+              className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showSuggestions && "rotate-180")} />
+            </button>
+          </div>
+        </div>
+      </PopoverAnchor>
 
-      {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-50 w-max min-w-[240px] max-w-xs mt-2 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto left-0">
+      {suggestions.length > 0 && (
+        <PopoverContent
+          className="z-[70] w-max min-w-[240px] max-w-xs p-0 max-h-60 overflow-auto"
+          align="start"
+          sideOffset={8}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           {suggestions.map((suggestion) => (
             <button
               key={suggestion.place_id}
@@ -245,9 +251,9 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Anywhere", label
               <span className="text-sm text-foreground">{getShortName(suggestion.display_name)}</span>
             </button>
           ))}
-        </div>
+        </PopoverContent>
       )}
-    </div>
+    </Popover>
   );
 };
 

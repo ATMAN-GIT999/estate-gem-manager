@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Section, Grid, Stack, Divider, MediaFrame } from "./layout";
 import villaHoyo19 from "@/assets/villa-hoyo-19.webp";
 import sohoBoho from "@/assets/soho-boho.webp";
 import alpineRetreat from "@/assets/alpine-retreat.webp";
+import { useLocale } from "@/contexts/LocaleContext";
 
 /**
  * Real photographs, sourced from the owner's own Drive ("Listing Pictures"),
@@ -45,18 +46,33 @@ const CASE_IMAGES = [villaHoyo19, sohoBoho, alpineRetreat];
  * the case studies are the numbers, seen close up.
  */
 const Proof = () => {
-  const [eyebrow, setEyebrow] = useState("Built to perform");
-  const [heading, setHeading] = useState("A Portfolio Built on Precision & Performance");
-  const [benefitsHeading, setBenefitsHeading] = useState("The Benefits");
-  const [casesLabel, setCasesLabel] = useState("What that looks like on three homes");
-  const [ctaText, setCtaText] = useState("See what yours could earn");
+  const { t, language } = useLocale();
+  const [eyebrow, setEyebrow] = useState(t("proof-eyebrow"));
+  const [heading, setHeading] = useState(t("stats-title"));
+  const [benefitsHeading, setBenefitsHeading] = useState(t("proof-benefits-heading"));
+  const [casesLabel, setCasesLabel] = useState(t("proof-cases-label"));
+  const [ctaText, setCtaText] = useState(t("proof-cta"));
 
+  // FEATURED_PROJECTS (title/location/description/stats) isn't translated
+  // yet — it's shared with /projects and is closer to verified case-study
+  // data than generic marketing copy. See src/lib/translations.ts's
+  // file-level scope note.
   const [projects, setProjects] = useState(FEATURED_PROJECTS);
   // Was "Before and After" — accurate once B4's renovation photography
   // arrives, wrong today: these are each property's current listing photos,
   // not a before/after pair. Swap the label back when the real pairs land.
-  const [beforeAfterLabel, setBeforeAfterLabel] = useState("Featured Property");
+  const [beforeAfterLabel, setBeforeAfterLabel] = useState(t("proj-fp-ba"));
   const [caseImages, setCaseImages] = useState(CASE_IMAGES);
+
+  useEffect(() => {
+    setEyebrow(t("proof-eyebrow"));
+    setHeading(t("stats-title"));
+    setBenefitsHeading(t("proof-benefits-heading"));
+    setCasesLabel(t("proof-cases-label"));
+    setCtaText(t("proof-cta"));
+    setBeforeAfterLabel(t("proj-fp-ba"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   const updateCaseImage = (index: number, url: string) => {
     const u = [...caseImages]; u[index] = url; setCaseImages(u);
@@ -197,9 +213,9 @@ const Proof = () => {
                     no sentence next to them repeats it. */}
                 <div className="flex flex-wrap gap-x-md gap-y-xs">
                   {([
-                    ["occupancy", "Occupancy", `proj-fp-occ-${index}`],
-                    ["revenue", "Revenue", `proj-fp-rev-${index}`],
-                    ["rating", "Rating", `proj-fp-rating-${index}`],
+                    ["occupancy", t("proof-stat-occupancy"), `proj-fp-occ-${index}`],
+                    ["revenue", t("proof-stat-revenue"), `proj-fp-rev-${index}`],
+                    ["rating", t("proof-stat-rating"), `proj-fp-rating-${index}`],
                   ] as const).map(([key, label, id]) => (
                     <div key={key}>
                       <EditableText

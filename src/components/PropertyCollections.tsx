@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
 import EditableText from "@/components/admin/EditableText";
 import { Container, Section, Grid } from "@/components/layout";
+import { useLocale } from "@/contexts/LocaleContext";
 
 /**
  * The portfolio as three collections rather than one undifferentiated list.
@@ -84,9 +85,20 @@ const Rail = ({
   collection: Collection;
   loading: boolean;
 }) => {
+  const { language } = useLocale();
   const railRef = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState(collection.title);
   const [lead, setLead] = useState(collection.lead);
+
+  // `collection.title`/`.lead` come from the parent's `t()` call, recomputed
+  // every render — this resyncs the local EditableText state to match
+  // whenever the language actually changes (see Navigation.tsx's identical
+  // pattern for why a reset rather than a merge).
+  useEffect(() => {
+    setTitle(collection.title);
+    setLead(collection.lead);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   const scrollRail = (direction: -1 | 1) => {
     const rail = railRef.current;
@@ -190,18 +202,24 @@ const Rail = ({
           <div
             ref={railRef}
             style={{ maxWidth: `${RAIL_MAX_WIDTH_PX}px` }}
-            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex gap-6 overflow-x-auto snap-x snap-proximity scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
+            {/* `w-[85vw] max-w-80`, not a flat `w-80`: on a ~360px phone a
+                fixed 320px card left only a sliver of the next one peeking in
+                (and touched the right edge, no matching gap on the right at
+                all) — 85vw keeps a consistent, deliberate peek at any phone
+                width, capped at the same 320px the rail's own width math
+                assumes on desktop. */}
             {loading
               ? [1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="w-80 shrink-0 space-y-4">
+                  <div key={i} className="w-[85vw] max-w-80 shrink-0 space-y-4">
                     <Skeleton className="aspect-[4/3] w-full" />
                     <Skeleton className="h-8 w-3/4" />
                     <Skeleton className="h-4 w-full" />
                   </div>
                 ))
               : collection.properties.map((property) => (
-                  <div key={property.id} className="w-80 shrink-0 snap-start">
+                  <div key={property.id} className="w-[85vw] max-w-80 shrink-0 snap-start">
                     <PropertyCard property={property} />
                   </div>
                 ))}
@@ -221,9 +239,15 @@ const Rail = ({
 };
 
 const PropertyCollections = () => {
+  const { t, language } = useLocale();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewAllText, setViewAllText] = useState("View all properties");
+  const [viewAllText, setViewAllText] = useState(t("collections-view-all"));
+
+  useEffect(() => {
+    setViewAllText(t("collections-view-all"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -251,20 +275,20 @@ const PropertyCollections = () => {
   const collections: Collection[] = [
     {
       id: "luxury",
-      title: "Luxury Stays for You",
-      lead: "Villas and sea-view homes along the coast, from Marbella to Fuengirola.",
+      title: t("coll-luxury-title"),
+      lead: t("coll-luxury-lead"),
       properties: properties.filter((p) => classify(p) === "coastal"),
     },
     {
       id: "city",
-      title: "Explore the City",
-      lead: "Apartments in the middle of Málaga and Vienna, walkable to everything.",
+      title: t("coll-city-title"),
+      lead: t("coll-city-lead"),
       properties: properties.filter((p) => classify(p) === "city"),
     },
     {
       id: "offgrid",
-      title: "Off-Grid Experiences",
-      lead: "Alpine lodges and converted granaries, with the mountains for neighbours.",
+      title: t("coll-offgrid-title"),
+      lead: t("coll-offgrid-lead"),
       properties: properties.filter((p) => classify(p) === "offgrid"),
     },
   ];

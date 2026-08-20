@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Wallet, ShieldCheck, Wrench, Paintbrush } from "lucide-react";
@@ -7,22 +7,37 @@ import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema } from "@/lib/schema";
 import { Section, Container, Grid, Panel, SectionIntro } from "@/components/layout";
+import { useLocale } from "@/contexts/LocaleContext";
+import type { TranslationKey } from "@/lib/translations";
+
+const BENEFIT_ICONS = ["Wallet", "ShieldCheck", "Wrench", "Paintbrush"];
 
 /** See docs/PROJECT.md C5 / the comment atop RenovationsPage.tsx — same rebuild. */
 const GuaranteedIncomePageContent = () => {
-  const [contentText, setContentText] = useState("Frontier Residences manages, maintains, and enhances your property while you enjoy stress-free income.");
-  const [benefitsTitle, setBenefitsTitle] = useState("Program Benefits");
-  const [ctaTitle, setCtaTitle] = useState("Ready for Stress-Free Income?");
-  const [ctaText, setCtaText] = useState("Contact us to learn how our Guaranteed Income Program can work for your property.");
+  const { t, language } = useLocale();
+  const [contentText, setContentText] = useState(t("gip-content-text"));
+  const [benefitsTitle, setBenefitsTitle] = useState(t("gip-benefits-title"));
+  const [ctaTitle, setCtaTitle] = useState(t("gip-cta-title"));
+  const [ctaText, setCtaText] = useState(t("gip-cta-text"));
 
   const iconMap: Record<string, any> = { Wallet, ShieldCheck, Wrench, Paintbrush };
 
-  const [benefits, setBenefits] = useState([
-    { icon: "Wallet", title: "Predictable monthly earnings", description: "Receive a fixed payment every month, regardless of bookings or occupancy rates." },
-    { icon: "ShieldCheck", title: "Zero vacancy risk", description: "No more worrying about empty periods — your income is guaranteed." },
-    { icon: "Wrench", title: "Professional upkeep", description: "We maintain your property to the highest standards, protecting its long-term value." },
-    { icon: "Paintbrush", title: "Optional interior upgrades", description: "We can invest in design improvements to enhance your property's appeal." },
-  ]);
+  const buildBenefits = () =>
+    BENEFIT_ICONS.map((icon, i) => ({
+      icon,
+      title: t(`gip-benefit-title-${i}` as TranslationKey),
+      description: t(`gip-benefit-desc-${i}` as TranslationKey),
+    }));
+  const [benefits, setBenefits] = useState(buildBenefits());
+
+  useEffect(() => {
+    setContentText(t("gip-content-text"));
+    setBenefitsTitle(t("gip-benefits-title"));
+    setCtaTitle(t("gip-cta-title"));
+    setCtaText(t("gip-cta-text"));
+    setBenefits(buildBenefits());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -37,9 +52,9 @@ const GuaranteedIncomePageContent = () => {
         <Section size="lg" tone="muted">
           <SectionIntro
             idPrefix="gip-hero"
-            eyebrow="Guaranteed Income"
-            heading="Effortless Ownership. Guaranteed Monthly Income."
-            lead="Our Guaranteed Income Program is ideal for homeowners seeking financial stability. We lease your property long-term, guaranteeing a fixed monthly payment — regardless of occupancy."
+            eyebrow={t("gip-hero-eyebrow")}
+            heading={t("gip-hero-heading")}
+            lead={t("gip-hero-lead")}
             headingAs="h1"
           />
         </Section>

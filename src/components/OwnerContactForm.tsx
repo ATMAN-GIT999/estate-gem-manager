@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { ArrowRight, CalendarClock, CheckCircle2, Loader2 } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Container, MediaFrame, Section } from "./layout";
 import losMonterosRelax from "@/assets/los-monteros-relax.webp";
+import { useLocale } from "@/contexts/LocaleContext";
 
 /**
  * Provisional — Frontier has no Cal.com/Calendly of its own yet (see
@@ -80,7 +81,8 @@ const LABEL_CLASS = "text-primary-foreground/80";
 
 const OwnerContactForm = () => {
   const { toast } = useToast();
-  const [eyebrow, setEyebrow] = useState("Get in touch");
+  const { t, language } = useLocale();
+  const [eyebrow, setEyebrow] = useState(t("owner-form-eyebrow"));
   /* "We manage while you relax." and its photo both moved down from the
      standalone `PropertyManagement` section, which is retired (see
      docs/DECISIONS.md §15) — that section's whole job was to be a single
@@ -89,16 +91,27 @@ const OwnerContactForm = () => {
      of two. "Less hassle, higher income." is gone, not just relocated: it
      said plainly what the form already goes on to ask for, which "We manage
      while you relax." does not. */
-  const [heading, setHeading] = useState("We manage while you relax.");
-  const [lead, setLead] = useState("Tell us about your property and we'll come back to you with what managing it with us would look like — usually within one working day.");
-  const [ctaText, setCtaText] = useState("Send enquiry");
-  const [callCtaText, setCallCtaText] = useState("Book a video call");
-  const [sentHeading, setSentHeading] = useState("Thank you — we have your details.");
-  const [sentBody, setSentBody] = useState("One of the founders will read this personally and come back to you within one working day.");
+  const [heading, setHeading] = useState(t("pm-section-title"));
+  const [lead, setLead] = useState(t("owner-form-lead"));
+  const [ctaText, setCtaText] = useState(t("owner-form-btn"));
+  const [callCtaText, setCallCtaText] = useState(t("owner-form-call-btn"));
+  const [sentHeading, setSentHeading] = useState(t("owner-form-sent-heading"));
+  const [sentBody, setSentBody] = useState(t("owner-form-sent-body"));
   // Los Monteros' garden — the same photo the Relax band used before it was
   // retired, not a new one, so nothing about the page's photography changed,
   // only where this particular image sits.
   const [formImage, setFormImage] = useState(losMonterosRelax);
+
+  useEffect(() => {
+    setEyebrow(t("owner-form-eyebrow"));
+    setHeading(t("pm-section-title"));
+    setLead(t("owner-form-lead"));
+    setCtaText(t("owner-form-btn"));
+    setCallCtaText(t("owner-form-call-btn"));
+    setSentHeading(t("owner-form-sent-heading"));
+    setSentBody(t("owner-form-sent-body"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
@@ -122,7 +135,7 @@ const OwnerContactForm = () => {
     if (!parsed.success) {
       toast({
         variant: "destructive",
-        title: "Check your details",
+        title: t("owner-form-toast-check-title"),
         description: parsed.error.issues[0]?.message ?? "Please review the form.",
       });
       return;
@@ -156,8 +169,8 @@ const OwnerContactForm = () => {
       console.error("Owner enquiry insert failed:", error);
       toast({
         variant: "destructive",
-        title: "We could not send that",
-        description: `Please email us directly at ${CONTACT_EMAIL} — we don't want to lose your enquiry.`,
+        title: t("owner-form-toast-fail-title"),
+        description: t("owner-form-toast-fail-desc").replace("{email}", CONTACT_EMAIL),
       });
       return;
     }
@@ -266,7 +279,7 @@ const OwnerContactForm = () => {
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <Label htmlFor="owner-first-name" className={LABEL_CLASS}>First name *</Label>
+                    <Label htmlFor="owner-first-name" className={LABEL_CLASS}>{t("owner-form-first-name")}</Label>
                     <Input
                       id="owner-first-name"
                       value={form.firstName}
@@ -277,7 +290,7 @@ const OwnerContactForm = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="owner-last-name" className={LABEL_CLASS}>Last name</Label>
+                    <Label htmlFor="owner-last-name" className={LABEL_CLASS}>{t("owner-form-last-name")}</Label>
                     <Input
                       id="owner-last-name"
                       value={form.lastName}
@@ -290,7 +303,7 @@ const OwnerContactForm = () => {
 
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <Label htmlFor="owner-email" className={LABEL_CLASS}>Email *</Label>
+                    <Label htmlFor="owner-email" className={LABEL_CLASS}>{t("owner-form-email")}</Label>
                     <Input
                       id="owner-email"
                       type="email"
@@ -302,7 +315,7 @@ const OwnerContactForm = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="owner-phone" className={LABEL_CLASS}>Phone</Label>
+                    <Label htmlFor="owner-phone" className={LABEL_CLASS}>{t("owner-form-phone")}</Label>
                     <Input
                       id="owner-phone"
                       type="tel"
@@ -315,25 +328,25 @@ const OwnerContactForm = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="owner-address" className={LABEL_CLASS}>Where is the property? *</Label>
+                  <Label htmlFor="owner-address" className={LABEL_CLASS}>{t("owner-form-address-label")}</Label>
                   <Input
                     id="owner-address"
                     value={form.propertyAddress}
                     onChange={update("propertyAddress")}
-                    placeholder="Marbella, Málaga, Vienna…"
+                    placeholder={t("owner-form-address-placeholder")}
                     className={FIELD_CLASS}
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="owner-message" className={LABEL_CLASS}>Anything we should know?</Label>
+                  <Label htmlFor="owner-message" className={LABEL_CLASS}>{t("owner-form-message-label")}</Label>
                   <Textarea
                     id="owner-message"
                     value={form.message}
                     onChange={update("message")}
                     rows={4}
-                    placeholder="Size, current use, whether it is already rented out…"
+                    placeholder={t("owner-form-message-placeholder")}
                     className={FIELD_CLASS}
                   />
                 </div>
@@ -348,7 +361,7 @@ const OwnerContactForm = () => {
                     {submitting ? (
                       <>
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Sending…
+                        {t("owner-form-sending")}
                       </>
                     ) : (
                       <>
@@ -379,7 +392,7 @@ const OwnerContactForm = () => {
                     and three centred lines of all-caps is a paragraph nobody
                     reads — which is the opposite of the point of saying it. */}
                 <p className="t-meta text-primary-foreground/65">
-                  We use your details to answer your enquiry, nothing else. You can also reach us at{" "}
+                  {t("owner-form-privacy-note")}{" "}
                   <a href={`mailto:${CONTACT_EMAIL}`} className="text-accent-on-primary hover:underline">
                     {CONTACT_EMAIL}
                   </a>

@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import SearchBar from "./SearchBar";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
 import { Container, Stack } from "./layout";
+import { useLocale } from "@/contexts/LocaleContext";
 
 /**
  * Headline, one supporting line and the search bar, as a single block over a
@@ -28,10 +29,20 @@ const Hero = () => {
   const [guests, setGuests] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   const navigate = useNavigate();
+  const { t, language } = useLocale();
 
   // Editable content state
-  const [headline, setHeadline] = useState("Luxury Villas & Vacation Rentals in Spain and Austria");
-  const [subheadline, setSubheadline] = useState("Handpicked homes on the Costa del Sol, in Málaga, Vienna and the Austrian Alps — booked directly with the team that manages them.");
+  const [headline, setHeadline] = useState(t("hero-headline"));
+  const [subheadline, setSubheadline] = useState(t("hero-subheadline"));
+
+  // See Navigation.tsx's identical effect — resets to the new language's
+  // default rather than preserving a manual inline-CMS edit, since nothing
+  // persists past a reload today anyway (docs/PROJECT.md C7).
+  useEffect(() => {
+    setHeadline(t("hero-headline"));
+    setSubheadline(t("hero-subheadline"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   /**
    * Self-hosted since 19.08.2026 (docs/DECISIONS.md §22, resolves PROJECT.md

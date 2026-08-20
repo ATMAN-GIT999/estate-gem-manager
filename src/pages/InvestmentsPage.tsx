@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Search, BarChart3, Handshake, HardHat, Settings, MapPin } from "lucide-react";
@@ -7,27 +7,42 @@ import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema } from "@/lib/schema";
 import { Section, Container, Grid, Panel, SectionIntro } from "@/components/layout";
+import { useLocale } from "@/contexts/LocaleContext";
+import type { TranslationKey } from "@/lib/translations";
+
+const SERVICE_ICONS = ["Search", "BarChart3", "Handshake", "HardHat", "Settings"];
 
 /** See docs/PROJECT.md C5 / the comment atop RenovationsPage.tsx — same rebuild. */
 const InvestmentsPageContent = () => {
-  const [servicesTitle, setServicesTitle] = useState("Our Investment Services");
-  const [destinationsTitle, setDestinationsTitle] = useState("Investment Destinations");
+  const { t, language } = useLocale();
+  const [servicesTitle, setServicesTitle] = useState(t("inv-services-title"));
+  const [destinationsTitle, setDestinationsTitle] = useState(t("inv-destinations-title"));
 
   const iconMap: Record<string, any> = { Search, BarChart3, Handshake, HardHat, Settings };
 
-  const [services, setServices] = useState([
-    { icon: "Search", title: "Market research & due diligence", description: "Comprehensive analysis of opportunities and risk assessment." },
-    { icon: "BarChart3", title: "Revenue & ROI analysis", description: "Detailed financial projections and return calculations." },
-    { icon: "Handshake", title: "Purchase coordination", description: "Full support through the acquisition process." },
-    { icon: "HardHat", title: "Renovation strategy", description: "Value-add improvements to maximise property potential." },
-    { icon: "Settings", title: "Full operational management", description: "Turnkey rental operations from day one." },
-  ]);
+  const buildServices = () =>
+    SERVICE_ICONS.map((icon, i) => ({
+      icon,
+      title: t(`inv-service-title-${i}` as TranslationKey),
+      description: t(`inv-service-desc-${i}` as TranslationKey),
+    }));
+  const [services, setServices] = useState(buildServices());
 
-  const [locations, setLocations] = useState([
-    { country: "Spain", region: "Costa del Sol", description: "Luxury villas and apartments in Europe's premier coastal destination." },
-    { country: "Austria", region: "Vienna & Carinthia", description: "Urban elegance and Alpine retreats with strong rental demand." },
-    { country: "Croatia", region: "Istria", description: "Emerging Mediterranean gem with exceptional growth potential." },
-  ]);
+  const buildLocations = () =>
+    [0, 1, 2].map((i) => ({
+      country: t(`inv-loc-country-${i}` as TranslationKey),
+      region: t(`inv-loc-region-${i}` as TranslationKey),
+      description: t(`inv-loc-desc-${i}` as TranslationKey),
+    }));
+  const [locations, setLocations] = useState(buildLocations());
+
+  useEffect(() => {
+    setServicesTitle(t("inv-services-title"));
+    setDestinationsTitle(t("inv-destinations-title"));
+    setServices(buildServices());
+    setLocations(buildLocations());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -42,9 +57,9 @@ const InvestmentsPageContent = () => {
         <Section size="lg" tone="muted">
           <SectionIntro
             idPrefix="inv-hero"
-            eyebrow="Investments"
-            heading="Curated Real Estate Investments Across Europe"
-            lead="We connect investors with high-performing opportunities in Spain, Austria, and Croatia. Frontier Residences manages every step: acquisition, evaluation, renovation, and turnkey rental operations."
+            eyebrow={t("inv-hero-eyebrow")}
+            heading={t("inv-hero-heading")}
+            lead={t("inv-hero-lead")}
             headingAs="h1"
           />
         </Section>
