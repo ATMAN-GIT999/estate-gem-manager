@@ -102,10 +102,10 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+
+    if (!GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
     console.log("Analyzing property:", JSON.stringify(propertyData));
@@ -150,35 +150,33 @@ IMPORTANT: Consider the guest capacity when calculating rates. Properties that c
 Return this exact JSON structure with realistic EUR values. ALL OCCUPANCY RATES MUST BE WHOLE NUMBERS (e.g., 70 for 70%, NOT 0.7):
 {"monthlyIncome":number,"annualRevenue":number,"occupancyRate":number,"peakSeason":{"period":"Jun-Aug","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"midSeason":{"period":"Apr-May, Sep-Oct","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"lowSeason":{"period":"Nov-Mar","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"monthlyData":[{"month":"Jan","revenue":number,"occupancy":number},{"month":"Feb","revenue":number,"occupancy":number},{"month":"Mar","revenue":number,"occupancy":number},{"month":"Apr","revenue":number,"occupancy":number},{"month":"May","revenue":number,"occupancy":number},{"month":"Jun","revenue":number,"occupancy":number},{"month":"Jul","revenue":number,"occupancy":number},{"month":"Aug","revenue":number,"occupancy":number},{"month":"Sep","revenue":number,"occupancy":number},{"month":"Oct","revenue":number,"occupancy":number},{"month":"Nov","revenue":number,"occupancy":number},{"month":"Dec","revenue":number,"occupancy":number}],"rentalRates":{"low":{"min":number,"max":number},"mid":{"min":number,"max":number},"high":{"min":number,"max":number}},"expenses":{"cleaning":number,"maintenance":number,"utilities":number,"insurance":number,"platformFees":number,"management":number,"total":number},"longTermRental":{"monthlyRent":number,"annualIncome":number,"occupancyRate":number},"comparison":{"shortTermAnnual":number,"longTermAnnual":number,"recommendation":"string"},"marketInsights":"string"}`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
+    // Direct Gemini REST call — the previous version routed through Lovable's
+    // AI Gateway, a "seamless" (zero-config) Lovable integration whose key is
+    // auto-provisioned only when Lovable itself deploys the function. Since
+    // this project is deployed independently now, that key was never set and
+    // never will be through normal means — a real Gemini key from Google AI
+    // Studio replaces it (docs/DECISIONS.md, "Weg 2").
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: { responseMimeType: "application/json" },
+        }),
       },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-    });
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Lovable AI API error:", response.status, errorText);
-      
+      console.error("Gemini API error:", response.status, errorText);
+
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limits exceeded, please try again later." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits depleted. Please add credits to your Lovable workspace." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       throw new Error(`AI API error: ${response.status} - ${errorText}`);
@@ -187,7 +185,7 @@ Return this exact JSON structure with realistic EUR values. ALL OCCUPANCY RATES 
     const data = await response.json();
     console.log("AI response received");
 
-    const content = data.choices[0]?.message?.content;
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!content) {
       throw new Error("No content in AI response");
     }

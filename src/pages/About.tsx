@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import EditableImage from "@/components/admin/EditableImage";
@@ -9,9 +8,23 @@ import PageWrapper from "@/components/PageWrapper";
 import aboutHero from "@/assets/about-hero.webp";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema } from "@/lib/schema";
+import { Section, Container, Grid, Stack, Panel } from "@/components/layout";
 
+/**
+ * See docs/PROJECT.md C5 / the comment atop RenovationsPage.tsx — same
+ * rebuild onto the shared layout system.
+ *
+ * The mission and story blocks lost their `<Card>` wrapper: both are prose to
+ * be read, not items to be scanned side by side, which is the distinction
+ * `Panel`'s own doc comment draws — a box on one and not the other read as an
+ * accident, not a decision. "Why Choose Us" lost its per-item `bg-card` box
+ * for the same reason DESIGN.md §6 gives everywhere else on the site: five
+ * short claims in a row don't need five separate cards to be legible as a
+ * list.
+ */
 const AboutContent = () => {
   const [heroImage, setHeroImage] = useState(aboutHero);
+  const [pageEyebrow, setPageEyebrow] = useState("Who we are");
   const [pageTitle, setPageTitle] = useState("About Frontier Residences");
   const [pageSubtitle, setPageSubtitle] = useState("Premier property management across Europe's most desirable locations");
   const [missionTitle, setMissionTitle] = useState("Our Mission");
@@ -68,9 +81,9 @@ const AboutContent = () => {
         schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "About", path: "/about" }])}
       />
       <Navigation />
-      <main className="flex-1">
-        {/* Hero Section — pt-20 and safe centring keep the headline clear of the
-            fixed header on short viewports, same as the home page hero. */}
+      <main className="flex-1 overflow-x-clip">
+        {/* Hero Section — pt-20 clears the fixed header, same as every other
+            photo hero on the site (Hero.tsx, OwnerHero.tsx). */}
         <div className="relative min-h-[60vh] flex items-center [align-items:safe_center] justify-center overflow-hidden pt-20">
           <div className="absolute inset-0">
             <EditableImage
@@ -85,39 +98,40 @@ const AboutContent = () => {
                 one. Paired with the drop shadows below. */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/55 to-black/65" />
           </div>
-          <div className="relative z-10 max-w-4xl mx-auto text-center px-4 py-12 animate-fade-in">
-            <EditableText id="about-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="font-playfair text-4xl md:text-6xl font-bold text-white mb-6 text-balance drop-shadow-2xl">{pageTitle}</EditableText>
-            <EditableText id="about-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" className="text-xl md:text-2xl text-white/90 leading-relaxed drop-shadow-lg">{pageSubtitle}</EditableText>
-          </div>
+          <Container measure="text" className="relative z-10 text-center py-lg">
+            <EditableText id="about-page-eyebrow" value={pageEyebrow} onChange={setPageEyebrow} as="span" className="block t-meta text-accent-on-primary mb-sm drop-shadow-lg">{pageEyebrow}</EditableText>
+            <EditableText id="about-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="t-display text-white mb-sm text-balance drop-shadow-2xl">{pageTitle}</EditableText>
+            <EditableText id="about-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" className="t-body text-white/90 drop-shadow-lg">{pageSubtitle}</EditableText>
+          </Container>
         </div>
 
-        <div className="container mx-auto px-4 py-12">
-          {/* Mission */}
-          <div className="max-w-5xl mx-auto mb-16">
-            <Card className="shadow-elegant border-primary/20">
-              <CardContent className="pt-6">
-                <EditableText id="about-mission-title" value={missionTitle} onChange={setMissionTitle} as="h2" className="font-playfair text-3xl font-semibold text-primary mb-6 text-center">{missionTitle}</EditableText>
-                <EditableText id="about-mission-text" value={missionText} onChange={setMissionText} as="p" multiline className="text-lg text-foreground/80 leading-relaxed text-center max-w-3xl mx-auto">{missionText}</EditableText>
-              </CardContent>
-            </Card>
-          </div>
+        {/* Mission */}
+        <Section size="lg">
+          <Container measure="text" className="text-center">
+            <EditableText id="about-mission-title" value={missionTitle} onChange={setMissionTitle} as="h2" className="t-section text-primary mb-md">{missionTitle}</EditableText>
+            <EditableText id="about-mission-text" value={missionText} onChange={setMissionText} as="p" multiline className="t-body text-foreground/80">{missionText}</EditableText>
+          </Container>
+        </Section>
 
-          {/* Our Story */}
-          <div className="max-w-5xl mx-auto mb-16">
-            <EditableText id="about-story-title" value={storyTitle} onChange={setStoryTitle} as="h2" className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">{storyTitle}</EditableText>
-            <div className="prose prose-lg max-w-none text-foreground/80 text-center">
-              <EditableText id="about-story-text1" value={storyText1} onChange={setStoryText1} as="p" multiline className="mb-4">{storyText1}</EditableText>
-              <EditableText id="about-story-text2" value={storyText2} onChange={setStoryText2} as="p" multiline>{storyText2}</EditableText>
-            </div>
-          </div>
+        {/* Our Story */}
+        <Section size="lg" tone="muted">
+          <Container measure="text" className="text-center">
+            <EditableText id="about-story-title" value={storyTitle} onChange={setStoryTitle} as="h2" className="t-section text-primary mb-md">{storyTitle}</EditableText>
+            <Stack gap="sm">
+              <EditableText id="about-story-text1" value={storyText1} onChange={setStoryText1} as="p" multiline className="t-body text-foreground/80">{storyText1}</EditableText>
+              <EditableText id="about-story-text2" value={storyText2} onChange={setStoryText2} as="p" multiline className="t-body text-foreground/80">{storyText2}</EditableText>
+            </Stack>
+          </Container>
+        </Section>
 
-          {/* Why Choose Us */}
-          <div className="max-w-4xl mx-auto mb-16">
-            <EditableText id="about-why-choose-title" value={whyChooseTitle} onChange={setWhyChooseTitle} as="h2" className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">{whyChooseTitle}</EditableText>
-            <div className="grid md:grid-cols-2 gap-4">
+        {/* Why Choose Us */}
+        <Section size="lg">
+          <Container measure="text">
+            <EditableText id="about-why-choose-title" value={whyChooseTitle} onChange={setWhyChooseTitle} as="h2" className="t-section text-primary text-balance text-center mb-lg">{whyChooseTitle}</EditableText>
+            <Grid cols={2} gap="sm">
               {whyChooseItems.map((item, index) => (
-                <div key={index} className="flex items-start gap-3 p-5 bg-card rounded-lg shadow-sm hover:shadow-elegant transition-all">
-                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <div key={index} className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-accent-strong shrink-0 mt-0.5" strokeWidth={1.5} />
                   <EditableText
                     id={`about-why-item-${index}`}
                     value={item}
@@ -127,79 +141,79 @@ const AboutContent = () => {
                       setWhyChooseItems(newItems);
                     }}
                     as="p"
-                    className="text-base text-foreground"
+                    className="t-body text-foreground"
                   >{item}</EditableText>
                 </div>
               ))}
-            </div>
-          </div>
+            </Grid>
+          </Container>
+        </Section>
 
-          {/* Team Section */}
-          <div className="max-w-5xl mx-auto mb-16">
-            <EditableText id="about-team-title" value={teamTitle} onChange={setTeamTitle} as="h2" className="font-playfair text-3xl font-semibold text-primary mb-4 text-center">{teamTitle}</EditableText>
-            <EditableText id="about-team-subtitle" value={teamSubtitle} onChange={setTeamSubtitle} as="p" className="text-lg text-foreground/70 text-center mb-12 max-w-2xl mx-auto">{teamSubtitle}</EditableText>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        {/* Team Section */}
+        <Section size="lg" tone="muted">
+          <Container measure="wide">
+            <div className="text-center mb-lg">
+              <EditableText id="about-team-title" value={teamTitle} onChange={setTeamTitle} as="h2" className="t-section text-primary mb-2">{teamTitle}</EditableText>
+              <EditableText id="about-team-subtitle" value={teamSubtitle} onChange={setTeamSubtitle} as="p" className="t-body text-foreground/70 max-w-2xl mx-auto">{teamSubtitle}</EditableText>
+            </div>
+            <Grid cols={3} gap="md">
               {teamMembers.map((member, index) => (
-                <Card key={index} className="shadow-elegant hover:shadow-soft transition-all">
-                  <CardContent className="pt-6">
-                    <div className="w-20 h-20 bg-gradient-sage rounded-full mx-auto mb-4"></div>
-                    <EditableText
-                      id={`about-team-name-${index}`}
-                      value={member.name}
-                      onChange={(v) => updateTeamMember(index, "name", v)}
-                      as="h3"
-                      className="font-playfair text-xl font-semibold text-primary text-center mb-1"
-                    >{member.name}</EditableText>
-                    <EditableText
-                      id={`about-team-role-${index}`}
-                      value={member.role}
-                      onChange={(v) => updateTeamMember(index, "role", v)}
-                      as="p"
-                      className="text-primary/80 font-medium text-center text-sm mb-3"
-                    >{member.role}</EditableText>
-                    <EditableText
-                      id={`about-team-desc-${index}`}
-                      value={member.description}
-                      onChange={(v) => updateTeamMember(index, "description", v)}
-                      as="p"
-                      className="text-foreground/70 text-sm leading-relaxed text-center"
-                    >{member.description}</EditableText>
-                  </CardContent>
-                </Card>
+                <Panel key={index} className="text-center">
+                  <div className="w-16 h-16 bg-gradient-sage rounded-full mx-auto mb-sm" aria-hidden="true" />
+                  <EditableText
+                    id={`about-team-name-${index}`}
+                    value={member.name}
+                    onChange={(v) => updateTeamMember(index, "name", v)}
+                    as="h3"
+                    className="t-block text-primary mb-1"
+                  >{member.name}</EditableText>
+                  <EditableText
+                    id={`about-team-role-${index}`}
+                    value={member.role}
+                    onChange={(v) => updateTeamMember(index, "role", v)}
+                    as="p"
+                    className="t-meta text-accent-strong mb-sm"
+                  >{member.role}</EditableText>
+                  <EditableText
+                    id={`about-team-desc-${index}`}
+                    value={member.description}
+                    onChange={(v) => updateTeamMember(index, "description", v)}
+                    as="p"
+                    className="t-body text-foreground/70"
+                  >{member.description}</EditableText>
+                </Panel>
               ))}
-            </div>
-          </div>
+            </Grid>
+          </Container>
+        </Section>
 
-          {/* The Listing Process */}
-          <div className="max-w-4xl mx-auto">
-            <EditableText id="about-how-it-works-title" value={howItWorksTitle} onChange={setHowItWorksTitle} as="h2" className="font-playfair text-3xl font-semibold text-primary mb-8 text-center">{howItWorksTitle}</EditableText>
-            <div className="grid md:grid-cols-3 gap-6">
+        {/* The Listing Process */}
+        <Section size="lg">
+          <Container measure="wide">
+            <EditableText id="about-how-it-works-title" value={howItWorksTitle} onChange={setHowItWorksTitle} as="h2" className="t-section text-primary text-balance text-center mb-lg">{howItWorksTitle}</EditableText>
+            <Grid cols={3} gap="md">
               {processSteps.map((item, index) => (
-                <Card key={index} className="shadow-sm hover:shadow-elegant transition-all">
-                  <CardContent className="p-6 text-center">
-                    <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-4">
-                      {item.step}
-                    </div>
-                    <EditableText
-                      id={`about-step-title-${index}`}
-                      value={item.title}
-                      onChange={(v) => updateProcessStep(index, "title", v)}
-                      as="h3"
-                      className="font-semibold text-lg text-primary mb-2"
-                    >{item.title}</EditableText>
-                    <EditableText
-                      id={`about-step-desc-${index}`}
-                      value={item.description}
-                      onChange={(v) => updateProcessStep(index, "description", v)}
-                      as="p"
-                      className="text-sm text-foreground/80"
-                    >{item.description}</EditableText>
-                  </CardContent>
-                </Card>
+                <Panel key={index} className="text-center">
+                  <span className="t-meta text-foreground/40 block mb-2" aria-hidden="true">{item.step.padStart(2, "0")}</span>
+                  <EditableText
+                    id={`about-step-title-${index}`}
+                    value={item.title}
+                    onChange={(v) => updateProcessStep(index, "title", v)}
+                    as="h3"
+                    className="t-block text-primary mb-2"
+                  >{item.title}</EditableText>
+                  <EditableText
+                    id={`about-step-desc-${index}`}
+                    value={item.description}
+                    onChange={(v) => updateProcessStep(index, "description", v)}
+                    as="p"
+                    className="t-body text-foreground/70"
+                  >{item.description}</EditableText>
+                </Panel>
               ))}
-            </div>
-          </div>
-        </div>
+            </Grid>
+          </Container>
+        </Section>
       </main>
       <Footer />
     </div>

@@ -34,26 +34,26 @@ const Hero = () => {
   const [subheadline, setSubheadline] = useState("Handpicked homes on the Costa del Sol, in Málaga, Vienna and the Austrian Alps — booked directly with the team that manages them.");
 
   /**
-   * Defaults to the YouTube embed, restored on Almedin's explicit direction
-   * (docs/DECISIONS.md §12) after a brief window where it was replaced with a
-   * still image. The privacy trade-off named at the time still applies —
-   * `youtube.com/embed` loads for every visitor before anyone has clicked
-   * anything, the same class of problem the self-hosted-fonts comment in
-   * index.css describes, just for video instead of typography — but this is
-   * a business call about the guest-facing landing page, not an engineering
-   * default, and Almedin has made it.
+   * Self-hosted since 19.08.2026 (docs/DECISIONS.md §22, resolves PROJECT.md
+   * C6). `public/videos/hero-background.mp4` used to look like the
+   * self-hosted replacement for the YouTube embed below — present,
+   * plausibly named, never actually wired up, and not even a real video (its
+   * first bytes were `<!doctype html>`). Almedin supplied a real clip
+   * (Puente Romano); re-encoded from a 222MB/4K source to 1280×720, audio
+   * stripped (it autoplays muted regardless), capped around 2.2 Mbps —
+   * 5.8MB for a 21s loop, in line with the performance budget `website-stack`
+   * asks for. This also removes the privacy trade-off the previous comment
+   * here used to name: `youtube.com/embed` no longer loads for every visitor
+   * before they have clicked anything.
    *
-   * `public/videos/hero-background.mp4` looked like the self-hosted
-   * replacement that would remove that trade-off — present, plausibly named,
-   * never wired up — but it isn't a video: its first bytes are
-   * `<!doctype html>`, and Chrome confirms with `DEMUXER_ERROR_COULD_NOT_OPEN`.
-   * Tracked in `docs/PROJECT.md` §6 (C6). Swap `videoId` for a self-hosted
-   * file, or use the "file" tab in the editor, the moment a real MP4 exists —
-   * `EditableVideo` and the branch below already support it.
+   * `videoId` stays set as the dormant fallback — flip `videoType` back to
+   * `"youtube"` (or use the editor's YouTube tab) if a reason to prefer the
+   * embed ever comes up again; `EditableVideo` and the branch below still
+   * support both.
    */
-  const [videoType, setVideoType] = useState<"youtube" | "file" | "none">("youtube");
+  const [videoType, setVideoType] = useState<"youtube" | "file" | "none">("file");
   const [videoId, setVideoId] = useState("tqmWpFCv_1M");
-  const [videoFileSrc, setVideoFileSrc] = useState("");
+  const [videoFileSrc, setVideoFileSrc] = useState("/videos/hero-background.mp4");
 
   const handleSearch = () => {
     const params = new URLSearchParams();

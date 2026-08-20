@@ -1,16 +1,15 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Card } from "@/components/ui/card";
 import { Search, BarChart3, Handshake, HardHat, Settings, MapPin } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema } from "@/lib/schema";
+import { Section, Container, Grid, Panel, SectionIntro } from "@/components/layout";
 
+/** See docs/PROJECT.md C5 / the comment atop RenovationsPage.tsx — same rebuild. */
 const InvestmentsPageContent = () => {
-  const [pageTitle, setPageTitle] = useState("Curated Real Estate Investments Across Europe");
-  const [pageSubtitle, setPageSubtitle] = useState("We connect investors with high-performing opportunities in Spain, Austria, and Croatia. Frontier Residences manages every step: acquisition, evaluation, renovation, and turnkey rental operations.");
   const [servicesTitle, setServicesTitle] = useState("Our Investment Services");
   const [destinationsTitle, setDestinationsTitle] = useState("Investment Destinations");
 
@@ -39,87 +38,80 @@ const InvestmentsPageContent = () => {
         schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Investments", path: "/investments" }])}
       />
       <Navigation />
-      <main className="flex-1 pt-24 pb-12">
-        <section className="py-16 bg-gradient-hero">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center animate-fade-in">
-              <EditableText id="inv-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6">{pageTitle}</EditableText>
-              <EditableText id="inv-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">{pageSubtitle}</EditableText>
-            </div>
-          </div>
-        </section>
+      <main className="flex-1 pt-24 overflow-x-clip">
+        <Section size="lg" tone="muted">
+          <SectionIntro
+            idPrefix="inv-hero"
+            eyebrow="Investments"
+            heading="Curated Real Estate Investments Across Europe"
+            lead="We connect investors with high-performing opportunities in Spain, Austria, and Croatia. Frontier Residences manages every step: acquisition, evaluation, renovation, and turnkey rental operations."
+            headingAs="h1"
+          />
+        </Section>
 
-        <section className="py-20 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <EditableText id="inv-services-title" value={servicesTitle} onChange={setServicesTitle} as="h2" className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-12 text-center">{servicesTitle}</EditableText>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.map((service, index) => {
-                  const Icon = iconMap[service.icon] || Settings;
-                  return (
-                    <Card key={index} className="p-6 hover:shadow-elegant transition-all duration-300">
-                      <div className="w-14 h-14 bg-accent/20 rounded-lg flex items-center justify-center mb-4">
-                        <Icon className="w-7 h-7 text-accent-strong" />
-                      </div>
-                      <EditableText
-                        id={`inv-service-title-${index}`}
-                        value={service.title}
-                        onChange={(v) => { const u = [...services]; u[index] = { ...u[index], title: v }; setServices(u); }}
-                        as="h3"
-                        className="font-semibold text-primary text-lg mb-2"
-                      >{service.title}</EditableText>
-                      <EditableText
-                        id={`inv-service-desc-${index}`}
-                        value={service.description}
-                        onChange={(v) => { const u = [...services]; u[index] = { ...u[index], description: v }; setServices(u); }}
-                        as="p"
-                        className="text-foreground/70"
-                      >{service.description}</EditableText>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 bg-primary text-primary-foreground">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <EditableText id="inv-destinations-title" value={destinationsTitle} onChange={setDestinationsTitle} as="h2" className="font-playfair text-3xl md:text-4xl font-bold mb-12 text-center">{destinationsTitle}</EditableText>
-              <div className="grid md:grid-cols-3 gap-8">
-                {locations.map((location, index) => (
-                  <Card key={index} className="p-8 bg-primary-foreground/10 border-primary-foreground/20 text-center">
-                    <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <MapPin className="w-6 h-6 text-accent-on-primary" />
-                    </div>
+        <Section size="lg">
+          <Container measure="wide">
+            <EditableText id="inv-services-title" value={servicesTitle} onChange={setServicesTitle} as="h2" className="t-section text-primary text-balance text-center mb-lg">{servicesTitle}</EditableText>
+            <Grid cols={3} gap="md">
+              {services.map((service, index) => {
+                const Icon = iconMap[service.icon] || Settings;
+                return (
+                  <Panel key={index}>
+                    <Icon className="w-7 h-7 text-accent-strong mb-sm" strokeWidth={1.5} />
                     <EditableText
-                      id={`inv-loc-country-${index}`}
-                      value={location.country}
-                      onChange={(v) => { const u = [...locations]; u[index] = { ...u[index], country: v }; setLocations(u); }}
+                      id={`inv-service-title-${index}`}
+                      value={service.title}
+                      onChange={(v) => { const u = [...services]; u[index] = { ...u[index], title: v }; setServices(u); }}
                       as="h3"
-                      className="font-playfair text-2xl font-bold text-primary-foreground mb-2"
-                    >{location.country}</EditableText>
+                      className="t-block text-primary mb-2"
+                    >{service.title}</EditableText>
                     <EditableText
-                      id={`inv-loc-region-${index}`}
-                      value={location.region}
-                      onChange={(v) => { const u = [...locations]; u[index] = { ...u[index], region: v }; setLocations(u); }}
+                      id={`inv-service-desc-${index}`}
+                      value={service.description}
+                      onChange={(v) => { const u = [...services]; u[index] = { ...u[index], description: v }; setServices(u); }}
                       as="p"
-                      className="text-accent-on-primary font-medium mb-4"
-                    >{location.region}</EditableText>
-                    <EditableText
-                      id={`inv-loc-desc-${index}`}
-                      value={location.description}
-                      onChange={(v) => { const u = [...locations]; u[index] = { ...u[index], description: v }; setLocations(u); }}
-                      as="p"
-                      className="text-primary-foreground/80"
-                    >{location.description}</EditableText>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+                      className="t-body text-foreground/70"
+                    >{service.description}</EditableText>
+                  </Panel>
+                );
+              })}
+            </Grid>
+          </Container>
+        </Section>
+
+        <Section size="lg" tone="primary">
+          <Container measure="wide">
+            <EditableText id="inv-destinations-title" value={destinationsTitle} onChange={setDestinationsTitle} as="h2" className="t-section text-primary-foreground text-balance text-center mb-lg">{destinationsTitle}</EditableText>
+            <Grid cols={3} gap="md">
+              {locations.map((location, index) => (
+                <Panel key={index} tone="primary" className="text-center">
+                  <MapPin className="w-7 h-7 text-accent-on-primary mb-sm mx-auto" strokeWidth={1.5} />
+                  <EditableText
+                    id={`inv-loc-country-${index}`}
+                    value={location.country}
+                    onChange={(v) => { const u = [...locations]; u[index] = { ...u[index], country: v }; setLocations(u); }}
+                    as="h3"
+                    className="t-block text-primary-foreground mb-1"
+                  >{location.country}</EditableText>
+                  <EditableText
+                    id={`inv-loc-region-${index}`}
+                    value={location.region}
+                    onChange={(v) => { const u = [...locations]; u[index] = { ...u[index], region: v }; setLocations(u); }}
+                    as="p"
+                    className="t-meta text-accent-on-primary mb-sm"
+                  >{location.region}</EditableText>
+                  <EditableText
+                    id={`inv-loc-desc-${index}`}
+                    value={location.description}
+                    onChange={(v) => { const u = [...locations]; u[index] = { ...u[index], description: v }; setLocations(u); }}
+                    as="p"
+                    className="t-body text-primary-foreground/80"
+                  >{location.description}</EditableText>
+                </Panel>
+              ))}
+            </Grid>
+          </Container>
+        </Section>
       </main>
       <Footer />
     </div>

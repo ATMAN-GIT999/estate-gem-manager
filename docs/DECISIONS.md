@@ -820,3 +820,501 @@ bei `property-2.webp` in §14 — ein Problem an dieser spezifischen Datei, kein
 allgemeiner Verbindungsausfall. Nicht weiter erzwungen. Villa Hoyo 19 zeigt
 weiterhin die Sonnenuntergangs-Außenaufnahme aus §14, bis der Download
 erfolgreich ist oder Almedin eine andere Quelle nennt.
+
+## 19 · Guesty-Webhook (B3) — die Verifikation im Code war komplett falsch
+
+PROJECT.md B3 ging davon aus, der Webhook ließe sich „in Guesty anlegen" und
+das dabei ausgegebene Secret direkt als `GUESTY_WEBHOOK_SECRET` eintragen.
+Beim Umsetzen zeigte sich: beides stimmt so nicht.
+
+**Guesty liefert Webhooks über [Svix](https://www.svix.com) aus**, nicht über
+einen eigenen Mechanismus. `guesty-webhook/index.ts` prüfte bisher einen
+selbst erfundenen Header (`x-guesty-signature` / `x-webhook-secret` / ein
+`secret`-Feld im Body) gegen einen simplen String-Vergleich — Guesty schickt
+aber `svix-id` / `svix-timestamp` / `svix-signature` und signiert mit
+HMAC-SHA256 nach dem Standard-Webhooks-Schema
+(`{svix-id}.{svix-timestamp}.{raw body}`, Secret im Format `whsec_<base64>`).
+**Mit korrekt gesetztem `GUESTY_WEBHOOK_SECRET` hätte der alte Code jeden
+echten Webhook abgelehnt** — falscher Header, falsche Prüfmethode, nicht nur
+ein fehlendes Secret. Behoben: `verifySvixSignature()` in
+`guesty-webhook/index.ts` prüft jetzt die echten Svix-Header mit HMAC-SHA256
+gegen das (base64-dekodierte) Secret, inklusive Zeitstempel-Toleranz gegen
+Replay und Vergleich in konstanter Zeit. CORS-Header entsprechend angepasst
+(`svix-*` statt `x-guesty-signature`).
+
+**Die Registrierung selbst läuft über die Open API, nicht die Booking Engine
+API.** Die bereits vorhandenen `GUESTY_CLIENT_ID`/`GUESTY_CLIENT_SECRET`
+(Scope `booking_engine:api`, Token-Endpoint
+`https://booking.guesty.com/oauth2/token`) gelten nur für die Booking-Engine-
+Aufrufe (`guesty-booking-auth` u. a.). Webhooks leben unter
+`open-api.guesty.com` mit eigenem OAuth-Client (Scope `open-api`,
+Token-Endpoint `https://open-api.guesty.com/oauth2/token`) — ein separates
+Zugangsdaten-Paar, das über Guesty **Integrations → OAuth applications → New
+application** erzeugt wird und nur einmalig sichtbar ist. Ablauf danach:
+
+1. `POST https://open-api.guesty.com/v1/webhooks` mit `{ url, events }` →
+   erstellt die Subscription.
+2. `GET https://open-api.guesty.com/v1/webhooks-v2/secret?url=<url>` →
+   liefert das Svix-Secret für genau diese URL.
+3. Secret als `GUESTY_WEBHOOK_SECRET` in die Supabase-Secrets.
+
+Analog zum Stripe-Secret-Key-Vorfall (§ „Zurück zu B1") laufen die neuen
+Open-API-Zugangsdaten **nicht durch den Chat** — Almedin führt die drei
+Schritte selbst in einem lokalen Skript aus und trägt nur das Ergebnis
+(das Secret) direkt in Supabase ein. Skript liegt im Scratchpad dieser
+Session, nicht im Repo (enthält Platzhalter für die Zugangsdaten, keine
+echten Werte).
+
+**Update:** Almedin hat die OAuth-Application angelegt und die Zugangsdaten
+geteilt (Chat statt lokalem Skript, abweichend von der obigen Empfehlung —
+Risiko niedriger als beim Stripe-Secret-Key, da nur Guesty-API-Zugriff ohne
+Geldbewegung, trotzdem sollte die OAuth-Application in Guesty bei Gelegenheit
+neu erstellt bzw. das Secret rotiert werden). Webhook ist erstellt:
+`_id: 6a85c45d0c4c970048d9c872`, Events wie oben, zeigt korrekt auf
+`.../functions/v1/guesty-webhook`. Das Svix-Secret selbst wurde bewusst nicht
+über den Chat geholt — Almedin ruft es separat lokal ab und trägt es direkt in
+Supabase ein.
+
+**Offen, bis das Secret gesetzt ist:** der Handler bleibt bis dahin
+fail-closed (503 ohne `GUESTY_WEBHOOK_SECRET`) — unverändertes Verhalten, nur
+die Prüfung dahinter ist jetzt richtig statt nur streng.
+
+## 20 · Neues Supabase-Projekt — `xjvtuderbirlwudatgxg` war für niemanden erreichbar
+
+Beim Versuch, `GUESTY_WEBHOOK_SECRET` einzutragen, stellte sich heraus:
+Almedin hat **keinen** Zugriff auf `xjvtuderbirlwudatgxg` (das Projekt, das
+in dieser Repo's `.env` steht) — Zugriff verweigert, auch direkt über die
+Projekt-URL. Ich habe es parallel selbst versucht: mein Supabase-MCP-Zugang
+läuft unter einem anderen Konto (**„ATMAN-GIT999's Org"**) und bekommt für
+`xjvtuderbirlwudatgxg` explizit „keine Berechtigung". Zusammen mit dem schon
+länger bekannten Fund, dass `xjvtuderbirlwudatgxg` ohnehin nie das echte
+Live-Backend war (nur der leere Lovable-Remix-Fork; die echte Seite lief laut
+einer früheren Session auf einem anderen Projekt, `gonvfprvmbhzrczmpleq`, das
+ebenfalls unter einem unbekannten Account liegt), bedeutete das: **niemand,
+der an diesem Redesign arbeitet, kann auf ein bestehendes Supabase-Backend
+zugreifen.**
+
+Zwei Wege standen zur Wahl: Zugriff auf eines der alten Projekte
+zurückerlangen (Passwort-Reset, Supabase-Support-Transfer — beides langsam,
+von Dritten abhängig) oder ein neues Projekt unter einem Konto anlegen, das
+tatsächlich erreichbar ist. Auf Almedins Entscheidung: **Weg B** — neues
+Projekt.
+
+### Was neu entstanden ist
+
+**Projekt `frontier-residences`** (`ref: womaoywuhjchtubacbvn`), angelegt
+unter „ATMAN-GIT999's Org" (Free-Plan, 0 €/Monat) — dieselbe Organisation, zu
+der auch mein eigener Supabase-MCP-Zugriff gehört, also von hier aus direkt
+verwaltbar ohne weitere Zugriffsfragen.
+
+**Schema:** alle 27 bestehenden Migrationen aus `supabase/migrations/`
+nacheinander abgespielt — Tabellen, RLS-Policies, Trigger, der
+`property-images`-Storage-Bucket, alles wie im Repo dokumentiert. **Eine
+Ausnahme:** `20260813200000_nightly_price_sync.sql` wurde **nicht**
+angewendet — die Datei markiert sich selbst als „NOT YET APPLIED", nie
+end-to-end verifiziert (PROJECT.md C4), und enthält zwei fest einprogrammierte
+Werte für das alte Projekt (URL, Publishable Key), die im Code auf das neue
+Projekt korrigiert wurden, aber ungetestet bleiben — nicht stillschweigend
+als „erledigt" durchgewunken.
+
+**Eine echte Lücke beim Nachbauen gefunden:** `20260810223000` geht davon
+aus, der `consultation-uploads`-Bucket samt Insert/Select-Policies
+existiere schon — laut eigenem Kommentar wurde er „von Hand" im alten Projekt
+angelegt und nie in eine Migration geschrieben. Ebenso fehlte jede
+Insert-Policy für `contacts` (nur „Admins can manage all contacts" existierte
+bisher) — beide Kontaktformulare hätten auf einem frischen Projekt sofort per
+RLS abgelehnt. Nachgebaut aus dem, was `ConsultationBooking.tsx` und
+`OwnerContactForm.tsx` tatsächlich erwarten (`LEAD_SOURCE =
+"consultation-booking"`, `PHOTO_BUCKET = "consultation-uploads"`, privater
+Bucket, 10 MB), als neue Migration
+`20260819150000_consultation_uploads_bucket_and_contacts_insert.sql`
+festgehalten — nicht in die alte Migration eingemischt, damit die Historie
+ehrlich bleibt (die alte Datei beschreibt weiterhin genau das, was am
+10.08.2026 live passiert ist).
+
+**9 Edge Functions deployed** (nicht 7, wie B3 ursprünglich annahm —
+`analyze-property` und `import-guesty-properties` kamen dazu):
+`guesty-booking-auth`, `guesty-webhook` (bereits mit dem Svix-Fix aus §19),
+`guesty-create-reservation`, `guesty-get-quote`, `guesty-get-calendar`,
+`guesty-search-listings`, `guesty-stripe-config`, `analyze-property`,
+`import-guesty-properties`. Alle mit `verify_jwt: false` außer
+`import-guesty-properties` (`true`) — der Client ruft alle Functions über
+`supabase.functions.invoke()` auf, das ohne eingeloggte Session den
+Publishable Key (`sb_publishable_…`, kein JWT-Format) als Authorization
+mitschickt. Mit `verify_jwt: true` hätte das Gateway jede Anfrage von einem
+nicht eingeloggten Gast schon vor dem eigentlichen Code abgelehnt — hätte den
+gesamten Buchungsflow für jeden anonymen Besucher lahmgelegt.
+`import-guesty-properties` läuft nur aus dem Admin-Bereich
+(`admin/Properties.tsx`), dort ist immer eine echte Nutzer-Session vorhanden.
+
+**Guesty-Webhook umgezogen:** der in §19 registrierte Webhook zeigte noch auf
+`xjvtuderbirlwudatgxg`. Gelöscht und neu angelegt (`_id:
+6a85d5115666c70051150575`) mit derselben Event-Auswahl, jetzt auf
+`https://womaoywuhjchtubacbvn.supabase.co/functions/v1/guesty-webhook`.
+
+**`.env` und `supabase/config.toml`** zeigen jetzt auf `womaoywuhjchtubacbvn`
+statt `xjvtuderbirlwudatgxg`. Mit dem Browser gegen `/properties` verifiziert:
+die vier Beispiel-Properties aus der ersten Migration laden korrekt — die
+Verbindung steht.
+
+### Was noch fehlt, bevor der Buchungsflow wieder läuft
+
+Alle vier müssen als Supabase-Secrets im **neuen** Projekt eingetragen werden
+(Almedin hat jetzt Zugriff, Project Settings → Edge Functions → Secrets):
+
+- `GUESTY_CLIENT_ID` / `GUESTY_CLIENT_SECRET` — Booking-Engine-API-Zugangsdaten.
+  Die alten stecken im unerreichbaren `xjvtuderbirlwudatgxg` und sind für uns
+  genauso unsichtbar wie für Almedin (Supabase zeigt gesetzte Secrets nicht
+  im Klartext an) — brauchen einen neuen Eintrag im Guesty-Booking-Engine-API-
+  Bereich, analog zur Open-API-Application aus §19.
+- `GUESTY_STRIPE_PUBLISHABLE_KEY` — weiterhin offen, B1.
+- `GUESTY_WEBHOOK_SECRET` — aus dem neu registrierten Webhook oben, noch nicht
+  abgerufen.
+- `LOVABLE_API_KEY` — für `analyze-property` (die KI-Analyse auf `/evaluate`);
+  ebenfalls nur im alten Projekt vorhanden gewesen.
+
+Bis diese vier gesetzt sind, verhält sich die Seite auf dem neuen Projekt
+funktional identisch zum alten Stand vor B1/B3: Property-Anzeige und
+Formulare laufen, Buchungsabschluss und Stripe-Zahlung bleiben tot, die
+KI-Analyse auf `/evaluate` schlägt fehl. Das ist kein Rückschritt — es war
+vorher genau derselbe Zustand, nur auf einem Projekt, das niemand erreichen
+konnte.
+
+## 21 · Drei der vier offenen Secrets erledigt, eine Function auf einen anderen Anbieter umgestellt
+
+**`GUESTY_CLIENT_ID`/`GUESTY_CLIENT_SECRET`:** Almedin hat eine neue Booking-
+Engine-API-Application in Guesty angelegt und die Zugangsdaten per Chat
+geteilt — ID und Secret waren dabei vertauscht benannt (der kurze,
+Okta-artige Wert `0oawf…` ist die ID, der lange String das Secret; direkt
+gegen `booking.guesty.com/oauth2/token` getestet, um das vor dem Eintragen in
+Supabase zu klären). Nach der Korrektur `import-guesty-properties` erfolgreich
+gegen `womaoywuhjchtubacbvn` gelaufen: **23 von 23 Objekten importiert** (22
+neu, 1 auf eine der vier Beispiel-Properties gemappt). Im Browser bestätigt:
+`/properties` zeigt wieder alle 26 Zeilen.
+
+**`GUESTY_WEBHOOK_SECRET`:** mit denselben Open-API-Zugangsdaten aus §19 (die
+noch im Sitzungskontext standen) direkt abgerufen, statt Almedin nochmal auf
+das lokale Skript zu verweisen — der Sinn dieses Skripts (die Zugangsdaten
+nie durch den Chat zu schicken) war für genau dieses Credential-Paar ohnehin
+schon hinfällig, da er es vorher selbst im Chat geteilt hatte.
+
+**`LOVABLE_API_KEY` — nicht nachgeliefert, sondern ersetzt.** Beim Nachschauen
+in Lovables Connector-Liste zeigte sich: „AI" (Lovables Gateway zu
+OpenAI/Gemini) ist als **„seamless"**-Integration eingestuft — keine
+Einstellungsseite mit kopierbarem Key, Lovable setzt das Secret nur
+automatisch, wenn Lovable selbst deployed. Da diese Edge Function jetzt über
+Supabase-MCP läuft, nicht über Lovables eigenen Deploy-Weg, hätte dieser Key
+nie erschienen, egal wie lange gesucht wird.
+
+Zwei Wege standen zur Wahl: Lovable selbst im „Frontier's Lovable"-Projekt
+etwas an der Function ändern lassen (Risiko: anderer, älterer Codestand als
+`redesign/v2`) oder `analyze-property` auf einen direkten Gemini-Key
+umstellen. Auf Almedins Entscheidung „Weg 2" umgesetzt: `analyze-property`
+ruft jetzt `generativelanguage.googleapis.com` direkt auf (Modell
+`gemini-2.5-flash`, `responseMimeType: application/json` erzwingt gültiges
+JSON statt der bisherigen Markdown-Fallback-Extraktion), liest `GEMINI_API_KEY`
+statt `LOVABLE_API_KEY`. Fehlerbehandlung für „Rate limit" blieb (429), die
+Lovable-spezifische „AI-Credits aufgebraucht"-Meldung (402, „add credits to
+your Lovable workspace") ist entfallen — Google-Kontingente laufen anders,
+eine Meldung, die auf Lovables eigenes Billing verweist, wäre nach dem
+Wechsel schlicht falsch gewesen. Deployed; noch offen: Almedin muss einen
+Gemini-Key unter [Google AI Studio](https://aistudio.google.com/) erzeugen
+und als `GEMINI_API_KEY` eintragen — kostenlos, frei kopierbar, keine
+Chat-Vorsicht nötig wie bei den Guesty-/Stripe-Zugangsdaten.
+
+**Bewusst nicht angefasst:** `lovable-tagger` in `vite.config.ts` bleibt — ein
+Build-Zeit-Tool ohne Laufzeitwirkung, hat mit der AI-Gateway-Frage nichts zu
+tun. Ob die Seite am Ende über Lovables eigenes Hosting oder woanders
+veröffentlicht wird, ist unverändert offen und unabhängig von dieser
+Entscheidung.
+
+**Verifiziert, nicht nur deployed:** Nach dem Eintragen von `GEMINI_API_KEY`
+zeigte der erste echte Testaufruf einen zweiten Fehler — `gemini-2.5-flash`
+ist für neue Google-API-Keys nicht mehr verfügbar, Google verlangt
+`gemini-3.6-flash`. Modellname korrigiert, neu deployed. Getestet mit einem
+temporären Testnutzer (Signup über die Auth-API, `email_confirmed_at` per SQL
+gesetzt, Login, echter `analyze-property`-Aufruf, danach der Nutzer wieder
+gelöscht) statt mit Almedins eigenem Konto — die Seite selbst leitet ohne
+Login zu `/auth` um, das ist bestehendes Verhalten der Function
+(`analyze-property` verlangt eine echte Supabase-Auth-Session, keine
+Neuerung). Ergebnis: vollständige, korrekt strukturierte JSON-Analyse kommt
+zurück — die KI-Analyse auf `/evaluate` funktioniert Ende-zu-Ende.
+
+## 22 · C6 — echtes Hero-Video statt YouTube-Embed
+
+Almedin lieferte eine echte Aufnahme lokal (Puente Romano, Drohnenblick auf
+eine Villa-Anlage) — 4K, H.264+AAC, 21s, 222 MB. Für ein Hintergrundvideo, das
+autoplay/muted/loop läuft und von `overlay-media` sowieso abgedunkelt wird,
+weit über dem, was `website-stack`s Performance-Budget hergibt. `ffmpeg` war
+lokal nicht installiert — über `winget install Gyan.FFmpeg` nachgezogen, dann
+neu kodiert: 1280×720 (aus der abgedunkelten, mit Text überlagerten Position
+reicht das völlig), Ton entfernt (läuft ohnehin stumm), `-crf 30 -maxrate
+2500k -bufsize 5000k` → **5,8 MB** bei gleicher Länge. `public/videos/
+hero-background.mp4` überschrieben (die alte Datei dort war ohnehin kein
+echtes Video, siehe PROJECT.md C6 — erste Bytes `<!doctype html>`).
+
+`Hero.tsx`: `videoType` von `"youtube"` auf `"file"` umgestellt,
+`videoFileSrc` auf `/videos/hero-background.mp4` gesetzt. `videoId` (die
+YouTube-ID) bleibt im State stehen, unbenutzt — falls der Embed aus
+irgendeinem Grund je wieder gebraucht wird, reicht das Umschalten von
+`videoType`, kein Zurücksuchen der ID. Im Browser verifiziert: echtes
+`<video>`-Element statt iframe, spielt automatisch, `readyState: 4`. Löst
+nebenbei den Datenschutz-Kompromiss auf, den der alte Kommentar an dieser
+Stelle namentlich in Kauf nahm — `youtube.com/embed` lädt jetzt nicht mehr
+für jeden Besucher, bevor irgendetwas angeklickt wurde.
+
+## 23 · C5 — Layout-System auf fünf Unterseiten ausgeweitet
+
+`/renovations`, `/investments`, `/guaranteed-income`, `/about` und
+`/properties` liefen bislang komplett am Layout-System vorbei — jede Section
+ihr eigenes `container mx-auto px-4` plus eigener `max-w-*`-Wert, Typografie
+über `font-playfair text-4xl md:text-6xl font-bold` statt der `.t-*`-Skala,
+Inhaltsblöcke in shadcn-`<Card>`s statt der site-weiten „1b"-Panel-Optik.
+Genau der Zustand, den DECISIONS.md §11 „andere Website" nennt — nur, dass
+der Zoom-out-Test damals diese fünf Seiten gar nicht erreicht hatte.
+
+**`/business-areas` bewusst ausgelassen.** D2 markiert die Seite bereits als
+verwaist mit widersprüchlichem Inhalt, Kandidat für ein 301-Redirect auf
+`/property-management`. Sie jetzt aufs Layout-System umzustellen wäre Arbeit
+an einer Seite, die absehbar wieder verschwindet.
+
+**`SectionIntro` erweitert, nicht umgangen** (CLAUDE.md: „dann das Primitive
+erweitern, nicht daran vorbeibauen"): neuer optionaler Prop `headingAs?: "h1"
+| "h2"` (Default `"h2"`). Drei der fünf Seiten (Renovations, Investments,
+Guaranteed Income) haben keinen eigenen Foto-Hero wie `OwnerHero`/`Hero.tsx`
+— nur H1 + Subline auf einer Fläche. `SectionIntro` ist genau dafür gebaut
+(Eyebrow-Überschrift-Lead, dieselbe Reihenfolge wie überall sonst auf der
+Seite), rendert aber fest `<h2>`; für die eine Stelle pro Seite, die das H1
+sein muss, war `headingAs="h1"` die naheliegende Erweiterung. Alle drei Seiten
+bekommen dabei zum ersten Mal ein Eyebrow („Renovations & Design" /
+„Investments" / „Guaranteed Income") — vorher hatten sie keins, jede andere
+Chapter-Öffnung auf der Seite (SectionIntro, OwnerHero, Hero.tsx) hat eins.
+
+**`bg-gradient-hero` ersatzlos gestrichen.** Ein kaum wahrnehmbarer
+Beige-auf-Beige-Gradient (`hsl(32,26%,92%)` → `hsl(32,30%,88%)`) auf den drei
+Hero-Bändern — bei dieser Dezenz eher ein liegengebliebener Lovable-Polish-
+Effekt als ein eigenes Design-Merkmal, das einen neuen `Section`-`tone`
+rechtfertigt. Läuft jetzt auf `tone="muted"` wie jede andere leicht
+abgesetzte Eröffnungsfläche im System.
+
+**`<Card>` → `<Panel>`, Icons direkt statt in einem Farbkreis.** Durchgehend
+über alle fünf Seiten: die Service-/Benefit-/Team-/Prozess-Karten liefen auf
+`bg-accent/20 rounded-lg` bzw. `rounded-full` Icon-Container innerhalb einer
+shadcn-`<Card>` — zwei verschachtelte Boxen für ein Icon. Jetzt: Icon direkt
+in `text-accent-strong`, `strokeWidth={1.5}`, in einem `Panel` — exakt das
+Muster aus `TheSystem`/`WaysToWorkTogether`. `About.tsx`s Mission- und
+Story-Absätze verloren ihre `<Card>` komplett: Fließtext zum Lesen, nicht
+nebeneinander gescannte Items, die einzige Unterscheidung, die `Panel`s
+eigener Kommentar für eine Box zulässt. Die „Why Choose Us"-Checkliste verlor
+ihr `bg-card` pro Zeile aus demselben Grund.
+
+**`Properties.tsx`: nur Hülle angefasst, keine Logik.** Die Sticky-Suchleiste
+und das Property-Grid liefen auf `container mx-auto px-4` mit `grid
+md:grid-cols-2 lg:grid-cols-3 gap-8` von Hand — jetzt `Container` und `Grid
+cols={3}`. Die Verfügbarkeitsprüfung, das sequenzielle Guesty-Calendar-Polling
+und die Such-/Filter-Logik sind unverändert; nur JSX-Wrapper und Klassennamen
+im Rückgabewert geändert.
+
+**Verifikation:** `tsc --noEmit`, `npm run build` und `npm run lint` liefen
+sauber (keine neuen Lint-Fehler in den fünf Dateien). Die Browser-Prüfung
+fehlt für diese Runde — die Chrome-DevTools-MCP-Verbindung war zum Zeitpunkt
+der Umstellung getrennt. Almedin darauf hingewiesen statt eine Sichtprüfung
+zu behaupten, die nicht stattgefunden hat; nachzuholen, sobald die Verbindung
+wieder steht.
+
+## 24 · `/properties` — Standort-Suche an echte Objektdaten gekoppelt, Layout nach Mockup nachgezogen
+
+Zwischenauftrag mit Phase-0-Gate (erst Analyse, dann auf „Los" warten), zwei
+Teile.
+
+**Teil 2 — Standort-Autocomplete.** `LocationAutocomplete.tsx` schlug eine
+fest verdrahtete Liste von acht Costa-del-Sol-Städten vor
+(`costaDelSolLocations`), komplett losgelöst vom tatsächlichen
+Objektbestand: vier der acht (Estepona, Benalmádena, Mijas, Nerja) hatten nie
+ein einziges Listing, während echte, buchbare Standorte (Benahavís,
+Calahonda, Río Real, Sauerwald, Wien) nie als Vorschlag erschienen. Per
+DB-Abfrage bestätigt, nicht angenommen. Ersetzt durch einen neuen
+`useRealLocations()`-Hook, der beim Mount einmal `properties.location` (nur
+`available = true`) lädt, den Regions-Suffix abschneidet
+(„Fuengirola, Costa del Sol" → „Fuengirola"), case-insensitiv dedupliziert
+und alphabetisch sortiert — Vorschlag und Bestand können jetzt nicht mehr
+auseinanderlaufen, unabhängig davon, welche Objekte später aktiv sind.
+Negative `place_id`s, damit sie nicht mit Nominatims (positiven) IDs
+kollidieren, wenn beide Listen kombiniert werden. Läuft in beiden
+Verwendungsstellen (`Hero.tsx` über `SearchBar`, `Properties.tsx`) automatisch
+mit, ohne dass `Hero.tsx` selbst Objektdaten laden müsste.
+
+**Teil 1 — Layout nach Mockup, mit zwei Korrekturen von Almedin.** Das
+gelieferte HTML-Mockup zeigte die Suchleiste nur mit drei Feldern (Where to? /
+Check-in / Guests) und lief über die volle Bildschirmbreite. Beides war ein
+Artefakt der Mockup-Darstellung, kein Implementierungsziel — Almedin hat
+beides vorab korrigiert: das Check-out-Feld bleibt (war im Code ohnehin
+vollständig vorhanden), und die Seite bleibt innerhalb des bestehenden
+`Container`/`Section`-Maßsystems aus §23.
+
+- **Header:** neues Eyebrow „Our collection", Headline von „All Properties"
+  zu „Choose your favorite.", Objektanzahl steht jetzt klein neben der
+  Headline (`{filtered.length} homes`) statt in eigener Zeile mit
+  „X von Y properties"-Formulierung.
+- **Suchleiste, nur `variant="inline"`:** neuer `compact`-Zweig in
+  `SearchBar.tsx`, ausschließlich für die Sticky-Leiste auf `/properties` —
+  die schwebende Leiste in `Hero.tsx` (`variant="floating"`) bleibt
+  unverändert, weil der vorhandene `variant`-Prop die beiden Stellen bereits
+  sauber trennt. Icons (Pin, zwei Kalender, Guests) auf `text-accent-strong`
+  statt `text-primary`; Karten-Hintergrund auf `bg-secondary/50` statt
+  `bg-card` (reines Weiß) — dieselbe Halbton-Fläche, die `Section`s
+  `tone="muted"` für „abgesetzt, aber nicht laut" schon site-weit benutzt,
+  keine neue Farbe erfunden; Such-Button jetzt mit Icon **und** Text
+  „Search" (vorher nur Icon); engere Innenabstände. Alle vier Felder
+  inklusive Check-out unverändert vorhanden.
+- **Grid:** `Properties.tsx`s Ergebnis- und Skeleton-Grid von `cols={3}` auf
+  `cols={2}` — der Hauptlöser für größere, präsentere Bilder, ohne dass die
+  Bildgröße selbst angefasst werden musste.
+- **Bett/Bad/Gäste-Zeile in `PropertyCard.tsx`:** von drei Icon+Zahl-Paaren
+  (`Bed`/`Bath`/`Users`) auf einen Fließtext, z. B.
+  „4 bedrooms · 3 bathrooms · sleeps 8".
+- **Featured-Badges:** per DB-Abfrage geprüft (nur 3 von 26 Objekten sind
+  `featured`, alles ursprüngliche Seed-Properties) — keine Badge-Inflation,
+  bewusst unangetastet gelassen.
+
+**Verifikation:** `tsc --noEmit`, `npm run build` und `npm run lint` liefen
+sauber (keine neuen Lint-Fehler in den vier geänderten Dateien). Die
+Browser-Prüfung fehlt erneut — die Chrome-DevTools-MCP-Verbindung war zum
+wiederholten Mal nicht erreichbar. Almedin wie beim letzten Mal darauf
+hingewiesen statt eine Sichtprüfung zu behaupten.
+
+Nachträgliches Feedback in derselben Sitzung, vor §25 noch umgesetzt: „26
+homes" rechtsbündig neben statt unter der Headline; ein `ChevronDown` bei
+„Where to?", der das Vorschlags-Dropdown auch per Klick öffnet/schließt (bis
+dahin nur über Fokus/Tippen erreichbar); die Bett/Bad/Gäste-Zeile in
+`PropertyCard.tsx` von „sleeps X" auf „X guests" korrigiert.
+
+## 25 · `/properties` — zweite Korrekturrunde: Grid zurück auf 3, Suchleiste im OmniVillas-Stil, Sortierung
+
+Ausdrücklich als Korrektur zu §24 formuliert, mit Referenz-HTML **und** echten
+OmniVillas-Screenshots. Ändert einiges aus der letzten Runde wieder.
+
+**Phase-0-Befund, bevor irgendwas umgesetzt wurde:**
+
+- **Wien/Sauerwald:** kein Bug. Per DB-Abfrage bestätigt, dass
+  `properties.location` bereits exakt „Wien" und „Sauerwald" enthält —
+  identisch zu den `CITY`/`OFF_GRID`-Arrays in `PropertyCollections.tsx` und
+  zur dynamischen Locations-Liste aus §24 Teil 2. Keine Änderung nötig.
+- **Button-Radius „Root Cause" war falsch diagnostiziert.** Der Prompt nahm
+  an, `button.tsx`s `rounded-md` laufe auf Tailwinds Standardwert statt auf
+  `--radius`. Tatsächlich mappt `tailwind.config.ts` (`borderRadius.md:
+  "calc(var(--radius) - 2px)"`) das längst um — der Unterschied zu
+  `var(--radius)` pur wäre ~1px, unsichtbar. Nicht angefasst.
+- **`PropertyCollections.tsx` verwendet `SearchBar.tsx` gar nicht.** Nur
+  `Hero.tsx` tut das (`variant="floating"` de facto, da kein Prop übergeben).
+  Die Suchleisten-Neugestaltung wirkt sich also auf `Hero.tsx` und
+  `Properties.tsx` aus, nicht auf die Rail-Sektion der Landingpage.
+
+**`SearchBar.tsx` komplett neu, für beide Aufrufer identisch.** Der
+`variant`-Prop (`"floating"`/`"inline"`), der bisher Hintergrundfarbe und
+Icon-Ton unterschied, ist entfernt — beide Stellen sehen jetzt gleich aus,
+wie es dieser Prompt explizit wollte („gilt automatisch für beide"). Card:
+weißer Hintergrund, dünner Rahmen, `shadow-sm`, `rounded-full` (mobil
+`rounded-2xl`, da eine Pillenform bei gestapeltem Layout nicht funktioniert),
+`max-w-2xl` zentriert statt volle Containerbreite. Jedes der vier Felder
+(WHERE/CHECK-IN/CHECK-OUT/WHO) zeigt jetzt ein goldenes
+Groß­buchstaben-Mikrolabel über dem Wert, wie im OmniVillas-Referenzbild —
+vorher stand der Wert allein neben einem großen Icon. Kalender-Icon (Lucide
+`CalendarIcon`) jetzt dunkel/grau statt gold, rechts neben dem Datumswert
+statt links davor. Datumsformat von `PPP` („January 1st, 2026") auf `d MMM
+yyyy` gekürzt — im schmalen Pill-Layout hätte das lange Format umgebrochen.
+WHO-Feld mit `min-w-[84px]` statt `flex-1`, damit eine zweistellige
+Gästezahl nicht gequetscht wirkt. Such-Button jetzt immer (nicht mehr nur in
+der kompakten Variante) Icon **und** „Search"-Text, `rounded-full`.
+
+**`LocationAutocomplete.tsx`:** `iconClassName`-Prop entfernt (keine
+variantenabhängige Farbe mehr nötig), stattdessen `label`-Prop für das neue
+Mikrolabel. Der `MapPin` in der Werte-Zeile ist weg — das Referenzbild zeigt
+dort nur Wert + Chevron, kein Icon (der Pin bleibt in der Vorschlagsliste
+selbst). Platzhalter von „Where to?" auf „Anywhere" geändert, passend zum
+Referenzbild. Eigenes Padding entfernt — das übernimmt jetzt der Feld-Wrapper
+in `SearchBar.tsx`, damit alle vier Felder exakt gleich ausgerichtet sind.
+
+**`PropertyCard.tsx`: weißer Karten-Hintergrund — bewusste Ausnahme von
+CLAUDE.md §„Weniger Boxen".** Das Regelwerk nennt einen neuen `<Card>`-Wrapper
+ausdrücklich einen Rückschritt, der begründet werden muss. Begründung hier:
+explizite Anweisung mit Mockup **und** echten Screenshots als Referenz, nicht
+eine unreflektierte Rückkehr zum alten Muster. Karten bekommen `bg-card`,
+`shadow-sm`, `hover:shadow-md`, Bild-Radius von `rounded-xl` auf `rounded-lg`
+verkleinert (sitzt jetzt innerhalb der Karten-Polsterung). Wirkt automatisch
+auch auf der Landingpage (`PropertyCollections.tsx` nutzt dieselbe
+Komponente). Meta-Zeile von „X bedrooms · Y bathrooms · Z guests" auf „X
+guests · Y bedrooms · Z baths" umsortiert — Reihenfolge und Wortwahl folgen
+dem echten OmniVillas-Screenshot, nicht dem knapperen Text im mitgelieferten
+HTML-Mockup (der nur zwei von drei Werten zeigte).
+
+**Grid zurück auf `cols={3}`** (Ergebnis- und Skeleton-Grid) — §24 hatte auf
+2 gestellt, dieser Prompt überschreibt das ausdrücklich („diesmal gilt: 3
+Spalten").
+
+**Sortier-Dropdown ergänzt**, rechts neben der Objekt-Anzahl (die seit dem
+Feedback nach §24 bereits rechts neben der Headline steht — beide Elemente
+sitzen jetzt zusammen auf der rechten Seite, nicht wie im Referenzbild
+getrennt links/rechts, um die vorherige, explizite „Anzahl ganz rechts"-Ansage
+nicht zu widerrufen). Shadcn `Select`, drei Optionen (Recommended, Price: low
+to high, Price: high to low). Neuer `sorted`-Wert (aus `filtered` abgeleitet)
+speist Grid und Zähler; „Recommended" sortiert nicht neu, sondern behält die
+Datenbank-Reihenfolge (`featured` zuerst, dann neueste) bei.
+
+**`PropertyCollections.tsx`:** `MAX_VISIBLE_CARDS` von 6 auf 4 — einzeilige
+Konstante, dieselbe `Rail`-Komponente bedient alle drei Kollektionszeilen.
+
+**Verifikation:** `tsc --noEmit` und `npm run build` liefen sauber. `npm run
+lint` zeigt nur vorbestehende Fehler in `Properties.tsx` (drei `any`-Typen,
+vier `no-unused-expressions` im `applySearch`-Ternary-Pattern) — keiner davon
+aus dieser Runde. Browser-Prüfung erneut nicht möglich, chrome-devtools-MCP
+weiterhin nicht erreichbar.
+
+## 26 · `/properties` und Landingpage-Rails — Feinschliff nach OmniVillas-Screenshot
+
+Direktes Feedback zum Ergebnis von §25, mit Screenshot des eigenen Zwischen­
+stands und zwei OmniVillas-Referenzbildern (Suchergebnisseite + Landingpage
+„Featured homes").
+
+**`PropertyCard.tsx`: Bild randlos, mehr Luft für den Text.** Die Karte hatte
+`p-2.5` auf dem äußeren `<Link>`, was einen gleichmäßigen Rahmen um Bild *und*
+Text legte — im Referenzbild zieht das Foto bis zum Kartenrand. Padding vom
+Link entfernt, `overflow-hidden` + `rounded-xl` dort stattdessen, damit die
+Bild-Ecken oben automatisch mit der Karte runden. Text-Block bekommt jetzt
+eigenes `px-4 pt-5 pb-5` (vorher effektiv `pt-4` plus dem geerbten `p-2.5`) —
+mehr Abstand zum Bild und zum unteren Kartenrand, wie gewünscht.
+
+**`Properties.tsx`: Kopfbereich neu sortiert.** Eyebrow/Headline stehen jetzt
+in einer engeren `Section size="sm"` (vorher `"md"`) weiter oben. Die
+Objektanzahl steht nicht mehr neben der Headline, sondern in einer eigenen
+Zeile darunter, links; das Sortier-Dropdown rechts daneben — genau wie
+angefragt, auch wenn das vom OmniVillas-Referenzbild selbst abweicht (dort
+stehen Anzahl und Sortierung auf zwei getrennten Zeilen). „Sort" steht jetzt
+als eigenständiger Text links vom Auswahlfeld statt als Präfix im Wert
+(„Sort: Recommended" → „Sort" + „Recommended"). Grid-Gap von `"lg"` auf
+`"sm"` verkleinert (Ergebnis- und Skeleton-Grid) — engerer Kartenabstand,
+dadurch automatisch größere Karten bei gleicher Spaltenzahl.
+
+**`PropertyCollections.tsx`: die rechte Lücke im Rail war ein echter Bug, kein
+Stilproblem.** Die Karten-Reihe lief auf einer festen Pixelbreite
+(`RAIL_MAX_WIDTH_PX` = vier Karten à 320px + drei Lücken à 24px = 1352px),
+während der Container selbst fluid bis 1440px (`--container-max`) breit wird.
+Auf normal-breiten bis breiten Bildschirmen war die Zeile dadurch schmaler als
+der Container — links exakt am Rand (per `--container-inset`), rechts mit
+einer Lücke von bis zu ~88px, die mit der Fensterbreite variiert. Das war der
+Grund, warum „rechts mehr Abstand" wirkte, obwohl im Code kein
+`paddingRight` fehlte, das die Ursache gewesen wäre.
+
+Fix: eine Kollektion mit höchstens `MAX_VISIBLE_CARDS` (4) Objekten läuft
+jetzt als normales `Grid cols={4}` innerhalb von `Container` — fluid, exakt
+dieselben Kanten wie jede andere Section, kein Scroll-Mechanismus nötig. Nur
+eine Kollektion, die tatsächlich mehr Objekte hat, behält die feste
+Scroll-Rail mit der abgeschnittenen Karte am Rand als „hier geht's weiter"-
+Hinweis — dort ist die Lücke beabsichtigt, kein Bug. Die Scroll-Pfeile
+blenden sich entsprechend aus, wenn nichts zu scrollen ist. Damit richtet
+sich das Verhalten automatisch am tatsächlichen Objektbestand jeder
+Kollektion aus, nicht an einer für alle drei Reihen geltenden Annahme.
+
+**Verifikation:** `tsc --noEmit` und `npm run build` liefen sauber. `npm run
+lint` zeigt dieselben vorbestehenden Fehler wie in §25, keine neuen. Browser-
+Prüfung weiterhin nicht möglich — chrome-devtools-MCP bleibt getrennt.

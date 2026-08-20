@@ -64,7 +64,7 @@ BEGIN
     nights := 6;
 
     req_id := net.http_post(
-      url := 'https://xjvtuderbirlwudatgxg.supabase.co/functions/v1/guesty-get-quote',
+      url := 'https://womaoywuhjchtubacbvn.supabase.co/functions/v1/guesty-get-quote',
       body := jsonb_build_object(
         'listingId', prop.guesty_listing_id,
         'checkIn', check_in,
@@ -75,7 +75,7 @@ BEGIN
       -- visitor's browser bundle (src/integrations/supabase/client.ts), so
       -- hardcoding it here carries no more exposure than the site itself.
       headers := jsonb_build_object(
-        'apikey', 'sb_publishable_QcCUM71U6GcE8mZ_yo4n6A_gSg-X5vO',
+        'apikey', 'sb_publishable_9TilJfNdUqgg77pZyJINzg_FUhFh6WY',
         'content-type', 'application/json'
       ),
       timeout_milliseconds := 15000

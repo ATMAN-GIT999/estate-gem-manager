@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { addDays, format, startOfDay } from "date-fns";
-import { CalendarIcon, Minus, Plus, Search, SlidersHorizontal, Users } from "lucide-react";
+import { CalendarIcon, Minus, Plus, Search, SlidersHorizontal } from "lucide-react";
 import LocationAutocomplete from "@/components/LocationAutocomplete";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -28,12 +28,6 @@ interface SearchBarProps extends SearchBarValues {
   onCheckOutChange: (value: Date | undefined) => void;
   onGuestsChange: (value: string) => void;
   onSearch: () => void;
-  /**
-   * "floating" — raised card, for the hero where the bar sits over the video.
-   * "inline"   — flat, for the sticky filter bar that already has its own
-   *              background, border and shadow.
-   */
-  variant?: "floating" | "inline";
   /**
    * Fold the bar into a one-line summary chip on mobile once the user scrolls
    * past the results, and after a search is submitted. Stacked on a phone the
@@ -66,7 +60,6 @@ const SearchBar = ({
   onCheckOutChange,
   onGuestsChange,
   onSearch,
-  variant = "floating",
   collapsible = false,
 }: SearchBarProps) => {
   const [checkInOpen, setCheckInOpen] = useState(false);
@@ -172,30 +165,30 @@ const SearchBar = ({
   // Stacked on mobile, so the dividers have to run horizontally there and
   // switch to vertical only once the fields sit side by side.
   const fieldDivider = "border-b md:border-b-0 md:border-r border-border";
+  const fieldPad = "px-4 py-1.5";
+  // Gold micro-label above a dark value — the OmniVillas reference layout.
+  // Same look everywhere the bar appears now (hero video, sticky filter
+  // strip); the two call sites used to diverge here (colour, background),
+  // which is why a `variant` prop existed — dropped along with that split.
+  const fieldLabel = "block text-[10px] font-bold uppercase tracking-wide text-accent-strong mb-0.5";
 
   return (
-    <Card
-      className={cn(
-        "relative z-50 overflow-visible p-3",
-        variant === "floating"
-          ? "shadow-elegant bg-card/95 backdrop-blur"
-          : "shadow-none bg-card",
-      )}
-    >
+    <Card className="relative z-50 mx-auto w-full max-w-2xl overflow-visible rounded-2xl border border-border bg-card p-1.5 shadow-sm md:rounded-full">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col md:flex-row items-stretch md:items-center gap-2"
+        className="flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-0"
       >
-        <div className={cn("flex-1", fieldDivider)}>
-          <LocationAutocomplete value={location} onChange={onLocationChange} placeholder="Where to?" />
+        <div className={cn("flex-1", fieldPad, fieldDivider)}>
+          <LocationAutocomplete value={location} onChange={onLocationChange} label="WHERE" />
         </div>
 
-        <div className={cn("relative flex-1 flex items-center gap-3 px-4 py-2", fieldDivider)}>
-          <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
+        <div className={cn("relative flex-1 shrink-0", fieldPad, fieldDivider)}>
+          <span className={fieldLabel}>CHECK-IN</span>
           <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className={triggerClass}>
-                {checkInDate ? format(checkInDate, "PPP") : "Check-in"}
+              <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-sm text-foreground")}>
+                <span className="truncate">{checkInDate ? format(checkInDate, "d MMM yyyy") : "Check-in"}</span>
+                <CalendarIcon className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="z-[70] w-auto p-0" align="start">
@@ -210,12 +203,13 @@ const SearchBar = ({
           </Popover>
         </div>
 
-        <div className={cn("relative flex-1 flex items-center gap-3 px-4 py-2", fieldDivider)}>
-          <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
+        <div className={cn("relative flex-1 shrink-0", fieldPad, fieldDivider)}>
+          <span className={fieldLabel}>CHECK-OUT</span>
           <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className={triggerClass}>
-                {checkOutDate ? format(checkOutDate, "PPP") : "Check-out"}
+              <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-sm text-foreground")}>
+                <span className="truncate">{checkOutDate ? format(checkOutDate, "d MMM yyyy") : "Check-out"}</span>
+                <CalendarIcon className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="z-[70] w-auto p-0" align="start">
@@ -231,11 +225,13 @@ const SearchBar = ({
           </Popover>
         </div>
 
-        <div className="relative flex-1 flex items-center gap-3 px-4 py-2">
-          <Users className="w-5 h-5 text-primary shrink-0" />
+        {/* A little wider than the other fields (`min-w`, not `flex-1`) so a
+            two-digit guest count has room instead of looking squeezed. */}
+        <div className={cn("relative shrink-0 min-w-[84px]", fieldPad)}>
+          <span className={fieldLabel}>WHO</span>
           <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className={triggerClass}>
+              <Button variant="ghost" className={cn(triggerClass, "text-sm text-foreground")}>
                 {guestCount > 0 ? `${guestCount} ${guestCount === 1 ? "guest" : "guests"}` : "Guests"}
               </Button>
             </PopoverTrigger>
@@ -288,9 +284,10 @@ const SearchBar = ({
         <Button
           type="submit"
           aria-label="Search properties"
-          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft h-12 px-8 shrink-0"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-none rounded-full h-10 px-5 gap-2 shrink-0"
         >
-          <Search className="h-5 w-5" />
+          <Search className="h-4 w-4" />
+          Search
         </Button>
       </form>
     </Card>

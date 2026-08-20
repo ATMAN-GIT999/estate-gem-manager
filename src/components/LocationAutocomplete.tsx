@@ -1,11 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, ChevronDown } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import { cn } from "@/lib/utils";
 
 interface LocationAutocompleteProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  /** Gold micro-label rendered above the value, matching the other three SearchBar fields. */
+  label?: string;
 }
 
 interface NominatimResult {
@@ -16,19 +20,68 @@ interface NominatimResult {
   lon: string;
 }
 
-// Costa del Sol default suggestions
-const costaDelSolLocations = [
-  { place_id: 1, display_name: "Marbella, Málaga, Spain", name: "Marbella", lat: "36.5107", lon: "-4.8825" },
-  { place_id: 2, display_name: "Málaga, Spain", name: "Málaga", lat: "36.7213", lon: "-4.4216" },
-  { place_id: 3, display_name: "Estepona, Málaga, Spain", name: "Estepona", lat: "36.4267", lon: "-5.1459" },
-  { place_id: 4, display_name: "Fuengirola, Málaga, Spain", name: "Fuengirola", lat: "36.5443", lon: "-4.6247" },
-  { place_id: 5, display_name: "Benalmádena, Málaga, Spain", name: "Benalmádena", lat: "36.5989", lon: "-4.5168" },
-  { place_id: 6, display_name: "Mijas, Málaga, Spain", name: "Mijas", lat: "36.5959", lon: "-4.6370" },
-  { place_id: 7, display_name: "Torremolinos, Málaga, Spain", name: "Torremolinos", lat: "36.6216", lon: "-4.4998" },
-  { place_id: 8, display_name: "Nerja, Málaga, Spain", name: "Nerja", lat: "36.7442", lon: "-3.8758" },
-];
+/**
+ * Was a fixed list of eight Costa del Sol towns, entirely disconnected from
+ * what properties actually exist — four of the eight (Estepona, Benalmádena,
+ * Mijas, Nerja) have never had a single listing, while real, booked-out
+ * locations (Benahavís, Calahonda, Río Real, Sauerwald, Wien) never appeared
+ * as a suggestion at all. Fetched from the real data instead, once per
+ * mount, so the two can't drift apart again regardless of which properties
+ * are active later.
+ *
+ * Both call sites (`Properties.tsx`, `Hero.tsx` via `SearchBar`) get this for
+ * free without either passing property data down as a prop — `Hero.tsx`
+ * doesn't fetch properties at all today, and making it do so just to feed
+ * this list would be the more invasive change.
+ */
+const useRealLocations = () => {
+  const [locations, setLocations] = useState<NominatimResult[]>([]);
 
-const LocationAutocomplete = ({ value, onChange, placeholder = "Where to?" }: LocationAutocompleteProps) => {
+  useEffect(() => {
+    let cancelled = false;
+    const fetchLocations = async () => {
+      const { data, error } = await supabase
+        .from("properties")
+        .select("location")
+        .eq("available", true);
+      if (cancelled || error || !data) return;
+
+      // `location` sometimes carries a region suffix ("Fuengirola, Costa del
+      // Sol") and sometimes doesn't ("Fuengirola") for what is the same town —
+      // take the first comma segment and dedupe case-insensitively so the
+      // list shows each place once.
+      const byKey = new Map<string, string>();
+      for (const row of data) {
+        const city = row.location?.split(",")[0]?.trim();
+        if (!city) continue;
+        const key = city.toLowerCase();
+        if (!byKey.has(key)) byKey.set(key, city);
+      }
+
+      const sorted = Array.from(byKey.values()).sort((a, b) => a.localeCompare(b));
+      setLocations(
+        sorted.map((city, index) => ({
+          // Negative ids keep these out of the way of Nominatim's (positive)
+          // place_ids when the two lists are combined below.
+          place_id: -(index + 1),
+          display_name: city,
+          name: city,
+          lat: "",
+          lon: "",
+        })),
+      );
+    };
+    fetchLocations();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return locations;
+};
+
+const LocationAutocomplete = ({ value, onChange, placeholder = "Anywhere", label }: LocationAutocompleteProps) => {
+  const realLocations = useRealLocations();
   const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -53,14 +106,14 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Where to?" }: Lo
 
   const searchLocations = async (query: string) => {
     if (query.length < 1) {
-      // Show Costa del Sol suggestions when empty or just starting
-      setSuggestions(costaDelSolLocations);
+      // Show the real, currently-booked locations when empty or just starting
+      setSuggestions(realLocations);
       setShowSuggestions(true);
       return;
     }
 
-    // Filter Costa del Sol locations first
-    const filteredLocal = costaDelSolLocations.filter(loc => 
+    // Filter real locations first
+    const filteredLocal = realLocations.filter(loc =>
       loc.name.toLowerCase().includes(query.toLowerCase()) ||
       loc.display_name.toLowerCase().includes(query.toLowerCase())
     );
@@ -114,10 +167,25 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Where to?" }: Lo
     if (suggestions.length > 0) {
       setShowSuggestions(true);
     } else {
-      // Show Costa del Sol suggestions on focus
-      setSuggestions(costaDelSolLocations);
+      // Show the real, currently-booked locations on focus
+      setSuggestions(realLocations);
       setShowSuggestions(true);
     }
+  };
+
+  /** Explicit open/close affordance, on top of the implicit focus/typing behaviour above. */
+  const toggleDropdown = () => {
+    if (showSuggestions) {
+      setShowSuggestions(false);
+      return;
+    }
+    if (inputValue) {
+      searchLocations(inputValue);
+    } else {
+      setSuggestions(realLocations);
+      setShowSuggestions(true);
+    }
+    inputRef.current?.focus();
   };
 
   const handleSelectSuggestion = (suggestion: NominatimResult) => {
@@ -134,9 +202,13 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Where to?" }: Lo
   };
 
   return (
-    <div ref={wrapperRef} className="relative flex-1">
-      <div className="flex items-center gap-3 px-4 py-2">
-        <MapPin className="w-5 h-5 text-primary shrink-0" />
+    <div ref={wrapperRef} className="relative">
+      {label && (
+        <span className="block text-[10px] font-bold uppercase tracking-wide text-accent-strong mb-0.5">
+          {label}
+        </span>
+      )}
+      <div className="flex items-center gap-1.5">
         <input
           ref={inputRef}
           type="text"
@@ -144,15 +216,24 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Where to?" }: Lo
           onChange={handleInputChange}
           onFocus={handleFocus}
           placeholder={placeholder}
-          className="w-full bg-transparent border-0 p-0 h-auto focus:outline-none focus:ring-0 text-foreground placeholder:text-muted-foreground"
+          className="w-full min-w-0 bg-transparent border-0 p-0 h-auto text-sm text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground placeholder:opacity-100"
         />
         {isLoading && (
-          <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0" />
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground shrink-0" />
         )}
+        <button
+          type="button"
+          onClick={toggleDropdown}
+          aria-label={showSuggestions ? "Hide location suggestions" : "Show location suggestions"}
+          aria-expanded={showSuggestions}
+          className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showSuggestions && "rotate-180")} />
+        </button>
       </div>
-      
+
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-50 w-full mt-2 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto left-0">
+        <div className="absolute z-50 w-max min-w-[240px] max-w-xs mt-2 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto left-0">
           {suggestions.map((suggestion) => (
             <button
               key={suggestion.place_id}

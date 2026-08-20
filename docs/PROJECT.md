@@ -250,6 +250,33 @@ prüfen, ob Tabelle/Bucket/Policy schon existiert.** Genau das ist bei den
 Kontaktformularen passiert: Bucket und Policies waren längst da, zwei selbst
 geschriebene Migrationen wurden wieder entfernt.
 
+### Supabase-Projekt: `womaoywuhjchtubacbvn`, nicht mehr `xjvtuderbirlwudatgxg`
+
+Am 19.08.2026 gewechselt (DECISIONS §20). `xjvtuderbirlwudatgxg` — das
+Projekt, das vorher in `.env` stand — war für niemanden erreichbar, weder für
+Almedin noch über den hier verfügbaren Supabase-MCP-Zugriff, und war laut
+einer früheren Session ohnehin nie das echte Live-Backend (nur der leere
+Lovable-Remix-Fork; die tatsächlich live laufende Seite nutzt ein drittes,
+ebenfalls unerreichbares Projekt, `gonvfprvmbhzrczmpleq`). Neues Projekt unter
+Almedins eigener, erreichbarer Supabase-Organisation angelegt, alle 27
+Migrationen plus eine neu geschriebene (die `consultation-uploads`-Bucket-
+Lücke, DECISIONS §20) abgespielt, alle 9 Edge Functions neu deployed.
+
+**Secrets im neuen Projekt** (Project Settings → Edge Functions → Secrets) —
+die alten Werte stecken unsichtbar im unerreichbaren Alt-Projekt, brauchten
+also neue Zugangsdaten, nicht nur einen Umzug (DECISIONS §21):
+
+| Secret | Status |
+|---|---|
+| `GUESTY_CLIENT_ID` / `GUESTY_CLIENT_SECRET` | ✅ gesetzt, `import-guesty-properties` erfolgreich gelaufen (23/23 Objekte) |
+| `GUESTY_WEBHOOK_SECRET` | ✅ gesetzt |
+| `GUESTY_STRIPE_PUBLISHABLE_KEY` | 🔴 offen, B1 |
+| `GEMINI_API_KEY` | ✅ gesetzt, ersetzt `LOVABLE_API_KEY` (Lovables AI-Gateway ist eine „seamless"-Integration ohne kopierbaren Key, siehe DECISIONS §21); `analyze-property` ruft jetzt Gemini direkt auf (`gemini-3.6-flash`), Ende-zu-Ende mit einem temporären Testnutzer verifiziert |
+
+Bis `GUESTY_STRIPE_PUBLISHABLE_KEY` gesetzt ist, bleibt nur noch der
+Buchungsabschluss/Stripe tot (B1) — alles andere läuft: Property-Anzeige,
+Formulare, Guesty-Webhook, KI-Analyse auf `/evaluate`.
+
 ---
 
 ## 4 · Backend: Supabase, Guesty, Stripe
@@ -343,9 +370,9 @@ Umgesetzt und verifiziert:
 
 | # | Punkt |
 |---|---|
-| B1 | **Stripe-Publishable-Key.** `guesty-stripe-config` antwortet HTTP 500 („Stripe publishable key not configured"). Guesty hat genau ein Payment-Provider-Konto (`acct_1Pqi8YRsGzWWYqz8`, ACTIVE, alle 24 Objekte), verbunden von `aschbacher@frontier-residences.com`. Almedin muss den `pk_live_…` aus **genau diesem** Konto besorgen und als `GUESTY_STRIPE_PUBLISHABLE_KEY` in die Supabase Edge Function Secrets eintragen. Ohne den Key bleibt der Buchungsabschluss tot, egal was am Code passiert. |
+| B1 | **Stripe-Publishable-Key.** `guesty-stripe-config` antwortet HTTP 500 („Stripe publishable key not configured"). Guesty hat genau ein Payment-Provider-Konto (`acct_1Pqi8YRsGzWWYqz8`, ACTIVE, alle 24 Objekte), verbunden von `aschbacher@frontier-residences.com`. Almedin muss den `pk_live_…` aus **genau diesem** Konto besorgen und als `GUESTY_STRIPE_PUBLISHABLE_KEY` in die Supabase Edge Function Secrets eintragen — jetzt im **neuen** Projekt `womaoywuhjchtubacbvn` (§ „Supabase-Projekt" oben, DECISIONS §20), nicht mehr im alten. Ohne den Key bleibt der Buchungsabschluss tot, egal was am Code passiert. |
 | B2 | **City Tax ist in Guesty falsch konfiguriert.** Am Objekt Vienna Ottakring steht `PERCENTAGE` kombiniert mit `PER_GUEST_PER_NIGHT` → Guesty rechnet `3,2 % × Unterkunft × Gäste × Nächte` und kommt auf 97–144 % Steuer (bei einer Buchung kippt `subTotalPrice` auf −777,13 €). Zu ändern in **Guesty**, nicht im Code: Quantifier auf `PER_STAY`. **Erst danach** die Total-Berechnung im Code umstellen — sonst zeigt und bucht die Website einen um ~645 € zu hohen Betrag. |
-| B3 | **Guesty-Webhook ist nicht registriert.** `…/functions/v1/guesty-webhook` steht in Guesty nicht in der Webhook-Liste (registriert sind nur Chekin, Nuki, PriceLabs). Es kann nie ein Event angekommen sein. Reihenfolge beim Einrichten: Webhook anlegen → Secret abrufen → **sofort** als `GUESTY_WEBHOOK_SECRET` in Supabase eintragen. Der Handler ist inzwischen **fail-closed** (ohne Secret → 503), das Fenster ist also eng. |
+| ~~B3~~ | ~~Guesty-Webhook ist nicht registriert~~ — **erledigt am 19.08.2026** (DECISIONS §19/§20/§21). Verifikation im Code korrigiert (echte Svix-Header statt eines erfundenen), Webhook über die Open API registriert, nach dem Projektwechsel auf die neue URL umgezogen (`_id: 6a85d5115666c70051150575`, zeigt auf `womaoywuhjchtubacbvn`) und `GUESTY_WEBHOOK_SECRET` gesetzt. Ungetestet bleibt, ob ein echtes Guesty-Event bereits erfolgreich durchgelaufen ist — noch kein Live-Event seit der Registrierung beobachtet. |
 | B4 | **Material vom Besitzer:** Echte Vorher/Nachher-Fotos für die drei Case-Studies (Proof zeigt seit 19.08.2026 stattdessen jedes Objekts aktuelles Bestandsfoto aus dem Drive-Ordner „Listing Pictures" — kein Vorher/Nachher-Paar, siehe DECISIONS §14), Eigentümer-Testimonials, ein eigener Cal.com-Link (aktuell zeigt `OwnerContactForm` auf Almedins persönlichen Link). |
 | ~~B5~~ | ~~Der PM-Hero läuft auf dem falschen Motiv~~ — **erledigt am 19.08.2026** (DECISIONS §17). `OwnerHero.tsx` zeigt jetzt ein eigenes, von Almedin per Drive-Link geliefertes Foto (`pmp-hero-villa-higueron.webp`, „Villa Higueron-11.jpg"), kein wiederverwendetes Karten-/Detailbild mehr. |
 | B6 | **`property-5.webp` (Bild hinter „Own a Property" auf `/`) hat keine bestätigte Herkunft.** Der Code ordnet es `villa-in-higueron` zu, aber das Motiv (beiges Sofa, gemusterte Tapete, klassisches TV-Sideboard) passt stilistisch nicht zu den bestätigten Villa-Higuerón-Fotos (durchgehend minimalistisch, Marmor, Glasfronten). Vermutlich eine falsche Lovable-Altlast. Wartet darauf, dass Almedin den richtigen Drive-Ordner nennt oder das Foto direkt liefert (DECISIONS §17). |
@@ -358,8 +385,8 @@ Umgesetzt und verifiziert:
 | C2 | **Stille Fantasiepreise.** Schlägt die Quote fehl, rechnet `fetchQuote` ersatzweise `price_per_night × Nächte × 1,1`. Die 10 % sind erfunden, der Gast sieht eine glaubwürdige Zahl ohne Hinweis — und kann damit buchen. Offene Entscheidung von Almedin: Buchung **blockieren** oder als unverbindliche Anfrage weiterlaufen lassen? Empfehlung: blockieren. |
 | C3 | **Endlos-Spinner statt Fehlermeldung.** Schlägt `guesty-stripe-config` fehl, landet der Fehler nur in der Konsole; das Kartenfeld rendert nie, der Button bleibt dauerhaft `disabled`. Es braucht einen sichtbaren Fehlerzustand plus den Anfrage-Weg als Ausweichpfad. |
 | C4 | **Nächtlicher Preis-Sync ist geschrieben, aber nicht angewendet.** `supabase/migrations/20260813200000_nightly_price_sync.sql` — der Header der Datei dokumentiert genau, was live verifiziert wurde und was nicht. Vor dem Vertrauen: in den Supabase-SQL-Editor einfügen und `SELECT * FROM public.sync_guesty_prices();` von Hand laufen lassen. Bis dahin altert der manuelle Sync vom 13.08.2026 weiter ab. |
-| C5 | **Das Layout-System endet fast überall.** `src/components/layout/` ist verdrahtet in `PropertyManagementPage.tsx` sowie den Komponenten `ProjectsSection.tsx` und `PropertyCollections.tsx` — **sonst nirgends.** Alle Unterseiten (`/renovations`, `/investments`, `/guaranteed-income`, `/about`, `/properties`, `/business-areas`) laufen noch auf `container mx-auto px-4` plus eigenem `max-w-*`. Wer über „Two ways to start with us" auf `/renovations` klickt, landet spürbar auf einer anderen Website. Größter sichtbarer Bruch im aktuellen Stand. |
-| C6 | **`public/videos/hero-background.mp4` ist kaputt.** 900 KB, passend benannt, nie verdrahtet — aber die ersten Bytes sind `<!doctype html>`. Chrome quittiert mit `DEMUXER_ERROR_COULD_NOT_OPEN`. Bewusst liegen gelassen, falls die echte Datei noch existiert. `Hero.tsx` läuft seit der Nachbesserung vom 18.08.2026 wieder auf dem YouTube-Embed (`videoId: "tqmWpFCv_1M"`, DECISIONS §12) — sobald ein funktionierendes MP4 unter `public/videos/` liegt, reicht `videoType: "file"` plus Pfad als neuer Default, um vom Embed auf selbst gehostet umzustellen. |
+| ~~C5~~ | ~~Das Layout-System endet fast überall~~ — **fünf von sechs Unterseiten erledigt am 19.08.2026** (DECISIONS §23): `/renovations`, `/investments`, `/guaranteed-income`, `/about`, `/properties` laufen jetzt auf `Section`/`Container`/`Grid`/`Panel` und der `.t-*`-Skala statt `container mx-auto px-4` + `font-playfair text-4xl…`. `SectionIntro` bekam dafür einen neuen `headingAs?: "h1" \| "h2"`-Prop. `/business-areas` bewusst ausgelassen (siehe D2 — verwaist, Redirect-Kandidat, keine Arbeit an einer absehbar verschwindenden Seite wert). `tsc`/`build`/`lint` sauber; die Browser-Sichtprüfung steht noch aus, weil die Chrome-DevTools-Verbindung zum Zeitpunkt der Umstellung getrennt war — nachzuholen. |
+| ~~C6~~ | ~~`public/videos/hero-background.mp4` ist kaputt~~ — **erledigt am 19.08.2026** (DECISIONS §22). Almedin lieferte eine echte 4K-Aufnahme (Puente Romano, 222 MB); mit neu installiertem `ffmpeg` auf 1280×720, ohne Ton, ~5,8 MB re-encodiert. `Hero.tsx` läuft jetzt per Default auf `videoType: "file"`, der YouTube-Embed bleibt als unbenutzter Fallback im State. |
 | C7 | **Texte sind nicht dauerhaft im CMS änderbar.** `EditableText` / `EditableImage` / `EditableVideo` schreiben nur in lokalen React-State — nach einem Reload ist jede Änderung weg. Es gibt keine Persistenz-Tabelle; der einzige Override-Mechanismus (`PageWrapper` → Tabelle `pages`) ist für keine Seite aktiv. **Konsequenz:** Was im Code steht, ist der Text. „Das ändert der Kunde später selbst" stimmt heute nicht. |
 
 ### 🟡 Offen, braucht eine Entscheidung

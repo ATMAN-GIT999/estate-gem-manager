@@ -44,6 +44,14 @@ interface SectionIntroProps {
    * two don't end up at two different edges.
    */
   measure?: "normal" | "wide";
+  /**
+   * "h2" (default) fits every in-page section this was designed for. A
+   * handful of simple content pages (`/renovations`, `/investments`,
+   * `/guaranteed-income`) have no bespoke photo hero of their own and use
+   * this component for their opening block instead — those need a real
+   * `<h1>`, since a page must have exactly one and this is it.
+   */
+  headingAs?: "h1" | "h2";
 }
 
 const SectionIntro = ({
@@ -56,6 +64,7 @@ const SectionIntro = ({
   className,
   headingBreak = false,
   measure = "normal",
+  headingAs = "h2",
 }: SectionIntroProps) => {
   const [eyebrowText, setEyebrowText] = useState(eyebrow);
   const [headingText, setHeadingText] = useState(heading);
@@ -89,7 +98,7 @@ const SectionIntro = ({
         id={`${idPrefix}-heading`}
         value={headingText}
         onChange={setHeadingText}
-        as="h2"
+        as={headingAs}
         multiline={headingBreak}
         className={cn(
           "t-section",

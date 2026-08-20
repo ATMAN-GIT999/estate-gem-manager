@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
 import EditableText from "@/components/admin/EditableText";
-import { Container, Section } from "@/components/layout";
+import { Container, Section, Grid } from "@/components/layout";
 
 /**
  * The portfolio as three collections rather than one undifferentiated list.
@@ -66,7 +66,7 @@ const classify = (property: Property): "coastal" | "city" | "offgrid" | null => 
  * and the rail stopped reading as "a curated few, click for more" — it just
  * *was* the full list.
  */
-const MAX_VISIBLE_CARDS = 6;
+const MAX_VISIBLE_CARDS = 4;
 /** w-80 on the card wrapper below. */
 const CARD_WIDTH_PX = 320;
 /** gap-6 on the scrolling track below. */
@@ -98,6 +98,16 @@ const Rail = ({
   // heading over it.
   if (!loading && collection.properties.length === 0) return null;
 
+  // A collection that fits within MAX_VISIBLE_CARDS never needs to scroll —
+  // and a fixed-width flex row (below) only ever fills the container edge to
+  // edge by coincidence, since RAIL_MAX_WIDTH_PX is a fixed pixel value while
+  // the container's own width is fluid (up to --container-max). Rendering it
+  // as a Grid instead guarantees the same left/right edges as every other
+  // section, the way OmniVillas' own "Featured homes" row does. Only a
+  // collection that genuinely overflows keeps the scrolling rail, where a
+  // card peeking at the edge is the intended "there is more" hint.
+  const needsScroll = loading || collection.properties.length > MAX_VISIBLE_CARDS;
+
   return (
     <div>
       <Container>
@@ -123,73 +133,89 @@ const Rail = ({
             </EditableText>
           </div>
 
-          {/* Arrows are desktop-only: a touch device already scrolls the rail. */}
-          <div className="hidden md:flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              aria-label={`Scroll ${title} left`}
-              onClick={() => scrollRail(-1)}
-              className="rounded-full"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              aria-label={`Scroll ${title} right`}
-              onClick={() => scrollRail(1)}
-              className="rounded-full"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
+          {/* Arrows are desktop-only, and pointless (and hidden) when the
+              row already shows every card. */}
+          {needsScroll && (
+            <div className="hidden md:flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label={`Scroll ${title} left`}
+                onClick={() => scrollRail(-1)}
+                className="rounded-full"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label={`Scroll ${title} right`}
+                onClick={() => scrollRail(1)}
+                className="rounded-full"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </Container>
 
-      {/* Two nested boxes doing two separate jobs.
-          The OUTER box only positions: its `paddingLeft` is
-          `--container-inset`, the same value every other section uses to
-          line its content up with the container above, and it carries no
-          width cap of its own, so it still spans the full bleed width the
-          section gives it.
+      {needsScroll ? (
+        /* Two nested boxes doing two separate jobs.
+            The OUTER box only positions: its `paddingLeft` is
+            `--container-inset`, the same value every other section uses to
+            line its content up with the container above, and it carries no
+            width cap of its own, so it still spans the full bleed width the
+            section gives it.
 
-          The INNER box is the one that scrolls, and it is the one capped to
-          `RAIL_MAX_WIDTH_PX` — exactly six cards. Capping the OUTER box
-          instead (padding and max-width on the same element) was the first
-          version of this fix, and it broke on wide viewports: at 25% zoom
-          `--container-inset` alone can exceed 1600px, more than the 2040px
-          cap, so the padding would have consumed the entire budget and left
-          no room for the cards it was meant to be capping the number of.
+            The INNER box is the one that scrolls, and it is the one capped to
+            `RAIL_MAX_WIDTH_PX` — exactly four cards. Capping the OUTER box
+            instead (padding and max-width on the same element) was the first
+            version of this fix, and it broke on wide viewports: at 25% zoom
+            `--container-inset` alone can exceed 1600px, more than the cap,
+            so the padding would have consumed the entire budget and left no
+            room for the cards it was meant to be capping the number of.
 
-          Within its cap, the inner box still runs to that boundary rather
-          than stopping early, so a card straddling the edge is visibly cut
-          off — the same "there is more" hint the original full-bleed
-          version had, just bounded at six instead of at "however many the
-          screen happens to fit". */}
-      <div style={{ paddingLeft: "var(--container-inset)" }}>
-        <div
-          ref={railRef}
-          style={{ maxWidth: `${RAIL_MAX_WIDTH_PX}px` }}
-          className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {loading
-            ? [1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="w-80 shrink-0 space-y-4">
-                  <Skeleton className="aspect-[4/3] w-full" />
-                  <Skeleton className="h-8 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                </div>
-              ))
-            : collection.properties.map((property) => (
-                <div key={property.id} className="w-80 shrink-0 snap-start">
-                  <PropertyCard property={property} />
-                </div>
-              ))}
+            Within its cap, the inner box still runs to that boundary rather
+            than stopping early, so a card straddling the edge is visibly cut
+            off — the same "there is more" hint the original full-bleed
+            version had, just bounded at four instead of at "however many the
+            screen happens to fit". This box only renders once there are more
+            cards than fit, so its right edge falling short of the container
+            (a fixed card-width cap vs. the container's fluid width) reads as
+            "scroll for more" rather than as a stray gap. */
+        <div style={{ paddingLeft: "var(--container-inset)" }}>
+          <div
+            ref={railRef}
+            style={{ maxWidth: `${RAIL_MAX_WIDTH_PX}px` }}
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {loading
+              ? [1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="w-80 shrink-0 space-y-4">
+                    <Skeleton className="aspect-[4/3] w-full" />
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                ))
+              : collection.properties.map((property) => (
+                  <div key={property.id} className="w-80 shrink-0 snap-start">
+                    <PropertyCard property={property} />
+                  </div>
+                ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <Container>
+          <Grid cols={4} gap="md">
+            {collection.properties.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
+          </Grid>
+        </Container>
+      )}
     </div>
   );
 };
