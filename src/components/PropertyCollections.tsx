@@ -145,10 +145,13 @@ const Rail = ({
             </EditableText>
           </div>
 
-          {/* Arrows are desktop-only, and pointless (and hidden) when the
-              row already shows every card. */}
+          {/* Visible on every width, not just desktop (was `hidden md:flex`)
+              — a phone has no hover state to hint that the row scrolls, and
+              without these the only way to find the rest of the rail was an
+              undiscoverable swipe. Pointless (and hidden) when the row
+              already shows every card. */}
           {needsScroll && (
-            <div className="hidden md:flex gap-2">
+            <div className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"

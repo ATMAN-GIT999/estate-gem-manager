@@ -2,15 +2,51 @@
 -- `properties.price_per_night` matched against a real Guesty quote instead of
 -- letting it go stale again immediately after the one-off sync.
 --
--- ⚠️ NOT YET APPLIED. The database connection died mid-session (even `SELECT
--- 1` stopped responding) right as this was being tested, so the CREATE
--- FUNCTION body below is built from the pieces that WERE verified live
--- (points 1-3 immediately below), but the function as a whole has not run
--- end-to-end. Before trusting it: paste this file into the Supabase SQL
--- editor, then run `SELECT * FROM public.sync_guesty_prices();` by hand and
--- read every row — specifically check that `ok = true` for most of the 23
--- listings and that `detail` on a success row is a plausible price, not an
--- error string.
+-- ⚠️ APPLIED 21.08.2026 (docs/DECISIONS.md §38/§39), BUT THE CRON JOB IS
+-- CURRENTLY UNSCHEDULED — `sync_guesty_prices()` exists and can be run by
+-- hand, but nothing calls it automatically. Do not re-schedule the cron
+-- job at the bottom of this file until the architectural problem below is
+-- actually fixed; right now every row fails with "request matching
+-- request_id not found", every night, for no benefit.
+--
+-- What's fixed and confirmed working:
+--   - The 63/70-night retry branch posted to `xjvtuderbirlwudatgxg.supabase.co`
+--     (the old, dead Supabase project) with an unset auth header — now
+--     matches the primary request.
+--   - `price_last_synced_at` didn't exist on this project (the one-off
+--     migration that added it ran against the dead pre-19.08 project and
+--     was never replayed here) — added at the top of this file instead of
+--     resurrecting that file, since its price UPDATEs target ids that
+--     don't exist in this project.
+--   - The FOR loop's `SELECT id, slug, guesty_listing_id FROM properties`
+--     failed with "column reference slug is ambiguous" — the function's
+--     own `RETURNS TABLE(slug text, ...)` OUT parameter shadows the
+--     column. Fixed with a `p.` table alias.
+--
+-- What's still broken, and isn't a quick fix: `net.http_post()` and
+-- `net._http_collect_response()` were called back-to-back inside the same
+-- PL/pgSQL function invocation — i.e. the same database transaction. Under
+-- Postgres MVCC, pg_net's background worker cannot see the queued request
+-- until the transaction that inserted it commits, and a PL/pgSQL function
+-- body doesn't commit until it returns. So the collect call was racing a
+-- worker that could not possibly have started yet — confirmed by testing
+-- outside the function: even `pg_sleep(3)` between post and collect inside
+-- one statement still returned "request matching request_id not found",
+-- while the exact same post-then-collect pattern split across two
+-- separate statements in the SQL editor (implicit autocommit between
+-- them, per the file's original point 3 below) is presumably what "worked
+-- live" before the connection dropped. No amount of retrying or sleeping
+-- *inside this function* fixes it — the fix is architectural: split
+-- posting and collecting into genuinely separate transactions, most
+-- likely by moving this whole sync out of a single SQL function and into
+-- a scheduled Edge Function (plain async fetch, no pg_net, no MVCC
+-- visibility problem) that pg_cron triggers via one `net.http_post` per
+-- run instead of 23.
+ALTER TABLE public.properties
+  ADD COLUMN IF NOT EXISTS price_last_synced_at timestamptz;
+
+COMMENT ON COLUMN public.properties.price_last_synced_at IS
+  'When price_per_night was last matched against a live Guesty quote. NULL means the value is still the frozen import price and has never been verified live.';
 --
 -- Verified live in the SQL editor before the connection dropped:
 --   1. pg_net's public wrapper `net.http_collect_response` is broken in the
@@ -51,10 +87,15 @@ DECLARE
   check_out date;
   nights int;
 BEGIN
+  -- `p.` is required, not decorative: the function's own OUT parameters
+  -- (`slug`, from RETURNS TABLE) are in scope inside this query, so a bare
+  -- `slug` is ambiguous against `properties.slug` and fails at runtime
+  -- (caught 21.08.2026 applying this for the first time — the file's own
+  -- header already said the function had never run end-to-end).
   FOR prop IN
-    SELECT id, slug, guesty_listing_id
-    FROM public.properties
-    WHERE guesty_listing_id IS NOT NULL
+    SELECT p.id, p.slug, p.guesty_listing_id
+    FROM public.properties p
+    WHERE p.guesty_listing_id IS NOT NULL
   LOOP
     -- A near-term 6-night window. This is a starting point, not a search for
     -- the lowest rate across the calendar — see the comment in PropertyCard.tsx
@@ -93,7 +134,7 @@ BEGIN
       nights := 70;
 
       req_id := net.http_post(
-        url := 'https://xjvtuderbirlwudatgxg.supabase.co/functions/v1/guesty-get-quote',
+        url := 'https://womaoywuhjchtubacbvn.supabase.co/functions/v1/guesty-get-quote',
         body := jsonb_build_object(
           'listingId', prop.guesty_listing_id,
           'checkIn', check_in,
@@ -101,7 +142,7 @@ BEGIN
           'guests', jsonb_build_object('adults', 2)
         ),
         headers := jsonb_build_object(
-          'apikey', current_setting('app.settings.supabase_anon_key', true),
+          'apikey', 'sb_publishable_9TilJfNdUqgg77pZyJINzg_FUhFh6WY',
           'content-type', 'application/json'
         ),
         timeout_milliseconds := 15000
@@ -148,10 +189,16 @@ END;
 $$;
 
 COMMENT ON FUNCTION public.sync_guesty_prices() IS
-  'Matches every Guesty-connected property''s price_per_night against a real quote. Scheduled nightly via pg_cron below. Manual run: SELECT * FROM public.sync_guesty_prices();';
+  'Matches every Guesty-connected property''s price_per_night against a real quote. NOT currently scheduled — see the file header on why. Manual run: SELECT * FROM public.sync_guesty_prices(), but every row will fail until the pg_net architecture problem is fixed.';
 
-SELECT cron.schedule(
-  'guesty-price-sync-nightly',
-  '17 3 * * *', -- 03:17 daily — off the hour, avoids piling onto whatever else runs at :00
-  $$ SELECT public.sync_guesty_prices(); $$
-);
+-- Deliberately NOT scheduled (unscheduled live on womaoywuhjchtubacbvn on
+-- 21.08.2026, docs/DECISIONS.md §39) — see the file header. Re-enable only
+-- after `sync_guesty_prices()` has been redesigned around the MVCC
+-- problem and a manual run returns `ok = true` for real listings, not
+-- "request matching request_id not found" for all 23.
+--
+-- SELECT cron.schedule(
+--   'guesty-price-sync-nightly',
+--   '17 3 * * *', -- 03:17 daily — off the hour, avoids piling onto whatever else runs at :00
+--   $$ SELECT public.sync_guesty_prices(); $$
+-- );

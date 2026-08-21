@@ -6,6 +6,7 @@ import { breadcrumbSchema, organizationSchema } from "@/lib/schema";
 import OwnerHero from "@/components/OwnerHero";
 import TheSystem from "@/components/TheSystem";
 import Proof from "@/components/Proof";
+import WorkingWith from "@/components/WorkingWith";
 import AboutMini from "@/components/AboutMini";
 import WaysToWorkTogether from "@/components/WaysToWorkTogether";
 import OwnerContactForm from "@/components/OwnerContactForm";
@@ -34,19 +35,25 @@ const PropertyManagementPageContent = () => (
         side doors → here is what people ask → here is how to start. Moving a
         block breaks the sentence, not just the layout.
 
-        Seven sections now, not eight — Renovations/Investments no longer has
-        a band of its own after About. It is now the second half of the
-        commercial-decision section, under a labelled gold break ("Beyond
-        management"), so the whole argument from "how you'd engage us" through
-        "here are the two side doors" reads as one continuous band instead of
-        being split by About in between (docs/DECISIONS.md §16). "We manage
-        while you relax" moved even earlier (§15) — it lives in the contact
-        form's own image and heading now.
+        Renovations/Investments no longer has a band of its own after About —
+        it is the second half of the commercial-decision section, under a
+        labelled gold break ("Beyond management"), so the whole argument from
+        "how you'd engage us" through "here are the two side doors" reads as
+        one continuous band instead of being split by About in between
+        (docs/DECISIONS.md §16). "We manage while you relax" moved even
+        earlier (§15) — it lives in the contact form's own image and heading
+        now.
+
+        Eight sections now, not seven — "Working with" (§35) sits between
+        Proof and the commercial decision on purpose: it is not part of the
+        argument those two build, it is a breath between the two heaviest
+        sections on the page.
 
         The rhythm alternates on purpose and should stay alternating: heavy,
-        heavy, heavy (the opening sequence earns three) → heavy → medium →
-        medium → heavy. Two heavy sections back to back anywhere below Proof
-        is the signal something has grown.
+        heavy, heavy (the opening sequence earns three) → light (the one
+        deliberate exception) → heavy → medium → medium → heavy. Two heavy
+        sections back to back anywhere below Proof is the signal something
+        has grown.
 
         overflow-x-clip is the safety net for the full-bleed bands: `100vw` can
         be a hair wider than the visible viewport when a scrollbar is present,
@@ -64,7 +71,14 @@ const PropertyManagementPageContent = () => (
       {/* 3 — The evidence, at two scales: the portfolio, then three houses. */}
       <Proof />
 
-      {/* 4 — The commercial decision, in two halves under one band: the two
+      {/* 4 — A deliberate breather between the two heaviest sections on the
+          page: no headline, no CTA, just an eyebrow and a row of logos, on
+          the beige page background rather than continuing Proof's green
+          fill. Almedin confirmed mixing guest-facing brands (Netflix) and
+          trade contractors under one "Working with" label is intentional. */}
+      <WorkingWith />
+
+      {/* 5 — The commercial decision, in two halves under one band: the two
           engagement models first, then — behind a labelled gold break — the
           two side doors for owners it does not fit yet (a renovation first,
           or not an owner here yet). Investments stays last of the four
@@ -72,17 +86,17 @@ const PropertyManagementPageContent = () => (
           rest of the page is written for (DECISIONS §2). */}
       <WaysToWorkTogether />
 
-      {/* 5 — Who runs it. The one call to action mid-page sits at the end of
+      {/* 6 — Who runs it. The one call to action mid-page sits at the end of
           this section, because this is the question an owner actually
           decides on. */}
       <AboutMini />
 
-      {/* 6 — Deliberately the guest FAQ with a new heading, as requested;
+      {/* 7 — Deliberately the guest FAQ with a new heading, as requested;
           owner-specific questions need content from the client
           (PROJECT.md §6, "Bewusst so gelassen"). */}
       <FAQ eyebrow="" heading="Frequently Asked Questions" />
 
-      {/* 7 — The bookend to the hero: every "Contact Us" above lands here,
+      {/* 8 — The bookend to the hero: every "Contact Us" above lands here,
           now carrying "We manage while you relax" as its own opening beat. */}
       <OwnerContactForm />
     </main>

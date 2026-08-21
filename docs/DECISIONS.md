@@ -1753,3 +1753,278 @@ FAQ war bereits korrekt auf `/#faq` verlinkt (§32) — nichts weiter zu tun.
 `footer-projects-link` aus allen drei Wörterbüchern und `projectsLink`-State
 aus `Footer.tsx` entfernt, in PROJECT.md als entfallen vermerkt.
 `tsc --noEmit`/`npm run build` sauber.
+
+## 34 · B1 erledigt — Stripe Publishable Key gesetzt
+
+Almedin hat den `pk_live_…` aus dem Guesty-Payment-Konto (`acct_1Pqi8YRsGzWWYqz8`)
+als `GUESTY_STRIPE_PUBLISHABLE_KEY` in die Edge-Function-Secrets des neuen
+Supabase-Projekts (`womaoywuhjchtubacbvn`) eingetragen — über das Dashboard,
+nicht über mich: kein CLI-Login vorhanden (`supabase projects list` verlangt
+einen Access Token), kein passendes MCP-Tool zum Setzen von Secrets, und ein
+Publishable Key gehört laut CLAUDE.md ohnehin in die Supabase-Secrets, nie
+ins Repo.
+
+Verifiziert per `curl` gegen `guesty-stripe-config` (liest nur die Env-Var,
+kein Guesty-Tokenverbrauch, also gefahrlos zu testen): vorher HTTP 500
+(„Stripe publishable key not configured"), jetzt HTTP 200 mit
+`{"publishableKey":"pk_live_…"}`. Der Buchungsabschluss selbst (Stripe
+Elements laden, eine echte Karte durchlaufen lassen) ist damit noch nicht
+getestet — nur, dass die Funktion den Schlüssel jetzt korrekt ausliefert.
+
+## 35 · Neue Section „Working with" (Partnerlogos), Closing-Line in TheSystem größer
+
+**„We don't just manage homes."** — `sys-closing-line` in `TheSystem.tsx` lief
+auf `t-block` (H3, 1,375–1,75rem), jetzt auf `t-section` (H2, 1,875–2,75rem)
+hochgestuft: die Sechs-Klassen-Typo-Skala kennt keine Zwischenstufe, und
+CLAUDE.md verbietet rohe `text-*`-Werte in öffentlichen Content-Komponenten
+— „ein bisschen größer" heißt in diesem System konkret „eine Stufe höher".
+Zusätzlich `leading-relaxed`, da `t-section`s eigener Zeilenabstand (1,1) für
+eine Schlagzeile gedacht ist, nicht für den Abstand, den ein zweizeiliges
+Zitat hier bekommen sollte.
+
+**Neue Section `WorkingWith.tsx`**, zwischen `Proof` und `WaysToWorkTogether`
+auf der PM-Seite — Phase-0-Recherche zuerst: `platform-connections.webp` (in
+`TheSystem.tsx`) ist eine einzelne flache Grafik für Buchungsplattform-
+Distribution, kein wiederverwendbares Logo-Komponentenmuster; sonst gibt es
+im Projekt nichts Vergleichbares. `MediaFrame` kam als Basis nicht infrage —
+es croppt (`object-cover`), richtig für ein Foto, falsch für ein Logo — aber
+sein Grundmuster (`bg-placeholder-hatch` für „fehlt noch") ist hier direkt
+wiederverwendet, nur mit `object-contain` statt `object-cover`, sobald ein
+echtes Bild über `EditableImage` gesetzt wird.
+
+Bewusst die leichteste Section der Seite: nur Eyebrow „Working with" + eine
+Logo-Reihe, kein Fließtext, kein CTA, Hintergrund bleibt Beige (Section ohne
+`tone`-Override) statt Proofs grüner Fläche fortzusetzen — der Wechsel
+selbst ist der Punkt, eine kurze Atempause zwischen den zwei schwersten
+Sections der Seite. Mischt bewusst zwei Partner-Arten unter einem Label
+(Netflix als gästeseitige Marke, Renovierungsunternehmen als Auftragnehmer)
+— mit Almedin bestätigt, nicht angenommen.
+
+**Alle vier Logo-Slots sind Platzhalter** — keine der vier Logo-Dateien
+liegt im Projekt vor (auch nicht Netflix; ein Markenlogo selbst zu
+generieren oder von irgendwoher zu laden wäre sowieso falsch gewesen).
+Rückfrage an Almedin steht noch aus: die drei übrigen Partner (Namen +
+Logo-Dateien) sowie eine Netflix-Logo-Datei selbst.
+
+**Verifikation:** `tsc --noEmit`, `npm run build` und `npm run lint` liefen
+sauber, keine neuen Fehler. Browser-Prüfung weiterhin nicht möglich.
+
+## 36 · "Working with"-Logos bleiben in einer Reihe statt umzubrechen
+
+`flex flex-wrap` in `WorkingWith.tsx` konnte auf schmalen Screens zwei Zeilen
+zu je zwei Logos ergeben — Almedin wollte alle vier ausdrücklich
+nebeneinander. Umgestellt auf `flex-nowrap`; da vier 144px-Slots mit
+`gap-x-2xl` auf einem Telefon (Content-Breite auf einem 320px-Gerät ~280px)
+so nie in eine Zeile passen, egal ob Umbruch erlaubt ist, schrumpfen Boxen
+und Lücke stattdessen selbst: `h-10 w-16` mit `gap-x-xs` als Basis, ab
+`sm:` zurück auf die ursprünglichen `h-14 w-36` mit `gap-x-xl`. Kein
+eigener `xs:`-Breakpoint — `tailwind.config.ts` definiert keinen; nur `sm`
+und aufwärts stehen als Stufen zur Verfügung.
+
+Die Platzhalter-Beschriftung ("Partner 2" usw.) kann auf der kleinen
+mobilen Box in zwei Zeilen umbrechen — hingenommen, weil es ein
+Übergangszustand bis zu den echten Logos ist, keine dauerhafte UI.
+
+**Verifikation:** `tsc --noEmit`, `npx eslint src/components/WorkingWith.tsx`
+und `npm run build` liefen sauber, keine neuen Fehler.
+
+## 37 · B2 erledigt — City Tax korrigiert; C1 im Code nachgezogen
+
+Almedin hat die City Tax am Objekt Vienna Ottakring in Guesty korrigiert:
+Properties overview → Objekt → Pricing & policies → Pricing → Abschnitt
+„Tax" → Edit → Feld „Per" von `PER_GUEST_PER_NIGHT` auf `PER_STAY`
+umgestellt. Die zentrale „Financials → Tax configurations"-Liste zeigte
+diesen Eintrag nicht an — vermutlich weil sie nur Account-Level-Steuern
+listet, während diese Steuer auf Listing-Ebene an das eine Objekt hängt.
+Navigationspfad stammt aus der offiziellen Guesty-Doku (nicht selbst im
+Interface geprüft, da kein Zugriff auf das Guesty-Dashboard besteht).
+
+**C1 im Code nachgezogen**, wie mit B2 verabredet (PROJECT.md §6):
+`BookingSummary.tsx` behandelte `subTotalPrice` bisher als fertigen Total —
+das ist laut Guesty der **Betrag vor Steuer**. Jetzt: `total = preTax +
+taxes`, mit `preTax = subTotalPrice` (Fallback unverändert: `subtotal +
+fees - discount`). Zusätzlich werden `fees` und `taxes` aus den
+`invoiceItems` jetzt getrennt statt über eine gemeinsame `/FEE|TAX/i`-
+Regex zusammengefasst — sonst wäre die (jetzt korrigierte, vorher massiv
+überhöhte) Steuer unbenannt in der „Fees"-Zeile mitgelaufen statt als
+eigener Posten sichtbar zu sein. In der UI erscheint „Taxes" nur, wenn
+`quote.taxes > 0` — die lokale Fallback-Quote für Objekte ohne
+`guesty_listing_id` kennt keine echte Steuer und setzt `taxes: 0`, damit
+dort keine falsche „Taxes: €0.00"-Zeile erscheint.
+
+**Verifikation:** `tsc --noEmit` sauber. `npx eslint
+src/components/BookingSummary.tsx` liefert weiterhin 13 `no-explicit-any`
++ 1 `exhaustive-deps`-Warnung — per `git stash`-Vergleich bestätigt: exakt
+dieselben 14 Probleme vor und nach der Änderung, nur die Zeilennummern
+verschoben. Keine neuen Fehler. `npm run build` erfolgreich.
+
+**Live bestätigt (21.08.2026):** Almedin hat eine echte Quote angefragt (5
+Nächte, Vienna Ottakring) — Subtotal 814 €, Fees 250 €, Taxes 26 €. 814 ×
+3,2 % = 26,05 € — exakt der erwartete Wert für „einmal pro Aufenthalt"
+statt des vorherigen Vielfachen aus Gästen × Nächten. Die 250 € Fees
+liegen außerhalb dieser Änderung (Guestys eigene Gebühren-Konfiguration
+für das Objekt, z. B. Reinigung) und wurden bewusst nicht weiter geprüft.
+B2 und C1 gelten damit als vollständig verifiziert.
+
+## 38 · Audit für den Main-Merge: C2 und C3 waren bereits gelöst, C4-Bug gefunden
+
+Vor dem geplanten Merge nach `main` auf Wunsch die restlichen offenen
+Code-Punkte (C2–C4) geprüft.
+
+**C2 (stille Fantasiepreise) und C3 (Endlos-Spinner) waren beim
+Code-Lesen bereits vollständig gelöst** — die PROJECT.md-Einträge waren
+schlicht nicht nachgezogen worden (CLAUDE.md: „Code prüfen, dann das
+Dokument nachziehen"). `fetchQuote` erfindet bei einer fehlgeschlagenen
+Quote keinen Preis mehr (kein `× 1,1` im Code mehr), sondern setzt
+`quote: null` + `quoteError`; `validateBookingInput` blockiert das
+Absenden zusätzlich explizit, solange `!quote \|\| quoteError`. Für
+`guesty-stripe-config`-Fehler setzt der Code `paymentUnavailable`, zeigt
+einen sichtbaren Fehlerzustand und bietet „Send booking request instead"
+(`handleSwitchToInquiry`) als Ausweichpfad; der „Complete Booking"-Button
+wird dabei ausgeblendet statt tot dazustehen. Keine Codeänderung nötig,
+nur die Doku korrigiert.
+
+**C4: echter Bug gefunden, nicht angewendet.** Per Supabase-MCP (heute
+zum ersten Mal in dieser Session tatsächlich erreichbar, siehe unten)
+bestätigt: `20260813200000_nightly_price_sync` steht nicht in
+`list_migrations` für `womaoywuhjchtubacbvn` — der Datei-Header-Hinweis
+„NOT YET APPLIED" stimmt noch. Beim Lesen der Funktion fiel auf, dass der
+63/70-Nächte-Retry-Zweig (für Objekte mit hoher Mindest-Nächte-Regel) an
+`https://xjvtuderbirlwudatgxg.supabase.co/…` postet — das alte
+Supabase-Projekt, das laut PROJECT.md §6 seit dem Projektwechsel am
+19.08.2026 tot ist — mit einem `apikey`-Header aus
+`current_setting('app.settings.supabase_anon_key', true)`, einer
+Einstellung, die nie gesetzt wurde. Die primäre Anfrage direkt darüber
+postet dagegen korrekt an `womaoywuhjchtubacbvn` mit einem hart codierten
+Publishable Key. Der Retry-Zweig hätte also für genau die Objekte, für
+die er gedacht ist, immer fehlgeschlagen. Beide Werte jetzt an die
+primäre Anfrage angeglichen; per `list_edge_functions` bestätigt, dass
+`guesty-get-quote` auf `womaoywuhjchtubacbvn` aktiv läuft, sodass die
+primäre Anfrage der Funktion tatsächlich etwas erreichen kann.
+
+**Supabase-MCP ist jetzt erreichbar** — anders als an jeder früheren
+Stelle dieser Session (B1 musste noch manuell über das Dashboard gesetzt
+werden, weil weder CLI-Login noch MCP-Zugriff bestanden). `list_projects`
+zeigt `womaoywuhjchtubacbvn` (ACTIVE_HEALTHY) und das tote
+`odloyonqqsgnpxvqrrep`. Damit sind `list_migrations`,
+`list_edge_functions` und (nach Freigabe) `execute_sql`/`apply_migration`
+direkt nutzbar, ohne Umweg über Almedins Dashboard.
+
+**Migration noch nicht angewendet** — CLAUDE.md verlangt Absprache vor
+jeder Anwendung auf die Live-DB, unabhängig davon, dass der MCP-Zugriff
+das jetzt technisch erlauben würde. Wartet auf Almedins Freigabe; danach
+`SELECT * FROM public.sync_guesty_prices();` von Hand laufen lassen und
+jede Zeile prüfen (`ok = true` für die meisten der 23 Objekte, `detail`
+ein plausibler Preis). **Fortsetzung: §39** — Almedin hat direkt im
+selben Gespräch freigegeben, angewendet zu werden; dabei kam ein
+tieferliegendes Problem zum Vorschein.
+
+## 39 · C4 angewendet — Architekturproblem gefunden, Cron deaktiviert
+
+Almedin hat die volle Freigabe gegeben („Ja, anwenden"). Migration
+angewendet, `price_last_synced_at`-Spalte ergänzt (fehlte, siehe §38),
+dann `SELECT * FROM public.sync_guesty_prices();` als eigentlichen
+Verifikationsschritt laufen lassen — genau das, was der Datei-Header seit
+dem 13.08. als offen markiert hatte.
+
+**Erster Lauf: sofortiger neuer Fehler.** `column reference "slug" is
+ambiguous` — die `RETURNS TABLE(slug text, ...)`-Ausgabevariable der
+Funktion überdeckt `properties.slug` in der `FOR prop IN SELECT id, slug,
+… FROM properties`-Abfrage. Mit einem Tabellen-Alias (`FROM properties
+p`, `SELECT p.id, p.slug, …`) behoben, Funktion per
+`CREATE OR REPLACE` neu angewendet.
+
+**Zweiter Lauf: alle 23 Zeilen `ok = false`, `detail = "request matching
+request_id not found"`.** Das sah zunächst wie derselbe Race aus, den der
+Datei-Header schon als Risiko benannt hatte (`async := true` prüft
+sofort, ohne zu warten). Stichprobe gegen `net._http_response` zeigte
+aber: Die HTTP-Antworten kamen tatsächlich an (echte Zeilen mit
+`status_code` 200/500, korrekt terminiert) — das Sammeln scheiterte
+trotzdem systematisch.
+
+**Isoliert getestet, um die echte Ursache zu finden:** Ein einzelner
+`net.http_post()` gefolgt von `net._http_collect_response()` **in
+derselben Anweisung/Transaktion** scheiterte auch mit drei Sekunden
+`pg_sleep()` dazwischen — kein Timing-Problem im Sinne von „zu schnell
+abgefragt". Des Rätsels Lösung, sichtbar erst beim Aufschlüsseln der
+zurückgegebenen `jsonb`-Struktur (`{status, message, response}` statt der
+von der Migration angenommenen flachen `{body, …}`-Form): pg_nets
+Hintergrund-Worker sieht eine wartende Anfrage erst, **nachdem die
+Transaktion committet ist, die sie eingereiht hat** (Postgres-MVCC). Eine
+PL/pgSQL-Funktion committet aber erst, wenn sie zurückkehrt — `post` und
+`collect` liefen also in derselben, noch offenen Transaktion, und der
+Worker konnte die Anfrage prinzipiell nicht sehen, egal wie lange
+gewartet wird. Genau das erklärt auch, warum die Datei selbst nie
+„end-to-end" verifiziert war: Im SQL-Editor mit Autocommit sind
+`http_post` und `collect_response` als zwei separate Anweisungen zwei
+separate, sofort committende Transaktionen — in einer einzigen
+PL/pgSQL-Funktion sind sie es nicht.
+
+**Das ist kein Tippfehler mehr, sondern ein Architekturproblem.** Kein
+Retry- oder Sleep-Zusatz *innerhalb* der Funktion kann das lösen (probiert
+und bestätigt nutzlos). Der tragfähige Weg wäre, den Sync aus einer
+einzelnen SQL-Funktion herauszulösen und als Edge Function zu bauen
+(normales `fetch`/`await`, kein `pg_net`, kein MVCC-Sichtbarkeitsproblem)
+— `pg_cron` würde dann nur noch einmal pro Lauf `net.http_post` auf diese
+eine Edge Function abfeuern, statt 23-mal Post-dann-Collect in einer
+Transaktion zu verschachteln. Das ist ein eigenständiger Bau-Auftrag, kein
+Fix mehr innerhalb dieser Migration.
+
+**Sofortmaßnahme:** `SELECT cron.unschedule('guesty-price-sync-nightly');`
+live ausgeführt — der Job war ohnehin nur eingerichtet, nicht aber sinnvoll
+lauffähig; ungeplant hätte er jede Nacht 23 echte Guesty-Quote-Anfragen
+verbraucht, ohne je eine Zeile zu aktualisieren. Der geplante
+`cron.schedule(...)`-Aufruf am Dateiende ist jetzt auskommentiert, mit
+Hinweis, ihn erst nach der Edge-Function-Umstellung wieder scharfzustellen.
+Die `COMMENT ON FUNCTION`-Beschreibung wurde live und im Repo gleichermaßen
+aktualisiert, damit sie nicht weiter „scheduled nightly" behauptet.
+
+**Nichts Falsches geschrieben:** Da jeder Testlauf mit `ok = false`
+endete, hat `UPDATE public.properties SET price_per_night = …` kein
+einziges Mal ausgeführt — `price_per_night` steht für alle 23 Objekte
+weiterhin auf dem eingefrorenen Importwert, unverändert seit vor dieser
+Session.
+
+**Verifikation:** `apply_migration` (dreimal — Basismigration, Alias-Fix,
+Race-Fix-Versuch) und alle `execute_sql`-Aufrufe liefen ohne
+SQL-Fehler (bis auf die zwei hier dokumentierten, die zur Diagnose
+führten). Kein `tsc`/`build` nötig — reine SQL-/DB-Änderung, kein
+Frontend-Code betroffen.
+
+## 40 · Mobile "Stays"-Reihen: Pfeile waren `hidden md:flex`, jetzt immer sichtbar
+
+Almedin: auf Mobile zeigt die Reihe „eineinhalb Immobilien" und das
+Pfeil-System ist nicht sichtbar. Diesmal mit tatsächlichem Browser-Zugriff
+geprüft (`chrome-devtools`-MCP war die ganze bisherige Session über nicht
+erreichbar, ist es jetzt) — Screenshot bei 390px Breite bestätigte beides
+exakt: eine volle Karte plus ein abgeschnittener Rand der nächsten
+(`PropertyCollections.tsx`s `w-[85vw]`-Kartenbreite, absichtlich als
+„da kommt noch was"-Hinweis gebaut, DECISIONS §19), und die Pfeile liefen
+auf `hidden md:flex` — auf dem Handy schlicht nicht im DOM sichtbar,
+einzige Navigation war ein unentdeckbares Wisch-Gesture.
+
+**Fix:** `hidden md:flex` → `flex` an der einen Stelle, wo die Pfeile
+gerendert werden (`Rail`-Komponente, alle drei Reihen „Luxury Stays",
+„Explore the City", „Off-Grid Experiences" gemeinsam betroffen, da alle
+über dieselbe Komponente laufen). Der 85vw-Peek selbst bleibt unverändert
+— mit sichtbaren, bedienbaren Pfeilen ist er wieder das, was er sein
+sollte: ein Hinweis auf weitere Karten, kein unerklärter Abschnitt.
+
+**Beim Testen ein Selbst-Fund:** Der erste Klick-Test über das
+`chrome-devtools`-Click-Tool zeigte scheinbar keine Reaktion (`scrollLeft`
+blieb 0). Isoliert nachgestellt: ein natives `element.click()` per
+`evaluate_script` scrollte korrekt (`scrollLeft` 0 → 344 nach der
+`smooth`-Animation). Der Unterschied lag am Test-Tool selbst — vermutlich
+ein Koordinaten-/DPI-Effekt der mobilen Emulation (`deviceScaleFactor: 3`),
+nicht am Code. Echte Touch-Taps auf einem Telefon laufen über dieselbe
+native Event-Pipeline wie `.click()`, nicht über simulierte Maus-
+Koordinaten — betrifft Endnutzer also nicht. Per Screenshot vor/nach
+`.click()` visuell bestätigt: die zweite Karte („The Hideaway Los
+Flamingos") ersetzte die erste nach dem Scroll.
+
+**Verifikation:** `tsc --noEmit` und `npx eslint
+src/components/PropertyCollections.tsx` sauber, `npm run build`
+erfolgreich. Visuell in Chrome DevTools geprüft bei 390×844 (mobil) und
+1440×900 (Desktop, unverändert vier Karten nebeneinander mit rechtsbündigen
+Pfeilen) — das erste Mal in dieser gesamten Session, dass eine UI-Änderung
+tatsächlich im Browser statt nur per Codelesen verifiziert werden konnte.

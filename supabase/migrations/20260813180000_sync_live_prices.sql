@@ -6,6 +6,17 @@
 --
 -- `price_last_synced_at` makes that drift visible instead of silent: NULL
 -- means "never verified against a live quote", not "current".
+--
+-- ⚠️ Superseded 21.08.2026 (docs/DECISIONS.md §38): this applied to the
+-- Supabase project that existed on 13.08.2026 — dead since the project
+-- switch on 19.08.2026 (`womaoywuhjchtubacbvn` was created that day, per
+-- its own `created_at`). The `properties` rows below never existed there;
+-- their ids don't match the re-imported rows in the current project, and
+-- `price_last_synced_at` was confirmed missing from the live schema on
+-- 21.08.2026. Re-running this file's UPDATEs against the current project
+-- would silently touch zero rows. The column add and the price correction
+-- both happen again, freshly, in `20260813200000_nightly_price_sync.sql` —
+-- this file stays only as the record of what was done on the old project.
 ALTER TABLE public.properties
   ADD COLUMN IF NOT EXISTS price_last_synced_at timestamptz;
 

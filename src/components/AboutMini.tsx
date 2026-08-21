@@ -149,11 +149,18 @@ const AboutMini = () => {
             the few substantiated differentiators the site has (see the
             text-derivation notes in docs/DECISIONS.md) — it stays exactly as
             it is; only the short label above it changes. */}
+        {/* max-w-none: SectionIntro's own "normal" measure (max-w-3xl) was
+            wrapping this specific heading onto two lines — this sentence is
+            the whole point of the section and reads better as one line
+            spanning the full width than balanced across two. The lead
+            paragraph underneath keeps its own separate, narrower cap either
+            way, so this only widens the heading/eyebrow. */}
         <SectionIntro
           idPrefix="am"
           eyebrow={t("am-eyebrow")}
           heading={t("am-heading")}
           lead={t("am-lead")}
+          className="max-w-none"
         />
 
         <Grid cols={4} className="max-w-3xl mx-auto">

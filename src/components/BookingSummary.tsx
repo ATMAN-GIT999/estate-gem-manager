@@ -79,6 +79,10 @@ interface QuoteData {
   quoteId: string;
   subtotal: number;
   fees: number;
+  /** Guesty's `totalTaxes`, shown as its own line — see docs/PROJECT.md §6 (C1):
+      `subTotalPrice` is pre-tax, so folding tax into "Fees" or dropping it from
+      the total both undercharge the guest by the tax amount. */
+  taxes: number;
   total: number;
   currency: string;
   ratePlanId?: string;
@@ -219,8 +223,15 @@ const BookingSummary = ({
           const money = ratePlan.money || ratePlanWrap.money || {};
           const items: any[] = money.invoiceItems || [];
           const accommodation = money.fareAccommodation || 0;
-          const fees = money.totalFees || items
-            .filter((i) => /FEE|TAX/i.test(i.type || i.normalType || ''))
+          // FEE and TAX are split now (docs/DECISIONS.md §37) — they used to share
+          // one regex and one "Fees" line, which is how a tripled city tax (B2)
+          // went unnoticed: it was hiding inside a total the guest never saw broken
+          // down.
+          const fees = money.totalFees ?? items
+            .filter((i) => /FEE/i.test(i.type || i.normalType || '') && !/TAX/i.test(i.type || i.normalType || ''))
+            .reduce((s, i) => s + (i.amount || 0), 0);
+          const taxes = money.totalTaxes ?? items
+            .filter((i) => /TAX/i.test(i.type || i.normalType || ''))
             .reduce((s, i) => s + (i.amount || 0), 0);
           const discount = Math.abs(
             items
@@ -241,7 +252,12 @@ const BookingSummary = ({
             resultQuote = null;
           } else {
             const subtotal = accommodation;
-            const total = money.subTotalPrice ?? Math.max(0, subtotal + fees - discount);
+            // `subTotalPrice` is Guesty's pre-tax figure (accommodation + fees,
+            // coupon already applied) — the guest-facing total has to add
+            // `totalTaxes` on top, or the booking undercharges by exactly the tax
+            // amount (docs/PROJECT.md §6, C1).
+            const preTax = money.subTotalPrice ?? Math.max(0, subtotal + fees - discount);
+            const total = preTax + taxes;
             const appliedCouponName =
               quoteData.coupons?.[0]?.couponCode || quoteData.coupons?.[0]?.code || coupon;
 
@@ -249,6 +265,7 @@ const BookingSummary = ({
               quoteId: quoteData._id || quoteData.quoteId,
               subtotal,
               fees,
+              taxes,
               total,
               currency: money.currency || quoteData.currency || 'EUR',
               ratePlanId: ratePlan._id || ratePlan.ratePlanId,
@@ -275,6 +292,7 @@ const BookingSummary = ({
           quoteId: '',
           subtotal,
           fees,
+          taxes: 0,
           total: subtotal + fees,
           currency: 'EUR',
           cancellationPolicy: 'Non-refundable',
@@ -815,6 +833,12 @@ const BookingSummary = ({
               <span className="text-muted-foreground">Fees</span>
               <span>€{quote.fees.toFixed(2)}</span>
             </div>
+            {quote.taxes > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Taxes</span>
+                <span>€{quote.taxes.toFixed(2)}</span>
+              </div>
+            )}
             {quote.discount && quote.discount > 0 ? (
               <div className="flex justify-between text-sm text-primary">
                 <span>Discount{appliedCoupon ? ` (${appliedCoupon})` : ""}</span>

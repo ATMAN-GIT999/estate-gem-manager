@@ -204,13 +204,19 @@ const TheSystem = () => {
             signature rather than a checklist of outcomes. */}
         <div className="max-w-3xl mx-auto text-center">
           <Divider tone="gold" className="mb-md" />
+          {/* t-section (H2), not t-block — the next size up on the site's
+              six-class type scale, since Almedin asked for "a bit bigger"
+              and there's no half-step between them. `leading-relaxed`
+              overrides t-section's own tight 1.1 line-height, since that's
+              tuned for a headline, not the gap this two-line quote needed
+              between its lines. */}
           <EditableText
             id="sys-closing-line"
             value={closingLine}
             onChange={setClosingLine}
             as="p"
             multiline
-            className="t-block italic text-primary whitespace-pre-line"
+            className="t-section italic text-primary whitespace-pre-line leading-relaxed"
           >
             {closingLine}
           </EditableText>
