@@ -1,14 +1,24 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# One group on purpose.
+#
+# A crawler obeys the most specific User-agent block that matches it and
+# ignores every other block entirely — so the previous per-bot "Allow: /"
+# groups for Googlebot, Bingbot and friends would have exempted exactly those
+# crawlers from any Disallow added down here. Everything is allowed by default,
+# so naming individual bots bought nothing and only created that trap.
+#
+# Answer engines (GPTBot, OAI-SearchBot, ChatGPT-User, PerplexityBot,
+# ClaudeBot, Google-Extended) are covered by this group and are deliberately
+# welcome: being cited in AI answers is a goal, not a side effect. Do not add
+# blocking rules for them.
 
 User-agent: *
 Allow: /
+
+# Nothing to index behind the login, and a booking confirmation only renders
+# with router state a crawler will never have.
+Disallow: /admin/
+Disallow: /auth
+Disallow: /update-password
+Disallow: /booking-confirmation
+
+Sitemap: https://frontier-residences.com/sitemap.xml

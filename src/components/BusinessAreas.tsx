@@ -13,12 +13,7 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
   const [sectionSubtitle, setSectionSubtitle] = useState("Comprehensive services designed to maximize your property's potential");
   const [expertiseLabel, setExpertiseLabel] = useState("Our Expertise");
   const [pmTitle, setPmTitle] = useState("Property Management");
-  const [pmSubtitle, setPmSubtitle] = useState("Bespoke management for villas and luxury residences");
-  const [pmDescription, setPmDescription] = useState(
-    "We manage your home with the precision, discretion, and hospitality of a world-class boutique hotel — maximising revenue while preserving your asset."
-  );
   const [coreServiceLabel, setCoreServiceLabel] = useState("Our Core Service");
-  const [whatsIncludedLabel, setWhatsIncludedLabel] = useState("What's Included");
   const [guaranteedIncomeTitle, setGuaranteedIncomeTitle] = useState("Guaranteed Income Program");
   const [guaranteedIncomeLabel, setGuaranteedIncomeLabel] = useState("Included");
   const [guaranteedIncomeDesc, setGuaranteedIncomeDesc] = useState(
@@ -32,18 +27,8 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
   const [renovationsDesc, setRenovationsDesc] = useState("Timeless Mediterranean interiors designed to elevate your home's value and rental performance.");
   const [renovationsDetails, setRenovationsDetails] = useState("We manage the full process: concept → construction → delivery → staging.");
   const [investmentsTitle, setInvestmentsTitle] = useState("Investments");
-  const [investmentsDesc, setInvestmentsDesc] = useState("Curated real estate investments across Spain, Austria, and Croatia.");
+  const [investmentsDesc, setInvestmentsDesc] = useState("Curated real estate investments across Spain and Austria.");
   const [investmentsDetails, setInvestmentsDetails] = useState("We guide investors from acquisition to renovation and turnkey operations.");
-
-  const [propertyManagementServices, setPropertyManagementServices] = useState([
-    "Architectural photography & luxury staging",
-    "High-converting listings (Airbnb, Booking, & direct)",
-    "24/7 guest communication & personalised check-ins",
-    "Legal traveller registration & compliance",
-    "Dynamic pricing & revenue optimisation",
-    "Housekeeping, maintenance & inspections",
-    "Transparent monthly financial reporting",
-  ]);
 
   const additionalServices = [
     {
@@ -143,69 +128,16 @@ const BusinessAreas = ({ showHeader = true }: BusinessAreasProps) => {
                       >
                         {pmTitle}
                       </EditableText>
-                      <EditableText
-                        id="ba-pm-subtitle"
-                        value={pmSubtitle}
-                        onChange={setPmSubtitle}
-                        as="p"
-                        className="text-base md:text-lg lg:text-xl text-white/80 font-medium"
-                      >
-                        {pmSubtitle}
-                      </EditableText>
                     </div>
                   </div>
-                  
-                  <EditableText
-                    id="ba-pm-desc"
-                    value={pmDescription}
-                    onChange={setPmDescription}
-                    as="p"
-                    multiline
-                    className="text-white/70 text-base md:text-lg leading-relaxed max-w-3xl"
-                  >
-                    {pmDescription}
-                  </EditableText>
+                  {/* The subtitle and description that stood here were the
+                      fourth and fifth phrasing of the page's positioning. The
+                      boutique-hotel sentence is now the hero's second line. */}
                 </div>
 
-                {/* Two symmetrical boxes below */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
-                  {/* What's Included Box */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-5 md:p-6 border border-white/20 h-full">
-                    <h4 className="text-white font-semibold text-base md:text-lg mb-4 md:mb-5 flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-white" />
-                      <EditableText
-                        id="ba-whats-included-label"
-                        value={whatsIncludedLabel}
-                        onChange={setWhatsIncludedLabel}
-                        as="span"
-                      >
-                        {whatsIncludedLabel}
-                      </EditableText>
-                    </h4>
-                    <ul className="space-y-3">
-                      {propertyManagementServices.map((service, i) => (
-                        <li key={i} className="flex items-start gap-2.5 md:gap-3">
-                          <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Check className="w-3 h-3 text-white" />
-                          </div>
-                          <EditableText
-                            id={`ba-pm-service-${i}`}
-                            value={service}
-                            onChange={(newValue) => {
-                              const newServices = [...propertyManagementServices];
-                              newServices[i] = newValue;
-                              setPropertyManagementServices(newServices);
-                            }}
-                            as="span"
-                            className="text-white/90 text-xs md:text-sm"
-                          >
-                            {service}
-                          </EditableText>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
+                {/* Single box now: the "What's Included" list that used to sit
+                    beside this one repeated the Our Services section verbatim. */}
+                <div className="mb-8">
                   {/* Guaranteed Income Program Box */}
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-5 md:p-6 border border-white/20 h-full flex flex-col">
                     <div className="flex items-start gap-3 md:gap-4 mb-4">

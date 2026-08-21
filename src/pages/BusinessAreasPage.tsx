@@ -4,6 +4,8 @@ import BusinessAreas from "@/components/BusinessAreas";
 import { useState } from "react";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
 
 const BusinessAreasPageContent = () => {
   const [pageTitle, setPageTitle] = useState("Our Business Areas");
@@ -11,6 +13,12 @@ const BusinessAreasPageContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Our Business Areas"
+        description="Property management, guaranteed income, renovations and investments — the four ways Frontier Residences works with property owners in Spain and Austria."
+        path="/business-areas"
+        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Business Areas", path: "/business-areas" }])}
+      />
       <Navigation />
       <main className="flex-1 pt-24">
         <div className="container mx-auto px-4 mb-12">

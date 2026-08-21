@@ -1,29 +1,70 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import SearchBar from "./SearchBar";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
+import { Container, Stack } from "./layout";
+import { useLocale } from "@/contexts/LocaleContext";
 
+/**
+ * Headline, one supporting line and the search bar, as a single block over a
+ * band of video.
+ *
+ * It used to be `min-h-screen`: the video owned the entire first screen and
+ * the search bar arrived half a second late on a slide-in from the right,
+ * separated from the text above it by up to 48px of empty space. That is what
+ * made it read as something laid over the hero rather than part of it, and it
+ * meant nothing below the fold existed until the visitor scrolled.
+ *
+ * Now the band is ~62vh, so the section underneath is already visible at rest
+ * — the video supports the composition instead of being it (§7). The three
+ * pieces share one Stack, so the gap between the headline and the field the
+ * visitor is meant to type in is one step on the same ladder the rest of the
+ * page uses (§8).
+ */
 const Hero = () => {
-  const [showBooking, setShowBooking] = useState(false);
   const [checkInDate, setCheckInDate] = useState<Date>();
   const [checkOutDate, setCheckOutDate] = useState<Date>();
   const [guests, setGuests] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   const navigate = useNavigate();
+  const { t, language } = useLocale();
 
   // Editable content state
-  const [headline, setHeadline] = useState("Bespoke Property Management");
-  const [subheadline, setSubheadline] = useState("Private, tailored management for exceptional properties");
-  const [videoId, setVideoId] = useState("tqmWpFCv_1M");
+  const [headline, setHeadline] = useState(t("hero-headline"));
+  const [subheadline, setSubheadline] = useState(t("hero-subheadline"));
 
+  // See Navigation.tsx's identical effect — resets to the new language's
+  // default rather than preserving a manual inline-CMS edit, since nothing
+  // persists past a reload today anyway (docs/PROJECT.md C7).
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowBooking(true);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+    setHeadline(t("hero-headline"));
+    setSubheadline(t("hero-subheadline"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
+
+  /**
+   * Self-hosted since 19.08.2026 (docs/DECISIONS.md §22, resolves PROJECT.md
+   * C6). `public/videos/hero-background.mp4` used to look like the
+   * self-hosted replacement for the YouTube embed below — present,
+   * plausibly named, never actually wired up, and not even a real video (its
+   * first bytes were `<!doctype html>`). Almedin supplied a real clip
+   * (Puente Romano); re-encoded from a 222MB/4K source to 1280×720, audio
+   * stripped (it autoplays muted regardless), capped around 2.2 Mbps —
+   * 5.8MB for a 21s loop, in line with the performance budget `website-stack`
+   * asks for. This also removes the privacy trade-off the previous comment
+   * here used to name: `youtube.com/embed` no longer loads for every visitor
+   * before they have clicked anything.
+   *
+   * `videoId` stays set as the dormant fallback — flip `videoType` back to
+   * `"youtube"` (or use the editor's YouTube tab) if a reason to prefer the
+   * embed ever comes up again; `EditableVideo` and the branch below still
+   * support both.
+   */
+  const [videoType, setVideoType] = useState<"youtube" | "file" | "none">("file");
+  const [videoId, setVideoId] = useState("tqmWpFCv_1M");
+  const [videoFileSrc, setVideoFileSrc] = useState("/videos/hero-background.mp4");
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -35,86 +76,115 @@ const Hero = () => {
   };
 
   const handleVideoChange = (src: string, type: "youtube" | "file") => {
+    setVideoType(type);
     if (type === "youtube") {
       setVideoId(src);
+    } else {
+      setVideoFileSrc(src);
     }
   };
 
   return (
-    // pt-20 keeps the centring area below the fixed 80px header, so the
-    // headline can never drift underneath it on short viewports. `safe center`
-    // then falls back to top-alignment if the block still doesn't fit (very
-    // small phones, or a headline that wraps to three lines) instead of
-    // overflowing equally in both directions the way plain centring does.
-    <div className="relative min-h-screen flex items-center [align-items:safe_center] justify-center overflow-hidden pt-20">
-      {/* Video Background */}
+    // pt-20 clears the fixed 80px header. The height is clamped at both ends
+    // rather than left at 62vh: the lower bound keeps the stacked mobile
+    // search form from overflowing a short viewport, the upper bound stops the
+    // band from turning back into a full-screen video on a tall monitor.
+    //
+    // `items-center` and `[align-items:safe_center]` are both here on purpose
+    // (the editor flags them as duplicates): the second wins where it is
+    // supported and falls back to top-alignment instead of overflowing in both
+    // directions when the block still does not fit, and the first is what
+    // browsers without `safe` keyword support fall back to.
+    <section className="relative flex items-center [align-items:safe_center] overflow-hidden pt-20 min-h-[clamp(34rem,62vh,44rem)]">
       <EditableVideo
         id="hero-video"
-        type="youtube"
-        src={videoId}
+        type={videoType === "none" ? "file" : videoType}
+        src={videoType === "youtube" ? videoId : videoFileSrc}
         onChange={handleVideoChange}
       >
         <div className="absolute inset-0 w-full h-full overflow-hidden">
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&start=0&end=23&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
-            className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2"
-            allow="autoplay; encrypted-media"
-            style={{ pointerEvents: 'none', border: 'none' }}
-          />
-          <div className="absolute inset-0 bg-black/30"></div>
+          {videoType === "youtube" && videoId ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&start=0&end=23&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
+              className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-full min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2"
+              allow="autoplay; encrypted-media"
+              style={{ pointerEvents: 'none', border: 'none' }}
+              title="Frontier Residences"
+            />
+          ) : videoType === "file" && videoFileSrc ? (
+            <video
+              src={videoFileSrc}
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            // Reached only if the video is cleared in the editor with nothing
+            // swapped in yet — the same hatched placeholder MediaFrame uses
+            // elsewhere, rather than a photograph borrowed from another page.
+            <div
+              className="absolute inset-0 bg-placeholder-hatch flex items-end justify-end p-sm"
+              aria-hidden="true"
+            >
+              <p className="t-meta text-accent-strong/70 text-balance text-right">
+                Hero video — replace via the editor
+              </p>
+            </div>
+          )}
+          {/* Palette-derived, not black — see --overlay-media in index.css. */}
+          <div className="absolute inset-0 overlay-media" aria-hidden="true" />
         </div>
       </EditableVideo>
 
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-12 sm:py-20">
-        <div className="max-w-5xl mx-auto text-center animate-fade-in">
-          <EditableText
-            id="hero-headline"
-            value={headline}
-            onChange={setHeadline}
-            as="h1"
-            className="font-playfair text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-4 md:mb-6 text-balance drop-shadow-2xl"
-          >
-            {headline}
-          </EditableText>
-          <EditableText
-            id="hero-subheadline"
-            value={subheadline}
-            onChange={setSubheadline}
-            as="p"
-            className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-lg"
-          >
-            {subheadline}
-          </EditableText>
-        </div>
-
-        {/* Compact Search Bar */}
-        {showBooking && (
-          <div className="mt-6 sm:mt-12 max-w-5xl mx-auto animate-slide-in-right">
-             <SearchBar
-               location={location}
-               checkInDate={checkInDate}
-               checkOutDate={checkOutDate}
-               guests={guests}
-               onLocationChange={setLocation}
-               onCheckInChange={setCheckInDate}
-               onCheckOutChange={setCheckOutDate}
-               onGuestsChange={setGuests}
-               onSearch={handleSearch}
-             />
+      {/* z-10 keeps the block above the overlay; the search bar's own popovers
+          carry higher stacking of their own. `measure="wide"` rather than the
+          full 1440px container: the bar reads as a single control at ~1024px,
+          and stretched to the full container it starts to look like a toolbar
+          welded to the page. */}
+      <Container measure="wide" className="relative z-10 py-lg">
+        <Stack gap="md" align="center" className="animate-fade-in">
+          <div className="space-y-sm">
+            <EditableText
+              id="hero-headline"
+              value={headline}
+              onChange={setHeadline}
+              as="h1"
+              className="t-display text-white text-balance drop-shadow-2xl"
+            >
+              {headline}
+            </EditableText>
+            {/* Deliberately held to one line's worth of width and left at body
+                size: §9 asks for the headline to get the room and the
+                supporting text not to compete with the search bar. */}
+            <EditableText
+              id="hero-subheadline"
+              value={subheadline}
+              onChange={setSubheadline}
+              as="p"
+              className="t-body text-white/90 max-w-2xl mx-auto drop-shadow-lg"
+            >
+              {subheadline}
+            </EditableText>
           </div>
-        )}
-      </div>
 
-      {/* Scroll Indicator — hidden on short viewports, where it would sit on
-          top of the search bar rather than below it. Height-based rather than
-          width-based: a wide-but-short window has the same problem. */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce [@media(max-height:700px)]:hidden">
-        <div className="w-6 h-10 border-2 border-white rounded-full flex items-start justify-center p-2">
-          <div className="w-1.5 h-3 bg-white rounded-full"></div>
-        </div>
-      </div>
-    </div>
+          <div className="text-left">
+            <SearchBar
+              location={location}
+              checkInDate={checkInDate}
+              checkOutDate={checkOutDate}
+              guests={guests}
+              onLocationChange={setLocation}
+              onCheckInChange={setCheckInDate}
+              onCheckOutChange={setCheckOutDate}
+              onGuestsChange={setGuests}
+              onSearch={handleSearch}
+            />
+          </div>
+        </Stack>
+      </Container>
+    </section>
   );
 };
 

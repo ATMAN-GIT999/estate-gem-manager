@@ -11,6 +11,13 @@ import SearchBar from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { format, addDays, parseISO, isValid } from "date-fns";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
+import { Section, Container, Grid } from "@/components/layout";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useLocale } from "@/contexts/LocaleContext";
+
+type SortOption = "recommended" | "price-asc" | "price-desc";
 
 const parseDateParam = (value: string | null) => {
   if (!value) return undefined;
@@ -20,11 +27,16 @@ const parseDateParam = (value: string | null) => {
 
 const PropertiesContent = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t, language } = useLocale();
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pageTitle, setPageTitle] = useState("All Properties");
+  const [pageEyebrow, setPageEyebrow] = useState(t("properties-page-eyebrow"));
+  const [pageTitle, setPageTitle] = useState(t("properties-page-title"));
   const [availabilityFilter, setAvailabilityFilter] = useState<Set<string> | null>(null);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
+  // Highest price first by default — the priciest homes are also the most
+  // impressive ones in this portfolio, so this puts the best foot forward.
+  const [sortOption, setSortOption] = useState<SortOption>("price-desc");
 
   const [locationInput, setLocationInput] = useState(searchParams.get("location") || "");
   const [checkInInput, setCheckInInput] = useState<Date | undefined>(() => parseDateParam(searchParams.get("checkIn")));
@@ -35,6 +47,12 @@ const PropertiesContent = () => {
   const activeCheckIn = searchParams.get("checkIn") || "";
   const activeCheckOut = searchParams.get("checkOut") || "";
   const activeGuests = parseInt(searchParams.get("guests") || "0", 10);
+
+  useEffect(() => {
+    setPageEyebrow(t("properties-page-eyebrow"));
+    setPageTitle(t("properties-page-title"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -72,6 +90,18 @@ const PropertiesContent = () => {
       return true;
     });
   }, [properties, activeLocation, activeGuests, availabilityFilter]);
+
+  // "Recommended" is the fetch order already (featured first, then newest) —
+  // only the two price options need an actual re-sort.
+  const sorted = useMemo(() => {
+    if (sortOption === "price-asc") {
+      return [...filtered].sort((a, b) => (a.price_per_night || 0) - (b.price_per_night || 0));
+    }
+    if (sortOption === "price-desc") {
+      return [...filtered].sort((a, b) => (b.price_per_night || 0) - (a.price_per_night || 0));
+    }
+    return filtered;
+  }, [filtered, sortOption]);
 
   // When dates change, check availability for each property via cached calendar
   useEffect(() => {
@@ -162,14 +192,19 @@ const PropertiesContent = () => {
     // flex-col + flex-1 keeps the footer at the bottom when a search returns
     // only one or two listings; without it the footer rode up into view.
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Luxury Villas & Apartments to Book"
+        description="The full Frontier Residences portfolio — villas, city apartments and cabins in Marbella, Málaga, Vienna and beyond, bookable directly with us."
+        path="/properties"
+        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Properties", path: "/properties" }])}
+      />
       <Navigation />
 
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-24 overflow-x-clip">
         {/* Local search / filter bar */}
         <div className="border-b border-border bg-background sticky top-20 z-40 shadow-sm overflow-visible">
-          <div className="container mx-auto px-4 py-3 md:py-4">
+          <Container className="py-sm">
             <SearchBar
-              variant="inline"
               collapsible
               location={locationInput}
               checkInDate={checkInInput}
@@ -182,46 +217,70 @@ const PropertiesContent = () => {
               onSearch={applySearch}
             />
             {(activeLocation || activeCheckIn || activeCheckOut || activeGuests > 0) && (
-              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                <span>Filtering active</span>
+              <div className="mt-2 flex items-center gap-2 t-meta text-muted-foreground">
+                <span>{t("properties.filteringActive")}</span>
                 <button
                   type="button"
                   onClick={clearSearch}
                   className="underline hover:text-foreground"
                 >
-                  Clear
+                  {t("properties.clear")}
                 </button>
               </div>
             )}
-          </div>
+          </Container>
         </div>
 
         {/* Properties Grid */}
-        <div className="container mx-auto px-4 mt-8">
-          <div className="mb-8">
+        <Section size="sm">
+          <div className="mb-md">
+            <EditableText
+              id="properties-page-eyebrow"
+              value={pageEyebrow}
+              onChange={setPageEyebrow}
+              as="span"
+              className="block t-meta text-accent-strong mb-2"
+            >
+              {pageEyebrow}
+            </EditableText>
             <EditableText
               id="properties-page-title"
               value={pageTitle}
               onChange={setPageTitle}
               as="h1"
-              className="font-playfair text-4xl font-bold text-primary mb-2"
+              className="t-display text-primary"
             >
               {pageTitle}
             </EditableText>
-            <p className="text-muted-foreground inline-flex items-center gap-2">
-              {loading
-                ? "Loading..."
-                : `${filtered.length} of ${properties.length} properties`}
-              {checkingAvailability && (
-                <>
-                  <Loader2 className="w-3 h-3 animate-spin" /> checking availability…
-                </>
-              )}
-            </p>
+            <div className="flex items-center justify-between gap-3 mt-3 flex-wrap">
+              <span className="t-body text-muted-foreground">
+                {loading
+                  ? "Loading…"
+                  : `${sorted.length} ${sorted.length === 1 ? t("properties.home") : t("properties.homes")}`}
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">{t("properties.sort")}</span>
+                <Select value={sortOption} onValueChange={(v) => setSortOption(v as SortOption)}>
+                  <SelectTrigger className="h-auto w-auto gap-2 rounded-md border-border bg-card px-3 py-1.5 text-xs text-accent-strong [&>span]:line-clamp-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="recommended">{t("properties.sortRecommended")}</SelectItem>
+                    <SelectItem value="price-asc">{t("properties.sortPriceAsc")}</SelectItem>
+                    <SelectItem value="price-desc">{t("properties.sortPriceDesc")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {checkingAvailability && (
+              <p className="mt-2 t-meta text-muted-foreground inline-flex items-center gap-2">
+                <Loader2 className="w-3 h-3 animate-spin" /> {t("properties.checkingAvailability")}
+              </p>
+            )}
           </div>
 
           {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Grid cols={3} gap="sm">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="space-y-4">
                   <Skeleton className="aspect-[4/3] w-full" />
@@ -230,25 +289,25 @@ const PropertiesContent = () => {
                   <Skeleton className="h-4 w-2/3" />
                 </div>
               ))}
-            </div>
+            </Grid>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-16 border border-dashed border-border rounded-lg">
-              <p className="text-lg text-foreground mb-2">No properties match your search.</p>
-              <p className="text-sm text-muted-foreground mb-4">
-                Try a different destination or different dates.
+            <div className="text-center py-xl border border-dashed border-border rounded-lg">
+              <p className="t-block text-foreground mb-2">{t("properties.noMatch")}</p>
+              <p className="t-body text-muted-foreground mb-4">
+                {t("properties.tryDifferent")}
               </p>
               <Button variant="outline" onClick={clearSearch}>
-                Clear filters
+                {t("properties.clearFilters")}
               </Button>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filtered.map((property) => (
+            <Grid cols={3} gap="sm">
+              {sorted.map((property) => (
                 <PropertyCard key={property.id} property={property} />
               ))}
-            </div>
+            </Grid>
           )}
-        </div>
+        </Section>
       </main>
 
       <Footer />

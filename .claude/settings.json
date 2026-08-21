@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(claude mcp list*)",
+      "mcp__claude_ai_Google_Drive__read_file_content",
+      "mcp__guesty__anpCalendarGet"
+    ]
+  }
+}

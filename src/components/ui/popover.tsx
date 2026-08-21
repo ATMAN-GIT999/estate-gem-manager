@@ -7,6 +7,11 @@ const Popover = PopoverPrimitive.Root;
 
 const PopoverTrigger = PopoverPrimitive.Trigger;
 
+/** For a controlled popover with no real trigger button — e.g. one driven by
+ * an input's focus/typing state — so the content still positions against a
+ * specific element instead of the viewport origin. */
+const PopoverAnchor = PopoverPrimitive.Anchor;
+
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
@@ -26,4 +31,4 @@ const PopoverContent = React.forwardRef<
 ));
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
-export { Popover, PopoverTrigger, PopoverContent };
+export { Popover, PopoverTrigger, PopoverAnchor, PopoverContent };

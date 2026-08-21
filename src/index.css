@@ -1,3 +1,32 @@
+/* Fonts are bundled, not fetched from Google.
+   Loading them from fonts.googleapis.com sends every visitor's IP address to
+   Google before the page has even rendered, which Austrian and German courts
+   have repeatedly treated as a GDPR breach — and this business has clients and
+   an office in Austria. Self-hosting also removes two connections to a third
+   party from the critical path.
+   Playfair is the variable cut, so one file covers 400-700 instead of four.
+
+   Lato is imported latin-only. The full files also carry latin-ext, whose
+   three woff subsets are small enough that Vite base64-inlines them straight
+   into this stylesheet — 15 KB that barely compress, sitting in the render
+   path. latin covers U+0000-00FF, so Málaga, Wien and Sauerwald are safe;
+   latin-ext is Polish, Czech and Hungarian, which this site does not use.
+
+   The italic import adds one real italic face (38 KB, latin range) for the
+   single closing line in TheSystem that asks for it — added deliberately
+   rather than left to `font-style: italic` alone, which without a matching
+   @font-face the browser fakes by skewing the upright glyphs. A slanted
+   serif done that way reads as broken kerning up close, which is worse than
+   not being italic at all. Like the normal-weight import above, this pulls
+   in unicode-range blocks (cyrillic, vietnamese, latin-ext) this site never
+   uses — harmless, since a browser only fetches the woff2 for a range that
+   actually appears in the page, so only the latin file downloads. */
+@import '@fontsource-variable/playfair-display';
+@import '@fontsource-variable/playfair-display/wght-italic.css';
+@import '@fontsource/lato/latin-300.css';
+@import '@fontsource/lato/latin-400.css';
+@import '@fontsource/lato/latin-700.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -54,10 +83,78 @@ All colors MUST be HSL.
     --sidebar-border: 32 16% 83%;
     --sidebar-ring: 133 11% 36%;
 
+    /* ---------------------------------------------------------------------
+       Layout system — ONE horizontal axis and ONE vertical ladder.
+
+       Before this, every section carried `container mx-auto px-4` and then
+       narrowed its own content again with an arbitrary `max-w-3xl` / `4xl` /
+       `5xl` / `6xl`. Four different text edges on one page is what made the
+       site read as stacked landing-page modules rather than one document when
+       zoomed out — the section backgrounds ran full width while the content
+       inside them started at four different places.
+
+       Use the <Container>/<Section> primitives in src/components/layout/
+       rather than these variables directly. They are here (not in
+       tailwind.config.ts) because the full-bleed rails need them inside
+       calc(), which a Tailwind token cannot do.
+       --------------------------------------------------------------------- */
+    --container-max: 1440px;
+    --container-gutter: clamp(1.25rem, 3.5vw, 3rem);
+    /* Left/right padding that lines a full-bleed element (a horizontally
+       scrolling rail, an edge-to-edge image row) up with the container above
+       it. Has to reproduce exactly what `.app-container`'s own
+       `width: min(100% - 2*gutter, max); margin-inline: auto` produces as a
+       left offset, in the two regimes that formula has:
+
+       - Below the breakpoint (parent narrower than max + 2*gutter), the
+         container isn't capped, so its margin is just the gutter.
+       - Above it, the container is pinned at `max` and centred, so its
+         margin is `(parent - max) / 2` — with NO extra `+ gutter` term.
+         An earlier version of this formula added one anyway, which is
+         invisible at normal sizes but grows with viewport width, since
+         `max()` doesn't average the two terms — it kept the whole gutter
+         as a constant offset on top of the correct centring, off by a
+         gutter's worth (48px) at a quarter browser zoom.
+
+       `%`, not `100vw`: `vw` is defined to include the vertical scrollbar's
+       width, while a block element's own percentage width does not — so a
+       vw-based inset and Container's own centring drift apart by roughly
+       half the scrollbar width. `%` inside `calc()` resolves against the
+       box it is actually applied to, which for every element that uses this
+       token is a full-width block with the same effective width Container
+       centers against, so the two now agree exactly. */
+    --container-inset: max(
+      var(--container-gutter),
+      calc((100% - var(--container-max)) / 2)
+    );
+
+    /* The vertical ladder. Six steps, nothing between them. Every value is a
+       clamp() so a step needs no responsive variant — `--space-2xl` is 72px on
+       a phone and 140px on a desktop by itself, which is what stops the
+       `py-20` / `py-24` / `py-28` / `py-36` drift this file used to have. */
+    --space-xs: 0.75rem;                                   /* 12 */
+    --space-sm: 1.5rem;                                    /* 24 */
+    --space-md: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem);    /* 28 → 40 */
+    --space-lg: clamp(2.5rem, 1.9rem + 2.6vw, 4rem);       /* 40 → 64 */
+    --space-xl: clamp(3.5rem, 2.4rem + 4.6vw, 6rem);       /* 56 → 96 */
+    --space-2xl: clamp(4.5rem, 2.4rem + 8.5vw, 8.75rem);   /* 72 → 140 */
+
     /* Custom gradients and shadows */
     --gradient-hero: linear-gradient(135deg, hsl(32, 26%, 92%) 0%, hsl(32, 30%, 88%) 100%);
     --gradient-sage: linear-gradient(135deg, hsl(133, 11%, 36%) 0%, hsl(133, 11%, 28%) 100%);
     --gradient-gold: linear-gradient(135deg, hsl(42, 48%, 60%) 0%, hsl(38, 42%, 46%) 100%);
+    /* Darkening layer for photo and video bands. Derived from --foreground
+       (133 14% 22%) taken further down, NOT neutral black: black over the
+       sage-green palette reads grey and drains the warmth out of the
+       photography. Darkest at the top and bottom so the headline and the
+       search bar both sit on their own contrast, lightest through the middle
+       where the image is actually doing its job. */
+    --overlay-media: linear-gradient(
+      180deg,
+      hsl(133 16% 13% / 0.62) 0%,
+      hsl(133 16% 13% / 0.34) 45%,
+      hsl(133 16% 13% / 0.68) 100%
+    );
     --shadow-elegant: 0 10px 40px -10px hsl(133 11% 36% / 0.15);
     --shadow-soft: 0 8px 30px -8px hsl(133 11% 36% / 0.2);
     --shadow-gold: 0 10px 40px -10px hsl(40 42% 52% / 0.35);
@@ -84,6 +181,17 @@ All colors MUST be HSL.
 }
 
 @layer base {
+  /* Every same-page `href="#anchor"` on the site (Contact Us, footer FAQ
+     link, the mobile nav) is a plain anchor tag, not a JS scrollIntoView
+     call — its jump is entirely up to this property. It was never set: the
+     `prefers-reduced-motion` block further down already overrides it back to
+     `auto`, which only does something if a `smooth` baseline exists here for
+     it to override. Until now that override was dead code and every hash
+     jump on the site was an instant cut, not a scroll. */
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
     @apply border-border;
   }
@@ -93,9 +201,209 @@ All colors MUST be HSL.
     font-family: 'Lato', 'Open Sans', sans-serif;
   }
 
+  /* The variable cut registers under its own family name, so it has to be
+     named first — 'Playfair Display' alone would silently fall through to the
+     serif fallback now that nothing loads the static family.
+
+     This is only the fallback for headings that have not been moved onto the
+     type scale below (and for the admin area, which is out of scope). Anything
+     public should carry a .t-* class, which overrides both of these. */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Playfair Display Variable', 'Playfair Display', serif;
     font-weight: 600;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The type scale — six roles, nothing else.
+
+   Why this lives here and not in tailwind.config.ts: a Tailwind `fontSize`
+   token can carry size, line-height, tracking and weight, but NOT the font
+   family. Splitting "how big" from "which font" across two classes is exactly
+   how the page ended up with twelve 16px headings set in a display serif. One
+   class per role keeps the two decisions welded together.
+
+   Sizes are clamp()ed, so a role needs no responsive variant — `.t-section` is
+   30px on a phone and 44px on a desktop by itself. That removes the second
+   source of drift, where a heading got its `md:` breakpoint but its neighbour
+   did not.
+
+   Weights: Playfair is the variable cut (400-700 continuous). Lato is NOT —
+   only 300/400/700 are bound in the imports above, and Lato has no 600 at all.
+   Item and Meta therefore use 700; asking for 600 would let the browser round
+   or synthesise a fake bold.
+
+   Rule this enforces: no `text-xs` … `text-7xl` in a public component.
+   Full rationale in docs/DESIGN.md §5.
+   --------------------------------------------------------------------------- */
+@layer components {
+  .t-display,
+  .t-section,
+  .t-block {
+    font-family: 'Playfair Display Variable', 'Playfair Display', serif;
+    font-weight: 700;
+  }
+
+  .t-item,
+  .t-body,
+  .t-meta {
+    font-family: 'Lato', 'Open Sans', sans-serif;
+  }
+
+  /* H1 — once per page, never more */
+  .t-display {
+    font-size: clamp(2.375rem, 1.6rem + 3.2vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  /* H2 — the title of a section */
+  .t-section {
+    font-size: clamp(1.875rem, 1.35rem + 2.15vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
+  /* H3 — a sub-unit inside a section */
+  .t-block {
+    font-size: clamp(1.375rem, 1.1rem + 1.1vw, 1.75rem);
+    line-height: 1.2;
+  }
+
+  /* H4 — a single item in a list. Separated from body by weight, not size. */
+  .t-item {
+    font-size: clamp(1.0625rem, 1.03rem + 0.15vw, 1.125rem);
+    line-height: 1.4;
+    font-weight: 700;
+  }
+
+  .t-body {
+    font-size: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem);
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* Eyebrows, labels, caption-level text */
+  .t-meta {
+    font-size: clamp(0.75rem, 0.73rem + 0.08vw, 0.8125rem);
+    line-height: 1.4;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+}
+
+/* One "polished silver" background, used wherever a light surface needs to
+   read as a deliberate material rather than the plain page background —
+   currently the property-management hero panel and the FAQ panel. Defined
+   once so the two can never drift into two different effects that both get
+   called "the silver shimmer". No new colour tokens: it is layered white,
+   `--background` and `--secondary`, which is what the palette already has to
+   offer as "light". */
+@layer components {
+  .bg-silver-shimmer {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(140% 160% at 20% -20%, hsl(0 0% 100%) 0%, hsl(var(--background)) 42%, hsl(var(--secondary)) 100%);
+  }
+  .bg-silver-shimmer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 32%, hsl(0 0% 100% / 0.6) 46%, transparent 62%);
+    pointer-events: none;
+  }
+}
+
+/* The vertical gold thread running down the six steps of "the system".
+   Held to the accent token, and faded at both ends so it reads as a line
+   drawn through the section rather than a border that got stuck to one side
+   of it. Defined here rather than as an inline arbitrary gradient because it
+   is the one place on the site where the gold runs vertically, and that is a
+   decision worth being able to find. */
+@layer components {
+  .spine-gold {
+    background-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      hsl(var(--accent)) 5%,
+      hsl(var(--accent)) 95%,
+      transparent 100%
+    );
+  }
+}
+
+/* The hatched fill behind a picture that has not arrived yet.
+   §6 of DESIGN.md keeps real placeholder areas as one of the two deliberate
+   exceptions to "fewer boxes": an unbounded empty region reads as a layout
+   fault, a bounded one reads as a frame waiting to be filled. Woven out of the
+   palette (gold at two opacities over --secondary), never a neutral grey, so a
+   half-finished page still looks like this brand rather than like a wireframe.
+
+   The `-on-primary` variant is the same idea on the sage-green fill, where the
+   hatch has to lighten instead of darken to be visible at all. */
+@layer components {
+  .bg-placeholder-hatch {
+    background-color: hsl(var(--secondary));
+    background-image: repeating-linear-gradient(
+      115deg,
+      hsl(var(--accent-strong) / 0.14) 0 8px,
+      hsl(var(--accent-strong) / 0.05) 8px 16px
+    );
+  }
+  .bg-placeholder-hatch-on-primary {
+    background-color: hsl(var(--primary));
+    background-image: repeating-linear-gradient(
+      115deg,
+      hsl(var(--primary-foreground) / 0.13) 0 8px,
+      hsl(var(--primary-foreground) / 0.06) 8px 16px
+    );
+  }
+}
+
+/* The one content container. Everything public sits inside this, so the page
+   has a single left and right edge from the header to the footer.
+
+   `width: min(100% - 2*gutter, max)` rather than `max-width` + `padding`
+   because it keeps the gutter OUT of the box: a 12-column grid inside then
+   measures the real content width, so column edges line up between sections
+   that use different numbers of columns. */
+@layer components {
+  .app-container {
+    width: min(100% - 2 * var(--container-gutter), var(--container-max));
+    margin-inline: auto;
+  }
+
+  /* For elements that must span the viewport (image bands, scrolling rails)
+     while their content still starts on the container's edge. */
+  .app-bleed {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+  }
+  .app-bleed-inset {
+    padding-inline: var(--container-inset);
+  }
+
+  /* The gold hairline from §24 — a seam between two surfaces, not a border
+     around a box. Used at green/light transitions only, never between every
+     pair of sections, or it stops reading as an accent. */
+  .edge-gold-top {
+    border-top: 1px solid hsl(var(--accent) / 0.55);
+  }
+  .edge-gold-bottom {
+    border-bottom: 1px solid hsl(var(--accent) / 0.55);
+  }
+}
+
+/* Required by the stack guidelines and absent until now. Anyone who has asked
+   their system to reduce motion currently still gets every fade, scale and
+   scroll animation on the site. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -140,6 +448,10 @@ All colors MUST be HSL.
   
   .gradient-sage {
     background: var(--gradient-sage);
+  }
+
+  .overlay-media {
+    background: var(--overlay-media);
   }
   
   .shadow-elegant {

@@ -20,6 +20,20 @@ import {
 } from "lucide-react";
 import grapesjs, { Editor } from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
+
+// Local font stylesheets for the editor iframe. `?url` gives the built asset
+// path rather than injecting the CSS into this page.
+import playfair400 from "@fontsource/playfair-display/latin-400.css?url";
+import playfair600 from "@fontsource/playfair-display/latin-600.css?url";
+import playfair700 from "@fontsource/playfair-display/latin-700.css?url";
+import lato300 from "@fontsource/lato/latin-300.css?url";
+import lato400 from "@fontsource/lato/latin-400.css?url";
+import lato700 from "@fontsource/lato/latin-700.css?url";
+
+const canvasFontStyles = [
+  playfair400, playfair600, playfair700,
+  lato300, lato400, lato700,
+];
 import gjsPresetWebpage from "grapesjs-preset-webpage";
 import gjsBlocksBasic from "grapesjs-blocks-basic";
 
@@ -34,7 +48,6 @@ const SITE_PAGES = [
   { name: "Investments", route: "/investments", slug: "site--investments" },
   { name: "Business Areas", route: "/business-areas", slug: "site--business-areas" },
   { name: "Evaluate", route: "/evaluate", slug: "site--evaluate" },
-  { name: "Book", route: "/book", slug: "site--book" },
 ];
 
 interface PageData {
@@ -97,9 +110,17 @@ export default function BuilderPage() {
         [gjsBlocksBasic as any]: { flexGrid: true },
       },
       canvas: {
-        styles: [
-          "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Lato:wght@300;400;700&display=swap",
-        ],
+        // The editor canvas is a separate iframe, so it needs its own
+        // stylesheet URLs — it cannot inherit the app's bundled fonts. These
+        // used to point at Google, which meant an admin's IP went to a third
+        // party every time the builder opened. `?url` hands Vite's hashed
+        // local copies to the iframe instead.
+        //
+        // The static Playfair cut is used here rather than the variable one
+        // the site ships: the builder's font picker offers "Playfair Display",
+        // and the variable package registers a different family name, so text
+        // styled in the editor would fall back to a generic serif.
+        styles: canvasFontStyles,
       },
       deviceManager: {
         devices: [

@@ -19,7 +19,7 @@ interface Props {
 }
 
 const SUPPORT_EMAIL = "Hello@frontier-residences.com";
-const SUPPORT_PHONE = "+34 665 51 18 53";
+const SUPPORT_PHONE = "+34 649 429 678";
 
 const InstantBookFallbackDialog = ({
   open,

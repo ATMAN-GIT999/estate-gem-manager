@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
+import Seo from "@/components/Seo";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -65,6 +66,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Seo title="Sign In" path="/auth" noindex />
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="font-playfair text-3xl text-center">Frontier Residences</CardTitle>

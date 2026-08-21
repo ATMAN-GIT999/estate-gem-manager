@@ -79,6 +79,10 @@ interface QuoteData {
   quoteId: string;
   subtotal: number;
   fees: number;
+  /** Guesty's `totalTaxes`, shown as its own line — see docs/PROJECT.md §6 (C1):
+      `subTotalPrice` is pre-tax, so folding tax into "Fees" or dropping it from
+      the total both undercharge the guest by the tax amount. */
+  taxes: number;
   total: number;
   currency: string;
   ratePlanId?: string;
@@ -152,6 +156,10 @@ const BookingSummary = ({
     open: boolean;
     rawError?: string;
   }>({ open: false });
+  /** Set when no live price could be retrieved. We never guess a price — see docs/PROJECT.md §6 (C2). */
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+  /** Set when the Stripe config could not be loaded, so card payment can't be offered. */
+  const [paymentUnavailable, setPaymentUnavailable] = useState(false);
 
   const nights = differenceInDays(new Date(checkOut), new Date(checkIn));
 
@@ -160,7 +168,10 @@ const BookingSummary = ({
     // Load Stripe publishable key from edge function
     supabase.functions.invoke('guesty-stripe-config').then(({ data, error }) => {
       if (error || !data?.publishableKey) {
+        // Without a key the card element never renders and `cardReady` stays false,
+        // which would leave the guest on a dead button. Say so and offer the inquiry.
         console.error('Failed to load Stripe config:', error);
+        setPaymentUnavailable(true);
         return;
       }
       setStripePromise(loadStripe(data.publishableKey));
@@ -169,6 +180,7 @@ const BookingSummary = ({
 
   const fetchQuote = async (coupon?: string) => {
     setLoading(true);
+    setQuoteError(null);
     let resultQuote: QuoteData | null = null;
     try {
       if (property.guesty_listing_id) {
@@ -211,8 +223,15 @@ const BookingSummary = ({
           const money = ratePlan.money || ratePlanWrap.money || {};
           const items: any[] = money.invoiceItems || [];
           const accommodation = money.fareAccommodation || 0;
-          const fees = money.totalFees || items
-            .filter((i) => /FEE|TAX/i.test(i.type || i.normalType || ''))
+          // FEE and TAX are split now (docs/DECISIONS.md §37) — they used to share
+          // one regex and one "Fees" line, which is how a tripled city tax (B2)
+          // went unnoticed: it was hiding inside a total the guest never saw broken
+          // down.
+          const fees = money.totalFees ?? items
+            .filter((i) => /FEE/i.test(i.type || i.normalType || '') && !/TAX/i.test(i.type || i.normalType || ''))
+            .reduce((s, i) => s + (i.amount || 0), 0);
+          const taxes = money.totalTaxes ?? items
+            .filter((i) => /TAX/i.test(i.type || i.normalType || ''))
             .reduce((s, i) => s + (i.amount || 0), 0);
           const discount = Math.abs(
             items
@@ -223,34 +242,47 @@ const BookingSummary = ({
                 0,
               ),
           );
-          const subtotal = accommodation || (property.price_per_night * nights);
-          const total = money.subTotalPrice ?? Math.max(0, subtotal + fees - discount);
-          const appliedCouponName =
-            quoteData.coupons?.[0]?.couponCode || quoteData.coupons?.[0]?.code || coupon;
+          // A quote without money is not a price. Falling back to `price_per_night`
+          // here would slip the frozen import value past the guest unannounced.
+          if (typeof money.subTotalPrice !== 'number' && accommodation <= 0) {
+            setQuote(null);
+            setQuoteError(
+              "We couldn't retrieve a live price for these dates. Please try again in a moment.",
+            );
+            resultQuote = null;
+          } else {
+            const subtotal = accommodation;
+            // `subTotalPrice` is Guesty's pre-tax figure (accommodation + fees,
+            // coupon already applied) — the guest-facing total has to add
+            // `totalTaxes` on top, or the booking undercharges by exactly the tax
+            // amount (docs/PROJECT.md §6, C1).
+            const preTax = money.subTotalPrice ?? Math.max(0, subtotal + fees - discount);
+            const total = preTax + taxes;
+            const appliedCouponName =
+              quoteData.coupons?.[0]?.couponCode || quoteData.coupons?.[0]?.code || coupon;
 
-          resultQuote = {
-            quoteId: quoteData._id || quoteData.quoteId,
-            subtotal,
-            fees,
-            total,
-            currency: money.currency || quoteData.currency || 'EUR',
-            ratePlanId: ratePlan._id || ratePlan.ratePlanId,
-            cancellationPolicy: ratePlan.cancellationPolicy || 'Non-refundable',
-            discount,
-            appliedCoupon: discount > 0 ? appliedCouponName : undefined,
-          };
-          setQuote(resultQuote);
+            resultQuote = {
+              quoteId: quoteData._id || quoteData.quoteId,
+              subtotal,
+              fees,
+              taxes,
+              total,
+              currency: money.currency || quoteData.currency || 'EUR',
+              ratePlanId: ratePlan._id || ratePlan.ratePlanId,
+              cancellationPolicy: ratePlan.cancellationPolicy || 'Non-refundable',
+              discount,
+              appliedCoupon: discount > 0 ? appliedCouponName : undefined,
+            };
+            setQuote(resultQuote);
+          }
         } else {
-          // Fallback calculation
-          resultQuote = {
-            quoteId: '',
-            subtotal: property.price_per_night * nights,
-            fees: Math.round(property.price_per_night * nights * 0.1),
-            total: Math.round(property.price_per_night * nights * 1.1),
-            currency: 'EUR',
-            cancellationPolicy: 'Non-refundable',
-          };
-          setQuote(resultQuote);
+          // Guesty answered but gave us no quote. Inventing a price here is how the
+          // guest ends up booking a number we made up — block instead.
+          setQuote(null);
+          setQuoteError(
+            "We couldn't retrieve a live price for these dates. Please try again in a moment.",
+          );
+          resultQuote = null;
         }
       } else {
         // No Guesty - use local calculation
@@ -260,6 +292,7 @@ const BookingSummary = ({
           quoteId: '',
           subtotal,
           fees,
+          taxes: 0,
           total: subtotal + fees,
           currency: 'EUR',
           cancellationPolicy: 'Non-refundable',
@@ -276,29 +309,30 @@ const BookingSummary = ({
           description: error.message,
         });
         setAppliedCoupon(null);
+        // Clear the quote so the summary shows the reason instead of empty "€".
+        setQuote(null);
+        setQuoteError(error.message);
         setLoading(false);
         return null;
       }
       if (coupon) {
+        // A rejected coupon must not discard the valid quote we already had, so the
+        // state is left alone. The caller still gets null — nothing was applied.
         toast({
           variant: "destructive",
           title: "Coupon failed",
           description: error.message || "Could not apply coupon",
         });
         setAppliedCoupon(null);
+        setLoading(false);
+        return null;
       }
-      // Fallback to local calculation
-      const subtotal = property.price_per_night * nights;
-      const fees = Math.round(subtotal * 0.1);
-      resultQuote = {
-        quoteId: '',
-        subtotal,
-        fees,
-        total: subtotal + fees,
-        currency: 'EUR',
-        cancellationPolicy: 'Non-refundable',
-      };
-      setQuote(resultQuote);
+      // No usable quote and no guess: a made-up price is worse than a lost booking.
+      setQuote(null);
+      setQuoteError(
+        error?.message || "We couldn't retrieve a live price for these dates.",
+      );
+      resultQuote = null;
     } finally {
       setLoading(false);
     }
@@ -352,7 +386,8 @@ const BookingSummary = ({
     await fetchQuote();
   };
 
-  const handleCheckout = async () => {
+  /** Guest, date and price checks shared by the instant checkout and the inquiry path. */
+  const validateBookingInput = (): boolean => {
     const guestSchema = z.object({
       firstName: z.string().trim().min(1, "First name required").max(100),
       lastName: z.string().trim().min(1, "Last name required").max(100),
@@ -371,7 +406,7 @@ const BookingSummary = ({
         title: "Check your details",
         description: parsed.error.issues[0]?.message || "Please review the form.",
       });
-      return;
+      return false;
     }
 
     // Date sanity checks
@@ -385,7 +420,7 @@ const BookingSummary = ({
         title: "Invalid dates",
         description: "Please choose valid check-in and check-out dates.",
       });
-      return;
+      return false;
     }
     if (!Number.isInteger(guests) || guests < 1 || guests > 50) {
       toast({
@@ -393,7 +428,7 @@ const BookingSummary = ({
         title: "Invalid guest count",
         description: "Guest count must be between 1 and 50.",
       });
-      return;
+      return false;
     }
 
     if (!termsAccepted) {
@@ -402,8 +437,25 @@ const BookingSummary = ({
         title: "Terms required",
         description: "Please accept the terms and conditions",
       });
-      return;
+      return false;
     }
+
+    // Never submit without a live price — the disabled button is not the only guard.
+    if (!quote || quoteError) {
+      toast({
+        variant: "destructive",
+        title: "No price available",
+        description:
+          quoteError || "We couldn't retrieve a price for these dates. Please try again.",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleCheckout = async () => {
+    if (!validateBookingInput()) return;
 
     setSubmitting(true);
     try {
@@ -575,6 +627,8 @@ const BookingSummary = ({
 
   // Switch the booking to a non-charging inquiry and submit it
   const handleSwitchToInquiry = async () => {
+    // Also reachable directly when card payment is unavailable, so validate here too.
+    if (!validateBookingInput()) return;
     setSubmitting(true);
     try {
       if (property.guesty_listing_id && quote?.quoteId) {
@@ -757,28 +811,47 @@ const BookingSummary = ({
 
         <Separator />
 
-        {/* Pricing Breakdown */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span>€{quote?.subtotal?.toFixed(2)}</span>
+        {/* Pricing Breakdown — only ever shown with a real quote behind it */}
+        {quoteError || !quote ? (
+          <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 space-y-2">
+            <p className="text-sm font-medium text-destructive">Price unavailable</p>
+            <p className="text-xs text-muted-foreground">
+              {quoteError ||
+                "We couldn't retrieve a price for these dates."}
+            </p>
+            <Button variant="outline" size="sm" onClick={() => fetchQuote()}>
+              Try again
+            </Button>
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Fees</span>
-            <span>€{quote?.fees?.toFixed(2)}</span>
-          </div>
-          {quote?.discount && quote.discount > 0 ? (
-            <div className="flex justify-between text-sm text-primary">
-              <span>Discount{appliedCoupon ? ` (${appliedCoupon})` : ""}</span>
-              <span>-€{quote.discount.toFixed(2)}</span>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span>€{quote.subtotal.toFixed(2)}</span>
             </div>
-          ) : null}
-          <Separator />
-          <div className="flex justify-between font-bold text-lg">
-            <span>Total</span>
-            <span className="text-primary">€{quote?.total?.toFixed(2)}</span>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Fees</span>
+              <span>€{quote.fees.toFixed(2)}</span>
+            </div>
+            {quote.taxes > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Taxes</span>
+                <span>€{quote.taxes.toFixed(2)}</span>
+              </div>
+            )}
+            {quote.discount && quote.discount > 0 ? (
+              <div className="flex justify-between text-sm text-primary">
+                <span>Discount{appliedCoupon ? ` (${appliedCoupon})` : ""}</span>
+                <span>-€{quote.discount.toFixed(2)}</span>
+              </div>
+            ) : null}
+            <Separator />
+            <div className="flex justify-between font-bold text-lg">
+              <span>Total</span>
+              <span className="text-primary">€{quote.total.toFixed(2)}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         <Separator />
 
@@ -844,7 +917,32 @@ const BookingSummary = ({
             <h3 className="font-semibold flex items-center gap-2">
               <CreditCard className="w-4 h-4" /> Payment
             </h3>
-            {stripePromise ? (
+            {paymentUnavailable ? (
+              <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 space-y-2">
+                <p className="text-sm font-medium text-destructive">
+                  Card payment is currently unavailable
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  We can't take card details right now. You can still send a booking
+                  request — our team will confirm and arrange payment with you.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSwitchToInquiry}
+                  disabled={submitting || !!quoteError || !quote}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send booking request instead"
+                  )}
+                </Button>
+              </div>
+            ) : stripePromise ? (
               <Elements stripe={stripePromise}>
                 <StripeCardCapture
                   onReady={(stripe, element) => {
@@ -859,31 +957,41 @@ const BookingSummary = ({
                 <Loader2 className="w-3 h-3 animate-spin" /> Loading secure payment form...
               </div>
             )}
-            <p className="text-[10px] text-muted-foreground">
-              Your card is processed securely by Stripe via Guesty. We never store card details.
-            </p>
+            {!paymentUnavailable && (
+              <p className="text-[10px] text-muted-foreground">
+                Your card is processed securely by Stripe via Guesty. We never store card details.
+              </p>
+            )}
           </div>
         )}
 
         {/* Action Buttons */}
         <div className="flex gap-3 pt-2">
           <Button variant="outline" onClick={onClose} className="flex-1">
-            Cancel
+            {paymentUnavailable ? "Close" : "Cancel"}
           </Button>
-          <Button
-            onClick={handleCheckout}
-            disabled={submitting || (!!property.guesty_listing_id && !cardReady)}
-            className="flex-1"
-          >
-            {submitting ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              "Complete Booking"
-            )}
-          </Button>
+          {/* With card payment down the inquiry button above is the only way forward. */}
+          {!paymentUnavailable && (
+            <Button
+              onClick={handleCheckout}
+              disabled={
+                submitting ||
+                !quote ||
+                !!quoteError ||
+                (!!property.guesty_listing_id && !cardReady)
+              }
+              className="flex-1"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Complete Booking"
+              )}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

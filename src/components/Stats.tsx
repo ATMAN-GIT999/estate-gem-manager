@@ -1,21 +1,52 @@
-import { Card } from "@/components/ui/card";
 import { useEffect, useRef, useState } from "react";
 import EditableText from "./admin/EditableText";
+import { Section, Grid, Stack, Panel } from "./layout";
 
-const Stats = () => {
-  const [sectionTitle, setSectionTitle] = useState("A Portfolio Built on Precision & Performance");
-  const [locations, setLocations] = useState("Spain • Austria • Croatia");
-  const [regions, setRegions] = useState("Costa del Sol • Vienna & Carinthia • Istria");
+/**
+ * Four numbers on the green fill — the one band on either page that is
+ * entirely colour, so portfolio scale reads as a statement rather than another
+ * paragraph.
+ *
+ * It spans the whole container rather than the `max-w-5xl` it used to sit in.
+ * §11 asks for a trust block with real width and weight instead of a small
+ * group floating in the middle, and at 1024px inside a 1440px band the four
+ * numbers were doing the opposite.
+ *
+ * `heading` is optional because the same numbers serve two audiences. On the
+ * property-management page they open a chapter about the portfolio and get a
+ * title. Directly under the booking hero they are a trust bar and get none —
+ * "A Portfolio Built on Precision & Performance" is written to an owner, and
+ * on the guest landing page that is the exact mistake this project keeps
+ * having to undo (CLAUDE.md, "der historische Hauptfehler").
+ */
+interface StatsProps {
+  /** Empty string renders the numbers alone, as a band rather than a chapter. */
+  heading?: string;
+}
 
-  const stats = [
-    { number: "41", label: "Properties Managed" },
-    { number: "1500+", label: "Successful Reservations" },
-    { number: "8", label: "Destinations" },
-    { number: "50+", label: "Collaborators" },
-  ];
+/**
+ * Marketing copy held in code, not live data — see docs/PROJECT.md (D4), which
+ * also records that "41" sits awkwardly next to the 23 listings in the sitemap.
+ * Exported because the owner page's Proof section shows the same four numbers
+ * inside a larger green band; two copies of these strings is exactly how they
+ * would end up disagreeing with each other.
+ */
+export const PORTFOLIO_STATS = [
+  { number: "41", label: "Properties Managed" },
+  { number: "1500+", label: "Successful Reservations" },
+  { number: "8", label: "Destinations" },
+  { number: "50+", label: "Collaborators" },
+];
 
+/**
+ * The four numbers and their count-up, with no band around them.
+ *
+ * Split out so a section that already paints its own green fill can show them
+ * without nesting a second <Section> (and its padding) inside itself.
+ */
+export const StatsRow = () => {
   const [hasAnimated, setHasAnimated] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -27,61 +58,56 @@ const Stats = () => {
       { threshold: 0.3 }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    if (rowRef.current) {
+      observer.observe(rowRef.current);
     }
 
     return () => observer.disconnect();
   }, [hasAnimated]);
 
   return (
-    <section ref={sectionRef} className="py-20 bg-gradient-hero">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+    <div ref={rowRef}>
+      <Grid cols={4}>
+        {PORTFOLIO_STATS.map((stat, index) => (
+          <AnimatedStat
+            key={index}
+            stat={stat}
+            index={index}
+            hasAnimated={hasAnimated}
+          />
+        ))}
+      </Grid>
+    </div>
+  );
+};
+
+const Stats = ({ heading: headingProp = "A Portfolio Built on Precision & Performance" }: StatsProps = {}) => {
+  const [sectionTitle, setSectionTitle] = useState(headingProp);
+
+  return (
+    // The gold seam belongs on this band specifically: it is where the light
+    // page meets the green fill, which is the transition §24 reserves the line
+    // for — not a divider dropped between every pair of sections.
+    <Section tone="primary" size={headingProp ? "md" : "sm"} edge="both">
+      <Stack gap="lg">
+        {headingProp && (
           <EditableText
             id="stats-title"
             value={sectionTitle}
             onChange={setSectionTitle}
             as="h2"
-            className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4"
+            className="t-section text-primary-foreground text-balance max-w-3xl mx-auto text-center"
           >
             {sectionTitle}
           </EditableText>
-          <EditableText
-            id="stats-locations"
-            value={locations}
-            onChange={setLocations}
-            as="p"
-            className="text-lg text-foreground/70"
-          >
-            {locations}
-          </EditableText>
-          <EditableText
-            id="stats-regions"
-            value={regions}
-            onChange={setRegions}
-            as="p"
-            className="text-muted-foreground"
-          >
-            {regions}
-          </EditableText>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-          {stats.map((stat, index) => (
-            <AnimatedStatCard
-              key={index}
-              stat={stat}
-              index={index}
-              hasAnimated={hasAnimated}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
+        )}
+        <StatsRow />
+      </Stack>
+    </Section>
   );
 };
 
-const AnimatedStatCard = ({ stat, index, hasAnimated }: { stat: { number: string; label: string }; index: number; hasAnimated: boolean }) => {
+const AnimatedStat = ({ stat, index, hasAnimated }: { stat: { number: string; label: string }; index: number; hasAnimated: boolean }) => {
   const [displayNumber, setDisplayNumber] = useState("0");
 
   useEffect(() => {
@@ -111,12 +137,19 @@ const AnimatedStatCard = ({ stat, index, hasAnimated }: { stat: { number: string
   }, [hasAnimated, stat.number, index]);
 
   return (
-    <Card className="p-8 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-all duration-300 hover:scale-105">
-      <div className="font-playfair text-4xl md:text-5xl font-bold text-accent-strong mb-2">
+    // The "1b" container (docs/DESIGN.md §11) — this is now StatsRow's only
+    // caller (Index.tsx dropped its own Stats band), so the boxed treatment
+    // here is scoped entirely to Proof on the owner page, not a change to
+    // how the landing page shows trust numbers.
+    <Panel tone="primary">
+      {/* Display size on a non-heading, which is the one deliberate exception
+          to "Display appears once per page": in this section the numbers ARE
+          the content — the heading only frames them. */}
+      <div className="t-display text-accent-on-primary mb-xs tabular-nums">
         {displayNumber}
       </div>
-      <div className="text-foreground/70 font-medium">{stat.label}</div>
-    </Card>
+      <div className="t-meta text-primary-foreground/70">{stat.label}</div>
+    </Panel>
   );
 };
 

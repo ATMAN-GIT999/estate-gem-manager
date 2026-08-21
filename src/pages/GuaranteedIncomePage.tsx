@@ -1,88 +1,104 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Card } from "@/components/ui/card";
-import { Wallet, ShieldCheck, Wrench, Paintbrush, Cpu, Check } from "lucide-react";
+import { Wallet, ShieldCheck, Wrench, Paintbrush } from "lucide-react";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema } from "@/lib/schema";
+import { Section, Container, Grid, Panel, SectionIntro } from "@/components/layout";
+import { useLocale } from "@/contexts/LocaleContext";
+import type { TranslationKey } from "@/lib/translations";
 
+const BENEFIT_ICONS = ["Wallet", "ShieldCheck", "Wrench", "Paintbrush"];
+
+/** See docs/PROJECT.md C5 / the comment atop RenovationsPage.tsx — same rebuild. */
 const GuaranteedIncomePageContent = () => {
-  const [pageTitle, setPageTitle] = useState("Effortless Ownership. Guaranteed Monthly Income.");
-  const [pageSubtitle, setPageSubtitle] = useState("Our Guaranteed Income Program is ideal for homeowners seeking financial stability. We lease your property long-term, guaranteeing a fixed monthly payment — regardless of occupancy.");
-  const [contentText, setContentText] = useState("Frontier Residences manages, maintains, and enhances your property while you enjoy stress-free income.");
-  const [benefitsTitle, setBenefitsTitle] = useState("Program Benefits");
-  const [ctaTitle, setCtaTitle] = useState("Ready for Stress-Free Income?");
-  const [ctaText, setCtaText] = useState("Contact us to learn how our Guaranteed Income Program can work for your property.");
+  const { t, language } = useLocale();
+  const [contentText, setContentText] = useState(t("gip-content-text"));
+  const [benefitsTitle, setBenefitsTitle] = useState(t("gip-benefits-title"));
+  const [ctaTitle, setCtaTitle] = useState(t("gip-cta-title"));
+  const [ctaText, setCtaText] = useState(t("gip-cta-text"));
 
-  const iconMap: Record<string, any> = { Wallet, ShieldCheck, Wrench, Paintbrush, Cpu };
+  const iconMap: Record<string, any> = { Wallet, ShieldCheck, Wrench, Paintbrush };
 
-  const [benefits, setBenefits] = useState([
-    { icon: "Wallet", title: "Predictable monthly earnings", description: "Receive a fixed payment every month, regardless of bookings or occupancy rates." },
-    { icon: "ShieldCheck", title: "Zero vacancy risk", description: "No more worrying about empty periods — your income is guaranteed." },
-    { icon: "Wrench", title: "Professional upkeep", description: "We maintain your property to the highest standards, protecting its long-term value." },
-    { icon: "Paintbrush", title: "Optional interior upgrades", description: "We can invest in design improvements to enhance your property's appeal." },
-    { icon: "Cpu", title: "AI-enhanced pricing & premium guest standards", description: "For hybrid models, benefit from our advanced technology and hospitality expertise." },
-  ]);
+  const buildBenefits = () =>
+    BENEFIT_ICONS.map((icon, i) => ({
+      icon,
+      title: t(`gip-benefit-title-${i}` as TranslationKey),
+      description: t(`gip-benefit-desc-${i}` as TranslationKey),
+    }));
+  const [benefits, setBenefits] = useState(buildBenefits());
+
+  useEffect(() => {
+    setContentText(t("gip-content-text"));
+    setBenefitsTitle(t("gip-benefits-title"));
+    setCtaTitle(t("gip-cta-title"));
+    setCtaText(t("gip-cta-text"));
+    setBenefits(buildBenefits());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Guaranteed Rental Income"
+        description="We lease your property and pay a fixed amount every month, booked or empty, and maintain the home throughout — you trade the strong months for certainty in the weak ones."
+        path="/guaranteed-income"
+        schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Guaranteed Income", path: "/guaranteed-income" }])}
+      />
       <Navigation />
-      <main className="flex-1 pt-24 pb-12">
-        <section className="py-16 bg-gradient-hero">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center animate-fade-in">
-              <EditableText id="gip-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6">{pageTitle}</EditableText>
-              <EditableText id="gip-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">{pageSubtitle}</EditableText>
-            </div>
-          </div>
-        </section>
+      <main className="flex-1 pt-24 overflow-x-clip">
+        <Section size="lg" tone="muted">
+          <SectionIntro
+            idPrefix="gip-hero"
+            eyebrow={t("gip-hero-eyebrow")}
+            heading={t("gip-hero-heading")}
+            lead={t("gip-hero-lead")}
+            headingAs="h1"
+          />
+        </Section>
 
-        <section className="py-20 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center mb-16">
-              <EditableText id="gip-content-text" value={contentText} onChange={setContentText} as="p" className="text-lg text-foreground/80 leading-relaxed">{contentText}</EditableText>
-            </div>
+        <Section size="lg">
+          <Container measure="text" className="text-center mb-lg">
+            <EditableText id="gip-content-text" value={contentText} onChange={setContentText} as="p" className="t-body text-foreground/80">{contentText}</EditableText>
+          </Container>
 
-            <div className="max-w-6xl mx-auto">
-              <EditableText id="gip-benefits-title" value={benefitsTitle} onChange={setBenefitsTitle} as="h2" className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-12 text-center">{benefitsTitle}</EditableText>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {benefits.map((benefit, index) => {
-                  const Icon = iconMap[benefit.icon] || Wallet;
-                  return (
-                    <Card key={index} className="p-8 hover:shadow-elegant transition-all duration-300 text-center">
-                      <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Icon className="w-8 h-8 text-accent-strong" />
-                      </div>
-                      <EditableText
-                        id={`gip-benefit-title-${index}`}
-                        value={benefit.title}
-                        onChange={(v) => { const u = [...benefits]; u[index] = { ...u[index], title: v }; setBenefits(u); }}
-                        as="h3"
-                        className="font-playfair text-xl font-semibold text-primary mb-3"
-                      >{benefit.title}</EditableText>
-                      <EditableText
-                        id={`gip-benefit-desc-${index}`}
-                        value={benefit.description}
-                        onChange={(v) => { const u = [...benefits]; u[index] = { ...u[index], description: v }; setBenefits(u); }}
-                        as="p"
-                        className="text-foreground/70"
-                      >{benefit.description}</EditableText>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
+          <Container measure="wide">
+            <EditableText id="gip-benefits-title" value={benefitsTitle} onChange={setBenefitsTitle} as="h2" className="t-section text-primary text-balance text-center mb-lg">{benefitsTitle}</EditableText>
+            <Grid cols={3} gap="md">
+              {benefits.map((benefit, index) => {
+                const Icon = iconMap[benefit.icon] || Wallet;
+                return (
+                  <Panel key={index} className="text-center">
+                    <Icon className="w-7 h-7 text-accent-strong mb-sm mx-auto" strokeWidth={1.5} />
+                    <EditableText
+                      id={`gip-benefit-title-${index}`}
+                      value={benefit.title}
+                      onChange={(v) => { const u = [...benefits]; u[index] = { ...u[index], title: v }; setBenefits(u); }}
+                      as="h3"
+                      className="t-block text-primary mb-2"
+                    >{benefit.title}</EditableText>
+                    <EditableText
+                      id={`gip-benefit-desc-${index}`}
+                      value={benefit.description}
+                      onChange={(v) => { const u = [...benefits]; u[index] = { ...u[index], description: v }; setBenefits(u); }}
+                      as="p"
+                      className="t-body text-foreground/70"
+                    >{benefit.description}</EditableText>
+                  </Panel>
+                );
+              })}
+            </Grid>
+          </Container>
+        </Section>
 
-        <section className="py-16 bg-secondary/30">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <EditableText id="gip-cta-title" value={ctaTitle} onChange={setCtaTitle} as="h2" className="font-playfair text-3xl font-bold text-primary mb-6">{ctaTitle}</EditableText>
-              <EditableText id="gip-cta-text" value={ctaText} onChange={setCtaText} as="p" className="text-lg text-foreground/80 mb-8">{ctaText}</EditableText>
-            </div>
-          </div>
-        </section>
+        <Section size="md" tone="muted">
+          <Container measure="text" className="text-center">
+            <EditableText id="gip-cta-title" value={ctaTitle} onChange={setCtaTitle} as="h2" className="t-section text-primary mb-sm">{ctaTitle}</EditableText>
+            <EditableText id="gip-cta-text" value={ctaText} onChange={setCtaText} as="p" className="t-body text-foreground/80">{ctaText}</EditableText>
+          </Container>
+        </Section>
       </main>
       <Footer />
     </div>

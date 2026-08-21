@@ -1,149 +1,108 @@
-import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Card } from "@/components/ui/card";
-import { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck, Cpu, Check } from "lucide-react";
-import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
+import Seo from "@/components/Seo";
+import { breadcrumbSchema, organizationSchema } from "@/lib/schema";
+import OwnerHero from "@/components/OwnerHero";
+import TheSystem from "@/components/TheSystem";
+import Proof from "@/components/Proof";
+import WorkingWith from "@/components/WorkingWith";
+import AboutMini from "@/components/AboutMini";
+import WaysToWorkTogether from "@/components/WaysToWorkTogether";
+import OwnerContactForm from "@/components/OwnerContactForm";
+import FAQ from "@/components/FAQ";
 
-const PropertyManagementPageContent = () => {
-  const [pageTitle, setPageTitle] = useState("Luxury Property Management Designed for Exceptional Homes");
-  const [pageSubtitle, setPageSubtitle] = useState("We deliver a personalised management plan for every property — combining hotel-level hospitality with advanced AI-driven systems to maximise revenue, elevate guest satisfaction, and protect the long-term value of your home.");
-  const [servicesTitle, setServicesTitle] = useState("Our Services");
-  const [aiTitle, setAiTitle] = useState("AI-Driven Hospitality & Operations");
-  const [aiSubtitle, setAiSubtitle] = useState("Frontier Residences uses state-of-the-art technology to deliver consistent, precise performance.");
-  const [systemsTitle, setSystemsTitle] = useState("Our systems use:");
-  const [ensuresTitle, setEnsuresTitle] = useState("This ensures:");
+const PropertyManagementPageContent = () => (
+  <div className="min-h-screen flex flex-col">
+    <Seo
+      title="Bespoke Property Management in Marbella, Málaga & Vienna"
+      description="Full-service short-term rental management for luxury homes on the Costa del Sol and in Austria — listing, dynamic pricing, guests, housekeeping and owner reporting. Or lease your property to us for a fixed monthly income."
+      path="/property-management"
+      schema={[
+        organizationSchema(),
+        breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Property Management", path: "/property-management" },
+        ]),
+      ]}
+    />
+    <Navigation overlay variant="propertyManagement" />
 
-  const iconMap: Record<string, any> = { Camera, Globe, MessageSquare, Users, TrendingUp, Sparkles, Wrench, LayoutDashboard, FileCheck };
+    {/* The order is docs/PROJECT.md §2, and it is worth protecting because it
+        is an argument rather than a list: here is the house → here is
+        everything we do to it → here is what that produced on real ones →
+        here is how you'd engage us → here is who we are → here are the two
+        side doors → here is what people ask → here is how to start. Moving a
+        block breaks the sentence, not just the layout.
 
-  const [services, setServices] = useState([
-    { icon: "Camera", text: "Luxury photography & staging" },
-    { icon: "Globe", text: "Listings on top global booking channels" },
-    { icon: "MessageSquare", text: "24/7 guest communication" },
-    { icon: "Users", text: "Personal or remote check-ins" },
-    { icon: "TrendingUp", text: "Dynamic pricing algorithm" },
-    { icon: "Sparkles", text: "Professional housekeeping" },
-    { icon: "Wrench", text: "Preventive maintenance & inspections" },
-    { icon: "LayoutDashboard", text: "Owner portal with real-time reporting" },
-    { icon: "FileCheck", text: "Legal traveller registration & compliance" },
-  ]);
+        Renovations/Investments no longer has a band of its own after About —
+        it is the second half of the commercial-decision section, under a
+        labelled gold break ("Beyond management"), so the whole argument from
+        "how you'd engage us" through "here are the two side doors" reads as
+        one continuous band instead of being split by About in between
+        (docs/DECISIONS.md §16). "We manage while you relax" moved even
+        earlier (§15) — it lives in the contact form's own image and heading
+        now.
 
-  const [aiFeatures, setAiFeatures] = useState([
-    "Real-time Airbnb & hotel price analysis",
-    "Automated rate adjustments (multiple times daily)",
-    "AI-supported guest messaging in all languages",
-    "Predictive maintenance alerts",
-    "Smart cleaning and task automation",
-    "Algorithm-based reviews and feedback management",
-  ]);
+        Eight sections now, not seven — "Working with" (§35) sits between
+        Proof and the commercial decision on purpose: it is not part of the
+        argument those two build, it is a breath between the two heaviest
+        sections on the page.
 
-  const [benefits, setBenefits] = useState([
-    "Higher occupancy",
-    "Better nightly rates",
-    "Faster responses",
-    "Zero operational gaps",
-    "Increased long-term value",
-  ]);
+        The rhythm alternates on purpose and should stay alternating: heavy,
+        heavy, heavy (the opening sequence earns three) → light (the one
+        deliberate exception) → heavy → medium → medium → heavy. Two heavy
+        sections back to back anywhere below Proof is the signal something
+        has grown.
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Navigation />
-      <main className="flex-1 pt-24 pb-12">
-        <section className="py-16 bg-gradient-hero">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center animate-fade-in">
-              <EditableText id="pmp-page-title" value={pageTitle} onChange={setPageTitle} as="h1" className="font-playfair text-4xl md:text-6xl font-bold text-primary mb-6">{pageTitle}</EditableText>
-              <EditableText id="pmp-page-subtitle" value={pageSubtitle} onChange={setPageSubtitle} as="p" multiline className="text-xl text-foreground/80 leading-relaxed">{pageSubtitle}</EditableText>
-            </div>
-          </div>
-        </section>
+        overflow-x-clip is the safety net for the full-bleed bands: `100vw` can
+        be a hair wider than the visible viewport when a scrollbar is present,
+        and without this the page would gain a few pixels of horizontal
+        scroll. */}
+    <main className="flex-1 overflow-x-clip">
+      {/* 1 — The house, the promise, and the two things to do about it. */}
+      <OwnerHero />
 
-        <section className="py-20 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <EditableText id="pmp-services-title" value={servicesTitle} onChange={setServicesTitle} as="h2" className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-12 text-center">{servicesTitle}</EditableText>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.map((service, index) => {
-                  const Icon = iconMap[service.icon] || FileCheck;
-                  return (
-                    <Card key={index} className="p-6 hover:shadow-elegant transition-all duration-300">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center shrink-0">
-                          <Icon className="w-6 h-6 text-accent-strong" />
-                        </div>
-                        <EditableText
-                          id={`pmp-service-${index}`}
-                          value={service.text}
-                          onChange={(v) => { const u = [...services]; u[index] = { ...u[index], text: v }; setServices(u); }}
-                          as="p"
-                          className="text-foreground/90 font-medium pt-2"
-                        >{service.text}</EditableText>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
+      {/* 2 — Everything Frontier does, once, in the order it happens. The
+          page's centre of gravity; it replaces three sections that each told
+          a slice of the same story. */}
+      <TheSystem />
 
-        <section className="py-20 bg-primary text-primary-foreground">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-accent/20 rounded-full mb-6">
-                  <Cpu className="w-8 h-8 text-accent-on-primary" />
-                </div>
-                <EditableText id="pmp-ai-title" value={aiTitle} onChange={setAiTitle} as="h2" className="font-playfair text-3xl md:text-4xl font-bold mb-6">{aiTitle}</EditableText>
-                <EditableText id="pmp-ai-subtitle" value={aiSubtitle} onChange={setAiSubtitle} as="p" className="text-lg text-primary-foreground/80 max-w-3xl mx-auto">{aiSubtitle}</EditableText>
-              </div>
+      {/* 3 — The evidence, at two scales: the portfolio, then three houses. */}
+      <Proof />
 
-              <div className="grid lg:grid-cols-2 gap-12 mt-12">
-                <div>
-                  <EditableText id="pmp-systems-title" value={systemsTitle} onChange={setSystemsTitle} as="h3" className="text-xl font-semibold mb-6 text-accent-on-primary">{systemsTitle}</EditableText>
-                  <ul className="space-y-4">
-                    {aiFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <span className="text-accent-on-primary mt-1">•</span>
-                        <EditableText
-                          id={`pmp-ai-feature-${index}`}
-                          value={feature}
-                          onChange={(v) => { const u = [...aiFeatures]; u[index] = v; setAiFeatures(u); }}
-                          as="span"
-                          className="text-primary-foreground/90"
-                        >{feature}</EditableText>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+      {/* 4 — A deliberate breather between the two heaviest sections on the
+          page: no headline, no CTA, just an eyebrow and a row of logos, on
+          the beige page background rather than continuing Proof's green
+          fill. Almedin confirmed mixing guest-facing brands (Netflix) and
+          trade contractors under one "Working with" label is intentional. */}
+      <WorkingWith />
 
-                <div>
-                  <EditableText id="pmp-ensures-title" value={ensuresTitle} onChange={setEnsuresTitle} as="h3" className="text-xl font-semibold mb-6 text-accent-on-primary">{ensuresTitle}</EditableText>
-                  <ul className="space-y-4">
-                    {benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-center gap-3">
-                        <Check className="w-5 h-5 text-accent-on-primary shrink-0" />
-                        <EditableText
-                          id={`pmp-benefit-${index}`}
-                          value={benefit}
-                          onChange={(v) => { const u = [...benefits]; u[index] = v; setBenefits(u); }}
-                          as="span"
-                          className="text-primary-foreground/90"
-                        >{benefit}</EditableText>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
-  );
-};
+      {/* 5 — The commercial decision, in two halves under one band: the two
+          engagement models first, then — behind a labelled gold break — the
+          two side doors for owners it does not fit yet (a renovation first,
+          or not an owner here yet). Investments stays last of the four
+          because it targets an investor looking to buy, not the owner the
+          rest of the page is written for (DECISIONS §2). */}
+      <WaysToWorkTogether />
+
+      {/* 6 — Who runs it. The one call to action mid-page sits at the end of
+          this section, because this is the question an owner actually
+          decides on. */}
+      <AboutMini />
+
+      {/* 7 — Deliberately the guest FAQ with a new heading, as requested;
+          owner-specific questions need content from the client
+          (PROJECT.md §6, "Bewusst so gelassen"). */}
+      <FAQ eyebrow="" heading="Frequently Asked Questions" />
+
+      {/* 8 — The bookend to the hero: every "Contact Us" above lands here,
+          now carrying "We manage while you relax" as its own opening beat. */}
+      <OwnerContactForm />
+    </main>
+    <Footer />
+  </div>
+);
 
 const PropertyManagementPage = () => (<PageWrapper slug="site--property-management"><PropertyManagementPageContent /></PageWrapper>);
 export default PropertyManagementPage;

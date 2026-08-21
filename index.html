@@ -7,13 +7,24 @@
     <meta name="description" content="Bespoke property management, renovation, and investment solutions for exclusive villas and apartments in Spain, Austria, and Croatia." />
     <meta name="author" content="Frontier Residences" />
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <!-- Fonts are bundled via @fontsource in src/index.css. Do not add a
+         stylesheet link back to a font CDN here: that hands the visitor's IP
+         to a third party before anything renders. See the note in index.css. -->
 
-    <meta property="og:title" content="Frontier Residences | Luxury Property Management Costa del Sol" />
-    <meta property="og:description" content="Full-service property management, guaranteed income programs, and renovation services for premium properties." />
+    <!-- Site-level fallbacks only. Per-page title, description, canonical,
+         og: and twitter: tags come from <Seo> (react-helmet-async).
+
+         og:title, og:description and twitter:title/description are NOT set
+         here on purpose: Helmet appends rather than replaces static tags, so
+         leaving them would give every page two of each, and a parser that
+         takes the first would always read the generic one.
+
+         ⚠️ Known limit: WhatsApp, LinkedIn and Facebook do not execute
+         JavaScript, so they only ever see this file. Per-page previews need
+         prerendering or SSR — logged in the SEO audit. Google does render JS
+         and will see the Helmet values. -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Frontier Residences" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
