@@ -6,18 +6,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, CalendarClock, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, MessageCircle } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Container, MediaFrame, Section } from "./layout";
 import losMonterosRelax from "@/assets/los-monteros-relax.webp";
 import { useLocale } from "@/contexts/LocaleContext";
 
 /**
- * Provisional — Frontier has no Cal.com/Calendly of its own yet (see
- * docs/PROJECT.md §6, B4). This is Almedin's own booking link, standing
- * in until the client provides theirs; swap the href when that arrives.
+ * Was a Cal.com link to Almedin's own calendar, standing in until Frontier
+ * had a booking tool of its own (docs/PROJECT.md §6, B4). Replaced
+ * 22.08.2026 (DECISIONS §49) with the same WhatsApp number `WhatsAppButton`
+ * uses — a second way to reach it is intentional, not a bug: the floating
+ * button is easy to miss while filling in a form, this one sits right next
+ * to the submit action instead.
  */
-const VIDEO_CALL_URL = "https://cal.com/almedin-sinanovic-ff4chx/videocall-mit-mir";
+const WHATSAPP_URL = "https://api.whatsapp.com/send?phone=34649429678";
 
 /**
  * The close of the owner page, and the destination of every "Contact Us" on it.
@@ -379,8 +382,8 @@ const OwnerContactForm = () => {
                     asChild
                     className="flex-1 border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground py-6 text-base"
                   >
-                    <a href={VIDEO_CALL_URL} target="_blank" rel="noopener noreferrer">
-                      <CalendarClock className="w-5 h-5 mr-2" />
+                    <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                      <MessageCircle className="w-5 h-5 mr-2" />
                       <EditableText id="owner-form-call-btn" value={callCtaText} onChange={setCallCtaText} as="span">
                         {callCtaText}
                       </EditableText>

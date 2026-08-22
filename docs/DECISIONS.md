@@ -2313,3 +2313,69 @@ Snapshot-Prüfung zeigt jetzt ein echtes gemountetes iFrame („Sicherer
 Eingaberahmen für Kartenzahlungen") statt der leeren Box. Dialog über
 „Cancel" geschlossen, ohne eine Buchung abzuschicken oder eine echte
 Kartennummer einzugeben — es ging nur um die Mount-Fähigkeit des Felds.
+
+## 48 · Agentur-Credit im Footer
+
+Almedin wollte sein eigenes AS-Intel-Logo klein im Footer verlinkt sehen,
+neben der Copyright-Zeile — als Referenz ein Mockup mit „© ... | Website by
+[LOGO] YOUR BRAND" nebeneinander.
+
+**Logo-Freistellung.** Die gelieferte Datei (`Logobild AS.I..png`,
+1024×1024, RGB ohne Alpha) hatte den dunklen Navy-Ton (`rgb(0, 3, 53)`) als
+massiven Flächenhintergrund im Bild selbst — kein CSS-Hintergrund. Per
+Farbschlüssel-Toleranzband (±25/25/40 um den exakt gesampelten Ton)
+transparent gemacht, auf den tatsächlichen Wortmarken-Inhalt zugeschnitten
+(`Image.getbbox()`), 4 % Padding ergänzt, als `src/assets/asi-logo.webp`
+abgelegt. Der Blau-Lila-Verlauf der Buchstaben bleibt erhalten und steht
+jetzt direkt auf dem Footer-eigenen `bg-primary` (Salbeigrün) statt in
+einer eigenen dunklen Box — passt eher zum „weniger Boxen"-Register als
+ein zweiter Flächenton neben dem Footer-Grün.
+
+**Kein zweiter Markenname als Text.** Das Mockup zeigt „[LOGO] YOUR BRAND"
+als zwei Elemente, aber die gelieferte Logo-Datei ist selbst schon eine
+Wortmarke („A.S.I", nicht nur ein Icon) — „AS Intel" zusätzlich als Text
+daneben zu setzen wäre eine Wiederholung dessen gewesen, was das Bild
+bereits sagt. Nur „Website by" (übersetzt über `footer-website-by` in
+allen drei Sprachen) plus das Logo.
+
+**Layout.** Der bisher zentrierte, einzeilige Copyright-Block ist jetzt
+`flex flex-col sm:flex-row items-center justify-between` — Copyright
+links, Agentur-Credit rechts, ab `sm:` nebeneinander, darunter gestapelt.
+Der Link geht auf `https://as-intel.net/` (von Almedin bestätigt, nicht
+geraten), `target="_blank" rel="noopener noreferrer"`.
+
+**Verifikation:** `tsc --noEmit`, `npx eslint src/components/Footer.tsx
+src/lib/translations.ts` und `npm run build` sauber. Visuell bestätigt bei
+1920px (Copyright und Credit auf einer Zeile) und 390px (gestapelt,
+zentriert) — Logo bei `h-4` (16px) bleibt bei beiden Breiten lesbar.
+
+## 49 · "Book a video call" zeigt jetzt auf WhatsApp statt Cal.com
+
+Almedin: den Cal.com-Link im zweiten Button des Kontaktformulars entfernen
+und stattdessen auf WhatsApp verlinken — ausdrücklich auch wenn
+`WhatsAppButton.tsx` bereits einen eigenen, schwebenden Button dafür hat.
+Kein Widerspruch: der schwebende Button ist leicht zu übersehen, während
+man ein Formular ausfüllt; dieser hier sitzt direkt neben „Send enquiry".
+
+`VIDEO_CALL_URL` (Almedins persönlicher Cal.com-Link, PROJECT.md B4, nie
+ein echter Frontier-eigener Kalender) ersetzt durch `WHATSAPP_URL` —
+dieselbe Nummer, die `WhatsAppButton.tsx` bereits verwendet
+(`https://api.whatsapp.com/send?phone=34649429678`), nicht neu erfunden.
+`CalendarClock`-Icon durch `MessageCircle` ersetzt (Lucide hat keine
+Marken-Icons, `MessageCircle` ist die naheliegende generische
+Chat-Bezeichnung). Button-Text `owner-form-call-btn` von „Book a video
+call" auf „Chat on WhatsApp" (DE: „Auf WhatsApp chatten", ES: „Chatear por
+WhatsApp") geändert — dieselbe `id`, da es weiterhin derselbe Button in
+derselben Rolle ist (sekundäre Aktion neben dem Formular-Submit), nur mit
+neuem Ziel und neuer Beschriftung. PROJECT.md B4 entsprechend nachgezogen:
+der Cal.com-Teil gilt als erledigt, aber durch Entfernen, nicht durch
+einen echten Frontier-eigenen Kalender.
+
+**Verifikation:** `tsc --noEmit`, `npx eslint
+src/components/OwnerContactForm.tsx src/lib/translations.ts` und `npm run
+build` sauber. Visuell auf `/property-management#get-in-touch` bestätigt
+— Button zeigt „Chat on WhatsApp" mit Sprechblasen-Icon; `href` im
+Quelltext auf dieselbe Konstante wie der schwebende Button verifiziert
+(Chrome-DevTools-Verbindung brach beim Live-Klicktest mehrfach ab, siehe
+unten — Quelltext-Verifikation war hier ausreichend, da die Änderung
+trivial nachvollziehbar ist).

@@ -5,6 +5,7 @@ import EditableText from "./admin/EditableText";
 import { Container } from "./layout";
 import { BUSINESS } from "@/lib/siteMeta";
 import logo from "@/assets/frontier-logo-transparent.webp";
+import asiLogo from "@/assets/asi-logo.webp";
 import { useLocale } from "@/contexts/LocaleContext";
 
 /**
@@ -41,6 +42,7 @@ const Footer = () => {
   // for the same reason as the phone number above.
   const [address, setAddress] = useState(`${BUSINESS.street}, ${BUSINESS.postalCode} ${BUSINESS.city}`);
   const [copyright, setCopyright] = useState(t("footer-copyright"));
+  const [websiteBy, setWebsiteBy] = useState(t("footer-website-by"));
 
   // Company name, email, phone and address are never translated — a brand
   // name and contact details stay identical in every language.
@@ -57,6 +59,7 @@ const Footer = () => {
     setFaqLink(t("footer-faq-link"));
     setAvisoLegalLink(t("footer-aviso-legal-link"));
     setCopyright(t("footer-copyright"));
+    setWebsiteBy(t("footer-website-by"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
@@ -304,7 +307,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 pt-md text-center text-primary-foreground/60">
+        <div className="border-t border-primary-foreground/20 pt-md flex flex-col sm:flex-row items-center justify-between gap-sm text-primary-foreground/60">
           <p>
             &copy; {new Date().getFullYear()}{" "}
             <EditableText
@@ -316,6 +319,26 @@ const Footer = () => {
               {copyright}
             </EditableText>
           </p>
+
+          {/* Agency credit — small and quiet on purpose, the same register as
+              the copyright line next to it, not a second CTA competing with
+              the page's own ones. */}
+          <a
+            href="https://as-intel.net/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 hover:text-accent-on-primary transition-colors"
+          >
+            <EditableText
+              id="footer-website-by"
+              value={websiteBy}
+              onChange={setWebsiteBy}
+              as="span"
+            >
+              {websiteBy}
+            </EditableText>
+            <img src={asiLogo} alt="AS Intel" className="h-4 w-auto" />
+          </a>
         </div>
       </Container>
     </footer>

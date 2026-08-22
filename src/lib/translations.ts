@@ -50,6 +50,7 @@ export const en = {
   "footer-faq-link": "FAQ",
   "footer-aviso-legal-link": "Aviso Legal",
   "footer-copyright": "Frontier Residences. All rights reserved.",
+  "footer-website-by": "Website by",
 
   // SearchBar / LocationAutocomplete
   "searchbar.whereLabel": "WHERE",
@@ -370,7 +371,7 @@ export const en = {
   "pm-section-title": "We manage while you relax.",
   "owner-form-lead": "Tell us about your property and we'll come back to you with what managing it with us would look like — usually within one working day.",
   "owner-form-btn": "Send enquiry",
-  "owner-form-call-btn": "Book a video call",
+  "owner-form-call-btn": "Chat on WhatsApp",
   "owner-form-sent-heading": "Thank you — we have your details.",
   "owner-form-sent-body": "One of the founders will read this personally and come back to you within one working day.",
   "owner-form-first-name": "First name *",
@@ -437,6 +438,7 @@ export const de: Record<TranslationKey, string> = {
   "footer-faq-link": "FAQ",
   "footer-aviso-legal-link": "Impressum",
   "footer-copyright": "Frontier Residences. Alle Rechte vorbehalten.",
+  "footer-website-by": "Website von",
 
   "searchbar.whereLabel": "WOHIN",
   "searchbar.checkInLabel": "ANREISE",
@@ -730,7 +732,7 @@ export const de: Record<TranslationKey, string> = {
   "pm-section-title": "Wir kümmern uns, während Sie sich entspannen.",
   "owner-form-lead": "Erzählen Sie uns von Ihrer Immobilie, und wir melden uns bei Ihnen mit einem konkreten Bild davon, wie die Verwaltung mit uns aussehen würde — in der Regel innerhalb eines Werktags.",
   "owner-form-btn": "Anfrage senden",
-  "owner-form-call-btn": "Videocall buchen",
+  "owner-form-call-btn": "Auf WhatsApp chatten",
   "owner-form-sent-heading": "Vielen Dank — wir haben Ihre Angaben.",
   "owner-form-sent-body": "Einer der Gründer liest das persönlich und meldet sich innerhalb eines Werktags bei Ihnen.",
   "owner-form-first-name": "Vorname *",
@@ -793,6 +795,7 @@ export const es: Record<TranslationKey, string> = {
   "footer-faq-link": "Preguntas Frecuentes",
   "footer-aviso-legal-link": "Aviso Legal",
   "footer-copyright": "Frontier Residences. Todos los derechos reservados.",
+  "footer-website-by": "Sitio web por",
 
   "searchbar.whereLabel": "DESTINO",
   "searchbar.checkInLabel": "ENTRADA",
@@ -1086,7 +1089,7 @@ export const es: Record<TranslationKey, string> = {
   "pm-section-title": "Nosotros nos encargamos mientras tú te relajas.",
   "owner-form-lead": "Cuéntanos sobre tu propiedad y te responderemos con cómo sería gestionarla con nosotros — normalmente en un día laborable.",
   "owner-form-btn": "Enviar consulta",
-  "owner-form-call-btn": "Reservar videollamada",
+  "owner-form-call-btn": "Chatear por WhatsApp",
   "owner-form-sent-heading": "Gracias — ya tenemos tus datos.",
   "owner-form-sent-body": "Uno de los fundadores lo leerá personalmente y te responderá en un día laborable.",
   "owner-form-first-name": "Nombre *",
