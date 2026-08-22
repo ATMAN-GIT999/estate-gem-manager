@@ -820,6 +820,7 @@ export type Database = {
           longitude: number | null
           name: string
           nearby_amenities: Json | null
+          price_last_synced_at: string | null
           price_per_night: number
           registration_number: string | null
           slug: string
@@ -844,6 +845,7 @@ export type Database = {
           longitude?: number | null
           name: string
           nearby_amenities?: Json | null
+          price_last_synced_at?: string | null
           price_per_night: number
           registration_number?: string | null
           slug: string
@@ -868,6 +870,7 @@ export type Database = {
           longitude?: number | null
           name?: string
           nearby_amenities?: Json | null
+          price_last_synced_at?: string | null
           price_per_night?: number
           registration_number?: string | null
           slug?: string
