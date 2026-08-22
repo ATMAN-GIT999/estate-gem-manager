@@ -2028,3 +2028,202 @@ erfolgreich. Visuell in Chrome DevTools geprüft bei 390×844 (mobil) und
 1440×900 (Desktop, unverändert vier Karten nebeneinander mit rechtsbündigen
 Pfeilen) — das erste Mal in dieser gesamten Session, dass eine UI-Änderung
 tatsächlich im Browser statt nur per Codelesen verifiziert werden konnte.
+
+## 41 · Neues Hero-Video, Team-Fotos in About Us (Olek raus)
+
+**Hero-Video ausgetauscht.** Almedin lieferte eine neue 4K-Drohnenaufnahme
+(„VID PUENTE ROMANO - new.mp4", 3840×2160, 25s, 263 MB, mit Ton). Gleiche
+Behandlung wie beim ersten Hero-Video (§22): mit `ffmpeg` auf 1280×720
+skaliert, Ton entfernt (das Element spielt ohnehin `muted` ab), auf
+~2,2 Mbps/Maxrate 2,5 Mbps gekappt — Ergebnis 6,8 MB statt 263 MB, in
+derselben Größenordnung wie das vorige Video (6,7 MB). Die alte Datei liegt
+als `hero-background-old-backup.mp4` weiter im Ordner, falls ein Rollback
+nötig wird — nicht im Build referenziert, nur eine lokale Sicherung.
+
+**Wasserzeichen bewusst belassen.** Im Rohmaterial ist unten rechts ein
+fremdes Haus-Symbol-Logo eingebrannt (vermutlich der Drohnen-Operator).
+Vor dem Re-Encode gemeldet und mit Screenshot gezeigt; Almedin hat
+„lass Wasserzeichen" entschieden — es bleibt im finalen Video sichtbar,
+keine Cropping-Maßnahme vorgenommen.
+
+**About-Us-Team: Olek raus, echte Fotos rein, Kreise vergrößert.**
+`About.tsx` hatte vier Teammitglieder (`TEAM_NAMES`), von denen keines je
+ein echtes Foto hatte — jeder Kreis war ein 64px (`w-16 h-16`)
+Platzhalter-Gradient. Almedin lieferte drei Fotos (Alejandro, Lorenz,
+Julien) und bat, Olek zu entfernen und die Kreise zu vergrößern, „aktuell
+sehr klein".
+
+- `TEAM_NAMES` von vier auf drei Einträge gekürzt (Olek gestrichen).
+  `about-team-role-2`/`about-team-desc-2` (vorher Oleks „Marketing")
+  ersatzlos entfernt; die vormals dritten Einträge (`-3`, Juliens „Guest
+  Manager") auf Index 2 nachgerückt, in allen drei Sprachen (EN/DE/ES) —
+  sonst hätte sich Juliens Rolle/Beschreibung an der falschen Namens-
+  Position gezeigt, da `buildTeamMembers` Name und Übersetzung ausschließlich
+  über den Array-Index verknüpft.
+- Die drei Fotos (JPEG, hochkant, teils mit schwarzen Rand-Balken bei
+  Lorenz' Datei — offensichtlich ein Screenshot-Crop) wurden mit Pillow auf
+  ein quadratisches Format zugeschnitten, manuell auf den Kopf zentriert
+  (kein automatisches Gesichtserkennungs-Tool verfügbar, Zuschnitt-Fenster
+  aus visueller Prüfung jedes Bilds bestimmt), auf 480×480 skaliert und als
+  WebP (Qualität 82) unter `src/assets/team-{name}.webp` abgelegt.
+- Der Platzhalter-Kreis ist jetzt `EditableImage` mit dem jeweiligen Foto,
+  `w-32 h-32` (128px) statt `w-16 h-16` (64px) — doppelt so groß, plus
+  `object-cover rounded-full` für den kreisrunden Zuschnitt zur Laufzeit.
+
+**Verifikation:** `tsc --noEmit`, `npx eslint src/pages/About.tsx
+src/lib/translations.ts` und `npm run build` sauber. Visuell in Chrome
+DevTools bestätigt bei 1440×900 (drei Karten, korrekt zugeordnete
+Rollen) und im schmalen Viewport (Kreise deutlich größer, keine
+Bildverzerrung).
+
+## 42 · Drei echte Partner-Logos für "Working with" — Screenshot-Crop statt Download
+
+Almedin lieferte drei Partner-URLs (sur-film.com, guesty.com, grupovasari.com
+— Netflix weiterhin ohne Datei). Keine der drei Seiten stellt ein
+herunterladbares Markenpaket bereit (kein `/press`, kein SVG-Export im
+Quelltext auffindbar) — der einzige verlässliche Weg an das Logo, das die
+Firma selbst tatsächlich zeigt, war die eigene Seite live im Browser zu
+laden (`chrome-devtools`-MCP) und den Logo-Bereich direkt aus einem
+Screenshot herauszuschneiden, statt eine Nachbildung zu zeichnen.
+
+- **Sur Film**: „SUR | FILM"-Wortmarke, dünne Outline-Typo. Weißer
+  Hintergrund per Farbschlüssel transparent gemacht.
+- **Guesty**: Haus-Symbol + „Guesty"-Schriftzug. Erster Versuch lag über
+  einem Hero-Foto (kein sauberer Hintergrund zum Freistellen) — per
+  `window.scrollTo` an eine Stelle gescrollt, an der der Header auf
+  einfarbigem Beige sitzt, dort erneut geschossen. Hintergrund ebenfalls
+  transparent gemacht.
+- **Grupo Vasari**: Das „V"-Monogramm sitzt in einer eigenen weißen
+  Box mit feinem Rand/Schatten — die ist Teil der Wortmarke, nicht Zuschnitt-
+  Artefakt, deshalb **nicht** transparent gemacht, sondern als eigenständige
+  Kachel übernommen. Der separate „VASARI grupo"-Schriftzug daneben ist in
+  der Quelle weiß gesetzt (für Fotoüberlagerung gedacht) und auf hellem
+  Grund unsichtbar gewesen — bewusst weggelassen, nur das Monogramm
+  verwendet, statt einen unlesbaren Text mitzuschleppen.
+
+Alle drei mit Pillow zugeschnitten/skaliert und als WebP unter
+`src/assets/partner-{sur-film,guesty,vasari}.webp` abgelegt, in
+`WorkingWith.tsx`s `INITIAL_PARTNERS` verdrahtet. Netflix bleibt der
+vierte, weiterhin unbelegte Platzhalter-Slot.
+
+**Verifikation:** `tsc --noEmit`, `npx eslint src/components/WorkingWith.tsx`
+und `npm run build` sauber. Visuell auf `/property-management` bestätigt —
+alle drei Logos sitzen sauber neben dem Netflix-Platzhalter, Größen wirken
+im Vergleich zueinander stimmig trotz unterschiedlicher Quellauflösungen.
+
+## 43 · Offizielle Partner-Logos ersetzen die Screenshot-Crops, Chekin ersetzt Netflix; About-Mini-Team synchronisiert mit About Us
+
+**Offizielle Logo-Dateien geliefert.** Almedin lieferte drei echte
+Logo-Dateien (`sur-film.avif`, `Logo-guesty.png`, `chekin.webp`, alle mit
+Alpha-Kanal) statt der Screenshot-Crops aus §42. Zwei davon (Guesty,
+Sur Film) hatten den Hintergrund als **opak weiß**, nicht transparent
+(`getpixel()` bestätigte `alpha=255` an den Ecken trotz RGBA-Modus) — vor
+dem Zuschnitt per Farbschlüssel (Schwellwert 245) transparent gemacht,
+dann `Image.getbbox()` auf den tatsächlichen Inhalt zugeschnitten plus 5 %
+einheitliches Padding, damit alle vier Logos trotz unterschiedlicher
+Quellauflösungen (150px bis 1024px) ähnlich groß wirken. `chekin.webp` war
+bereits sauber transparent (`alpha=0` an den Ecken), nur zugeschnitten.
+
+**Chekin ersetzt den Netflix-Platzhalter.** Netflix hatte nie eine
+Logo-Datei bekommen; Chekin (Gäste-ID-Verifizierung/Online-Check-in) kam
+mit einer fertigen Datei — der leere vierte Slot ist jetzt belegt statt
+weiter offen zu stehen. Grupo Vasari (§42, aus einem Screenshot-Crop,
+keine offizielle Datei diesmal geliefert) bleibt unverändert.
+
+**About-Mini auf der PM-Seite synchronisiert.** Almedin bat, die Gesichter
+in `AboutMini.tsx` (die kompakte Team-Vorschau auf `/property-management`)
+an den About-Us-Stand von §41 anzugleichen. Dieselbe Korrektur wie dort:
+`TEAM_NAMES` von vier auf drei gekürzt (Olek raus), `am-member-role-2`
+(vorher Oleks „Marketing") entfernt, der vormals dritte Eintrag (`-3`,
+Juliens „Guest Manager") auf Index 2 nachgerückt — in allen drei Sprachen.
+Die drei bereits für `About.tsx` zugeschnittenen Porträts
+(`src/assets/team-{alejandro,lorenz,julien}.webp`) werden hier
+wiederverwendet, nicht erneut zugeschnitten. `TeamFace`s bestehende
+Fallback-Logik (Initialen-Kreis nur, wenn `avatar_url` fehlt) brauchte
+keine Änderung — `avatar_url` ist jetzt einfach immer gesetzt. `Grid
+cols={4}` → `cols={3}`, passend zur neuen Personenzahl. Die
+Kreisgröße (`w-20 h-20`, 80px) blieb bewusst unverändert — das war nicht
+Teil der Anfrage, und diese Sektion ist als kompakte Vorschau angelegt,
+nicht als das ausführliche Team-Kapitel, das `About.tsx` ist.
+
+**Verifikation:** `tsc --noEmit`, `npx eslint src/components/WorkingWith.tsx
+src/components/AboutMini.tsx src/lib/translations.ts` und `npm run build`
+sauber. Visuell auf `/property-management` bestätigt: alle vier
+Partner-Logos in Originalfarben nebeneinander, und die Team-Vorschau zeigt
+dieselben drei Personen mit denselben Fotos wie `/about`.
+
+## 44 · Fotos und Logos generell größer
+
+Almedin: „mache alles größer (personen fotos und logos)". Drei Stellen
+betroffen:
+
+- **`About.tsx`** (`/about`, das ausführliche Team-Kapitel): Kreise von
+  `w-32 h-32` (128px) auf `w-40 h-40` (160px).
+- **`AboutMini.tsx`** (die kompakte Vorschau auf `/property-management`,
+  in §43 noch bewusst unverändert gelassen): Kreise von `w-20 h-20` (80px)
+  auf `w-28 h-28` (112px) — jetzt doch angefasst, weil die Anfrage diesmal
+  explizit „alles" sagte, nicht nur eine der beiden Stellen.
+- **`WorkingWith.tsx`**: Logo-Slots von `h-10 w-16`/`sm:h-14 sm:w-36` auf
+  `h-14 w-[72px]`/`sm:h-20 sm:w-48`.
+
+**Die Mobile-Breite ist keine runde Zahl (`w-[72px]`), sondern nachgerechnet:**
+vier Logo-Boxen plus drei `gap-x-xs`-Lücken (12px) müssen in die
+Content-Breite eines 375px-Telefons passen (~335px nach Gutter-Abzug,
+siehe §36). 4×72 + 3×12 = 324px, knapp unter dem Limit. Ein rundes `w-20`
+(80px) hätte 356px ergeben — auf den schmalsten noch relevanten Telefonen
+Überlauf riskiert. Live in Chrome DevTools bei 375px geprüft: alle vier
+Logos bleiben in einer Zeile, `document.documentElement.scrollWidth >
+clientWidth` liefert `false` — kein Seiten-Overflow.
+
+**Verifikation:** `tsc --noEmit`, `npx eslint src/components/WorkingWith.tsx
+src/pages/About.tsx src/components/AboutMini.tsx` und `npm run build`
+sauber. Visuell bestätigt auf `/about` (1440px), `/property-management`
+(1440px) und `/property-management` (375px, Logos).
+
+## 45 · Logos verlinkt, About-Mini-Team bekommt Panel-Cards
+
+**Logos klickbar.** Jedes der vier `WorkingWith`-Logos ist jetzt ein
+`<a target="_blank" rel="noopener noreferrer">` auf die eigene Seite des
+Partners. Drei URLs kamen direkt von Almedin (sur-film.com, guesty.com,
+grupovasari.com); Chekins Adresse hatte er nie geschickt — per Websuche
+bestätigt (`chekin.com`, offizielle Domain laut deren eigenem Blog/FAQ),
+nicht geraten.
+
+**Edit-Modus-Konflikt gelöst.** `EditableImage` legt im Admin-Edit-Modus
+einen eigenen Stift-Button über das Bild, der einen Dialog zum
+Bild-Austausch öffnet. Ein Klick darauf hätte als Klick auf den
+umschließenden Link gezählt und die Seite verlassen, bevor der Dialog
+aufgeht. Fix: `useInlineEdit()` importiert, der Link bekommt im Edit-Modus
+ein `onClick={(e) => e.preventDefault()}` — verhindert nur die Navigation,
+der Klick blubbert weiterhin zum Stift-Button durch, der Dialog öffnet
+sich normal. Für Gäste (immer `editMode === false`) ist der Link
+uneingeschränkt normal klickbar.
+
+**`AboutMini.tsx` bekommt dieselben Panel-Cards wie `About.tsx`.**
+Almedin: die drei Personen sollen auf der PM-Seite „mit cards abgebildet
+werden wie auf about us page". `TeamFace` lief bisher auf einem reinen
+`<div className="text-center">` ohne Rahmen; jetzt `<Panel
+className="text-center">` — derselbe Goldrand-oben-plus-Flächenton-
+Container, den `About.tsx`s Team-Grid, die sechs Zahnrad-Punkte und die
+vier Proof-Zahlen bereits verwenden (`layout/Panel.tsx`). Kein neuer
+Import nötig außer `Panel` selbst aus `./layout`, das die Datei schon
+kennt. Inhalt (Name, Rolle, Foto) unverändert — nur die Umhüllung ist neu.
+
+**Verifikation:** `tsc --noEmit`, `npx eslint src/components/WorkingWith.tsx
+src/components/AboutMini.tsx` und `npm run build` sauber. Dev-Server war
+zwischen den letzten beiden Sessions abgestürzt (`ERR_CONNECTION_REFUSED`)
+— neu gestartet, dann live bestätigt: alle vier Logo-Links liefern die
+korrekten `href`/`target="_blank"`-Werte (per `evaluate_script`
+ausgelesen), und `/property-management`s Team-Sektion zeigt jetzt
+sichtbar dieselben Karten wie `/about`.
+
+**Nachbesserung, selber Tag:** §45 hatte die Karten-Umhüllung übernommen,
+aber nicht die Größe — `AboutMini.tsx`s Grid trug noch ein eigenes
+`max-w-3xl` (768px) statt `About.tsx`s `Container measure="wide"`
+(1024px), und das Foto lief weiter auf `w-28 h-28` (112px) statt `w-40
+h-40` (160px). Beides angeglichen: Grid-Cap auf `max-w-5xl` (1024px, exakt
+Containers „wide"-Maß), Foto auf `w-40 h-40`. Eine Karte in der
+PM-Seiten-Vorschau ist jetzt in Fotogröße und Kartenbreite identisch zu
+ihrem Gegenstück auf `/about`, nicht nur im Rahmen-Stil. `tsc --noEmit`,
+`npx eslint src/components/AboutMini.tsx` und `npm run build` sauber,
+visuell auf `/property-management` bei 1440px bestätigt.

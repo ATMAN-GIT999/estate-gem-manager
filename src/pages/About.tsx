@@ -7,6 +7,9 @@ import EditableText from "@/components/admin/EditableText";
 import EditableImage from "@/components/admin/EditableImage";
 import PageWrapper from "@/components/PageWrapper";
 import aboutHero from "@/assets/about-hero.webp";
+import teamAlejandro from "@/assets/team-alejandro.webp";
+import teamLorenz from "@/assets/team-lorenz.webp";
+import teamJulien from "@/assets/team-julien.webp";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema } from "@/lib/schema";
 import { Section, Container, Grid, Stack, Panel } from "@/components/layout";
@@ -25,7 +28,9 @@ import type { TranslationKey } from "@/lib/translations";
  * short claims in a row don't need five separate cards to be legible as a
  * list.
  */
-const TEAM_NAMES = ["Alejandro Marinetto Rohr", "Lorenz Aschbacher", "Olek", "Julien"];
+const TEAM_NAMES = ["Alejandro Marinetto Rohr", "Lorenz Aschbacher", "Julien"];
+/** Index-aligned with TEAM_NAMES — Olek left the team, no photo ever existed for that slot. */
+const TEAM_PHOTOS = [teamAlejandro, teamLorenz, teamJulien];
 const PROCESS_STEP_NUMBERS = ["1", "2", "3", "4", "5"];
 
 const AboutContent = () => {
@@ -55,6 +60,7 @@ const AboutContent = () => {
       name,
       role: t(`about-team-role-${i}` as TranslationKey),
       description: t(`about-team-desc-${i}` as TranslationKey),
+      photo: TEAM_PHOTOS[i],
     }));
   const [teamMembers, setTeamMembers] = useState(buildTeamMembers());
 
@@ -185,7 +191,13 @@ const AboutContent = () => {
             <Grid cols={3} gap="md">
               {teamMembers.map((member, index) => (
                 <Panel key={index} className="text-center">
-                  <div className="w-16 h-16 bg-gradient-sage rounded-full mx-auto mb-sm" aria-hidden="true" />
+                  <EditableImage
+                    id={`about-team-photo-${index}`}
+                    src={member.photo}
+                    alt={member.name}
+                    onChange={(v) => updateTeamMember(index, "photo", v)}
+                    className="w-40 h-40 rounded-full object-cover mx-auto mb-sm"
+                  />
                   <EditableText
                     id={`about-team-name-${index}`}
                     value={member.name}

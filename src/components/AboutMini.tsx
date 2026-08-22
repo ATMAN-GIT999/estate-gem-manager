@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import EditableText from "./admin/EditableText";
 import SectionIntro from "./SectionIntro";
-import { Section, Grid, Stack } from "./layout";
+import { Section, Grid, Stack, Panel } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
 import type { TranslationKey } from "@/lib/translations";
+import teamAlejandro from "@/assets/team-alejandro.webp";
+import teamLorenz from "@/assets/team-lorenz.webp";
+import teamJulien from "@/assets/team-julien.webp";
 
 type Member = { name: string; role: string; avatar_url?: string | null };
 
@@ -14,17 +17,20 @@ type Member = { name: string; role: string; avatar_url?: string | null };
  * Faces, one paragraph, and a way out to the full story.
  *
  * An owner handing over a house is deciding whether there is anyone behind the
- * company. Four names and four faces answer that faster than a paragraph about
- * values, which is why the copy here is one sentence and the rest of the About
- * page stays on the About page.
+ * company. Three names and three faces answer that faster than a paragraph
+ * about values, which is why the copy here is one sentence and the rest of
+ * the About page stays on the About page.
  *
- * It reads from `team_members` when that table has rows. It is empty today, so
- * the fallback below carries the same four people the About page already
- * names — editable, so the client can change them in place until the table is
- * populated. Fill `team_members` (including `avatar_url`) and this section
- * switches to real portraits on its own.
+ * It reads from `team_members` when that table has rows. It is empty today,
+ * so the fallback below carries the same three people the About page names
+ * (Olek left the team, removed here too on 22.08.2026 — see
+ * docs/DECISIONS.md §41/§43) — editable, so the client can change them in
+ * place until the table is populated. Fill `team_members` (including
+ * `avatar_url`) and this section switches to real portraits on its own.
  */
-const TEAM_NAMES = ["Alejandro Marinetto Rohr", "Lorenz Aschbacher", "Olek", "Julien"];
+const TEAM_NAMES = ["Alejandro Marinetto Rohr", "Lorenz Aschbacher", "Julien"];
+/** Index-aligned with TEAM_NAMES — the same crops About.tsx uses. */
+const TEAM_PHOTOS = [teamAlejandro, teamLorenz, teamJulien];
 
 const initialsOf = (name: string) =>
   name
@@ -38,6 +44,10 @@ const initialsOf = (name: string) =>
  * Module scope on purpose: defined inside AboutMini this would be a new
  * component type on every render, so an EditableText would lose focus after
  * each keystroke in admin edit mode.
+ *
+ * Wrapped in `Panel` since 22.08.2026 (DECISIONS §45) — Almedin asked for
+ * the same card treatment `About.tsx`'s team section already uses, instead
+ * of faces floating directly on the section's own background.
  */
 const TeamFace = ({
   member,
@@ -50,8 +60,8 @@ const TeamFace = ({
   editable: boolean;
   onChange: (index: number, field: "name" | "role", value: string) => void;
 }) => (
-  <div className="text-center">
-    <div className="w-20 h-20 rounded-full bg-gradient-sage mx-auto mb-4 flex items-center justify-center overflow-hidden">
+  <Panel className="text-center">
+    <div className="w-40 h-40 rounded-full bg-gradient-sage mx-auto mb-4 flex items-center justify-center overflow-hidden">
       {member.avatar_url ? (
         <img
           src={member.avatar_url}
@@ -91,13 +101,17 @@ const TeamFace = ({
         <p className="t-body text-foreground/60">{member.role}</p>
       </>
     )}
-  </div>
+  </Panel>
 );
 
 const AboutMini = () => {
   const { t, language } = useLocale();
   const buildFallbackTeam = (): Member[] =>
-    TEAM_NAMES.map((name, i) => ({ name, role: t(`am-member-role-${i}` as TranslationKey) }));
+    TEAM_NAMES.map((name, i) => ({
+      name,
+      role: t(`am-member-role-${i}` as TranslationKey),
+      avatar_url: TEAM_PHOTOS[i],
+    }));
 
   const [team, setTeam] = useState<Member[]>(buildFallbackTeam());
   const [fromDatabase, setFromDatabase] = useState(false);
@@ -140,8 +154,9 @@ const AboutMini = () => {
   };
 
   return (
-    // §19: trust, professionalism, local competence — carried by four faces
-    // and one sentence. No cards; the faces are the content.
+    // §19: trust, professionalism, local competence — carried by three faces
+    // and one sentence. Cards since 22.08.2026 (DECISIONS §45) — matches
+    // About.tsx's own team section instead of floating unframed.
     <Section id="about-mini" tone="muted" size="md">
       <Stack gap="lg">
         {/* "About Ourselves" replaces the eyebrow, not the heading below it.
@@ -163,7 +178,10 @@ const AboutMini = () => {
           className="max-w-none"
         />
 
-        <Grid cols={4} className="max-w-3xl mx-auto">
+        {/* max-w-5xl, not max-w-3xl: matches Container's own "wide" measure,
+            the width About.tsx's team grid sits in — so a card here is the
+            same size as its counterpart there, not a scaled-down copy. */}
+        <Grid cols={3} className="max-w-5xl mx-auto">
           {team.map((member, index) => (
             <TeamFace
               key={index}
