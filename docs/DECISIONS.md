@@ -2261,3 +2261,55 @@ Paketmanager) wieder konsistent zu halten.
 Overlap mit den eigenen Änderungen dieser Session), danach `tsc --noEmit`
 und `npm run build` sauber. Gepusht — `origin/main` und lokales `main`
 sind wieder synchron.
+
+## 47 · Echter Bug im Kartenfeld: Stripe lehnte die selbst gebaute HSL-Farbe ab
+
+Almedin meldete einen Screenshot: „website ist online, jedoch wird bei der
+zahlung hier bei payment nichts angezeigt weder kann man was anklicken" —
+ein leeres, nicht bedienbares graues Feld statt des Stripe-Kartenformulars.
+
+**Live nachgestellt statt geraten.** Lokal im Dev-Server per
+`chrome-devtools`-MCP den kompletten Buchungsflow bis zum Zahlungsschritt
+durchgeklickt (Objekt „Luxury Escape - Los Flamingos Golf Retreat", 16.–19.
+September 2026 — dieselben Daten wie im gemeldeten Screenshot) und den
+exakt gleichen leeren Kasten reproduziert. Konsole zeigte die eigentliche
+Ursache sofort:
+
+```
+IntegrationError: Invalid style configuration value: hsl(133, 14%, 22%).
+This value contains invalid characters.
+```
+
+**`BookingSummary.tsx`s `tokenColor()`-Helfer baute diese Zeichenkette
+selbst zusammen** — aus dem CSS-Custom-Property `--foreground` (im Repo als
+bloßes HSL-Tripel `"133 14% 22%"` gespeichert), per
+`hsl(${raw.split(/\s+/).join(', ')})`. Syntaktisch gültiges CSS, aber
+Stripes eigener Style-Validator für `CardElement`-Optionen akzeptiert es
+nicht — und wirft dabei nicht nur eine Konsolenwarnung, sondern verhindert
+das Mounten des gesamten Kartenfelds. Das ist vermutlich schon länger so
+kaputt, nur nie aufgefallen: `guesty-stripe-config` (B1) liefert seit dem
+21.08. korrekt den Publishable Key, aber verifiziert wurde bis jetzt immer
+nur per `curl`, dass die Funktion den Key ausliefert — nie, dass Stripe.js
+mit diesem Key + dieser Farbkonfiguration tatsächlich ein rendertes,
+bedienbares Kartenfeld erzeugt. Diese Session war die erste, die den
+kompletten Fluss in einem echten Browser bis zum Zahlungsschritt gefahren
+hat.
+
+**Fix:** `tokenColor()` baut die `hsl(...)`-Zeichenkette weiterhin
+zusammen, übergibt sie aber nicht mehr direkt an Stripe — stattdessen wird
+sie auf ein unsichtbares `<span>` gesetzt und über
+`getComputedStyle(probe).color` wieder ausgelesen. Der Browser löst die
+Farbe dabei selbst auf und serialisiert sie als `rgb(r, g, b)` — exakt das
+Format, das Stripes eigene Beispiele verwenden — statt dass der Code ein
+weiteres Mal selbst raten muss, welche Zeichenkette Stripes Validator
+diesmal akzeptiert.
+
+**Verifikation:** `tsc --noEmit` sauber. `npx eslint
+src/components/BookingSummary.tsx` liefert weiterhin exakt die 13
+`no-explicit-any` + 1 `exhaustive-deps`-Baseline-Probleme, keine neuen.
+`npm run build` erfolgreich. Denselben Buchungsflow danach erneut bis zum
+Zahlungsschritt gefahren: `IntegrationError` verschwunden, die
+Snapshot-Prüfung zeigt jetzt ein echtes gemountetes iFrame („Sicherer
+Eingaberahmen für Kartenzahlungen") statt der leeren Box. Dialog über
+„Cancel" geschlossen, ohne eine Buchung abzuschicken oder eine echte
+Kartennummer einzugeben — es ging nur um die Mount-Fähigkeit des Felds.

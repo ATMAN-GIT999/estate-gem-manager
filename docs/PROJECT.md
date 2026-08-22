@@ -299,12 +299,13 @@ also neue Zugangsdaten, nicht nur einen Umzug (DECISIONS §21):
 |---|---|
 | `GUESTY_CLIENT_ID` / `GUESTY_CLIENT_SECRET` | ✅ gesetzt, `import-guesty-properties` erfolgreich gelaufen (23/23 Objekte) |
 | `GUESTY_WEBHOOK_SECRET` | ✅ gesetzt |
-| `GUESTY_STRIPE_PUBLISHABLE_KEY` | 🔴 offen, B1 |
+| `GUESTY_STRIPE_PUBLISHABLE_KEY` | ✅ gesetzt (DECISIONS §34) |
 | `GEMINI_API_KEY` | ✅ gesetzt, ersetzt `LOVABLE_API_KEY` (Lovables AI-Gateway ist eine „seamless"-Integration ohne kopierbaren Key, siehe DECISIONS §21); `analyze-property` ruft jetzt Gemini direkt auf (`gemini-3.6-flash`), Ende-zu-Ende mit einem temporären Testnutzer verifiziert |
 
-Bis `GUESTY_STRIPE_PUBLISHABLE_KEY` gesetzt ist, bleibt nur noch der
-Buchungsabschluss/Stripe tot (B1) — alles andere läuft: Property-Anzeige,
-Formulare, Guesty-Webhook, KI-Analyse auf `/evaluate`.
+Alle Secrets sind gesetzt. Der Buchungsabschluss selbst (Kartenfeld
+mounten, Zahlung abschließen) ist inzwischen live im Browser bis zum
+Zahlungsschritt geprüft — siehe DECISIONS §47 für einen Bug, der genau
+dort saß und erst dabei gefunden wurde.
 
 ---
 

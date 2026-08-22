@@ -25,13 +25,29 @@ import InstantBookFallbackDialog, {
  * token off :root instead of hardcoding hex values, so the card field keeps
  * matching the rest of the form if the palette changes.
  *
- * Tokens are stored as bare HSL triplets ("133 14% 22%"); Stripe wants a full
- * CSS colour, and the comma form is the most broadly accepted.
+ * Tokens are stored as bare HSL triplets ("133 14% 22%"). This used to build
+ * `hsl(133, 14%, 22%)` by hand and hand it straight to Stripe — syntactically
+ * valid CSS, but Stripe's own style-config validator rejected it at runtime
+ * with `IntegrationError: Invalid style configuration value ... contains
+ * invalid characters`, which silently killed the whole CardElement mount (an
+ * empty, unclickable box, caught live on the deployed site — never noticed
+ * before because no earlier session completed a real checkout with the card
+ * field actually rendered). Assigning the string to a real element and
+ * reading `getComputedStyle(...).color` back off it makes the browser do the
+ * parsing and re-serialise to `rgb(r, g, b)`, the format Stripe's own docs
+ * use — sidesteps whatever that validator does or doesn't accept, instead of
+ * guessing at another hand-built string.
  */
 const tokenColor = (name: string, fallback: string) => {
   if (typeof window === 'undefined') return fallback;
   const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return raw ? `hsl(${raw.split(/\s+/).join(', ')})` : fallback;
+  if (!raw) return fallback;
+  const probe = document.createElement('span');
+  probe.style.color = `hsl(${raw.split(/\s+/).join(', ')})`;
+  document.body.appendChild(probe);
+  const resolved = getComputedStyle(probe).color;
+  document.body.removeChild(probe);
+  return resolved || fallback;
 };
 
 const StripeCardCapture = ({
