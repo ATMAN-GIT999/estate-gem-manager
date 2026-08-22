@@ -281,6 +281,16 @@ Almedins eigener, erreichbarer Supabase-Organisation angelegt, alle 27
 Migrationen plus eine neu geschriebene (die `consultation-uploads`-Bucket-
 Lücke, DECISIONS §20) abgespielt, alle 9 Edge Functions neu deployed.
 
+> ⚠️ **Lovable-Editor überschreibt `.env` beim Öffnen mit seiner eigenen,
+> veralteten Supabase-Verbindung.** Am 22.08.2026 beobachtet (DECISIONS
+> §46): Ein Lovable-Sync-Commit („Lovable update") setzte `.env` still
+> zurück auf `xjvtuderbirlwudatgxg` — das tote Projekt oben. Lovables
+> eigene Projekt-Integration kennt offenbar nur den alten Stand und schreibt
+> ihn bei jeder Synchronisation erneut rein. **Vor jedem Push prüfen, ob
+> `.env` noch auf `womaoywuhjchtubacbvn` zeigt** — bis jemand Lovables
+> Supabase-Integration selbst auf das neue Projekt umstellt, kommt das
+> vermutlich wieder.
+
 **Secrets im neuen Projekt** (Project Settings → Edge Functions → Secrets) —
 die alten Werte stecken unsichtbar im unerreichbaren Alt-Projekt, brauchten
 also neue Zugangsdaten, nicht nur einen Umzug (DECISIONS §21):

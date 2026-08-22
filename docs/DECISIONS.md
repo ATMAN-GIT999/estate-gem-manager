@@ -2227,3 +2227,37 @@ PM-Seiten-Vorschau ist jetzt in Fotogröße und Kartenbreite identisch zu
 ihrem Gegenstück auf `/about`, nicht nur im Rahmen-Stil. `tsc --noEmit`,
 `npx eslint src/components/AboutMini.tsx` und `npm run build` sauber,
 visuell auf `/property-management` bei 1440px bestätigt.
+
+## 46 · Lovable-Editor setzt `.env` still auf das tote Supabase-Projekt zurück
+
+Beim Versuch, den in §41–§45 entstandenen Commit zu pushen, wurde der Push
+abgelehnt — `origin/main` hatte drei Commits, die nicht aus dieser Session
+stammten (`Work in progress`, `Lovable update`,
+`Downgrade react-leaflet to version 4.2.1`). Vor dem Mergen geprüft statt
+blind reingezogen: `git diff ac5f46e..origin/main` zeigte vier Dateien.
+
+**Der eine ernste Fund:** `.env` stand wieder auf `xjvtuderbirlwudatgxg` —
+genau das tote, leere Projekt, das PROJECT.md §6 als Grund für den
+Projektwechsel am 19.08. nennt. Vermutlich hat Lovables eigene, intern
+gespeicherte Supabase-Integration beim Öffnen im Editor ihren eigenen
+(veralteten) Verbindungsstand zurück in `.env` geschrieben — unabhängig
+davon, was zuletzt im Repo stand. Zurückgesetzt auf
+`womaoywuhjchtubacbvn` und in PROJECT.md §6 ein Warnhinweis ergänzt: das
+wird vermutlich bei jedem künftigen Lovable-Edit wieder passieren, bis
+Lovables eigene Integration umgestellt wird.
+
+**Die anderen drei Änderungen unbedenklich:** `react-leaflet` ^5.0.0 →
+^4.2.1 war Almedins eigene, absichtliche Änderung („notwendig, um das
+Repo mit Netlify zu verbinden") — im Code nirgends importiert
+(`grep react-leaflet src` liefert nichts), also ohne Funktionsrisiko.
+`price_last_synced_at` in `types.ts` ist die Spalte aus §38/§39, korrekt
+nachgezogen. `bun.lock` (laut PROJECT.md „Altlast aus der Lovable-Zeit",
+nicht der aktive Lockfile) wuchs mit — unangetastet gelassen.
+`package-lock.json` war nach dem react-leaflet-Downgrade nicht mehr
+synchron; `npm install` nachgeholt, um npm (der laut CLAUDE.md aktive
+Paketmanager) wieder konsistent zu halten.
+
+**Verifikation:** `git diff --stat` vor dem Merge geprüft (kein
+Overlap mit den eigenen Änderungen dieser Session), danach `tsc --noEmit`
+und `npm run build` sauber. Gepusht — `origin/main` und lokales `main`
+sind wieder synchron.
