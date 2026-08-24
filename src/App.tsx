@@ -8,8 +8,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InlineEditProvider } from "./contexts/InlineEditContext";
 import { LocaleProvider } from "./contexts/LocaleContext";
+import { CookieConsentProvider } from "./contexts/CookieConsentContext";
 import EditModeToggle from "./components/admin/EditModeToggle";
 import WhatsAppButton from "./components/WhatsAppButton";
+import CookieConsentBanner from "./components/CookieConsentBanner";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -72,9 +74,11 @@ const App = () => (
         <AuthProvider>
           <InlineEditProvider>
           <LocaleProvider>
+          <CookieConsentProvider>
             <ScrollToTop />
             <EditModeToggle />
             <WhatsAppButton />
+            <CookieConsentBanner />
             <Suspense fallback={<RouteFallback />}>
             <Routes>
             <Route path="/" element={<Index />} />
@@ -110,6 +114,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
             </Suspense>
+          </CookieConsentProvider>
           </LocaleProvider>
           </InlineEditProvider>
         </AuthProvider>

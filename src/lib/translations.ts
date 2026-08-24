@@ -51,6 +51,7 @@ export const en = {
   "footer-aviso-legal-link": "Aviso Legal",
   "footer-copyright": "Frontier Residences. All rights reserved.",
   "footer-website-by": "Website by",
+  "footer-cookie-settings-link": "Cookie Settings",
 
   // SearchBar / LocationAutocomplete
   "searchbar.whereLabel": "WHERE",
@@ -413,6 +414,13 @@ export const en = {
   "pd-toast-select-dates-desc": "Please choose check-in and check-out dates to continue.",
   "pd-toast-invalid-dates-title": "Invalid dates",
   "pd-toast-invalid-dates-desc": "Check-out must be after check-in.",
+
+  // Cookie consent banner
+  "cookie-banner-text": "We use a first-party analytics cookie to understand how visitors use this site. No third-party or advertising cookies.",
+  "cookie-banner-aria": "Cookie consent",
+  "cookie-accept": "Accept",
+  "cookie-reject": "Reject",
+  "cookie-learn-more": "Learn more",
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -439,6 +447,7 @@ export const de: Record<TranslationKey, string> = {
   "footer-aviso-legal-link": "Impressum",
   "footer-copyright": "Frontier Residences. Alle Rechte vorbehalten.",
   "footer-website-by": "Website von",
+  "footer-cookie-settings-link": "Cookie-Einstellungen",
 
   "searchbar.whereLabel": "WOHIN",
   "searchbar.checkInLabel": "ANREISE",
@@ -772,6 +781,13 @@ export const de: Record<TranslationKey, string> = {
   "pd-toast-select-dates-desc": "Bitte wählen Sie An- und Abreisedatum, um fortzufahren.",
   "pd-toast-invalid-dates-title": "Ungültige Daten",
   "pd-toast-invalid-dates-desc": "Die Abreise muss nach der Anreise liegen.",
+
+  // Cookie consent banner
+  "cookie-banner-text": "Wir verwenden ein First-Party-Analyse-Cookie, um zu verstehen, wie Besucher diese Website nutzen. Keine Cookies von Drittanbietern oder für Werbung.",
+  "cookie-banner-aria": "Cookie-Einwilligung",
+  "cookie-accept": "Akzeptieren",
+  "cookie-reject": "Ablehnen",
+  "cookie-learn-more": "Mehr erfahren",
 };
 
 export const es: Record<TranslationKey, string> = {
@@ -796,6 +812,7 @@ export const es: Record<TranslationKey, string> = {
   "footer-aviso-legal-link": "Aviso Legal",
   "footer-copyright": "Frontier Residences. Todos los derechos reservados.",
   "footer-website-by": "Sitio web por",
+  "footer-cookie-settings-link": "Configuración de cookies",
 
   "searchbar.whereLabel": "DESTINO",
   "searchbar.checkInLabel": "ENTRADA",
@@ -1129,6 +1146,13 @@ export const es: Record<TranslationKey, string> = {
   "pd-toast-select-dates-desc": "Por favor elige las fechas de entrada y salida para continuar.",
   "pd-toast-invalid-dates-title": "Fechas no válidas",
   "pd-toast-invalid-dates-desc": "La salida debe ser posterior a la entrada.",
+
+  // Cookie consent banner
+  "cookie-banner-text": "Utilizamos una cookie de análisis propia para entender cómo se usa este sitio. Sin cookies de terceros ni publicitarias.",
+  "cookie-banner-aria": "Consentimiento de cookies",
+  "cookie-accept": "Aceptar",
+  "cookie-reject": "Rechazar",
+  "cookie-learn-more": "Más información",
 };
 
 export const dictionaries: Record<Language, Record<TranslationKey, string>> = { EN: en, DE: de, ES: es };

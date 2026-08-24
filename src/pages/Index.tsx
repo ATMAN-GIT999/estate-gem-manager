@@ -12,9 +12,11 @@ import { useLocation } from "react-router-dom";
 import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
 import { faqSchema, organizationSchema } from "@/lib/schema";
+import { useCookieConsent } from "@/contexts/CookieConsentContext";
 
 const IndexContent = () => {
   const location = useLocation();
+  const { consent } = useCookieConsent();
 
   // Handle hash navigation for Property Evaluation section
   useEffect(() => {
@@ -29,13 +31,20 @@ const IndexContent = () => {
   }, [location.hash]);
 
   useEffect(() => {
-    // Track page view
-    supabase.from("analytics_events").insert({
-      event_type: "page_view",
-      page_path: "/",
-      session_id: sessionStorage.getItem("session_id") || crypto.randomUUID(),
-    });
-  }, []);
+    // Track page view — only once the visitor has accepted the analytics
+    // cookie in the consent banner (CookieConsentContext). The insert is
+    // awaited inside an IIFE because supabase-js's query builder is a lazy
+    // thenable: without a `.then()`/`await`, the request is built but never
+    // actually sent.
+    if (consent !== "accepted") return;
+    (async () => {
+      await supabase.from("analytics_events").insert({
+        event_type: "page_view",
+        page_path: "/",
+        session_id: sessionStorage.getItem("session_id") || crypto.randomUUID(),
+      });
+    })();
+  }, [consent]);
 
   return (
     <div className="min-h-screen">

@@ -3,8 +3,10 @@ import Footer from "@/components/Footer";
 import PageWrapper from "@/components/PageWrapper";
 import { MapPin, Mail, Phone, Globe } from "lucide-react";
 import Seo from "@/components/Seo";
+import { useCookieConsent } from "@/contexts/CookieConsentContext";
 
 const AvisoLegalContent = () => {
+  const { openSettings } = useCookieConsent();
   return (
     <div className="min-h-screen flex flex-col">
       <Seo
@@ -149,17 +151,32 @@ const AvisoLegalContent = () => {
               </div>
             </section>
 
-            <section className="mb-12">
+            <section className="mb-12" id="cookies">
               <h2 className="font-playfair text-2xl font-semibold text-primary mb-4">
                 8. Política de Cookies
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
                 <p>
-                  Este sitio web utiliza cookies propias y de terceros para garantizar el correcto funcionamiento del sitio web, analizar el tráfico, mejorar la experiencia del usuario y ofrecer contenidos personalizados.
+                  Este sitio web utiliza únicamente cookies y tecnologías de almacenamiento propias. No se utilizan cookies de terceros, publicitarias ni de personalización de contenidos.
                 </p>
-                <p>
-                  Para obtener información detallada sobre el uso de cookies y la configuración de sus preferencias, consulte nuestra Política de Cookies.
+                <ul className="list-disc pl-6 space-y-1 mt-2">
+                  <li>
+                    <strong>Técnicas y necesarias:</strong> permiten el funcionamiento básico del sitio, como mantener la sesión iniciada en el área de gestión. No requieren consentimiento (art. 22.2 LSSI-CE).
+                  </li>
+                  <li>
+                    <strong>De análisis (opcionales):</strong> registran de forma anónima las páginas visitadas, con fines estadísticos internos. Solo se activan si el usuario las acepta en el aviso mostrado al entrar al sitio.
+                  </li>
+                </ul>
+                <p className="mt-4">
+                  Puede aceptar o rechazar las cookies de análisis en el momento en que aparece el aviso, o cambiar su elección en cualquier momento:
                 </p>
+                <button
+                  type="button"
+                  onClick={openSettings}
+                  className="mt-3 inline-flex items-center rounded-md border border-primary/30 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
+                >
+                  Configurar cookies
+                </button>
               </div>
             </section>
 

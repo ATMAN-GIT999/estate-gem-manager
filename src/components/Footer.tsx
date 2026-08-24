@@ -7,6 +7,7 @@ import { BUSINESS } from "@/lib/siteMeta";
 import logo from "@/assets/frontier-logo-transparent.webp";
 import asiLogo from "@/assets/asi-logo.webp";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useCookieConsent } from "@/contexts/CookieConsentContext";
 
 /**
  * Only networks with a real profile are rendered. Facebook and LinkedIn are
@@ -21,6 +22,7 @@ const SOCIAL_LINKS: { label: string; href: string; Icon: typeof Instagram }[] = 
 
 const Footer = () => {
   const { t, language } = useLocale();
+  const { openSettings } = useCookieConsent();
   const [tagline, setTagline] = useState(t("footer-tagline"));
   const [email, setEmail] = useState("Hello@frontier-residences.com");
   // Must stay identical to the number in the Aviso Legal and the Google
@@ -38,6 +40,7 @@ const Footer = () => {
   const [evalLink, setEvalLink] = useState(t("footer-eval-link"));
   const [faqLink, setFaqLink] = useState(t("footer-faq-link"));
   const [avisoLegalLink, setAvisoLegalLink] = useState(t("footer-aviso-legal-link"));
+  const [cookieSettingsLink, setCookieSettingsLink] = useState(t("footer-cookie-settings-link"));
   // Must stay identical to the Aviso Legal and the Google Business Profile,
   // for the same reason as the phone number above.
   const [address, setAddress] = useState(`${BUSINESS.street}, ${BUSINESS.postalCode} ${BUSINESS.city}`);
@@ -58,6 +61,7 @@ const Footer = () => {
     setEvalLink(t("footer-eval-link"));
     setFaqLink(t("footer-faq-link"));
     setAvisoLegalLink(t("footer-aviso-legal-link"));
+    setCookieSettingsLink(t("footer-cookie-settings-link"));
     setCopyright(t("footer-copyright"));
     setWebsiteBy(t("footer-website-by"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -232,6 +236,23 @@ const Footer = () => {
                     {avisoLegalLink}
                   </EditableText>
                 </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={openSettings}
+                  className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors text-left"
+                >
+                  <EditableText
+                    id="footer-cookie-settings-link"
+                    value={cookieSettingsLink}
+                    onChange={setCookieSettingsLink}
+                    as="span"
+                    className="text-primary-foreground/80"
+                  >
+                    {cookieSettingsLink}
+                  </EditableText>
+                </button>
               </li>
             </ul>
           </div>
