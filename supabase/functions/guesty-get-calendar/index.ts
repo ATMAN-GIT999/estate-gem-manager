@@ -179,33 +179,50 @@ Deno.serve(async (req) => {
       return dt.toISOString().slice(0, 10);
     };
 
+    // Guesty's Booking Engine `/listings` search has no listing-ID filter (confirmed
+    // against their API docs) — the only way to get nightlyRates for OUR listing is to
+    // page through its generic, portfolio-wide results until we find it. Page 1 alone
+    // is not enough: a listing with few bookings so far (little search "relevance") can
+    // simply not be among the first 100 results for a given date window. Capped at 3
+    // pages (300 listings) so one calendar load can't run away with API calls.
+    const MAX_RATE_PAGES = 3;
+
     const fetchRates = async (from: string, toExclusive: string) => {
-      const url =
+      const baseUrl =
         `https://booking.guesty.com/api/listings` +
         `?fields=${encodeURIComponent('_id nightlyRates prices.currency')}` +
         `&checkIn=${from}&checkOut=${toExclusive}&limit=100`;
-      try {
-        const r = await fetchWithBackoff(url, {
-          headers: { Authorization: `Bearer ${access_token}`, accept: 'application/json' },
-        });
-        if (!r.ok) {
-          console.warn('Rates fetch failed', r.status, from, toExclusive);
-          await r.text().catch(() => {});
+      let url = baseUrl;
+      for (let page = 0; page < MAX_RATE_PAGES; page++) {
+        try {
+          const r = await fetchWithBackoff(url, {
+            headers: { Authorization: `Bearer ${access_token}`, accept: 'application/json' },
+          });
+          if (!r.ok) {
+            console.warn('Rates fetch failed', r.status, from, toExclusive);
+            await r.text().catch(() => {});
+            return;
+          }
+          const json = await r.json();
+          const list: any[] = json?.results || json?.data || [];
+          // No `|| list[0]` fallback here on purpose: if our listing isn't in this page,
+          // falling back to some other listing would silently attribute a stranger
+          // property's price to this one, which is worse than showing no live price at all.
+          const item = list.find((l: any) => l._id === listingId);
+          if (item?.nightlyRates) {
+            for (const [k, v] of Object.entries(item.nightlyRates)) {
+              nightlyRates[k] = v as number;
+            }
+            currency = currency || item?.prices?.currency || item?.currency;
+            return;
+          }
+          const nextCursor = json?.pagination?.cursor?.next;
+          if (!nextCursor) return;
+          url = `${baseUrl}&cursor=${encodeURIComponent(nextCursor)}`;
+        } catch (e) {
+          console.warn('Rates fetch error:', e);
           return;
         }
-        const json = await r.json();
-        const list = json?.results || json?.data || [];
-        const item = Array.isArray(list)
-          ? list.find((l: any) => l._id === listingId) || list[0]
-          : list;
-        if (item?.nightlyRates) {
-          for (const [k, v] of Object.entries(item.nightlyRates)) {
-            nightlyRates[k] = v as number;
-          }
-        }
-        currency = currency || item?.prices?.currency || item?.currency;
-      } catch (e) {
-        console.warn('Rates fetch error:', e);
       }
     };
 
@@ -225,8 +242,30 @@ Deno.serve(async (req) => {
       }
       if (runStart !== null && lastDate) ranges.push([runStart, addDay(lastDate, 1)]);
 
-      const capped = ranges.slice(0, 12);
-      await Promise.all(capped.map(([a, b]) => fetchRates(a, b)));
+      // A listing with few bookings yet (little to interrupt its availability) can have
+      // ONE contiguous open range spanning many months. Querying Guesty with that whole
+      // span as checkIn/checkOut returns zero results — the endpoint reads those params
+      // as an intended stay, and nobody books a stay that long. So each range is chunked
+      // into realistic-length windows before it's queried, capped in total so one
+      // calendar load can't run away with API calls. This trades full-year live pricing
+      // for guaranteed near-term live pricing, which is what a guest actually browsing
+      // dates needs — the rest still has the frozen price_per_night as a fallback.
+      const WINDOW_DAYS = 10;
+      const MAX_WINDOWS = 20;
+      const windows: Array<[string, string]> = [];
+      for (const [start, endExclusive] of ranges) {
+        let cursor = start;
+        while (cursor < endExclusive) {
+          const chunkEnd = addDay(cursor, WINDOW_DAYS);
+          const windowEnd = chunkEnd < endExclusive ? chunkEnd : endExclusive;
+          windows.push([cursor, windowEnd]);
+          if (windows.length >= MAX_WINDOWS) break;
+          cursor = windowEnd;
+        }
+        if (windows.length >= MAX_WINDOWS) break;
+      }
+
+      await Promise.all(windows.map(([a, b]) => fetchRates(a, b)));
     }
 
     const enriched = Array.isArray(calendarData)
