@@ -50,7 +50,6 @@ export const en = {
   "footer-faq-link": "FAQ",
   "footer-aviso-legal-link": "Aviso Legal",
   "footer-copyright": "Frontier Residences. All rights reserved.",
-  "footer-website-by": "Website by",
   "footer-cookie-settings-link": "Cookie Settings",
 
   // SearchBar / LocationAutocomplete
@@ -446,7 +445,6 @@ export const de: Record<TranslationKey, string> = {
   "footer-faq-link": "FAQ",
   "footer-aviso-legal-link": "Impressum",
   "footer-copyright": "Frontier Residences. Alle Rechte vorbehalten.",
-  "footer-website-by": "Website von",
   "footer-cookie-settings-link": "Cookie-Einstellungen",
 
   "searchbar.whereLabel": "WOHIN",
@@ -811,7 +809,6 @@ export const es: Record<TranslationKey, string> = {
   "footer-faq-link": "Preguntas Frecuentes",
   "footer-aviso-legal-link": "Aviso Legal",
   "footer-copyright": "Frontier Residences. Todos los derechos reservados.",
-  "footer-website-by": "Sitio web por",
   "footer-cookie-settings-link": "Configuración de cookies",
 
   "searchbar.whereLabel": "DESTINO",

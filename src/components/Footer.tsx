@@ -5,7 +5,6 @@ import EditableText from "./admin/EditableText";
 import { Container } from "./layout";
 import { BUSINESS } from "@/lib/siteMeta";
 import logo from "@/assets/frontier-logo-transparent.webp";
-import asiLogo from "@/assets/asi-logo.webp";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useCookieConsent } from "@/contexts/CookieConsentContext";
 
@@ -45,7 +44,6 @@ const Footer = () => {
   // for the same reason as the phone number above.
   const [address, setAddress] = useState(`${BUSINESS.street}, ${BUSINESS.postalCode} ${BUSINESS.city}`);
   const [copyright, setCopyright] = useState(t("footer-copyright"));
-  const [websiteBy, setWebsiteBy] = useState(t("footer-website-by"));
 
   // Company name, email, phone and address are never translated — a brand
   // name and contact details stay identical in every language.
@@ -63,7 +61,6 @@ const Footer = () => {
     setAvisoLegalLink(t("footer-aviso-legal-link"));
     setCookieSettingsLink(t("footer-cookie-settings-link"));
     setCopyright(t("footer-copyright"));
-    setWebsiteBy(t("footer-website-by"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
@@ -73,7 +70,15 @@ const Footer = () => {
     // (portfolio numbers, the differentiation band, here) and §24 only works
     // if all three are the same line. A 2px version here and a 1px version
     // above read as two different ideas.
-    <footer className="bg-primary text-primary-foreground edge-gold-top py-lg">
+    //
+    // `pb-24` below `sm:` rather than a symmetric `py-lg`: the floating
+    // WhatsApp button is fixed to the viewport's bottom-right regardless of
+    // scroll position, so once a narrow screen is scrolled to the true page
+    // end, the button's 56px circle sits directly over the centred copyright
+    // line. On wider screens the button is far enough from the container's
+    // centred content that this never happens, so only mobile needs the
+    // extra clearance.
+    <footer className="bg-primary text-primary-foreground edge-gold-top pt-lg pb-24 sm:pb-lg">
       <Container>
         <div className="grid md:grid-cols-4 gap-md mb-lg">
           <div>
@@ -328,7 +333,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 pt-md flex flex-col sm:flex-row items-center justify-between gap-sm text-primary-foreground/60">
+        <div className="border-t border-primary-foreground/20 pt-md text-center text-primary-foreground/60">
           <p>
             &copy; {new Date().getFullYear()}{" "}
             <EditableText
@@ -340,26 +345,6 @@ const Footer = () => {
               {copyright}
             </EditableText>
           </p>
-
-          {/* Agency credit — small and quiet on purpose, the same register as
-              the copyright line next to it, not a second CTA competing with
-              the page's own ones. */}
-          <a
-            href="https://as-intel.net/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 hover:text-accent-on-primary transition-colors"
-          >
-            <EditableText
-              id="footer-website-by"
-              value={websiteBy}
-              onChange={setWebsiteBy}
-              as="span"
-            >
-              {websiteBy}
-            </EditableText>
-            <img src={asiLogo} alt="AS Intel" className="h-4 w-auto" />
-          </a>
         </div>
       </Container>
     </footer>
