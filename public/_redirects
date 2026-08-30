@@ -1,0 +1,7 @@
+# SPA fallback: this is a client-side-routed React app (react-router), so any
+# path that isn't a real static file has to still serve index.html and let
+# the router take over — otherwise a reload or a link opened in a new tab on
+# any route but "/" 404s at the host instead of reaching React at all.
+# Netlify and Cloudflare Pages both read this exact file/syntax; see
+# vercel.json for the equivalent rule if the project ever serves from Vercel.
+/*    /index.html   200
