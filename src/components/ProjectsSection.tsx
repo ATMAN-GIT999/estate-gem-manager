@@ -49,7 +49,7 @@ export interface FeaturedProject {
  */
 export const FEATURED_PROJECTS: FeaturedProject[] = [
   {
-    title: "Villa Hoyo 19", location: "La Quinta, Marbella", type: "Luxury Villa",
+    title: "Hoyo 19", location: "Benahavís", type: "Luxury Villa",
     description: "A stunning contemporary villa overlooking the golf course with panoramic sea views. Complete renovation transformed this property into one of the most sought-after rentals in the area.",
     highlights: ["Complete interior redesign", "Infinity pool installation", "Smart home integration", "Professional photography"],
     stats: { occupancy: "85%", revenue: "+120%", rating: "4.9" },
