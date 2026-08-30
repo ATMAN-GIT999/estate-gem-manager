@@ -25,3 +25,14 @@ supabase/.temp/
 *.njsproj
 *.sln
 *.sw?
+
+# Vite writes these while loading vite.config.ts and normally deletes them
+# again — leftovers only appear when a dev-server process died mid-start.
+vite.config.ts.timestamp-*.mjs
+
+# Local scratch, not part of the site:
+#   partner/  — the original partner-logo downloads (22.08.2026). The versions
+#               the site actually ships are src/assets/partner-*.webp.
+#   prompt.md — Almedins Notizzettel.
+partner/
+prompt.md
