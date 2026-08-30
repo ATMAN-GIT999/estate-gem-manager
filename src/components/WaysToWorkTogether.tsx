@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Handshake, Palette } from "lucide-react";
+import { ArrowRight, Handshake, Palette, ShieldCheck, TrendingUp } from "lucide-react";
 import EditableText from "./admin/EditableText";
+import { Button } from "@/components/ui/button";
 import { Section, Grid, Stack, Panel, Divider } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
+import { cn } from "@/lib/utils";
 
 /**
  * The commercial decision, stated as a decision — plus the two side doors for
@@ -37,8 +39,9 @@ const WaysToWorkTogether = () => {
       name: t("ways-model-name-0"),
       summary: t("ways-model-summary-0"),
       detail: t("ways-model-detail-0"),
-      href: "",
-      linkText: "",
+      href: "/guaranteed-income",
+      linkText: t("ways-model-link-0"),
+      Icon: TrendingUp,
     },
     {
       name: t("ways-model-name-1"),
@@ -46,6 +49,7 @@ const WaysToWorkTogether = () => {
       detail: t("ways-model-detail-1"),
       href: "/guaranteed-income",
       linkText: t("ways-model-link-1"),
+      Icon: ShieldCheck,
     },
   ];
   const [models, setModels] = useState(buildModels());
@@ -112,58 +116,91 @@ const WaysToWorkTogether = () => {
             </EditableText>
           </div>
 
-          <Grid cols={2}>
-            {models.map((model, index) => (
-              <Panel key={index}>
-                <Stack gap="sm">
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center justify-center w-8 h-8 rounded-full border border-accent-strong t-meta text-accent-strong shrink-0">
-                      {index === 0 ? "A" : "B"}
-                    </span>
-                    <EditableText
-                      id={`ways-model-name-${index}`}
-                      value={model.name}
-                      onChange={(v) => { const u = [...models]; u[index] = { ...u[index], name: v }; setModels(u); }}
-                      as="h3"
-                      className="t-block text-primary text-balance"
-                    >
-                      {model.name}
-                    </EditableText>
-                  </div>
-
-                  <EditableText
-                    id={`ways-model-summary-${index}`}
-                    value={model.summary}
-                    onChange={(v) => { const u = [...models]; u[index] = { ...u[index], summary: v }; setModels(u); }}
-                    as="p"
-                    multiline
-                    className="t-item text-primary"
-                  >
-                    {model.summary}
-                  </EditableText>
-                  <EditableText
-                    id={`ways-model-detail-${index}`}
-                    value={model.detail}
-                    onChange={(v) => { const u = [...models]; u[index] = { ...u[index], detail: v }; setModels(u); }}
-                    as="p"
-                    multiline
-                    className="t-body text-foreground/70"
-                  >
-                    {model.detail}
-                  </EditableText>
-
-                  {model.href && (
-                    <Link
-                      to={model.href}
-                      className="inline-flex items-center gap-1.5 t-meta text-accent-strong hover:gap-2.5 transition-all"
-                    >
-                      {model.linkText}
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
+          {/* Raw 12-col grid, not the equal-columns <Grid cols={2}>: Almedin
+              asked for Guaranteed Income to carry more visual weight, since
+              it is the more attractive model for most owners (no occupancy
+              risk on their side) and was previously reading as equally
+              matched with Full-service. Weight comes from width + a solid
+              CTA button rather than a new colour or a "recommended" badge —
+              nothing here is a claim about numbers, which docs/PROJECT.md
+              deliberately keeps out of the site (commission range, contract
+              term). `md:order-*` reorders visually without touching the
+              underlying index, so `ways-model-name-0`/`-1` etc. keep meaning
+              what they've always meant (0 = Full-service, 1 = Guaranteed
+              Income) for anyone editing inline. */}
+          <Grid>
+            {models.map((model, index) => {
+              const Icon = model.Icon;
+              const isGuaranteed = index === 1;
+              return (
+                <div
+                  key={index}
+                  className={cn(
+                    "col-span-1",
+                    isGuaranteed ? "md:col-span-7 md:order-1" : "md:col-span-5 md:order-2",
                   )}
-                </Stack>
-              </Panel>
-            ))}
+                >
+                  <Panel className="h-full">
+                    <Stack gap="sm">
+                      <Icon className="w-7 h-7 text-accent-strong" strokeWidth={1.5} />
+                      <EditableText
+                        id={`ways-model-name-${index}`}
+                        value={model.name}
+                        onChange={(v) => { const u = [...models]; u[index] = { ...u[index], name: v }; setModels(u); }}
+                        as="h3"
+                        className="t-block text-primary text-balance"
+                      >
+                        {model.name}
+                      </EditableText>
+
+                      <EditableText
+                        id={`ways-model-summary-${index}`}
+                        value={model.summary}
+                        onChange={(v) => { const u = [...models]; u[index] = { ...u[index], summary: v }; setModels(u); }}
+                        as="p"
+                        multiline
+                        className="t-item text-primary"
+                      >
+                        {model.summary}
+                      </EditableText>
+                      <EditableText
+                        id={`ways-model-detail-${index}`}
+                        value={model.detail}
+                        onChange={(v) => { const u = [...models]; u[index] = { ...u[index], detail: v }; setModels(u); }}
+                        as="p"
+                        multiline
+                        className="t-body text-foreground/70"
+                      >
+                        {model.detail}
+                      </EditableText>
+
+                      {model.href && (
+                        isGuaranteed ? (
+                          <Button
+                            asChild
+                            size="lg"
+                            className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold px-8 py-6 text-base w-fit mt-xs"
+                          >
+                            <Link to={model.href}>
+                              {model.linkText}
+                              <ArrowRight className="w-5 h-5 ml-2" />
+                            </Link>
+                          </Button>
+                        ) : (
+                          <Link
+                            to={model.href}
+                            className="inline-flex items-center gap-1.5 t-meta text-accent-strong hover:gap-2.5 transition-all"
+                          >
+                            {model.linkText}
+                            <ArrowRight className="w-4 h-4" />
+                          </Link>
+                        )
+                      )}
+                    </Stack>
+                  </Panel>
+                </div>
+              );
+            })}
           </Grid>
         </Stack>
 

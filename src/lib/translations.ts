@@ -297,8 +297,8 @@ export const en = {
 
   // OwnerHero (Property Management page)
   "pmp-hero-eyebrow": "For owners · Property management",
-  "pmp-page-title": "Luxury Rental Management",
-  "pmp-page-lead": "We offer bespoke property management and treat your home with care.",
+  "pmp-page-title": "Bespoke Property Management",
+  "pmp-page-lead": "Tailored care for properties. Seamless ownership.",
   "pmp-hero-cta-1": "Contact Us",
   "pmp-hero-cta-2": "See what yours could earn",
 
@@ -338,7 +338,7 @@ export const en = {
   "proof-eyebrow": "Built to perform",
   "stats-title": "A Portfolio Built on Precision & Performance",
   "proof-cases-label": "What that looks like on three homes",
-  "proof-benefits-heading": "The Benefits",
+  "proof-benefits-heading": "Our Projects",
   "proof-cta": "See what yours could earn",
   "proj-fp-ba": "Featured Property",
   "proof-stat-occupancy": "Occupancy",
@@ -355,6 +355,7 @@ export const en = {
   "ways-model-summary-1": "We lease the property from you and pay a fixed amount every month.",
   "ways-model-detail-1": "Booked or empty, the payment is the same, and we maintain the home throughout. You trade the strong months for certainty in the weak ones.",
   "ways-model-link-1": "See how it works",
+  "ways-model-link-0": "Compare the models",
   "beyond-eyebrow": "Beyond management",
   "beyond-heading": "More ways we create value.",
   "ways-sub-title-0": "Renovations & Design",
@@ -673,8 +674,8 @@ export const de: Record<TranslationKey, string> = {
   "gip-cta-text": "Kontaktieren Sie uns, um zu erfahren, wie unser Programm für garantierte Erträge für Ihr Objekt funktionieren kann.",
 
   "pmp-hero-eyebrow": "Für Eigentümer · Immobilienverwaltung",
-  "pmp-page-title": "Luxus-Mietverwaltung",
-  "pmp-page-lead": "Wir bieten maßgeschneidertes Immobilienmanagement und behandeln Ihr Zuhause mit Sorgfalt.",
+  "pmp-page-title": "Maßgeschneidertes Immobilienmanagement",
+  "pmp-page-lead": "Sorgfältige Betreuung Ihrer Immobilie. Müheloser Besitz.",
   "pmp-hero-cta-1": "Kontaktieren Sie uns",
   "pmp-hero-cta-2": "Erfahren Sie, was Ihre Immobilie einbringen könnte",
 
@@ -708,7 +709,7 @@ export const de: Record<TranslationKey, string> = {
   "proof-eyebrow": "Auf Leistung ausgelegt",
   "stats-title": "Ein Portfolio, gebaut auf Präzision & Leistung",
   "proof-cases-label": "So sieht das bei drei Häusern konkret aus",
-  "proof-benefits-heading": "Die Vorteile",
+  "proof-benefits-heading": "Unsere Projekte",
   "proof-cta": "Erfahren Sie, was Ihre Immobilie einbringen könnte",
   "proj-fp-ba": "Ausgewähltes Objekt",
   "proof-stat-occupancy": "Auslastung",
@@ -724,6 +725,7 @@ export const de: Record<TranslationKey, string> = {
   "ways-model-summary-1": "Wir mieten die Immobilie von Ihnen und zahlen jeden Monat einen festen Betrag.",
   "ways-model-detail-1": "Ob gebucht oder leer, die Zahlung bleibt gleich, und wir kümmern uns durchgehend um das Haus. Sie tauschen die starken Monate gegen Sicherheit in den schwächeren ein.",
   "ways-model-link-1": "Erfahren Sie, wie es funktioniert",
+  "ways-model-link-0": "Modelle vergleichen",
   "beyond-eyebrow": "Mehr als Verwaltung",
   "beyond-heading": "Weitere Wege, wie wir Wert schaffen.",
   "ways-sub-title-0": "Renovierungen & Design",
@@ -1037,8 +1039,8 @@ export const es: Record<TranslationKey, string> = {
   "gip-cta-text": "Contáctanos para descubrir cómo nuestro Programa de Ingresos Garantizados puede funcionar para tu propiedad.",
 
   "pmp-hero-eyebrow": "Para propietarios · Gestión de propiedades",
-  "pmp-page-title": "Gestión de Alquiler de Lujo",
-  "pmp-page-lead": "Ofrecemos gestión inmobiliaria a medida y cuidamos tu casa como si fuera nuestra.",
+  "pmp-page-title": "Gestión de Propiedades a Medida",
+  "pmp-page-lead": "Cuidado personalizado para su propiedad. Propiedad sin complicaciones.",
   "pmp-hero-cta-1": "Contáctanos",
   "pmp-hero-cta-2": "Descubre lo que la tuya podría generar",
 
@@ -1072,7 +1074,7 @@ export const es: Record<TranslationKey, string> = {
   "proof-eyebrow": "Diseñado para rendir",
   "stats-title": "Un Portfolio Construido con Precisión y Rendimiento",
   "proof-cases-label": "Así se ve en tres casas concretas",
-  "proof-benefits-heading": "Las Ventajas",
+  "proof-benefits-heading": "Nuestros Proyectos",
   "proof-cta": "Descubre lo que la tuya podría generar",
   "proj-fp-ba": "Propiedad Destacada",
   "proof-stat-occupancy": "Ocupación",
@@ -1088,6 +1090,7 @@ export const es: Record<TranslationKey, string> = {
   "ways-model-summary-1": "Te alquilamos la propiedad y te pagamos una cantidad fija cada mes.",
   "ways-model-detail-1": "Reservada o vacía, el pago es el mismo, y nos ocupamos de la casa en todo momento. Cambias los meses fuertes por seguridad en los flojos.",
   "ways-model-link-1": "Descubre cómo funciona",
+  "ways-model-link-0": "Comparar los modelos",
   "beyond-eyebrow": "Más allá de la gestión",
   "beyond-heading": "Más formas en las que generamos valor.",
   "ways-sub-title-0": "Reformas y Diseño",
