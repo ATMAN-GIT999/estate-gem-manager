@@ -234,6 +234,17 @@ const PropertiesContent = () => {
         {/* Properties Grid */}
         <Section size="sm">
           <div className="mb-md">
+            {/* Large + centered, ahead of the title: a per-property Guesty
+                calendar check can take a few seconds, and the small inline
+                label below the title (previous layout) was easy to miss —
+                guests read it as the page being done loading, not still
+                filtering. This sits on its own row so it can't be confused
+                with the eyebrow/title block underneath. */}
+            {checkingAvailability && (
+              <p className="mb-sm flex items-center justify-center gap-2 t-item text-accent-strong text-center">
+                <Loader2 className="w-5 h-5 animate-spin" /> {t("properties.checkingAvailability")}
+              </p>
+            )}
             <EditableText
               id="properties-page-eyebrow"
               value={pageEyebrow}
@@ -272,11 +283,6 @@ const PropertiesContent = () => {
                 </Select>
               </div>
             </div>
-            {checkingAvailability && (
-              <p className="mt-2 t-meta text-muted-foreground inline-flex items-center gap-2">
-                <Loader2 className="w-3 h-3 animate-spin" /> {t("properties.checkingAvailability")}
-              </p>
-            )}
           </div>
 
           {loading ? (
