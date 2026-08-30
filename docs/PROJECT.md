@@ -7,7 +7,7 @@
 > Das **WIE der Darstellung** steht in [DESIGN.md](DESIGN.md), das **WARUM**
 > hinter Entscheidungen in [DECISIONS.md](DECISIONS.md).
 >
-> Stand: 16.08.2026 · Branch `redesign/v2`
+> Stand: 30.08.2026 · Branch `main` (`redesign/v2` ist gemergt)
 
 ---
 
@@ -62,6 +62,12 @@ Admin-Routen liegen unter `/admin/*` und sind einzeln `lazy()`-geladen.
 Lovable-Attrappe ohne echte Guesty-/Stripe-/Supabase-Anbindung, kein Verlust
 an Buchungsfunktionalität. Verweise darauf zeigen jetzt auf `/properties`.
 
+**Routenübergreifend** hängen in `App.tsx`: `WhatsAppButton` (fix unten
+rechts) und seit 24.08.2026 `CookieConsentBanner` mit
+`CookieConsentContext` — der `page_view`-Insert auf `/` läuft erst nach
+Zustimmung (DECISIONS §50). Der Cookie-Abschnitt in `/aviso-legal` beschreibt
+seither, was die Seite wirklich setzt.
+
 ### Landingpage `/` — tatsächliche Reihenfolge
 
 | # | Komponente | Zielgruppe |
@@ -99,11 +105,16 @@ Trennlinie mit Label („Beyond management").
 | 1 | **Hero** — Bild, H1, zwei CTAs | `OwnerHero` | hoch |
 | 2 | **Das System** — 6 Schritte auf einer Goldlinie, jetzt als Panel-Cards | `TheSystem` | sehr hoch |
 | 3 | **Proof** — 4 Zahlen + 3 Case Studies, auf Grün | `Proof` | hoch |
-| 4 | **Zwei Wege** — Full-service vs. Guaranteed Income, dann „Beyond management" mit Renovations & Investments, alles Panel-Cards | `WaysToWorkTogether` | hoch |
-| 5 | **About** — 4 Gesichter + „Contact Us" | `AboutMini` | mittel |
-| 6 | FAQ | `FAQ` | mittel |
-| 7 | **Get in touch** — „We manage while you relax", Los-Monteros-Bild, Formular | `OwnerContactForm` | hoch |
+| 4 | **Working with** — Verschnaufpause: nur Eyebrow und Partnerlogos, auf Beige (§35) | `WorkingWith` | leicht |
+| 5 | **Zwei Wege** — Guaranteed Income (breit, Gold-Button) vs. Full-service, dann „Beyond management" mit Renovations & Investments, alles Panel-Cards | `WaysToWorkTogether` | hoch |
+| 6 | **About** — 4 Gesichter + „Contact Us" | `AboutMini` | mittel |
+| 7 | FAQ | `FAQ` | mittel |
+| 8 | **Get in touch** — „We manage while you relax", Los-Monteros-Bild, Formular | `OwnerContactForm` | hoch |
 | — | Footer | `Footer` | leicht |
+
+⚠️ Diese Tabelle hatte `WorkingWith` bis zum 30.08.2026 nicht geführt, obwohl
+die Section seit §35 im Code steht. Die Nummerierung hier folgt jetzt wieder
+`PropertyManagementPage.tsx`.
 
 **Der Rhythmus ist Teil der Struktur.** Nach Section 3 dürfen nie zwei schwere
 Sections direkt aufeinander folgen — die Eröffnungssequenz 1–3 ist die einzige
@@ -117,6 +128,13 @@ Ausnahme.
 - **„We manage while you relax" schließt die Seite, nicht die Mitte.** Die
   Entlastung ist jetzt der letzte Ton vor dem Formular, nicht mehr eine
   eigene Pause zwischen Proof und der kommerziellen Entscheidung (§15).
+- **Guaranteed Income steht in „Zwei Wege" zuerst und breiter** (7 von 12
+  Spalten, Gold-Button; Full-service 5 Spalten, Pfeil-Link) — seit 29.08.2026,
+  DECISIONS §54. Der Vorrang ist inhaltlich gewollt, kein Layout-Zufall: für
+  die meisten Eigentümer ist das Modell ohne Auslastungsrisiko das
+  attraktivere. **Die Indizes bleiben davon unberührt** — `ways-model-*-0` ist
+  weiterhin Full-service, `-1` Guaranteed Income; die Reihenfolge macht allein
+  `md:order`.
 
 ### Was der Umbau ersetzt hat
 
@@ -260,6 +278,19 @@ npx tsc --noEmit # Typprüfung (läuft NICHT automatisch im Build)
 **Es gibt keine Tests.** Verifikation heißt hier: `npx tsc --noEmit`,
 `npm run build`, und die betroffene Seite im Dev-Server ansehen.
 
+`npm run lint` meldet **9 Altlast-Fehler** in `Properties.tsx` und
+`PropertyDetail.tsx` (`no-explicit-any`, `no-unused-expressions`). Sie sind
+älter als der aktuelle Stand und liegen in unberührten Zeilen — bei einer
+Änderung zählt, ob *neue* dazukommen, nicht ob die Ausgabe leer ist.
+
+### Ausliefern: SPA-Fallback
+
+Der Host **muss** jede unbekannte URL auf `index.html` umschreiben, sonst
+läuft jeder Deep Link (`/property/<slug>`, jeder Reload abseits von `/`) in
+ein Host-404, bevor React lädt. Im Repo liegen beide Varianten, weil der Host
+noch offen ist: `vercel.json` für Vercel, `public/_redirects` für Netlify und
+Cloudflare Pages. Jeder Host liest nur seine eigene Datei (DECISIONS §55).
+
 ### Herkunft: Lovable
 
 Das Projekt kommt von Lovable (`lovable-tagger` in `vite.config.ts`, generierte
@@ -336,6 +367,19 @@ Guesty-Konto, 23 in der Sitemap). Edge Functions in `supabase/functions/`:
 Preis. Nie als „der Preis" darstellen; die Karten zeigen deshalb „from €X /
 night". `basePrice` aus Guesty taugt nachweislich **nicht** als Untergrenze —
 die echten Raten kommen dynamisch von PriceLabs.
+
+Seit 24.08.2026 (DECISIONS §51) liefert `guesty-get-calendar` **im nahen
+Zeitraum** echte Nachtpreise: Guestys Booking-Engine-Suche kennt keinen
+Listing-ID-Filter, deshalb fragt die Function in ~10-Tage-Fenstern an und
+blättert bis zum eigenen Listing. Zwei Dinge folgen daraus und dürfen nicht
+„vereinfacht" werden:
+
+- **Kein Fallback auf das erste Suchergebnis.** Wird das eigene Listing nicht
+  gefunden, gibt es *keinen* Live-Preis — sonst stünde der Preis einer fremden
+  Villa an diesem Objekt.
+- **Weiter draußen bleibt es der eingefrorene Wert.** Die Fenster sind
+  gedeckelt (`MAX_WINDOWS = 20`), bewusst zugunsten des Zeitraums, den ein
+  suchender Gast tatsächlich anschaut. Vollständig gelöst ist das erst mit C4.
 
 ### RLS-Regeln, die man nicht frei wählen darf
 
@@ -428,11 +472,12 @@ Umgesetzt und verifiziert:
 | ~~D3~~ | ~~„It's in the details." steht auf beiden Seiten~~ — **erledigt am 16.08.2026.** `ListingWorkflow` ist im Umbau aufgegangen; die Überschrift steht jetzt nur noch auf `/` (`GuestManagement.tsx`). Die Gäste-Fassung ist unverändert und bleibt es ohne Rückfrage. |
 | D4 | **Die Kennzahlen sind hartkodierte Copy** (`41 Properties Managed · 1500+ Successful Reservations · 8 Destinations · 50+ Collaborators`), keine Live-Daten — und sie stehen auf `/` und der PM-Seite identisch. Der Sitemap-Build meldet **23 Objekte**, `ProjectsSection` nennt „20+ premium properties" für Spanien. Gegenüber „41" ist das erklärungsbedürftig. Offen ist auch, ob die „8 Destinations" kroatische Orte mitzählen — Kroatien ist kein Bestandsmarkt. |
 | D5 | **Keine Fee-Transparenz.** `WaysToWorkTogether` stellt beide Modelle klar gegenüber, nennt aber nirgends eine Provisionsspanne. Für die *Details* ist die Verlagerung ins Gespräch richtig; für die **Größenordnung** kostet es Anfragen. |
-| D6 | **Der Eigentümer-Funnel ist nicht messbar.** Im gesamten öffentlichen Code existiert ein einziger Tracking-Aufruf: `page_view` auf `/`. Vier Events würden genügen: `pm_page_view`, `evaluator_submitted`, `evaluator_result_viewed`, `owner_enquiry_submitted`. Ohne die lässt sich kein anderer Punkt dieser Liste nach der Umsetzung verifizieren. **Seit dem Umbau dringlicher:** das Kontaktformular ist vom ersten Screen ans Seitenende gewandert (DECISIONS §11). Ob das mehr oder weniger Anfragen bringt, ist genau die Frage, die diese Events beantworten würden — und aktuell beantwortet sie niemand. |
+| D6 | **Der Eigentümer-Funnel ist nicht messbar.** Im gesamten öffentlichen Code existiert ein einziger Tracking-Aufruf: `page_view` auf `/` — der bis zum 24.08.2026 **nicht einmal gefeuert hat** (Supabases Query-Builder ist lazy, der Aufruf war nie awaited; DECISIONS §50). Seither läuft er, aber nur nach Cookie-Zustimmung. An der Lage ändert das wenig: es gibt weiterhin genau ein Event, und Zahlen aus der Zeit davor existieren nicht. Vier Events würden genügen: `pm_page_view`, `evaluator_submitted`, `evaluator_result_viewed`, `owner_enquiry_submitted`. Ohne die lässt sich kein anderer Punkt dieser Liste nach der Umsetzung verifizieren. **Seit dem Umbau dringlicher:** das Kontaktformular ist vom ersten Screen ans Seitenende gewandert (DECISIONS §11). Ob das mehr oder weniger Anfragen bringt, ist genau die Frage, die diese Events beantworten würden — und aktuell beantwortet sie niemand. |
 | D11 | **Owner-FAQ.** Die Design-Referenz schlägt statt der Gäste-FAQ echte Eigentümerfragen vor (Kosten, Vertragslaufzeit, Eigennutzung, Auszahlung, Onboarding-Dauer) und markiert ihre eigenen Antworten ausdrücklich als Platzhalter. Umgesetzt ist das **nicht** — die FAQ bleibt wie angefordert die Gäste-Fassung. Es wäre inhaltlich die stärkere Lösung, berührt aber D5 (Fee-Transparenz) und braucht belastbare Antworten vom Kunden, keine erfundenen. |
 | D7 | **Landing-Hero-Headline ist ein Platzhalter** („Luxury Villas & Vacation Rentals in Spain and Austria"), vom Besitzer abzusegnen. Ebenso die „Own a Property?"-Texte — insbesondere „earn **with** us" (Provisionsmodell) gegenüber „earn **from** us" (das wäre Guaranteed Income, also Festmiete). |
 | D8 | **`collection`-Spalte für die Property-Tabelle.** Die drei Reihen in `PropertyCollections.tsx` leiten die Zuordnung aus `location` und dem Namen ab. Eine Immobilie in einem neuen Ort erscheint in **keiner** Reihe, bis jemand den Ort im Code ergänzt. |
 | D9 | **Objekt mit 63 Nächten Mindestaufenthalt im Buchungsfluss.** „6th floor Malaga Soho" steht auf Langzeitmiete (`terms.minNights = 63`). Ein Gast, der Daten wählt, bekommt dort ausnahmslos eine Absage. Produktfrage: soll es im normalen Flow überhaupt auftauchen? |
+| D12 | **Marbella und Estepona werden vorgeschlagen, haben aber kein Objekt.** `FEATURED_REGIONS` in `LocationAutocomplete.tsx` bietet beide Orte an, weil Almedin sie aktiv verfolgt (DECISIONS §53). Wer sie auswählt, landet zwangsläufig im generischen Leerzustand („no match" · „try different" · „clear filters") — der liest sich wie ein Fehler der Suche, nicht wie „hier kommt bald etwas". Zu entscheiden: eigener Hinweistext für Wunschorte ohne Bestand, samt Anfrage-CTA — oder die beiden Orte wieder herausnehmen, falls dort so bald kein Listing kommt. |
 | D10 | **Drei Objekte ohne Live-Preis** (Los Monteros Retreat, Luxury Escape Los Flamingos Golf Retreat, THE ONE Higuerón) — bei jedem getesteten Zeitfenster bis 400 Tage voraus „nicht verfügbar". Liest sich als in Guesty blockiert/inaktiv. In Guesty prüfen. |
 
 ### Bewusst so gelassen

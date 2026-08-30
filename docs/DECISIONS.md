@@ -2379,3 +2379,182 @@ Quelltext auf dieselbe Konstante wie der schwebende Button verifiziert
 (Chrome-DevTools-Verbindung brach beim Live-Klicktest mehrfach ab, siehe
 unten — Quelltext-Verifikation war hier ausreichend, da die Änderung
 trivial nachvollziehbar ist).
+
+## 50 · Cookie-Banner, und das Tracking hat vorher nie gefeuert
+
+*Nachträglich dokumentiert am 30.08.2026 aus Commit `c9357c5` (24.08.2026) —
+die Arbeit war committet, die Begründung stand nirgends.*
+
+Die Seite hatte genau einen Tracking-Aufruf (`page_view` auf `/`, PROJECT.md
+D6) und keine Einwilligung davor. Beim Einbau des Banners kam heraus, dass
+dieser eine Aufruf **überhaupt nie gefeuert hat**: Supabases Query-Builder ist
+ein *lazy thenable* — ohne `await` oder `.then()` wird die Anfrage nie
+abgeschickt. Der Aufruf sah funktionierend aus und war stiller toter Code.
+Das erklärt rückwirkend, warum in der Tabelle nie Daten ankamen.
+
+Umgesetzt: `CookieConsentContext` + `CookieConsentBanner` (Accept/Reject),
+der Insert läuft erst nach Zustimmung und ist jetzt korrekt awaited. Der
+Cookie-Abschnitt im Aviso Legal wurde dabei korrigiert — er behauptete
+Drittanbieter- und Personalisierungs-Cookies, die es auf dieser Seite gar
+nicht gibt. Eine Rechtstext-Behauptung über nicht existierende Cookies ist
+kein harmloser Platzhalter, sondern schlicht falsch.
+
+**Konsequenz für D6:** Der Punkt „der Eigentümer-Funnel ist nicht messbar"
+bleibt offen, ist aber jetzt anders begründet: nicht mehr „es fehlen Events",
+sondern „das eine Event läuft jetzt wirklich, alle weiteren fehlen noch".
+
+## 51 · Live-Preise: die Function fand die eigene Unterkunft nicht
+
+*Nachträglich dokumentiert am 30.08.2026 aus Commit `2b5830f` (24.08.2026).*
+
+`guesty-get-calendar` reichert Kalendertage über Guestys
+Booking-Engine-`/listings`-Suche mit Nachtpreisen an. Diese Suche hat **keinen
+Listing-ID-Filter** (gegen Guestys Doku bestätigt) — sie liefert generische,
+portfolioweite Treffer. Die Function funktionierte nur, solange das eigene
+Objekt zufällig auf Seite 1 auftauchte. Für ein junges Objekt wie Casa
+Heredia stapelten sich zwei Fehler:
+
+1. **Falscher Preis, still.** Der Code hatte ein `|| list[0]`-Fallback: wurde
+   das eigene Listing nicht gefunden, wurde der Preis eines **fremden**
+   Objekts diesem hier zugeschrieben. Ersatzlos entfernt — kein Live-Preis ist
+   besser als der Preis einer anderen Villa. Dieselbe Linie wie §38
+   („a made-up price is worse than a lost booking").
+2. **Null Treffer bei langen Zeiträumen.** Ein Objekt mit wenigen Buchungen
+   hat *eine* zusammenhängende freie Spanne über viele Monate. Genau die wurde
+   als ein einziges `checkIn`/`checkOut` angefragt — Guesty liest das als
+   beabsichtigten Aufenthalt, und einen Mehrmonats-Aufenthalt bucht niemand,
+   also kommen null Ergebnisse zurück.
+
+Gelöst durch Chunking in ~10-Tage-Fenster (`WINDOW_DAYS = 10`, gedeckelt auf
+`MAX_WINDOWS = 20`) plus Cursor-Paging bis zum eigenen Listing
+(`MAX_RATE_PAGES = 3`). **Bewusster Tausch:** Live-Preise fürs ganze Jahr
+gegen garantierte Live-Preise im nahen Zeitraum. Der Rest fällt weiterhin auf
+den eingefrorenen `price_per_night` zurück — das bleibt die Falle aus
+PROJECT.md „Preise", solange C4 offen ist.
+
+**Verifikation:** Deployed und live gegen Casa Heredia geprüft — Nachtpreise
+variieren jetzt tagesweise (192–208 EUR) statt den flachen Importwert zu
+zeigen.
+
+## 52 · Der Agentur-Credit ist wieder raus — und ein echter Mobile-Bug dabei
+
+*Nachträglich dokumentiert am 30.08.2026 aus Commit `a5cd538` (25.08.2026).*
+
+Der in §48 eingebaute „Website by AS Intel"-Credit (Link, Logo, drei
+Übersetzungen) ist wieder entfernt. Da `Footer.tsx` geteilt ist, gilt das für
+jede Seite. §48 ist damit zurückgedreht — wer es wieder einbauen will, findet
+dort die Ausführung, aber nicht mehr die Zustimmung.
+
+Beim Anfassen des Footers fiel ein echter Bug auf: `WhatsAppButton.tsx` klebt
+`fixed` unten rechts am Viewport, unabhängig vom Scrollstand. Am tatsächlichen
+Seitenende saß er auf schmalen Screens **direkt über der Copyright-Zeile**.
+Zusätzliches Bottom-Padding unterhalb von `sm:` schafft Luft; breitere Screens
+waren nie betroffen, weil die zentrierte Copyright-Zeile dort weit von dieser
+Ecke entfernt liegt.
+
+**Verifikation:** Überlappung vor dem Fix per Bounding-Rect nachgewiesen, nicht
+nach Augenmaß geschätzt.
+
+## 53 · Gäste-Suchfluss: Rücksprung, Wartezustand, Wunschorte
+
+*Arbeit vom 29.08.2026, committet am 30.08.2026.*
+
+Drei kleine Eingriffe in denselben Fluss (Suche → Objekt → zurück):
+
+**„Back to Properties" führte auf `/`.** Der Button rief `navigate("/")` — er
+verwarf nicht nur die Filter, er verließ die Objektliste komplett und setzte
+den Gast auf der Landingpage ab. Wer Marbella für eine Oktoberwoche gesucht
+hatte, musste die Suche für jede zweite Villa neu eingeben. `PropertyCard`
+reichte `checkIn`/`checkOut`/`guests` ohnehin schon in die Detail-URL durch;
+ergänzt ist nur `location`, und der Zurück-Link baut den Query-String aus
+denselben Parametern wieder zusammen. Der Not-Found-Redirect zeigt aus
+demselben Grund auf `/properties` statt auf `/`: ein veralteter Slug ist ein
+Listen-Problem, kein Anlass, jemanden zur Haustür zu schicken.
+
+**Der Wartezustand war zu leise.** Die Verfügbarkeitsprüfung läuft als eine
+Guesty-Anfrage *pro Objekt* und dauert Sekunden. Der Hinweis stand als
+`t-meta` in `text-muted-foreground` mit 12px-Spinner unter den
+Sortier-Controls — klein genug, dass das halb gefilterte Raster darüber als
+fertiges Ergebnis gelesen wurde. Jetzt über dem Eyebrow/Titel-Block, eigene
+zentrierte Zeile, `t-item` in `text-accent-strong`, 20px-Spinner.
+
+**Marbella und Estepona ohne eigenes Objekt.** Das Autocomplete bot nur Orte
+mit echtem Listing an — der Default ist richtig und ersetzt bewusst eine
+frühere hartkodierte Liste, die veraltete. Almedin verfolgt beide Orte aktiv;
+ein Gast, der sie eintippt, bekam gar keinen Vorschlag, was sich liest wie
+„da sind wir nicht". `FEATURED_REGIONS` ist die eng gefasste Ausnahme davon,
+gegen die echten Orte dedupliziert. **Die Liste bleibt kurz und begründet** —
+sie ist die einzige Stelle, an der die Komponente nach dem Fix wieder einen
+Ortsnamen hartkodiert.
+
+## 54 · Guaranteed Income bekommt mehr Gewicht, neue PM-Hero-Copy
+
+*Arbeit vom 29.08.2026, committet am 30.08.2026.*
+
+Almedin: Guaranteed Income ist für die meisten Eigentümer das attraktivere
+Modell — sie tragen kein Auslastungsrisiko. „Zwei Wege" stellte beide Modelle
+aber als Gleichstand dar: zwei gleich breite `Grid cols={2}`-Spalten, zwei
+identische Textlinks.
+
+**Gewicht kommt aus Breite und CTA-Form, nicht aus Farbe oder Badge.** Ein
+rohes 12-Spalten-Raster gibt Guaranteed Income 7 gegen 5 Spalten, `md:order`
+zieht es nach vorn, und sein Link ist ein voller Gold-Button, während
+Full-service den ruhigen Pfeil-Link behält. Beide Karten bekommen ein Icon.
+**Bewusst nicht gemacht:** kein „Empfohlen"-Badge und keine Zahl —
+Provisionsspanne und Vertragsdauer bleiben nach PROJECT.md D5 vom Netz.
+`md:order` sortiert nur visuell; `ways-model-name-0`/`-1` bedeuten weiterhin,
+was sie immer bedeutet haben (0 = Full-service, 1 = Guaranteed Income), damit
+Inline-Bearbeitung nicht ins Leere greift.
+
+Full-service war die einzige Karte ganz ohne Link und zeigt jetzt über den
+neuen Key `ways-model-link-0` ebenfalls auf `/guaranteed-income` — der
+Vergleich ist damit von beiden Seiten erreichbar.
+
+**Copy, alle drei Sprachen:**
+
+- PM-Hero: „Luxury Rental Management" / „We offer bespoke property management
+  and treat your home with care." → **„Bespoke Property Management"** /
+  „Tailored care for properties. Seamless ownership." Kürzer, und ohne das
+  Wort „Rental", das die Seite als Vermietungs-Listing rahmte statt als
+  Verwaltung. Nebenbei stellt das die Formulierung wieder her, die §2 von
+  Anfang an als PM-Hero vorsah.
+- `proof-benefits-heading`: „The Benefits" → **„Our Projects"**. Die
+  Überschrift steht direkt über den drei Case-Study-Karten, und das sind
+  Projekte, keine Vorteile — die alte Zeile versprach eine Liste, die die
+  Section nie geliefert hat.
+
+Dazu zwei Kleinigkeiten aus derselben Session: die Case Study „Villa Hoyo 19,
+La Quinta, Marbella" heißt jetzt „Hoyo 19, Benahavís", und das Vasari-Logo aus
+§43 ist durch eine höher aufgelöste Datei ersetzt (3,8 KB → 7,9 KB), weil es
+in der Logo-Größe aus §44 sichtbar weich wurde. Für die Umbenennung ist im
+Repo keine Begründung hinterlegt; sie ist so übernommen, wie sie vorlag.
+
+## 55 · SPA-Fallback für den Host, und Ignore-Regeln fürs Arbeitsverzeichnis
+
+*Dateien vom 29.08.2026, committet am 30.08.2026.*
+
+Die Seite ist client-side geroutet. Ohne Rewrite auf Host-Ebene läuft **jede
+URL außer `/`** beim Reload oder beim Öffnen in einem neuen Tab in ein
+Host-404, bevor React überhaupt geladen wird — jeder an einen Gast geschickte
+`/property/<slug>`-Link eingeschlossen.
+
+`vercel.json` und `public/_redirects` liegen **beide** im Repo, weil der Host
+weiterhin offen ist (§21): Vercel liest `vercel.json`, Netlify und Cloudflare
+Pages lesen `public/_redirects`. Sie drücken dieselbe Regel aus, und jeder
+Host liest nur seine eigene Datei — beide mitzuführen kostet nichts und nimmt
+die Entscheidung nicht vorweg.
+
+`.gitignore` ergänzt um `vite.config.ts.timestamp-*.mjs` (Vite schreibt die
+beim Laden der Config und räumt sie normalerweise selbst weg; die zwei
+liegengebliebenen stammen von einem am 29.08. abgestürzten Dev-Server und sind
+gelöscht), um `partner/` (die Original-Downloads der Partnerlogos vom
+22.08.; ausgeliefert werden `src/assets/partner-*.webp`) und um `prompt.md`
+(Almedins Notizzettel). Keine der drei wird irgendwo importiert.
+
+**Verifikation für §53–§55:** `tsc --noEmit` und `npm run build` sauber,
+`eslint` ohne neue Befunde (die 9 bestehenden Fehler in `Properties.tsx` und
+`PropertyDetail.tsx` sind Altlasten in unberührten Zeilen). **Keine
+Sichtprüfung im Browser** — die Änderungen lagen fertig im Working Tree;
+dokumentiert und committet wurde der vorgefundene Zustand, nicht neu gebaut.
+Der Rücksprung in die gefilterte Suche und die Gewichtung in „Zwei Wege"
+sollten vor dem nächsten Deploy einmal live angeschaut werden.
