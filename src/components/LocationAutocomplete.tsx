@@ -35,6 +35,17 @@ interface NominatimResult {
  * doesn't fetch properties at all today, and making it do so just to feed
  * this list would be the more invasive change.
  */
+/**
+ * Costa del Sol towns Frontier is actively targeting for SEO/search-intent
+ * reasons ahead of having a listing there yet (Almedin, 29.08.2026) — shown
+ * as suggestions even though `useRealLocations` below would otherwise omit
+ * anything without a live property. Keep this list short and deliberate:
+ * it is the one place this component intentionally re-introduces a
+ * hardcoded name after the fix documented below, so it should only ever
+ * hold towns actually being pursued, not "nice to have" additions.
+ */
+const FEATURED_REGIONS = ["Marbella", "Estepona"];
+
 const useRealLocations = () => {
   const [locations, setLocations] = useState<NominatimResult[]>([]);
 
@@ -55,6 +66,12 @@ const useRealLocations = () => {
       for (const row of data) {
         const city = row.location?.split(",")[0]?.trim();
         if (!city) continue;
+        const key = city.toLowerCase();
+        if (!byKey.has(key)) byKey.set(key, city);
+      }
+      // Add the featured regions on top of the real ones, without
+      // duplicating a town that already has a live listing.
+      for (const city of FEATURED_REGIONS) {
         const key = city.toLowerCase();
         if (!byKey.has(key)) byKey.set(key, city);
       }
