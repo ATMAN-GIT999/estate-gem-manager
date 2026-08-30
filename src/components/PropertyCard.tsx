@@ -49,12 +49,16 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     const checkIn = searchParams.get('checkIn');
     const checkOut = searchParams.get('checkOut');
     const guests = searchParams.get('guests');
-    
+    const location = searchParams.get('location');
+
     const params = new URLSearchParams();
     if (checkIn) params.set('checkIn', checkIn);
     if (checkOut) params.set('checkOut', checkOut);
     if (guests) params.set('guests', guests);
-    
+    // Forwarded so PropertyDetail's "Back to Properties" button can return
+    // to the same filtered search instead of a blank /properties page.
+    if (location) params.set('location', location);
+
     const queryString = params.toString();
     return `/property/${property.slug}${queryString ? `?${queryString}` : ''}`;
   };

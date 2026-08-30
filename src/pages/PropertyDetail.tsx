@@ -53,6 +53,23 @@ const PropertyDetail = () => {
     guests: parseInt(searchParams.get('guests') || "1"),
   });
 
+  // Reassembled from the same URL params PropertyCard forwarded in, so
+  // "Back to Properties" lands on the exact search the guest came from
+  // instead of a blank /properties page.
+  const backToPropertiesLink = (() => {
+    const params = new URLSearchParams();
+    const location = searchParams.get('location');
+    const checkIn = searchParams.get('checkIn');
+    const checkOut = searchParams.get('checkOut');
+    const guests = searchParams.get('guests');
+    if (location) params.set('location', location);
+    if (checkIn) params.set('checkIn', checkIn);
+    if (checkOut) params.set('checkOut', checkOut);
+    if (guests) params.set('guests', guests);
+    const queryString = params.toString();
+    return `/properties${queryString ? `?${queryString}` : ''}`;
+  })();
+
   const range: DateRange | undefined = booking.checkIn
     ? {
         from: new Date(booking.checkIn + "T00:00:00"),
@@ -82,7 +99,7 @@ const PropertyDetail = () => {
           title: t("pd-toast-not-found-title"),
           description: t("pd-toast-not-found-desc"),
         });
-        navigate("/");
+        navigate("/properties");
         return;
       }
 
@@ -183,7 +200,7 @@ const PropertyDetail = () => {
           {/* Back Button */}
           <Button
             variant="outline"
-            onClick={() => navigate("/")}
+            onClick={() => navigate(backToPropertiesLink)}
             className="mb-6 mt-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
