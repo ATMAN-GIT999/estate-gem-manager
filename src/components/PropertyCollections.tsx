@@ -275,24 +275,32 @@ const PropertyCollections = () => {
     fetchProperties();
   }, []);
 
+  // Highest nightly rate first within a rail — the same default /properties
+  // itself opens on (Properties.tsx's `sortOption` starts at "price-desc").
+  // Without this, a rail ordered by `created_at` puts whichever property was
+  // imported last in front, which for "Luxury Stays for You" specifically
+  // undersells the collection: the point of that rail is to lead with the
+  // homes that earn the name.
+  const byPriceDesc = (a: Property, b: Property) => (b.price_per_night || 0) - (a.price_per_night || 0);
+
   const collections: Collection[] = [
     {
       id: "luxury",
       title: t("coll-luxury-title"),
       lead: t("coll-luxury-lead"),
-      properties: properties.filter((p) => classify(p) === "coastal"),
+      properties: properties.filter((p) => classify(p) === "coastal").sort(byPriceDesc),
     },
     {
       id: "city",
       title: t("coll-city-title"),
       lead: t("coll-city-lead"),
-      properties: properties.filter((p) => classify(p) === "city"),
+      properties: properties.filter((p) => classify(p) === "city").sort(byPriceDesc),
     },
     {
       id: "offgrid",
       title: t("coll-offgrid-title"),
       lead: t("coll-offgrid-lead"),
-      properties: properties.filter((p) => classify(p) === "offgrid"),
+      properties: properties.filter((p) => classify(p) === "offgrid").sort(byPriceDesc),
     },
   ];
 
