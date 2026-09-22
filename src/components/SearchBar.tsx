@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { addDays, format, startOfDay } from "date-fns";
-import { CalendarIcon, Minus, Plus, Search, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, CalendarIcon, Minus, Plus, Search, SlidersHorizontal } from "lucide-react";
 import LocationAutocomplete from "@/components/LocationAutocomplete";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -167,15 +166,15 @@ const SearchBar = ({
   // Stacked on mobile, so the dividers have to run horizontally there and
   // switch to vertical only once the fields sit side by side.
   const fieldDivider = "border-b md:border-b-0 md:border-r border-border";
-  const fieldPad = "px-4 py-1.5";
+  const fieldPad = "px-6 py-2";
   // Gold micro-label above a dark value — the OmniVillas reference layout.
   // Same look everywhere the bar appears now (hero video, sticky filter
   // strip); the two call sites used to diverge here (colour, background),
   // which is why a `variant` prop existed — dropped along with that split.
-  const fieldLabel = "block text-[10px] font-bold uppercase tracking-wide text-accent-strong mb-0.5";
+  const fieldLabel = "block t-tag text-accent-strong mb-1";
 
   return (
-    <Card className="relative z-50 mx-auto w-full max-w-2xl overflow-visible rounded-2xl border border-border bg-card p-1.5 shadow-sm md:rounded-full">
+    <div className="relative z-50 mx-auto w-full max-w-[900px] overflow-visible rounded-2xl border border-border bg-background p-1.5 shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.2)] md:rounded-full">
       <form
         onSubmit={handleSubmit}
         className="flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-0"
@@ -188,7 +187,7 @@ const SearchBar = ({
           <span className={fieldLabel}>{t("searchbar.checkInLabel")}</span>
           <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-sm text-foreground")}>
+              <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-[15px] text-foreground")}>
                 <span className="truncate">{checkInDate ? format(checkInDate, "d MMM yyyy") : t("searchbar.checkIn")}</span>
                 <CalendarIcon className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               </Button>
@@ -209,7 +208,7 @@ const SearchBar = ({
           <span className={fieldLabel}>{t("searchbar.checkOutLabel")}</span>
           <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-sm text-foreground")}>
+              <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-[15px] text-foreground")}>
                 <span className="truncate">{checkOutDate ? format(checkOutDate, "d MMM yyyy") : t("searchbar.checkOut")}</span>
                 <CalendarIcon className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               </Button>
@@ -233,7 +232,7 @@ const SearchBar = ({
           <span className={fieldLabel}>{t("searchbar.whoLabel")}</span>
           <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className={cn(triggerClass, "text-sm text-foreground")}>
+              <Button variant="ghost" className={cn(triggerClass, "text-[15px] text-foreground")}>
                 {guestCount > 0 ? `${guestCount} ${guestCount === 1 ? t("searchbar.guest") : t("searchbar.guestsPlural")}` : t("searchbar.guests")}
               </Button>
             </PopoverTrigger>
@@ -283,16 +282,22 @@ const SearchBar = ({
           </Popover>
         </div>
 
+        {/* A 52px circle, not a labelled pill: on the wireframe's bar the
+            three fields carry all the words and the button is the full stop.
+            The label stays as the accessible name. */}
         <Button
           type="submit"
-          aria-label="Search properties"
-          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-none rounded-full h-10 px-5 gap-2 shrink-0"
+          aria-label={t("searchbar.search")}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-none rounded-full h-[52px] w-full md:w-[52px] shrink-0 p-0"
         >
-          <Search className="h-4 w-4" />
-          {t("searchbar.search")}
+          <ArrowRight className="h-5 w-5 hidden md:block" strokeWidth={1.75} />
+          <span className="md:hidden inline-flex items-center gap-2">
+            <Search className="h-4 w-4" />
+            {t("searchbar.search")}
+          </span>
         </Button>
       </form>
-    </Card>
+    </div>
   );
 };
 

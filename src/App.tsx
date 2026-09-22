@@ -13,6 +13,7 @@ import EditModeToggle from "./components/admin/EditModeToggle";
 import WhatsAppButton from "./components/WhatsAppButton";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import ScrollToTop from "./components/ScrollToTop";
+import PageTransition from "./components/PageTransition";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
@@ -80,6 +81,7 @@ const App = () => (
             <WhatsAppButton />
             <CookieConsentBanner />
             <Suspense fallback={<RouteFallback />}>
+            <PageTransition>
             <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
@@ -113,6 +115,7 @@ const App = () => (
             <Route path="/p/:slug" element={<DynamicPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </PageTransition>
             </Suspense>
           </CookieConsentProvider>
           </LocaleProvider>

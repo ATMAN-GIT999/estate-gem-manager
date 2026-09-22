@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import EditableText from "@/components/admin/EditableText";
 import PageWrapper from "@/components/PageWrapper";
 import SearchBar from "@/components/SearchBar";
-import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { format, addDays, parseISO, isValid } from "date-fns";
 import Seo from "@/components/Seo";
@@ -18,6 +17,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLocale } from "@/contexts/LocaleContext";
 
 type SortOption = "recommended" | "price-asc" | "price-desc";
+
+/** Three rows of three before the list asks to be continued. */
+const PAGE_SIZE = 9;
 
 const parseDateParam = (value: string | null) => {
   if (!value) return undefined;
@@ -37,6 +39,8 @@ const PropertiesContent = () => {
   // Highest price first by default — the priciest homes are also the most
   // impressive ones in this portfolio, so this puts the best foot forward.
   const [sortOption, setSortOption] = useState<SortOption>("price-desc");
+  const [bedroomFilter, setBedroomFilter] = useState("any");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const [locationInput, setLocationInput] = useState(searchParams.get("location") || "");
   const [checkInInput, setCheckInInput] = useState<Date | undefined>(() => parseDateParam(searchParams.get("checkIn")));
@@ -86,10 +90,11 @@ const PropertiesContent = () => {
         if (!ok) return false;
       }
       if (activeGuests > 0 && (p.guests || 0) < activeGuests) return false;
+      if (bedroomFilter !== "any" && (p.bedrooms || 0) < parseInt(bedroomFilter, 10)) return false;
       if (availabilityFilter && p.guesty_listing_id && !availabilityFilter.has(p.id)) return false;
       return true;
     });
-  }, [properties, activeLocation, activeGuests, availabilityFilter]);
+  }, [properties, activeLocation, activeGuests, availabilityFilter, bedroomFilter]);
 
   // "Recommended" is the fetch order already (featured first, then newest) —
   // only the two price options need an actual re-sort.
@@ -171,6 +176,12 @@ const PropertiesContent = () => {
     };
   }, [activeCheckIn, activeCheckOut, properties]);
 
+  // A filter change that shrinks the list must not leave "View more"
+  // offering a page that no longer exists.
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [activeLocation, activeCheckIn, activeCheckOut, activeGuests, bedroomFilter, sortOption]);
+
   const applySearch = () => {
     const next = new URLSearchParams(searchParams);
     locationInput ? next.set("location", locationInput) : next.delete("location");
@@ -181,6 +192,7 @@ const PropertiesContent = () => {
   };
 
   const clearSearch = () => {
+    setBedroomFilter("any");
     setLocationInput("");
     setCheckInInput(undefined);
     setCheckOutInput(undefined);
@@ -201,117 +213,138 @@ const PropertiesContent = () => {
       <Navigation />
 
       <main className="flex-1 pt-24 overflow-x-clip">
-        {/* Local search / filter bar */}
-        <div className="border-b border-border bg-background sticky top-20 z-40 shadow-sm overflow-visible">
-          <Container className="py-sm">
-            <SearchBar
-              collapsible
-              location={locationInput}
-              checkInDate={checkInInput}
-              checkOutDate={checkOutInput}
-              guests={guestsInput}
-              onLocationChange={setLocationInput}
-              onCheckInChange={setCheckInInput}
-              onCheckOutChange={setCheckOutInput}
-              onGuestsChange={setGuestsInput}
-              onSearch={applySearch}
-            />
-            {(activeLocation || activeCheckIn || activeCheckOut || activeGuests > 0) && (
-              <div className="mt-2 flex items-center gap-2 t-meta text-muted-foreground">
-                <span>{t("properties.filteringActive")}</span>
-                <button
-                  type="button"
-                  onClick={clearSearch}
-                  className="underline hover:text-foreground"
-                >
-                  {t("properties.clear")}
-                </button>
-              </div>
+        {/* The landing page's own search bar, in the place a hero would be.
+            There is no photograph to overlay a hero on here, so the header is
+            solid from the first pixel and the widget the guest already knows
+            takes the top of the page instead. */}
+        <Section tone="quiet" size="sm" measure="wide">
+          <SearchBar
+            location={locationInput}
+            checkInDate={checkInInput}
+            checkOutDate={checkOutInput}
+            guests={guestsInput}
+            onLocationChange={setLocationInput}
+            onCheckInChange={setCheckInInput}
+            onCheckOutChange={setCheckOutInput}
+            onGuestsChange={setGuestsInput}
+            onSearch={applySearch}
+          />
+        </Section>
+
+        {/* Refining the list, as one quiet row of controls under the search.
+            The wireframe also draws "Budget" and "Collection" chips. Neither
+            is wired up: "Collection" has no column behind it at all
+            (docs/PROJECT.md D8), and a budget filter could only sort on
+            `price_per_night`, which is the frozen import value rather than a
+            price. A chip that silently filters on the wrong number is worse
+            than no chip, so they are left out until there is data for them. */}
+        <div className="border-b border-border">
+          <Container className="py-3 flex flex-wrap items-center gap-x-md gap-y-2">
+            <span className="t-tag text-accent-strong">{t("properties.allFilters")}</span>
+
+            <Select value={bedroomFilter} onValueChange={setBedroomFilter}>
+              <SelectTrigger className="h-9 w-auto gap-2 rounded-full border-border bg-background px-4 t-body">
+                <SelectValue placeholder={t("properties.bedrooms")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">
+                  {t("properties.bedrooms")} · {t("properties.any")}
+                </SelectItem>
+                {["1", "2", "3", "4", "5"].map((n) => (
+                  <SelectItem key={n} value={n}>
+                    {n}+ {t("properties.bedrooms")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={sortOption} onValueChange={(v) => setSortOption(v as SortOption)}>
+              <SelectTrigger className="h-9 w-auto gap-2 rounded-full border-border bg-background px-4 t-body">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recommended">{t("properties.sortRecommended")}</SelectItem>
+                <SelectItem value="price-asc">{t("properties.sortPriceAsc")}</SelectItem>
+                <SelectItem value="price-desc">{t("properties.sortPriceDesc")}</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {(activeLocation ||
+              activeCheckIn ||
+              activeCheckOut ||
+              activeGuests > 0 ||
+              bedroomFilter !== "any") && (
+              <button
+                type="button"
+                onClick={clearSearch}
+                className="t-body text-accent-strong underline underline-offset-4 hover:text-foreground transition-colors"
+              >
+                {t("properties.clear")}
+              </button>
             )}
           </Container>
         </div>
 
-        {/* Properties Grid */}
-        <Section size="sm">
-          <div className="mb-md">
-            {/* Large + centered, ahead of the title: a per-property Guesty
-                calendar check can take a few seconds, and the small inline
-                label below the title (previous layout) was easy to miss —
-                guests read it as the page being done loading, not still
-                filtering. This sits on its own row so it can't be confused
-                with the eyebrow/title block underneath. */}
-            {checkingAvailability && (
-              <p className="mb-sm flex items-center justify-center gap-2 t-item text-accent-strong text-center">
-                <Loader2 className="w-5 h-5 animate-spin" /> {t("properties.checkingAvailability")}
-              </p>
-            )}
-            <EditableText
-              id="properties-page-eyebrow"
-              value={pageEyebrow}
-              onChange={setPageEyebrow}
-              as="span"
-              className="block t-meta text-accent-strong mb-2"
-            >
-              {pageEyebrow}
-            </EditableText>
-            <EditableText
-              id="properties-page-title"
-              value={pageTitle}
-              onChange={setPageTitle}
-              as="h1"
-              className="t-display text-primary"
-            >
-              {pageTitle}
-            </EditableText>
-            <div className="flex items-center justify-between gap-3 mt-3 flex-wrap">
-              <span className="t-body text-muted-foreground">
-                {loading
-                  ? "Loading…"
-                  : `${sorted.length} ${sorted.length === 1 ? t("properties.home") : t("properties.homes")}`}
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{t("properties.sort")}</span>
-                <Select value={sortOption} onValueChange={(v) => setSortOption(v as SortOption)}>
-                  <SelectTrigger className="h-auto w-auto gap-2 rounded-md border-border bg-card px-3 py-1.5 text-xs text-accent-strong [&>span]:line-clamp-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="recommended">{t("properties.sortRecommended")}</SelectItem>
-                    <SelectItem value="price-asc">{t("properties.sortPriceAsc")}</SelectItem>
-                    <SelectItem value="price-desc">{t("properties.sortPriceDesc")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
+        <Section size="md">
+          {/* A per-property Guesty calendar check takes a few seconds, and a
+              small inline label read as the page being done loading rather
+              than still filtering. */}
+          {checkingAvailability && (
+            <p className="mb-md flex items-center justify-center gap-2 t-item text-accent-strong text-center">
+              <Loader2 className="w-5 h-5 animate-spin" /> {t("properties.checkingAvailability")}
+            </p>
+          )}
+
+          {/* The page's one h1, and the most useful sentence on it: how many
+              homes there are and where they are. */}
+          <EditableText
+            id="properties-page-title"
+            value={pageTitle}
+            onChange={setPageTitle}
+            as="h1"
+            className="t-section text-foreground text-balance max-w-2xl mb-lg"
+          >
+            {pageTitle.replace("{n}", loading ? "" : String(sorted.length)).trim()}
+          </EditableText>
 
           {loading ? (
-            <Grid cols={3} gap="sm">
+            <Grid cols={3} gap="md">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="aspect-[4/3] w-full" />
-                  <Skeleton className="h-8 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
+                <div key={i} className="space-y-3">
+                  <Skeleton className="aspect-[3/4] w-full" />
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
                 </div>
               ))}
             </Grid>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-xl border border-dashed border-border rounded-lg">
+          ) : sorted.length === 0 ? (
+            <div className="text-center py-xl border-t border-border">
               <p className="t-block text-foreground mb-2">{t("properties.noMatch")}</p>
-              <p className="t-body text-muted-foreground mb-4">
-                {t("properties.tryDifferent")}
-              </p>
-              <Button variant="outline" onClick={clearSearch}>
+              <p className="t-body text-muted-foreground mb-4">{t("properties.tryDifferent")}</p>
+              <button type="button" onClick={clearSearch} className="cta-base cta-secondary">
                 {t("properties.clearFilters")}
-              </Button>
+              </button>
             </div>
           ) : (
-            <Grid cols={3} gap="sm">
-              {sorted.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </Grid>
+            <>
+              <Grid cols={3} gap="md">
+                {sorted.slice(0, visibleCount).map((property) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+              </Grid>
+
+              {visibleCount < sorted.length && (
+                <div className="mt-lg text-center">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+                    className="cta-base cta-secondary"
+                  >
+                    {t("properties.viewMore")} &rarr;
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </Section>
       </main>

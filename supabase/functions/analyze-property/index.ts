@@ -140,7 +140,7 @@ CRITICAL FORMATTING RULES:
 Property:
 - Address: ${propertyData.address}
 - Bedrooms: ${propertyData.bedrooms}
-- Bathrooms: ${propertyData.bathrooms}
+- Bathrooms: ${propertyData.bathrooms || "Not specified"}
 - Type: ${propertyData.propertyType || "Apartment"}
 - Size: ${propertyData.size ? propertyData.size + " sqm" : "Unknown"}
 - Maximum Guests: ${propertyData.guests || "Not specified"}

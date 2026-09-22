@@ -21,6 +21,8 @@ interface LanguageCurrencySwitcherProps {
    * the contrast the OmniVillas reference header uses between its outlined
    * utility pill and its solid dark button. */
   size?: "sm" | "md";
+  /** White-on-transparent, for the header while it floats over a hero. */
+  onDark?: boolean;
   className?: string;
 }
 
@@ -37,7 +39,7 @@ interface LanguageCurrencySwitcherProps {
  * anywhere else. That's a separate, considerably larger piece of work,
  * pending Almedin confirming its scope.
  */
-const LanguageCurrencySwitcher = ({ showCurrency = false, variant = "dropdown", size = "md", className }: LanguageCurrencySwitcherProps) => {
+const LanguageCurrencySwitcher = ({ showCurrency = false, variant = "dropdown", size = "md", onDark = false, className }: LanguageCurrencySwitcherProps) => {
   const { language, setLanguage, currency, setCurrency } = useLocale();
   const [open, setOpen] = useState(false);
   const compact = size === "sm";
@@ -84,7 +86,10 @@ const LanguageCurrencySwitcher = ({ showCurrency = false, variant = "dropdown", 
         <button
           type="button"
           className={cn(
-            "rounded-full border border-primary-foreground/30 text-primary-foreground transition-colors hover:border-primary-foreground/60",
+            "rounded-full border transition-colors",
+            onDark
+              ? "border-white/40 text-white hover:border-white/70"
+              : "border-border text-foreground hover:border-foreground/40",
             compact ? "px-4 py-2 text-xs" : "px-5 py-2.5 text-sm",
             className,
           )}

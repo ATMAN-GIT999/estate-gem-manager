@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, CheckCircle2, Loader2, MessageCircle } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Container, MediaFrame, Section } from "./layout";
-import losMonterosRelax from "@/assets/los-monteros-relax.webp";
+import contactNight from "@/assets/wf-contact-night.webp";
 import { useLocale } from "@/contexts/LocaleContext";
 
 /**
@@ -103,7 +103,7 @@ const OwnerContactForm = () => {
   // Los Monteros' garden — the same photo the Relax band used before it was
   // retired, not a new one, so nothing about the page's photography changed,
   // only where this particular image sits.
-  const [formImage, setFormImage] = useState(losMonterosRelax);
+  const [formImage, setFormImage] = useState(contactNight);
 
   useEffect(() => {
     setEyebrow(t("owner-form-eyebrow"));
@@ -182,7 +182,30 @@ const OwnerContactForm = () => {
   };
 
   return (
-    <Section id="get-in-touch" size="none" tone="primary" edge="top" bleed>
+    // A full-bleed photograph darkened by --overlay-ink-fade until its bottom
+    // edge IS the footer's ink, so the page's last word and the footer meet
+    // with no seam. Darker than the media overlay elsewhere on purpose: a form
+    // has to stay legible over whatever the photograph happens to be doing.
+    <section
+      id="get-in-touch"
+      className="relative scroll-mt-24 overflow-hidden text-primary-foreground"
+    >
+      <MediaFrame
+        id="pm-relax-image"
+        src={formImage}
+        alt="A Frontier Residences managed villa at dusk"
+        onChange={setFormImage}
+        note="Contact — villa at night, pool lit, wide crop"
+        fill
+        onPrimary
+      />
+      <div
+        className="absolute inset-0"
+        style={{ background: "var(--overlay-ink-fade)" }}
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10">
       {sent ? (
         /* The confirmation replaces the form rather than sitting next to it:
            a filled-in form left on screen invites a second identical send. */
@@ -219,42 +242,15 @@ const OwnerContactForm = () => {
 
            No container and no rounded corners: the two halves are meant to
            meet the browser edge. */
-        <div className="grid md:grid-cols-2 items-stretch">
-          {/* A minimum height so the picture is still a picture on a phone,
-              where it stacks above the form instead of sitting beside it.
-              Trimmed with the rest of the band (18rem → 15rem, the same ~10%
-              this whole section came down by) rather than left at its old
-              size while everything around it shrank. */}
-          <div className="relative min-h-[13rem]">
-            <MediaFrame
-              id="pm-relax-image"
-              src={formImage}
-              alt="A terrace at one of the managed properties"
-              onChange={setFormImage}
-              note="Relax — sunlit rooftop terrace, golden hour"
-              fill
-              onPrimary
-            />
-          </div>
-
-          {/* Centred in its own half rather than pinned to the split, and a
-              measure wider than a form usually gets: against 700-odd px of
-              photograph, a 448px column pushed to the left edge leaves the
-              right third of the band empty and the two halves stop reading as
-              halves.
-
-              py-lg, not py-xl: one step down the spacing ladder (DESIGN.md
-              §2) for the ~10% more compact band Almedin asked for — a step on
-              the existing ladder rather than an arbitrary new value. */}
-          <div className="flex flex-col justify-center px-sm py-lg md:px-lg">
-            <div className="w-full max-w-lg mx-auto">
-              <div className="mb-md">
+        <Container className="py-2xl">
+          <div className="w-full max-w-xl mx-auto">
+              <div className="mb-md text-center">
                 <EditableText
                   id="owner-form-eyebrow"
                   value={eyebrow}
                   onChange={setEyebrow}
                   as="span"
-                  className="block t-meta text-accent-on-primary mb-4"
+                  className="block t-tag text-accent-on-primary mb-4"
                 >
                   {eyebrow}
                 </EditableText>
@@ -391,10 +387,14 @@ const OwnerContactForm = () => {
                   </Button>
                 </div>
 
+                <p className="t-body text-primary-foreground/70 text-center">
+                  {t("owner-form-note")}
+                </p>
+
                 {/* Left, not centred: in this column it runs to three lines,
                     and three centred lines of all-caps is a paragraph nobody
                     reads — which is the opposite of the point of saying it. */}
-                <p className="t-meta text-primary-foreground/65">
+                <p className="t-meta text-primary-foreground/60">
                   {t("owner-form-privacy-note")}{" "}
                   <a href={`mailto:${CONTACT_EMAIL}`} className="text-accent-on-primary hover:underline">
                     {CONTACT_EMAIL}
@@ -402,11 +402,11 @@ const OwnerContactForm = () => {
                   .
                 </p>
               </form>
-            </div>
           </div>
-        </div>
+        </Container>
       )}
-    </Section>
+      </div>
+    </section>
   );
 };
 

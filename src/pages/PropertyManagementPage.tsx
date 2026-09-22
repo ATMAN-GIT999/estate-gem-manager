@@ -2,15 +2,17 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
-import { breadcrumbSchema, organizationSchema } from "@/lib/schema";
+import { breadcrumbSchema, faqSchema, organizationSchema } from "@/lib/schema";
 import OwnerHero from "@/components/OwnerHero";
+import TrustBand from "@/components/TrustBand";
+import TheClaim from "@/components/TheClaim";
 import TheSystem from "@/components/TheSystem";
-import Proof from "@/components/Proof";
 import WorkingWith from "@/components/WorkingWith";
 import AboutMini from "@/components/AboutMini";
 import WaysToWorkTogether from "@/components/WaysToWorkTogether";
+import RenovationsAndInvestments from "@/components/RenovationsAndInvestments";
 import OwnerContactForm from "@/components/OwnerContactForm";
-import FAQ from "@/components/FAQ";
+import FAQ, { OWNER_FAQ_ITEMS } from "@/components/FAQ";
 
 const PropertyManagementPageContent = () => (
   <div className="min-h-screen flex flex-col">
@@ -24,80 +26,61 @@ const PropertyManagementPageContent = () => (
           { name: "Home", path: "/" },
           { name: "Property Management", path: "/property-management" },
         ]),
+        faqSchema(OWNER_FAQ_ITEMS),
       ]}
     />
     <Navigation overlay variant="propertyManagement" />
 
-    {/* The order is docs/PROJECT.md §2, and it is worth protecting because it
-        is an argument rather than a list: here is the house → here is
-        everything we do to it → here is what that produced on real ones →
-        here is how you'd engage us → here is who we are → here are the two
-        side doors → here is what people ask → here is how to start. Moving a
-        block breaks the sentence, not just the layout.
+    {/* Ten sections, and the order is the argument, not a list:
+        here is what your house could earn → here is what we have already run →
+        here is the claim → here is how the work happens → here is how you'd
+        engage us → here is where your house goes live → here is the half of
+        the business that is not management → here is who does it → here is
+        what people ask → here is how to start.
 
-        Renovations/Investments no longer has a band of its own after About —
-        it is the second half of the commercial-decision section, under a
-        labelled gold break ("Beyond management"), so the whole argument from
-        "how you'd engage us" through "here are the two side doors" reads as
-        one continuous band instead of being split by About in between
-        (docs/DECISIONS.md §16). "We manage while you relax" moved even
-        earlier (§15) — it lives in the contact form's own image and heading
-        now.
-
-        Eight sections now, not seven — "Working with" (§35) sits between
-        Proof and the commercial decision on purpose: it is not part of the
-        argument those two build, it is a breath between the two heaviest
-        sections on the page.
-
-        The rhythm alternates on purpose and should stay alternating: heavy,
-        heavy, heavy (the opening sequence earns three) → light (the one
-        deliberate exception) → heavy → medium → medium → heavy. Two heavy
-        sections back to back anywhere below Proof is the signal something
-        has grown.
+        The page opens on the calculator rather than on a photograph. An owner
+        arrives with one question, and it is a number; everything else on the
+        page is an answer to "and can I trust you with it".
 
         overflow-x-clip is the safety net for the full-bleed bands: `100vw` can
-        be a hair wider than the visible viewport when a scrollbar is present,
-        and without this the page would gain a few pixels of horizontal
-        scroll. */}
+        be a hair wider than the visible viewport when a scrollbar is present. */}
     <main className="flex-1 overflow-x-clip">
-      {/* 1 — The house, the promise, and the two things to do about it. */}
+      {/* 1 — The question they came with, answerable in two fields. */}
       <OwnerHero />
 
-      {/* 2 — Everything Frontier does, once, in the order it happens. The
-          page's centre of gravity; it replaces three sections that each told
-          a slice of the same story. */}
+      {/* 2 — What is behind the offer, before any of it is described. */}
+      <TrustBand />
+
+      {/* 3 — The sentence the rest of the page argues for. */}
+      <TheClaim />
+
+      {/* 4 — Three steps. Not the full operating model; the three things that
+          change for the owner. */}
       <TheSystem />
 
-      {/* 3 — The evidence, at two scales: the portfolio, then three houses. */}
-      <Proof />
-
-      {/* 4 — A deliberate breather between the two heaviest sections on the
-          page: no headline, no CTA, just an eyebrow and a row of logos, on
-          the beige page background rather than continuing Proof's green
-          fill. Almedin confirmed mixing guest-facing brands (Netflix) and
-          trade contractors under one "Working with" label is intentional. */}
-      <WorkingWith />
-
-      {/* 5 — The commercial decision, in two halves under one band: the two
-          engagement models first, then — behind a labelled gold break — the
-          two side doors for owners it does not fit yet (a renovation first,
-          or not an owner here yet). Investments stays last of the four
-          because it targets an investor looking to buy, not the owner the
-          rest of the page is written for (DECISIONS §2). */}
+      {/* 5 — The commercial decision. Deliberately unequal: fixed rent leads. */}
       <WaysToWorkTogether />
 
-      {/* 6 — Who runs it. The one call to action mid-page sits at the end of
-          this section, because this is the question an owner actually
-          decides on. */}
+      {/* 6 — A breath between the two heaviest sections, and an argument of
+          its own on this side of the site: the channels a house goes live on.
+          On the guest page these same logos would be a leak. */}
+      <WorkingWith />
+
+      {/* 7 — The other half of the business, as equals, then one case study. */}
+      <RenovationsAndInvestments />
+
+      {/* 8 — Whether there is anyone behind the company. */}
       <AboutMini />
 
-      {/* 7 — Deliberately the guest FAQ with a new heading, as requested;
-          owner-specific questions need content from the client
-          (PROJECT.md §6, "Bewusst so gelassen"). */}
-      <FAQ eyebrow="" heading="Frequently Asked Questions" />
+      {/* 9 — The five owner questions from the wireframe, not the guest FAQ
+          relabelled. Two of the five (contract term/notice, damage
+          liability) have no published number to state — see FAQ.tsx's file
+          comment and docs/PROJECT.md D11 — so they say plainly that it's
+          agreed with you rather than inventing a figure. */}
+      <FAQ eyebrow="" variant="owner" />
 
-      {/* 8 — The bookend to the hero: every "Contact Us" above lands here,
-          now carrying "We manage while you relax" as its own opening beat. */}
+      {/* 10 — The bookend to the hero: every "contact us" above lands here,
+          on a photograph that fades into the footer with no seam. */}
       <OwnerContactForm />
     </main>
     <Footer />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import BookingSummary from "@/components/BookingSummary";
@@ -8,10 +8,11 @@ import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
-import { MapPin, Bed, Bath, Users, ArrowLeft, Images, ChevronLeft, ChevronRight } from "lucide-react";
+import { Container, Grid, Panel, Section } from "@/components/layout";
+import PropertyCard, { type Property } from "@/components/PropertyCard";
+import SurroundingsMap from "@/components/SurroundingsMap";
+import { Bed, Bath, Users, Images, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { getAmenityIcon } from "@/lib/amenityIcons";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +34,11 @@ const propertyImages: Record<string, string[]> = {
   "los-monteros-retreat": [losMonterosCard],
 };
 
+/** Eight standout items, not the full amenity checklist. */
+const KEY_FEATURE_COUNT = 8;
+
+const WHATSAPP_URL = "https://wa.me/34649429678";
+
 const PropertyDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -45,6 +51,7 @@ const PropertyDetail = () => {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [datesValid, setDatesValid] = useState(false);
+  const [similar, setSimilar] = useState<Property[]>([]);
   
   // Initialize booking state with URL params if available
   const [booking, setBooking] = useState({
@@ -114,6 +121,44 @@ const PropertyDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, navigate, toast]);
 
+  // Homes in the same place, minus this one. "Similar" by location is the
+  // only relationship the table actually models — anything finer (same size,
+  // same price band) would be a guess dressed up as a recommendation.
+  useEffect(() => {
+    if (!property?.location) return;
+    let cancelled = false;
+    const load = async () => {
+      const { data } = await supabase
+        .from("properties")
+        .select("*")
+        .eq("available", true)
+        .eq("location", property.location)
+        .neq("slug", property.slug)
+        .limit(3);
+      // The generated row type widens `images` to `Json`; PropertyCard wants
+      // the {url, caption} shape the importer actually writes.
+      if (!cancelled && data) setSimilar(data as unknown as Property[]);
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [property?.location, property?.slug]);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: property?.name, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast({ title: t("pd-copied") });
+    } catch {
+      // A cancelled share sheet rejects too — nothing to report to the guest.
+    }
+  };
+
   const handleBookNow = () => {
     // Open in-app booking flow powered by the Guesty Booking API
     if (!booking.checkIn || !booking.checkOut) {
@@ -160,6 +205,17 @@ const PropertyDetail = () => {
 
   // A property's own words if it has any, trimmed to roughly what a search
   // result will actually display, otherwise a sentence built from its facts.
+  const keyFeatures: string[] = (property.amenities ?? []).slice(0, KEY_FEATURE_COUNT);
+
+  // `nearby_amenities` is a column nothing currently writes (an unwired
+  // leftover). Read it if a row ever carries one; render nothing otherwise
+  // rather than inventing walking times.
+  const nearby: string[] = Array.isArray(property.nearby_amenities)
+    ? (property.nearby_amenities as any[]).map((n) =>
+        typeof n === "string" ? n : [n?.name, n?.distance].filter(Boolean).join(" — ")
+      )
+    : [];
+
   const metaDescription = property.description
     ? String(property.description).replace(/\s+/g, " ").trim().slice(0, 155)
     : `${property.bedrooms === 0 ? "Studio" : `${property.bedrooms}-bedroom`} ${String(property.type ?? "property").toLowerCase()} in ${property.location}, sleeping up to ${property.guests}. Book directly with Frontier Residences.`;
@@ -195,26 +251,41 @@ const PropertyDetail = () => {
         ]}
       />
       <Navigation />
-      <main className="flex-1 pt-24 pb-12">
-        <div className="container mx-auto px-4">
-          {/* Back Button */}
-          <Button
-            variant="outline"
-            onClick={() => navigate(backToPropertiesLink)}
-            className="mb-6 mt-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {t("pd-back")}
-          </Button>
 
-          {/* Gallery — one lead image with four beside it, capped at half the
-              viewport. It used to be six 4:3 tiles in a three-column grid: two
-              full rows, around 700px of photograph before a reader reached a
-              single word about the property. Tiles carry no radius of their own
-              and sit on a 2px gap inside one rounded frame, so the block reads
-              as one image rather than five boxes. */}
-          <div className="relative mb-10">
-            <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 h-[50vh] min-h-[320px] max-h-[560px] rounded-2xl overflow-hidden">
+      <main className="flex-1 pt-24">
+        {/* Breadcrumb, not a back button. It says where the visitor is as well
+            as where they came from, and it keeps the filtered search they
+            arrived from alive in the link. */}
+        <Container className="py-sm">
+          <nav aria-label="Breadcrumb">
+            <ol className="flex flex-wrap items-center gap-2 t-body text-muted-foreground">
+              <li>
+                <Link to={backToPropertiesLink} className="hover:text-accent-strong transition-colors">
+                  {t("pd-all-homes")}
+                </Link>
+              </li>
+              <li aria-hidden="true">›</li>
+              <li>
+                <Link
+                  to={`/properties?location=${encodeURIComponent(property.location)}`}
+                  className="hover:text-accent-strong transition-colors"
+                >
+                  {property.location}
+                </Link>
+              </li>
+              <li aria-hidden="true">›</li>
+              <li className="text-foreground">{property.name}</li>
+            </ol>
+          </nav>
+        </Container>
+
+        {/* Gallery — one lead image and four beside it in a 2×2, the clearest
+            way to show a house before anyone reads a word. Tiles carry no
+            radius of their own and sit on a 2px gap, so the block reads as one
+            image rather than five boxes. */}
+        <Container>
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-0.5 h-[52vh] min-h-[320px] max-h-[560px] overflow-hidden">
               <button
                 type="button"
                 onClick={() => setLightboxIndex(0)}
@@ -222,7 +293,7 @@ const PropertyDetail = () => {
               >
                 <img
                   src={images[0]}
-                  alt={`${property.name} — 1`}
+                  alt={`${property.name} — ${property.location}`}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </button>
@@ -245,251 +316,314 @@ const PropertyDetail = () => {
               ))}
             </div>
 
+            <button
+              type="button"
+              onClick={handleShare}
+              className="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full bg-background/90 backdrop-blur-sm px-4 h-9 t-body text-foreground shadow-sm hover:bg-background transition-colors"
+            >
+              <Share2 className="w-4 h-4" strokeWidth={1.5} />
+              {t("pd-share")}
+            </button>
+
             {images.length > 1 && (
-              <Button
-                variant="secondary"
+              <button
+                type="button"
                 onClick={() => setGalleryOpen(true)}
-                className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm hover:bg-background shadow-elegant"
+                className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-foreground/85 backdrop-blur-sm px-4 h-9 t-body text-background shadow-sm hover:bg-foreground transition-colors"
               >
-                <Images className="w-4 h-4 mr-2" />
-                {t("pd-show-all-photos").replace("{n}", String(images.length))}
-              </Button>
+                <Images className="w-4 h-4" strokeWidth={1.5} />
+                {t("pd-view-gallery")} · {images.length}
+              </button>
             )}
           </div>
+        </Container>
 
-          {/* Overview grid — every photo at once, for scanning rather than
-              looking closely. Clicking one hands off to the solo lightbox
-              below instead of enlarging inline. */}
-          <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
-            <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto">
-              <DialogTitle className="font-playfair text-2xl text-primary">
-                {property.name}
-              </DialogTitle>
-              <div className="grid sm:grid-cols-2 gap-3 mt-2">
-                {images.map((img: string, idx: number) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                      setGalleryOpen(false);
-                      setLightboxIndex(idx);
-                    }}
-                    className="group relative overflow-hidden rounded-lg"
-                  >
-                    <img
-                      src={img}
-                      alt={`${property.name} — ${idx + 1}`}
-                      className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </button>
-                ))}
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          {/* Solo lightbox — one photo at a time, uncropped
-              (`object-contain`, not `object-cover`, so nothing gets sliced
-              off to fill the frame the way the grid thumbnails do). */}
-          <Dialog open={lightboxIndex !== null} onOpenChange={(open) => !open && setLightboxIndex(null)}>
-            <DialogContent className="max-w-6xl w-[calc(100vw-2rem)] h-[calc(100vh-4rem)] p-0 bg-background/95 border-0 [&>button]:text-foreground [&>button]:opacity-100">
-              <DialogTitle className="sr-only">
-                {property.name} — photo {lightboxIndex !== null ? lightboxIndex + 1 : 0} of {images.length}
-              </DialogTitle>
-              {lightboxIndex !== null && (
-                <div className="relative flex h-full items-center justify-center">
+        {/* Overview grid — every photo at once, for scanning rather than
+            looking closely. Clicking one hands off to the solo lightbox
+            below instead of enlarging inline. */}
+        <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
+          <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto">
+            <DialogTitle className="t-section text-foreground">{property.name}</DialogTitle>
+            <div className="grid sm:grid-cols-2 gap-3 mt-2">
+              {images.map((img: string, idx: number) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setGalleryOpen(false);
+                    setLightboxIndex(idx);
+                  }}
+                  className="group relative overflow-hidden"
+                >
                   <img
-                    src={images[lightboxIndex]}
-                    alt={`${property.name} — ${lightboxIndex + 1}`}
-                    className="max-h-full max-w-full object-contain"
+                    src={img}
+                    alt={`${property.name} — ${idx + 1}`}
+                    className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  {images.length > 1 && (
-                    <>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="icon"
-                        aria-label={t("pd-previous-photo")}
-                        onClick={() => setLightboxIndex((lightboxIndex - 1 + images.length) % images.length)}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="icon"
-                        aria-label={t("pd-next-photo")}
-                        onClick={() => setLightboxIndex((lightboxIndex + 1) % images.length)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
-                      >
-                        <ChevronRight className="w-5 h-5" />
-                      </Button>
-                      <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-background/90 px-3 py-1 text-xs text-foreground shadow-elegant">
-                        {lightboxIndex + 1} / {images.length}
-                      </span>
-                    </>
-                  )}
-                </div>
-              )}
-            </DialogContent>
-          </Dialog>
+                </button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
 
-          <div className="grid lg:grid-cols-5 gap-8">
-            {/* Property Details */}
-            <div className="lg:col-span-3 space-y-6">
-              <div>
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h1 className="font-playfair text-4xl font-bold text-primary mb-2">
-                      {property.name}
-                    </h1>
-                    <div className="flex items-center gap-4 text-muted-foreground mb-2">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-5 h-5" />
-                        <span className="text-lg">{property.location}</span>
-                      </div>
-                      {property.type && (
-                        <Badge variant="outline" className="capitalize">
-                          {property.type}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  {property.featured && (
-                    <Badge className="bg-primary text-primary-foreground">{t("propertycard.featured")}</Badge>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-8 text-foreground">
-                  <div className="flex items-center gap-2">
-                    <Bed className="w-5 h-5" />
-                    <span>{property.bedrooms === 0 ? t("propertycard.studio") : `${property.bedrooms} ${t("pd-bedrooms")}`}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Bath className="w-5 h-5" />
-                    <span>{property.bathrooms} {t("pd-bathrooms")}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    <span>{property.guests} {t("pd-guests")}</span>
-                  </div>
-                </div>
+        {/* Solo lightbox — one photo at a time, uncropped (`object-contain`,
+            not `object-cover`, so nothing gets sliced off to fill the frame
+            the way the grid thumbnails do). */}
+        <Dialog open={lightboxIndex !== null} onOpenChange={(open) => !open && setLightboxIndex(null)}>
+          <DialogContent className="max-w-6xl w-[calc(100vw-2rem)] h-[calc(100vh-4rem)] p-0 bg-background/95 border-0 [&>button]:text-foreground [&>button]:opacity-100">
+            <DialogTitle className="sr-only">
+              {property.name} — photo {lightboxIndex !== null ? lightboxIndex + 1 : 0} of {images.length}
+            </DialogTitle>
+            {lightboxIndex !== null && (
+              <div className="relative flex h-full items-center justify-center">
+                <img
+                  src={images[lightboxIndex]}
+                  alt={`${property.name} — ${lightboxIndex + 1}`}
+                  className="max-h-full max-w-full object-contain"
+                />
+                {images.length > 1 && (
+                  <>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      aria-label={t("pd-previous-photo")}
+                      onClick={() => setLightboxIndex((lightboxIndex - 1 + images.length) % images.length)}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      aria-label={t("pd-next-photo")}
+                      onClick={() => setLightboxIndex((lightboxIndex + 1) % images.length)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
+                    <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-background/90 px-3 py-1 t-body text-foreground shadow-elegant">
+                      {lightboxIndex + 1} / {images.length}
+                    </span>
+                  </>
+                )}
               </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
-              <div className="border-t border-border pt-6">
-                <h2 className="font-playfair text-2xl font-bold text-primary mb-4">
-                  {t("pd-about-title")}
-                </h2>
-                <p className="text-foreground/80 leading-relaxed whitespace-pre-line">
+        {/* Head and booking. */}
+        <Section size="md">
+          <div className="grid gap-lg lg:grid-cols-12 lg:items-start">
+            <div className="lg:col-span-7">
+              {property.type && (
+                <p className="t-tag text-accent-strong">
+                  {property.type} {t("properties.collection")}
+                </p>
+              )}
+
+              <h1 className="t-display text-foreground mt-3">{property.name}</h1>
+              <p className="t-body text-muted-foreground mt-2">{property.location}</p>
+
+              <ul className="flex flex-wrap items-center gap-x-lg gap-y-2 mt-md py-4 border-y border-border">
+                <li className="flex items-center gap-2 t-body text-foreground">
+                  <Users className="w-4 h-4 text-accent-strong" strokeWidth={1.5} />
+                  {property.guests} {t("pd-guests")}
+                </li>
+                <li className="flex items-center gap-2 t-body text-foreground">
+                  <Bed className="w-4 h-4 text-accent-strong" strokeWidth={1.5} />
+                  {property.bedrooms === 0
+                    ? t("propertycard.studio")
+                    : `${property.bedrooms} ${t("pd-bedrooms")}`}
+                </li>
+                <li className="flex items-center gap-2 t-body text-foreground">
+                  <Bath className="w-4 h-4 text-accent-strong" strokeWidth={1.5} />
+                  {property.bathrooms} {t("pd-bathrooms")}
+                </li>
+              </ul>
+
+              {property.description && (
+                <p className="t-body text-muted-foreground mt-md whitespace-pre-line">
                   {property.description}
                 </p>
-              </div>
+              )}
 
-              {property.amenities && property.amenities.length > 0 && (
-                <div className="border-t border-border pt-6">
-                  <h2 className="font-playfair text-2xl font-bold text-primary mb-4">
-                    {t("pd-amenities-title")}
-                  </h2>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {property.amenities.map((amenity: string, idx: number) => {
+              {keyFeatures.length > 0 && (
+                <div className="mt-lg">
+                  <h2 className="t-tag text-accent-strong">{t("pd-key-features")}</h2>
+                  {/* Eight, not the full checklist. Frontier is making a case
+                      for one house, not proving a platform has WiFi — the
+                      full list can live in a detail accordion later if guests
+                      ask for it. Which eight is the first eight Guesty
+                      returns; a curated order needs a column that does not
+                      exist yet (docs/PROJECT.md D8). */}
+                  <ul className="grid sm:grid-cols-2 gap-x-lg gap-y-3 mt-4">
+                    {keyFeatures.map((amenity: string, idx: number) => {
                       const Icon = getAmenityIcon(amenity);
                       return (
-                        <div key={idx} className="flex items-center gap-3">
-                          <Icon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.5} />
-                          <span className="text-foreground/80">{amenity}</span>
-                        </div>
+                        <li key={idx} className="flex items-center gap-3">
+                          <Icon className="w-4 h-4 text-accent-strong shrink-0" strokeWidth={1.5} />
+                          <span className="t-body text-foreground">{amenity}</span>
+                        </li>
                       );
                     })}
-                  </div>
+                  </ul>
                 </div>
               )}
-
-              <div className="border-t border-border pt-6">
-                <h2 className="font-playfair text-2xl font-bold text-primary mb-4">
-                  {t("pd-location-title")}
-                </h2>
-                <p className="text-muted-foreground">
-                  {property.address || property.location}
-                </p>
-              </div>
 
               {property.registration_number && (
-                <div className="border-t border-border pt-6">
-                  <p className="text-sm text-muted-foreground">
-                    {t("pd-registration-number")} {property.registration_number}
-                  </p>
-                </div>
+                <p className="t-body text-muted-foreground mt-lg pt-4 border-t border-border">
+                  {t("pd-registration-number")} {property.registration_number}
+                </p>
               )}
             </div>
 
-            {/* Booking Card */}
-            <div className="lg:col-span-2">
-              <Card className="lg:sticky lg:top-24">
-                <CardContent className="p-4">
-                  <div className="mb-3">
-                    {property.guesty_listing_id ? (
-                      <div>
-                        <span className="text-lg font-bold text-primary">{t("pd-live-pricing")}</span>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {t("pd-live-pricing-note")}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="flex items-baseline gap-2">
-                        {/* Display rounding/currency only, same as
-                            PropertyCard.tsx — price_per_night itself is
-                            untouched. */}
-                        <span className="text-3xl font-bold text-primary">
-                          {currencySymbol}{convertPrice(property.price_per_night)}
-                        </span>
-                        <span className="text-muted-foreground">{t("pd-per-night")}</span>
-                      </div>
-                    )}
-                  </div>
+            {/* The booking panel. Gold rule on top and a lightly sage-tinted
+                ground — the same Panel treatment the owner page's two models
+                carry, so the one place on the site where a guest commits
+                money looks like a decision rather than a widget.
 
-                  <div className="space-y-3">
-                    <AvailabilityCalendar
-                      listingId={property.guesty_listing_id}
-                      range={range}
-                      onRangeChange={handleRangeChange}
-                      numberOfMonths={1}
-                      onValidityChange={({ valid }) => setDatesValid(valid)}
-                      fallbackNightlyRate={property.price_per_night}
-                      fallbackCurrency="EUR"
+                Everything inside it is the existing flow untouched: the
+                Guesty calendar, `datesValid` gating the button, and
+                BookingSummary's quote/Stripe dialog behind it. */}
+            <div className="lg:col-span-4 lg:col-start-9">
+              <Panel className="lg:sticky lg:top-24">
+                <p className="t-tag text-accent-strong">{t("pd-your-stay")}</p>
+
+                <div className="mt-4 space-y-3">
+                  <AvailabilityCalendar
+                    listingId={property.guesty_listing_id}
+                    range={range}
+                    onRangeChange={handleRangeChange}
+                    numberOfMonths={1}
+                    onValidityChange={({ valid }) => setDatesValid(valid)}
+                    fallbackNightlyRate={property.price_per_night}
+                    fallbackCurrency="EUR"
+                  />
+
+                  <div className="flex items-center gap-3">
+                    <Label htmlFor="guests" className="shrink-0 t-body">
+                      {t("pd-who")}
+                    </Label>
+                    <Input
+                      id="guests"
+                      type="number"
+                      min="1"
+                      max={property.guests}
+                      value={booking.guests}
+                      onChange={(e) =>
+                        setBooking({ ...booking, guests: parseInt(e.target.value) || 1 })
+                      }
+                      className="h-9 bg-background"
                     />
-
-                    <div className="flex items-center gap-3">
-                      <Label htmlFor="guests" className="shrink-0">{t("pd-guests-label")}</Label>
-                      <Input
-                        id="guests"
-                        type="number"
-                        min="1"
-                        max={property.guests}
-                        value={booking.guests}
-                        onChange={(e) =>
-                          setBooking({ ...booking, guests: parseInt(e.target.value) || 1 })
-                        }
-                        className="h-9"
-                      />
-                    </div>
-
-                    <Button
-                      onClick={handleBookNow}
-                      className="w-full"
-                      disabled={!datesValid}
-                    >
-                      {t("pd-book-now")}
-                    </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                <div className="mt-md pt-4 border-t border-border">
+                  {property.guesty_listing_id ? (
+                    <>
+                      <p className="t-item text-foreground">{t("pd-live-pricing")}</p>
+                      <p className="t-body text-muted-foreground mt-1">
+                        {t("pd-live-pricing-note")}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="t-body text-muted-foreground">
+                      {t("propertycard.from")}{" "}
+                      <span className="t-item text-foreground">
+                        {currencySymbol}
+                        {convertPrice(property.price_per_night)}
+                      </span>{" "}
+                      {t("pd-per-night")}
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleBookNow}
+                  disabled={!datesValid}
+                  className="cta-base cta-primary w-full mt-md disabled:opacity-45 disabled:pointer-events-none"
+                >
+                  {t("pd-check-availability")} <span aria-hidden="true">&rarr;</span>
+                </button>
+
+                <div className="mt-4 text-center">
+                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="cta-link">
+                    {t("pd-make-request")}
+                  </a>
+                  <p className="t-body text-muted-foreground mt-3">
+                    {t("pd-available-note")} ·{" "}
+                    <a href="tel:+34649429678" className="text-accent-strong hover:underline">
+                      +34 649 429 678
+                    </a>
+                  </p>
+                </div>
+              </Panel>
             </div>
           </div>
-        </div>
+        </Section>
+
+        {/* The setting. */}
+        <Section size="md" bleed>
+          <Container className="mb-md">
+            <p className="t-tag text-accent-strong">{t("pd-location-eyebrow")}</p>
+            <h2 className="t-section text-foreground mt-3">{t("pd-surroundings-heading")}</h2>
+
+            <dl className="grid sm:grid-cols-2 gap-lg mt-md max-w-2xl">
+              <div>
+                <dt className="t-meta text-muted-foreground">{t("pd-setting")}</dt>
+                <dd className="t-body text-foreground mt-1">
+                  {property.type ?? property.location}
+                </dd>
+              </div>
+              {nearby.length > 0 && (
+                <div>
+                  <dt className="t-meta text-muted-foreground">{t("pd-nearby")}</dt>
+                  <dd className="mt-1">
+                    {nearby.map((entry, idx) => (
+                      <p key={idx} className="t-body text-foreground">
+                        {entry}
+                      </p>
+                    ))}
+                  </dd>
+                </div>
+              )}
+              {property.address && (
+                <div className="sm:col-span-2">
+                  <dt className="t-meta text-muted-foreground">{t("pd-location-title")}</dt>
+                  <dd className="t-body text-foreground mt-1">{property.address}</dd>
+                </div>
+              )}
+            </dl>
+          </Container>
+
+          <SurroundingsMap
+            latitude={property.latitude}
+            longitude={property.longitude}
+            label={property.location}
+          />
+        </Section>
+
+        {/* Similar homes — our own cards, not a fourth outside pattern. */}
+        {similar.length > 0 && (
+          <Section size="md">
+            <p className="t-tag text-accent-strong">{t("pd-similar-eyebrow")}</p>
+            <h2 className="t-section text-foreground mt-3 mb-lg">{t("pd-similar-heading")}</h2>
+            <Grid cols={3} gap="md">
+              {similar.map((p) => (
+                <PropertyCard key={p.id} property={p} />
+              ))}
+            </Grid>
+          </Section>
+        )}
       </main>
+
       <Footer />
 
-      {/* Booking Summary Dialog */}
+      {/* Booking Summary Dialog — the quote, the Stripe card field and the
+          fallback inquiry path all live in here, unchanged. */}
       <Dialog open={showBookingSummary} onOpenChange={setShowBookingSummary}>
         <DialogContent className="sm:max-w-md p-0 overflow-y-auto max-h-[95vh] w-[calc(100vw-1rem)] sm:w-full rounded-lg">
           <DialogTitle className="sr-only">{t("pd-booking-summary-title")}</DialogTitle>

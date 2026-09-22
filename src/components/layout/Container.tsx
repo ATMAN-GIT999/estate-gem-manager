@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { forwardRef } from "react";
 import type { ElementType, ReactNode } from "react";
 
 /**
@@ -40,15 +41,21 @@ interface ContainerProps {
   as?: ElementType;
 }
 
-const Container = ({
-  children,
-  measure = "full",
-  className,
-  as: Tag = "div",
-}: ContainerProps) => (
-  <Tag className={cn("app-container", measureClass[measure], className)}>
-    {children}
-  </Tag>
+/**
+ * Refs are forwarded because a container is sometimes also the scroll box —
+ * the destinations row scrolls itself sideways below `lg` and needs a handle
+ * for its arrows. Reaching for a bare `<div className="app-container">` at
+ * those call sites would be building around the primitive instead of
+ * extending it, and that is how four different content edges got here in the
+ * first place.
+ */
+const Container = forwardRef<HTMLElement, ContainerProps>(
+  ({ children, measure = "full", className, as: Tag = "div" }, ref) => (
+    <Tag ref={ref} className={cn("app-container", measureClass[measure], className)}>
+      {children}
+    </Tag>
+  )
 );
+Container.displayName = "Container";
 
 export default Container;

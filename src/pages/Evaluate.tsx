@@ -246,7 +246,7 @@ const EvaluateContent = () => {
                   </Card>
                   <Card className="p-6 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-shadow">
                     <Home className="w-8 h-8 text-accent-strong mx-auto mb-2" />
-                    <div className="text-3xl font-bold text-primary">{propertyData?.bathrooms}</div>
+                    <div className="text-3xl font-bold text-primary">{propertyData?.bathrooms || "N/A"}</div>
                     <div className="text-sm text-foreground/70">Bathrooms</div>
                   </Card>
                   <Card className="p-6 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-shadow">

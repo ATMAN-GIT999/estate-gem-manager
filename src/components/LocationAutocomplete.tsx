@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
-import { MapPin, Loader2, ChevronDown } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { useMemo, useRef, useState } from "react";
+import { MapPin, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { useLocale } from "@/contexts/LocaleContext";
+import { ALL_DESTINATIONS } from "@/lib/destinations";
 
 interface LocationAutocompleteProps {
   value: string;
@@ -13,200 +13,66 @@ interface LocationAutocompleteProps {
   label?: string;
 }
 
-interface NominatimResult {
-  place_id: number;
-  display_name: string;
-  name: string;
-  lat: string;
-  lon: string;
-}
-
 /**
- * Was a fixed list of eight Costa del Sol towns, entirely disconnected from
- * what properties actually exist — four of the eight (Estepona, Benalmádena,
- * Mijas, Nerja) have never had a single listing, while real, booked-out
- * locations (Benahavís, Calahonda, Río Real, Sauerwald, Wien) never appeared
- * as a suggestion at all. Fetched from the real data instead, once per
- * mount, so the two can't drift apart again regardless of which properties
- * are active later.
+ * Used to fetch suggestions from two places that could each surface a town
+ * with zero Frontier inventory and no SEO intent behind it: whatever strings
+ * happened to be in `properties.location`, and free-text results from
+ * Nominatim's worldwide geocoder. Typing "Berlin" would offer Berlin, and
+ * submitting it always lands on an empty results page — a dead end for the
+ * guest and a thin, duplicate-shaped URL for a search engine to index.
  *
- * Both call sites (`Properties.tsx`, `Hero.tsx` via `SearchBar`) get this for
- * free without either passing property data down as a prop — `Hero.tsx`
- * doesn't fetch properties at all today, and making it do so just to feed
- * this list would be the more invasive change.
+ * Now reads the same curated list the header's destinations panel shows
+ * (`src/lib/destinations.ts`) — the search field never offers a place the
+ * header doesn't also promise exists.
  */
-/**
- * Costa del Sol towns Frontier is actively targeting for SEO/search-intent
- * reasons ahead of having a listing there yet (Almedin, 29.08.2026) — shown
- * as suggestions even though `useRealLocations` below would otherwise omit
- * anything without a live property. Keep this list short and deliberate:
- * it is the one place this component intentionally re-introduces a
- * hardcoded name after the fix documented below, so it should only ever
- * hold towns actually being pursued, not "nice to have" additions.
- */
-const FEATURED_REGIONS = ["Marbella", "Estepona"];
-
-const useRealLocations = () => {
-  const [locations, setLocations] = useState<NominatimResult[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const fetchLocations = async () => {
-      const { data, error } = await supabase
-        .from("properties")
-        .select("location")
-        .eq("available", true);
-      if (cancelled || error || !data) return;
-
-      // `location` sometimes carries a region suffix ("Fuengirola, Costa del
-      // Sol") and sometimes doesn't ("Fuengirola") for what is the same town —
-      // take the first comma segment and dedupe case-insensitively so the
-      // list shows each place once.
-      const byKey = new Map<string, string>();
-      for (const row of data) {
-        const city = row.location?.split(",")[0]?.trim();
-        if (!city) continue;
-        const key = city.toLowerCase();
-        if (!byKey.has(key)) byKey.set(key, city);
-      }
-      // Add the featured regions on top of the real ones, without
-      // duplicating a town that already has a live listing.
-      for (const city of FEATURED_REGIONS) {
-        const key = city.toLowerCase();
-        if (!byKey.has(key)) byKey.set(key, city);
-      }
-
-      const sorted = Array.from(byKey.values()).sort((a, b) => a.localeCompare(b));
-      setLocations(
-        sorted.map((city, index) => ({
-          // Negative ids keep these out of the way of Nominatim's (positive)
-          // place_ids when the two lists are combined below.
-          place_id: -(index + 1),
-          display_name: city,
-          name: city,
-          lat: "",
-          lon: "",
-        })),
-      );
-    };
-    fetchLocations();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return locations;
-};
-
 const LocationAutocomplete = ({ value, onChange, placeholder, label }: LocationAutocompleteProps) => {
   const { t } = useLocale();
-  const realLocations = useRealLocations();
-  const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [inputValue, setInputValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const rowRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
-
-  const searchLocations = async (query: string) => {
-    if (query.length < 1) {
-      // Show the real, currently-booked locations when empty or just starting
-      setSuggestions(realLocations);
-      setShowSuggestions(true);
-      return;
-    }
-
-    // Filter real locations first
-    const filteredLocal = realLocations.filter(loc =>
-      loc.name.toLowerCase().includes(query.toLowerCase()) ||
-      loc.display_name.toLowerCase().includes(query.toLowerCase())
-    );
-
-    if (filteredLocal.length > 0) {
-      setSuggestions(filteredLocal);
-      setShowSuggestions(true);
-    }
-
-    if (query.length < 2) return;
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&featuretype=city&addressdetails=1`,
-        {
-          headers: {
-            'Accept-Language': 'en',
-          },
-        }
-      );
-      const data: NominatimResult[] = await response.json();
-      // Combine Costa del Sol results with API results, prioritizing local
-      const combined = [...filteredLocal, ...data.filter(d => 
-        !filteredLocal.some(l => l.name.toLowerCase() === (d.name || '').toLowerCase())
-      )];
-      setSuggestions(combined.slice(0, 8));
-      setShowSuggestions(true);
-    } catch (error) {
-      console.error("Error fetching locations:", error);
-      setSuggestions(filteredLocal);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const suggestions = useMemo(() => {
+    const query = inputValue.trim().toLowerCase();
+    if (!query) return ALL_DESTINATIONS;
+    return ALL_DESTINATIONS.filter((d) => d.label.toLowerCase().includes(query));
+  }, [inputValue]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = setTimeout(() => {
-      searchLocations(newValue);
-    }, 300);
+    onChange(newValue);
+    setShowSuggestions(true);
   };
 
-  const handleFocus = () => {
-    if (suggestions.length > 0) {
-      setShowSuggestions(true);
-    } else {
-      // Show the real, currently-booked locations on focus
-      setSuggestions(realLocations);
-      setShowSuggestions(true);
-    }
-  };
+  const handleFocus = () => setShowSuggestions(true);
 
-  /** Explicit open/close affordance, on top of the implicit focus/typing behaviour above. */
-  const toggleDropdown = () => {
-    if (showSuggestions) {
-      setShowSuggestions(false);
-      return;
-    }
-    if (inputValue) {
-      searchLocations(inputValue);
-    } else {
-      setSuggestions(realLocations);
-      setShowSuggestions(true);
-    }
+  /** Click anywhere in the field row — same as Check-in/Check-out/Guests,
+   *  whose Button trigger covers the whole row rather than just an icon. */
+  const handleRowClick = () => {
+    setShowSuggestions(true);
     inputRef.current?.focus();
   };
 
-  const handleSelectSuggestion = (suggestion: NominatimResult) => {
-    const shortName = suggestion.name || suggestion.display_name.split(',')[0];
-    setInputValue(shortName);
-    onChange(shortName);
-    setSuggestions([]);
-    setShowSuggestions(false);
+  /** Explicit close affordance for the one case the row click can't cover:
+   *  collapsing the list again without clicking away. Stops the click from
+   *  bubbling to handleRowClick, which would otherwise immediately reopen
+   *  what this just closed. Only refocuses the input when opening — a
+   *  native button click steals focus from the input, and refocusing it
+   *  after closing would fire `onFocus` and reopen the list right back up. */
+  const toggleDropdown = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setShowSuggestions((open) => {
+      const next = !open;
+      if (next) inputRef.current?.focus();
+      return next;
+    });
   };
 
-  const getShortName = (displayName: string) => {
-    const parts = displayName.split(',');
-    return parts.slice(0, 2).join(',').trim();
+  const handleSelectSuggestion = (label: string) => {
+    setInputValue(label);
+    onChange(label);
+    setShowSuggestions(false);
   };
 
   return (
@@ -218,13 +84,13 @@ const LocationAutocomplete = ({ value, onChange, placeholder, label }: LocationA
     // was why the location dropdown used to vanish on the landing page.
     <Popover open={showSuggestions} onOpenChange={setShowSuggestions}>
       <PopoverAnchor asChild>
-        <div className="relative">
+        <div className="relative" ref={rowRef}>
           {label && (
-            <span className="block text-[10px] font-bold uppercase tracking-wide text-accent-strong mb-0.5">
+            <span className="block t-tag text-accent-strong mb-1">
               {label}
             </span>
           )}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 cursor-pointer" onClick={handleRowClick}>
             <input
               ref={inputRef}
               type="text"
@@ -232,11 +98,8 @@ const LocationAutocomplete = ({ value, onChange, placeholder, label }: LocationA
               onChange={handleInputChange}
               onFocus={handleFocus}
               placeholder={placeholder ?? t("searchbar.wherePlaceholder")}
-              className="w-full min-w-0 bg-transparent border-0 p-0 h-auto text-sm text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground placeholder:opacity-100"
+              className="w-full min-w-0 bg-transparent border-0 p-0 h-auto text-[15px] text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground placeholder:opacity-100"
             />
-            {isLoading && (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground shrink-0" />
-            )}
             <button
               type="button"
               onClick={toggleDropdown}
@@ -256,16 +119,27 @@ const LocationAutocomplete = ({ value, onChange, placeholder, label }: LocationA
           align="start"
           sideOffset={8}
           onOpenAutoFocus={(e) => e.preventDefault()}
+          // Radix doesn't know PopoverAnchor's contents belong to this
+          // popover the way it would a PopoverTrigger's — every pointerdown
+          // inside our own row (the chevron, the input, repositioning the
+          // text cursor) reads as an "outside" click and closes this before
+          // our own handlers even run, so the chevron's toggle and typing
+          // itself both raced against Radix silently dismissing first.
+          // Ignoring outside-pointerdowns that originate in our own row
+          // leaves genuine outside clicks (the actual dismiss case) intact.
+          onInteractOutside={(e) => {
+            if (rowRef.current?.contains(e.target as Node)) e.preventDefault();
+          }}
         >
           {suggestions.map((suggestion) => (
             <button
-              key={suggestion.place_id}
+              key={suggestion.label}
               type="button"
-              onClick={() => handleSelectSuggestion(suggestion)}
-              className="w-full px-4 py-3 text-left hover:bg-muted transition-colors border-b border-border last:border-b-0 flex items-start gap-2"
+              onClick={() => handleSelectSuggestion(suggestion.label)}
+              className="w-full px-4 py-3 text-left hover:bg-muted transition-colors border-b border-border last:border-b-0 flex items-center gap-2"
             >
-              <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-              <span className="text-sm text-foreground">{getShortName(suggestion.display_name)}</span>
+              <MapPin className="w-4 h-4 text-primary shrink-0" />
+              <span className="text-sm text-foreground">{suggestion.label}</span>
             </button>
           ))}
         </PopoverContent>

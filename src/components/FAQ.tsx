@@ -40,6 +40,18 @@ import type { TranslationKey } from "@/lib/translations";
  * airport" and "villas near Puerto Banús" are real queries a prospective
  * guest researching the Costa del Sol actually asks a search engine or an AI
  * assistant, unlike generic questions about how booking works.
+ *
+ * `variant="owner"` (PropertyManagementPage.tsx) swaps in
+ * `OWNER_FAQ_ITEMS` below instead of reusing this guest set with a
+ * relabelled heading — the wireframe draws five real owner questions here,
+ * not the guest FAQ again. Two of the five (term/notice, damage liability)
+ * don't have a published number to state, the same situation the guest
+ * cancellation-policy answer above is already in — so they say plainly that
+ * it's agreed with you rather than inventing a figure (docs/PROJECT.md D11,
+ * DECISIONS §38's "a made-up figure is worse than a lost lead"). The other
+ * three are grounded in what's already true elsewhere on this page: the two
+ * commercial models, the "one statement a month" cadence from TheSystem.tsx,
+ * and self-use as a standard, low-risk part of onboarding.
  */
 export const FAQ_ITEMS: Array<{ question: string; answer: string }> = [
   {
@@ -79,29 +91,71 @@ export const FAQ_ITEMS: Array<{ question: string; answer: string }> = [
   },
 ];
 
+/** The five owner questions from the 09/2026 wireframe's PM-page FAQ. English
+ *  canonical text, same role `FAQ_ITEMS` plays for the guest set — used for
+ *  `FAQPage` JSON-LD; the on-screen copy is the localised `faq-owner-q/a-N`
+ *  keys below, picked up by index like the guest set. */
+export const OWNER_FAQ_ITEMS: Array<{ question: string; answer: string }> = [
+  {
+    question: "Commission or fixed rent — which suits my house?",
+    answer:
+      "It depends on how much certainty you want. Guaranteed Income pays the same amount every month, occupied or not. Full-service management shares what the house actually earns, season by season. We'll recommend one once we've seen the property — not before.",
+  },
+  {
+    question: "How long does this tie me in?",
+    answer:
+      "Term and notice are agreed with you before you sign, not fixed by us in advance — they're part of the proposal we send after seeing the house, not a number we publish upfront.",
+  },
+  {
+    question: "Can I still use the house myself?",
+    answer:
+      "Yes. Tell us the dates you want to keep for yourself when we set things up, and we work the booking calendar around them.",
+  },
+  {
+    question: "Who is liable for damage?",
+    answer:
+      "Guest damage runs through the booking platform's own guest protection or a security deposit, depending on the channel — we file and chase the claim, not you.",
+  },
+  {
+    question: "When does the money arrive?",
+    answer:
+      "Monthly, on one consolidated statement — the same rhythm whether you're on Guaranteed Income or the commission model.",
+  },
+];
+
 interface FAQProps {
   /** Empty string hides the eyebrow entirely — the PM page has no use for one. */
   eyebrow?: string;
   heading?: string;
+  /** "owner" swaps in `OWNER_FAQ_ITEMS` and drops the guest→owner crossover
+   *  on the last item — an owner reading this FAQ is already on the owner
+   *  page, so the last question just answers itself like the other four. */
+  variant?: "guest" | "owner";
 }
 
-const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp }: FAQProps = {}) => {
+const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp, variant = "guest" }: FAQProps = {}) => {
   const { t, language } = useLocale();
+  const isOwner = variant === "owner";
+  const items = isOwner ? OWNER_FAQ_ITEMS : FAQ_ITEMS;
+  const keyPrefix = isOwner ? "faq-owner" : "faq";
+
   // `??`, not `||`: the PM page passes eyebrow="" on purpose to hide it
   // entirely, and that explicit empty string must not be overridden by the
   // translated default the way a falsy-string check would.
   const [eyebrow, setEyebrow] = useState(eyebrowProp ?? t("faq-eyebrow"));
-  const [heading, setHeading] = useState(headingProp ?? t("faq-heading"));
+  const [heading, setHeading] = useState(
+    headingProp ?? t(isOwner ? "faq-owner-heading" : "faq-heading")
+  );
 
   useEffect(() => {
     if (eyebrowProp === undefined) setEyebrow(t("faq-eyebrow"));
-    if (headingProp === undefined) setHeading(t("faq-heading"));
+    if (headingProp === undefined) setHeading(t(isOwner ? "faq-owner-heading" : "faq-heading"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language]);
+  }, [language, isOwner]);
 
   return (
-    <Section id="faq" size="md" measure="wide">
-      <Stack gap="lg">
+    <Section id="faq" size="md" containerClassName="max-w-[820px] mx-auto">
+      <Stack gap="sm">
         <div className="space-y-sm">
           {eyebrow && (
             <EditableText
@@ -109,7 +163,7 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp }: FAQProps = {}) => {
               value={eyebrow}
               onChange={setEyebrow}
               as="span"
-              className="t-meta block text-accent-strong"
+              className="t-tag block text-accent-strong"
             >
               {eyebrow}
             </EditableText>
@@ -119,7 +173,7 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp }: FAQProps = {}) => {
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="t-section text-primary"
+            className="t-section text-foreground mb-[26px]"
           >
             {heading}
           </EditableText>
@@ -135,17 +189,23 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp }: FAQProps = {}) => {
             the open/close animation come from Radix and the keyframes in
             tailwind.config.ts either way. */}
         <AccordionPrimitive.Root type="single" collapsible className="w-full">
-          {FAQ_ITEMS.map((_item, index) => (
+          {items.map((_item, index) => {
+            // Only the guest set's last item crosses over to the owner page
+            // — an owner reading OWNER_FAQ_ITEMS is already there.
+            const isCrossover = !isOwner && index === items.length - 1;
+            return (
             <AccordionPrimitive.Item
               key={index}
               value={`item-${index}`}
-              className="border-t border-primary/15 last:border-b"
+              className="border-t border-border last:border-b"
             >
               <AccordionPrimitive.Header>
                 <AccordionPrimitive.Trigger
-                  className="group flex w-full items-baseline justify-between gap-6 py-sm text-left"
+                  className="group flex w-full items-center justify-between gap-6 py-[22px] text-left"
                 >
-                  <span className="t-block text-primary">{t(`faq-q-${index}` as TranslationKey)}</span>
+                  <span className="t-item text-[18px] text-foreground">
+                    {t(`${keyPrefix}-q-${index}` as TranslationKey)}
+                  </span>
                   {/* A genuine glyph swap, not a rotating chevron — Plus and
                       Minus stacked in the same box, toggled by the trigger's
                       own `data-state` the same way `ui/accordion.tsx` toggles
@@ -157,8 +217,8 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp }: FAQProps = {}) => {
                 </AccordionPrimitive.Trigger>
               </AccordionPrimitive.Header>
               <AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                <div className="pb-sm max-w-3xl t-body text-foreground/70">
-                  {index === FAQ_ITEMS.length - 1 ? (
+                <div className="pb-sm max-w-3xl t-body text-muted-foreground">
+                  {isCrossover ? (
                     <span className="flex flex-wrap items-center gap-2">
                       {t("faq-owner-lead-in")}
                       <Link
@@ -170,12 +230,13 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp }: FAQProps = {}) => {
                       </Link>
                     </span>
                   ) : (
-                    t(`faq-a-${index}` as TranslationKey)
+                    t(`${keyPrefix}-a-${index}` as TranslationKey)
                   )}
                 </div>
               </AccordionPrimitive.Content>
             </AccordionPrimitive.Item>
-          ))}
+            );
+          })}
         </AccordionPrimitive.Root>
       </Stack>
     </Section>

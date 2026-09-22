@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
-import SearchBar from "./SearchBar";
+import { Link } from "react-router-dom";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
 import { Container, Stack } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
+import heroPoster from "@/assets/wf-hero-poster.webp";
 
 /**
- * Headline, one supporting line and the search bar, as a single block over a
- * band of video.
+ * The opening band: eyebrow, headline, one supporting line, one quiet action —
+ * on full-bleed video.
+ *
+ * The search bar used to live in here. It now has its own beige band directly
+ * underneath (SearchBand.tsx), which is the only beige surface on the landing
+ * page: on a white ground a band earns its colour by being the one thing the
+ * visitor is meant to do next, not by being the page's default.
  *
  * It used to be `min-h-screen`: the video owned the entire first screen and
  * the search bar arrived half a second late on a slide-in from the right,
@@ -24,23 +28,22 @@ import { useLocale } from "@/contexts/LocaleContext";
  * page uses (§8).
  */
 const Hero = () => {
-  const [checkInDate, setCheckInDate] = useState<Date>();
-  const [checkOutDate, setCheckOutDate] = useState<Date>();
-  const [guests, setGuests] = useState<string>("");
-  const [location, setLocation] = useState<string>("");
-  const navigate = useNavigate();
   const { t, language } = useLocale();
 
   // Editable content state
+  const [eyebrow, setEyebrow] = useState(t("hero-eyebrow"));
   const [headline, setHeadline] = useState(t("hero-headline"));
   const [subheadline, setSubheadline] = useState(t("hero-subheadline"));
+  const [ctaLabel, setCtaLabel] = useState(t("hero-cta"));
 
   // See Navigation.tsx's identical effect — resets to the new language's
   // default rather than preserving a manual inline-CMS edit, since nothing
   // persists past a reload today anyway (docs/PROJECT.md C7).
   useEffect(() => {
+    setEyebrow(t("hero-eyebrow"));
     setHeadline(t("hero-headline"));
     setSubheadline(t("hero-subheadline"));
+    setCtaLabel(t("hero-cta"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
@@ -66,15 +69,6 @@ const Hero = () => {
   const [videoId, setVideoId] = useState("tqmWpFCv_1M");
   const [videoFileSrc, setVideoFileSrc] = useState("/videos/hero-background.mp4");
 
-  const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (location) params.set('location', location);
-    if (checkInDate) params.set('checkIn', format(checkInDate, 'yyyy-MM-dd'));
-    if (checkOutDate) params.set('checkOut', format(checkOutDate, 'yyyy-MM-dd'));
-    if (guests) params.set('guests', guests);
-    navigate(`/properties?${params.toString()}`);
-  };
-
   const handleVideoChange = (src: string, type: "youtube" | "file") => {
     setVideoType(type);
     if (type === "youtube") {
@@ -95,7 +89,7 @@ const Hero = () => {
     // supported and falls back to top-alignment instead of overflowing in both
     // directions when the block still does not fit, and the first is what
     // browsers without `safe` keyword support fall back to.
-    <section className="relative flex items-center [align-items:safe_center] overflow-hidden pt-20 min-h-[clamp(34rem,62vh,44rem)]">
+    <section className="relative flex items-end overflow-hidden pt-20 min-h-[clamp(36rem,78vh,52rem)]">
       <EditableVideo
         id="hero-video"
         type={videoType === "none" ? "file" : videoType}
@@ -114,6 +108,10 @@ const Hero = () => {
           ) : videoType === "file" && videoFileSrc ? (
             <video
               src={videoFileSrc}
+              /* A poster so the first paint is the brand rather than a black
+                 rectangle — the clip is 5.8 MB and decodes a beat after the
+                 rest of the page is already up. */
+              poster={heroPoster}
               className="absolute inset-0 w-full h-full object-cover"
               autoPlay
               muted
@@ -143,45 +141,47 @@ const Hero = () => {
           full 1440px container: the bar reads as a single control at ~1024px,
           and stretched to the full container it starts to look like a toolbar
           welded to the page. */}
-      <Container measure="wide" className="relative z-10 py-lg">
+      <Container measure="wide" className="relative z-10 pb-2xl pt-lg text-center">
         <Stack gap="md" align="center" className="animate-fade-in">
+          <EditableText
+            id="hero-eyebrow"
+            value={eyebrow}
+            onChange={setEyebrow}
+            as="p"
+            className="t-tag text-white/75"
+          >
+            {eyebrow}
+          </EditableText>
+
           <div className="space-y-sm">
             <EditableText
               id="hero-headline"
               value={headline}
               onChange={setHeadline}
               as="h1"
-              className="t-display text-white text-balance drop-shadow-2xl"
+              className="t-display text-white text-balance max-w-[16ch] mx-auto"
             >
               {headline}
             </EditableText>
-            {/* Deliberately held to one line's worth of width and left at body
-                size: §9 asks for the headline to get the room and the
-                supporting text not to compete with the search bar. */}
             <EditableText
               id="hero-subheadline"
               value={subheadline}
               onChange={setSubheadline}
               as="p"
-              className="t-body text-white/90 max-w-2xl mx-auto drop-shadow-lg"
+              className="t-body text-[19px] text-white/[0.86] max-w-[52ch] mx-auto"
             >
               {subheadline}
             </EditableText>
           </div>
 
-          <div className="text-left">
-            <SearchBar
-              location={location}
-              checkInDate={checkInDate}
-              checkOutDate={checkOutDate}
-              guests={guests}
-              onLocationChange={setLocation}
-              onCheckInChange={setCheckInDate}
-              onCheckOutChange={setCheckOutDate}
-              onGuestsChange={setGuests}
-              onSearch={handleSearch}
-            />
-          </div>
+          {/* One action, and the quiet one. The gold button in the header is
+              already the page's filled call; a second one here would make the
+              first screen argue with itself. */}
+          <Link to="/properties" className="cta-base cta-secondary on-dark">
+            <EditableText id="hero-cta" value={ctaLabel} onChange={setCtaLabel} as="span">
+              {ctaLabel}
+            </EditableText>
+          </Link>
         </Stack>
       </Container>
     </section>

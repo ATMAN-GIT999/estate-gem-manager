@@ -1,10 +1,11 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
+import SearchBand from "@/components/SearchBand";
 import PropertyCollections from "@/components/PropertyCollections";
 import GuestManagement from "@/components/GuestManagement";
+import DestinationsRail from "@/components/DestinationsRail";
 import OwnAProperty from "@/components/OwnAProperty";
-import PropertyEvaluator from "@/components/PropertyEvaluator";
 import FAQ, { FAQ_ITEMS } from "@/components/FAQ";
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -56,26 +57,26 @@ const IndexContent = () => {
         schema={[organizationSchema(), faqSchema(FAQ_ITEMS)]}
       />
       <Navigation overlay />
-      <Hero />
 
-      {/* One uninterrupted guest run — homes, then what the stay is like.
-          The portfolio-numbers trust band that used to open here is gone
-          (Almedin: drop the stats section from the landing page); these two
-          now follow the hero directly instead of behind a green band. */}
+      {/* Eight sections, in the order of the 09/2026 wireframe:
+          hero → search → homes → what a stay includes → where we are →
+          questions → the one hand-off to owners → footer.
+
+          The evaluator used to sit between the hand-off and the footer. It has
+          moved to /property-management, where it is the hero: on a page a
+          guest lands on to choose a house, a cash-flow calculator is owner
+          language, which is the mistake this whole site is built to avoid. */}
+      <Hero />
+      <SearchBand />
       <PropertyCollections />
       <GuestManagement />
+      <DestinationsRail />
 
-      {/* FAQ moved ahead of the owner hand-off, on Almedin's direction: a
-          guest with a question gets it answered before the page asks them to
-          switch audiences, rather than after. */}
-      <FAQ />
+      {/* A guest with a question gets it answered before the page asks them
+          to switch audiences, not after. */}
+      <FAQ eyebrow="" />
 
-      {/* The hand-off to the owner half, once, at the end of the guest
-          argument: everything above is written for someone choosing a stay,
-          everything below for someone choosing a manager. */}
       <OwnAProperty />
-
-      <PropertyEvaluator />
       <Footer />
     </div>
   );

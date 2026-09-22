@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import EditableText from "./admin/EditableText";
 import { Container, MediaFrame } from "./layout";
 import oapVillaEntrance from "@/assets/oap-villa-entrance.webp";
@@ -31,12 +30,14 @@ import { useLocale } from "@/contexts/LocaleContext";
  */
 const OwnAProperty = () => {
   const { t, language } = useLocale();
+  const [eyebrow, setEyebrow] = useState(t("oap-eyebrow"));
   const [heading, setHeading] = useState(t("oap-heading"));
   const [subheading, setSubheading] = useState(t("oap-subheading"));
   const [ctaText, setCtaText] = useState(t("oap-cta"));
   const [image, setImage] = useState(oapVillaEntrance);
 
   useEffect(() => {
+    setEyebrow(t("oap-eyebrow"));
     setHeading(t("oap-heading"));
     setSubheading(t("oap-subheading"));
     setCtaText(t("oap-cta"));
@@ -44,26 +45,44 @@ const OwnAProperty = () => {
   }, [language]);
 
   return (
-    <section className="relative flex items-center overflow-hidden min-h-[clamp(20rem,52vh,28rem)]">
+    // The last band before the footer, and the one hand-off from the guest
+    // half to the owner half. Full-bleed photograph darkened by
+    // --overlay-ink-fade until its bottom edge IS the footer's ink, so the two
+    // meet with no seam — that fade is why there is no gold rule here.
+    <section className="relative flex items-center overflow-hidden min-h-[clamp(24rem,60vh,34rem)]">
       <MediaFrame
         id="oap-image"
         src={image}
         onChange={setImage}
-        alt="A Frontier Residences managed property"
-        note="Own a Property — a property interior, warm and lived-in"
+        alt="The entrance to a Frontier Residences managed villa"
+        note="Own a Property — a villa entrance or garden, warm and lived-in"
         fill
       />
-      <div className="absolute inset-0 overlay-media" aria-hidden="true" />
+      <div
+        className="absolute inset-0"
+        style={{ background: "var(--overlay-ink-fade)" }}
+        aria-hidden="true"
+      />
 
-      <Container className="relative z-10">
-        <div className="max-w-md space-y-xs">
+      <Container className="relative z-10 py-2xl text-center">
+        <div className="max-w-xl mx-auto space-y-sm">
+          <EditableText
+            id="oap-eyebrow"
+            value={eyebrow}
+            onChange={setEyebrow}
+            as="p"
+            className="t-tag text-white/70"
+          >
+            {eyebrow}
+          </EditableText>
+
           {/* h2, not h1 — the page's h1 is the hero. */}
           <EditableText
             id="oap-heading"
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="t-section text-white text-balance drop-shadow-2xl"
+            className="t-section text-white text-balance"
           >
             {heading}
           </EditableText>
@@ -72,24 +91,18 @@ const OwnAProperty = () => {
             value={subheading}
             onChange={setSubheading}
             as="p"
-            className="t-block text-white/90 drop-shadow-lg"
+            className="t-body text-white/85 max-w-md mx-auto"
           >
             {subheading}
           </EditableText>
 
           <div className="pt-sm">
-            <Button
-              asChild
-              size="lg"
-              className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold px-8 py-6 text-base"
-            >
-              <Link to="/property-management">
-                <EditableText id="oap-cta" value={ctaText} onChange={setCtaText} as="span">
-                  {ctaText}
-                </EditableText>
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
-            </Button>
+            <Link to="/property-management" className="cta-base cta-primary">
+              <EditableText id="oap-cta" value={ctaText} onChange={setCtaText} as="span">
+                {ctaText}
+              </EditableText>
+              <ArrowRight className="w-4 h-4" strokeWidth={2} />
+            </Link>
           </div>
         </div>
       </Container>
