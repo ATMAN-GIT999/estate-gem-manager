@@ -10,13 +10,14 @@ import logoPriceLabs from "@/assets/channel-pricelabs.webp";
 import logoChekin from "@/assets/channel-chekin.webp";
 
 /**
- * "Where your home goes live" — the distribution channels, as one quiet row.
+ * "We are working with" — the distribution channels, as one quiet row.
  *
- * This used to be "Working with", which mixed the channels a house is listed
- * on with the trades that renovate it (Sur Film, Vasari). On the owner page
- * the channels are an argument — this is reach you do not have on your own —
- * and a video company in the same row blunts it. The trades are not gone from
- * the business, only from this claim.
+ * Reverted from "Where your home goes live" (Almedin, 22.09.2026) back to the
+ * "working with" framing. Still scoped to distribution channels only, not the
+ * renovation trades (Sur Film, Vasari) the pre-wireframe version of this line
+ * also carried — on the owner page the channels are an argument (this is
+ * reach you do not have on your own), and a video company in the same row
+ * blunts it. The trades are not gone from the business, only from this claim.
  *
  * Four of the six marks are not in the repo yet, so they render as the same
  * hatched placeholder the rest of the site uses rather than as a gap or a

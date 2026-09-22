@@ -14,11 +14,13 @@ import { useLocale } from "@/contexts/LocaleContext";
  */
 const TheClaim = () => {
   const { t, language } = useLocale();
+  const [eyebrow, setEyebrow] = useState(t("claim-eyebrow"));
   const [heading, setHeading] = useState(t("claim-heading"));
   const [lead, setLead] = useState(t("claim-lead"));
   const [image, setImage] = useState<string | undefined>(claimImage);
 
   useEffect(() => {
+    setEyebrow(t("claim-eyebrow"));
     setHeading(t("claim-heading"));
     setLead(t("claim-lead"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -28,11 +30,20 @@ const TheClaim = () => {
     <Section size="md">
       <div className="max-w-2xl mx-auto text-center">
         <EditableText
+          id="claim-eyebrow"
+          value={eyebrow}
+          onChange={setEyebrow}
+          as="p"
+          className="t-tag text-accent-strong"
+        >
+          {eyebrow}
+        </EditableText>
+        <EditableText
           id="claim-heading"
           value={heading}
           onChange={setHeading}
           as="h2"
-          className="t-section text-foreground text-balance"
+          className="t-section text-foreground text-balance whitespace-pre-line mt-3"
         >
           {heading}
         </EditableText>

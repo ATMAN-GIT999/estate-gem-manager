@@ -95,12 +95,15 @@ const RenovationsAndInvestments = () => {
           <Link key={index} to={PILLAR_LINKS[index]} className="group">
             <Panel className="h-full">
               <Icon className="w-7 h-7 text-accent-strong mb-3" strokeWidth={1.5} />
+              {/* "Renovations" / "Investments" as the heading (Almedin,
+                  22.09.2026) — previously the small eyebrow tag above
+                  `beyond-title`, which is now the supporting line instead. */}
               <EditableText
                 id={`ways-sub-title-${index}`}
                 value={pillar.tag}
                 onChange={(v) => update(index, "tag", v)}
-                as="p"
-                className="t-tag text-accent-strong"
+                as="h3"
+                className="t-block text-foreground text-balance group-hover:text-accent-strong transition-colors"
               >
                 {pillar.tag}
               </EditableText>
@@ -108,8 +111,8 @@ const RenovationsAndInvestments = () => {
                 id={`beyond-title-${index}`}
                 value={pillar.title}
                 onChange={(v) => update(index, "title", v)}
-                as="h3"
-                className="t-block text-foreground text-balance mt-2 group-hover:text-accent-strong transition-colors"
+                as="p"
+                className="t-item text-foreground/80 mt-1"
               >
                 {pillar.title}
               </EditableText>

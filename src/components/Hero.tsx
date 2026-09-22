@@ -159,7 +159,7 @@ const Hero = () => {
               value={headline}
               onChange={setHeadline}
               as="h1"
-              className="t-display text-white text-balance max-w-[16ch] mx-auto"
+              className="t-display text-white text-balance"
             >
               {headline}
             </EditableText>
