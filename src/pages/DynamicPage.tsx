@@ -50,7 +50,7 @@ export default function DynamicPage() {
         <Navigation />
         <main className="flex-1 flex items-center justify-center pt-24">
           <div className="text-center">
-            <h1 className="font-playfair text-4xl font-bold text-primary mb-4">Page Not Found</h1>
+            <h1 className="t-display text-primary mb-4">Page Not Found</h1>
             <p className="text-muted-foreground">This page doesn't exist or hasn't been published yet.</p>
           </div>
         </main>

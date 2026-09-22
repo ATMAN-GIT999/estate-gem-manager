@@ -1,3 +1,11 @@
+# /business-areas is an orphaned page (docs/PROJECT.md D2) with no nav item
+# left pointing at it — a real 301 here, not just the client-side <Navigate>
+# in App.tsx, so a search engine that still has the old URL indexed updates
+# to /property-management instead of showing two competing pages. Must sit
+# above the SPA fallback below, since Netlify/Cloudflare take the first
+# matching rule.
+/business-areas    /property-management   301
+
 # SPA fallback: this is a client-side-routed React app (react-router), so any
 # path that isn't a real static file has to still serve index.html and let
 # the router take over — otherwise a reload or a link opened in a new tab on

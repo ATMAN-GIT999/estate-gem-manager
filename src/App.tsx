@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InlineEditProvider } from "./contexts/InlineEditContext";
 import { LocaleProvider } from "./contexts/LocaleContext";
@@ -18,7 +18,6 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Projects from "./pages/Projects";
-import BusinessAreasPage from "./pages/BusinessAreasPage";
 import Evaluate from "./pages/Evaluate";
 import Auth from "./pages/Auth";
 import PropertyDetail from "./pages/PropertyDetail";
@@ -86,7 +85,11 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
             <Route path="/projects" element={<Projects />} />
-            <Route path="/business-areas" element={<BusinessAreasPage />} />
+            {/* Orphaned page, not a nav item anymore, and a stale duplicate of
+                /property-management's positioning (docs/PROJECT.md D2). A
+                client-side redirect rather than deleting the route outright,
+                so an old bookmark or backlink still lands somewhere real. */}
+            <Route path="/business-areas" element={<Navigate to="/property-management" replace />} />
             <Route path="/property-management" element={<PropertyManagementPage />} />
             <Route path="/guaranteed-income" element={<GuaranteedIncomePage />} />
             <Route path="/renovations" element={<RenovationsPage />} />
