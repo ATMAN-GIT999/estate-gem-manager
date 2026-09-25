@@ -146,7 +146,30 @@ serve(async (req) => {
 
         const propertySlug = `${slug}-${listingId.slice(-6)}`;
 
-        // Map Guesty property to our schema
+        // Map Guesty property to our schema.
+        //
+        // ⚠️ Everything listed here is overwritten on EVERY import run, for
+        // every property, because `baseProperty` is handed whole to the
+        // update branch below. That is intended for Guesty-owned facts.
+        //
+        // It is also why four columns must NEVER appear in this object:
+        //
+        //     city_group   seo_slug   editorial_description   size_sqm
+        //
+        // Those exist precisely because Frontier needs fields an import
+        // cannot flatten (migration 20260925120000_property_editorial_fields,
+        // docs/seo/01_IMPLEMENTATION.md, Paket B). Adding any of them here — even to "keep
+        // the mapping complete", even as `null` — hands them back to Guesty
+        // and deletes Frontier's own text and URLs on the next run, with no
+        // error and nothing in the log to notice.
+        //
+        // `available` and `featured` are kept out for the same reason; they
+        // are set once in `insertProperty` and never updated.
+        //
+        // A new property therefore arrives with no city_group and no
+        // seo_slug, and will not appear on a location page until someone
+        // assigns them. That is deliberate: a silent wrong grouping is worse
+        // than a visible gap.
         const baseProperty = {
           name: guestyProperty.title || guestyProperty.nickname || 'Untitled Property',
           slug: propertySlug,
@@ -217,7 +240,12 @@ serve(async (req) => {
         let error;
 
         if (existingId) {
-          // Update existing property with latest Guesty data while preserving existing featured/available flags
+          // Update with the latest Guesty data. `baseProperty` is passed as
+          // it is, and a Supabase update only writes the keys it is given —
+          // so `available`, `featured` and the four editorial columns are
+          // left untouched by virtue of being absent. Keep it that way: the
+          // protection is the shape of this object, not a rule enforced
+          // anywhere else.
           const updateResponse = await supabase
             .from('properties')
             .update(baseProperty)

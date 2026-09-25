@@ -399,6 +399,24 @@ Live-Datenbank angewendet**. Schreiben ja, anwenden nur nach Absprache.
 `.env` enthält ausschließlich öffentliche `VITE_`-Keys. Service-Role-, Guesty-
 und Stripe-Secrets gehören in die Supabase-Secrets, **nie ins Repo**.
 
+### Redaktionelle Felder auf `properties` (seit 25.09.2026)
+
+Vier Spalten, die der Guesty-Import **nie** schreibt (Migration
+`20260925120000_property_editorial_fields`, mit Freigabe angewendet):
+`city_group` (`malaga` · `marbella` · `fuengirola` · `vienna` · `carinthia`,
+per CHECK), `seo_slug` (eindeutig), `editorial_description`, `size_sqm`.
+Befüllt für alle 23 Objekte durch `20260925120100_property_city_groups_and_seo_slugs`.
+
+- `seo_slug` beginnt immer mit dem **Über-Ort** (`city_group`), nie mit der
+  Gemeinde: `marbella-casa-heredia`, nicht `benahavis-…` (Entscheidung Almedin,
+  25.09.2026 — weicht vom Beispiel in `docs/seo/01_IMPLEMENTATION.md` ab).
+- Higuerón gehört zu **Fuengirola**, nicht Benalmádena (ebenfalls 25.09.2026).
+- Nachgewiesen: Ein Import-Lauf am 25.09.2026 hat 22 Objekte aktualisiert, alle
+  22 behielten `city_group` und `seo_slug`.
+- Ein neu importiertes Objekt kommt **ohne** `city_group` an und erscheint auf
+  keiner Ortsseite, bis jemand es zuordnet. Das ist Absicht.
+- `editorial_description` und `size_sqm` sind leer — beides muss Frontier liefern.
+
 ---
 
 ## 5 · SEO — Stand
@@ -462,6 +480,7 @@ Umgesetzt und verifiziert:
 | ~~C5~~ | ~~Das Layout-System endet fast überall~~ — **fünf von sechs Unterseiten erledigt am 19.08.2026** (DECISIONS §23): `/renovations`, `/investments`, `/guaranteed-income`, `/about`, `/properties` laufen jetzt auf `Section`/`Container`/`Grid`/`Panel` und der `.t-*`-Skala statt `container mx-auto px-4` + `font-playfair text-4xl…`. `SectionIntro` bekam dafür einen neuen `headingAs?: "h1" \| "h2"`-Prop. `/business-areas` bewusst ausgelassen (siehe D2 — verwaist, Redirect-Kandidat, keine Arbeit an einer absehbar verschwindenden Seite wert). `tsc`/`build`/`lint` sauber; die Browser-Sichtprüfung steht noch aus, weil die Chrome-DevTools-Verbindung zum Zeitpunkt der Umstellung getrennt war — nachzuholen. |
 | ~~C6~~ | ~~`public/videos/hero-background.mp4` ist kaputt~~ — **erledigt am 19.08.2026** (DECISIONS §22). Almedin lieferte eine echte 4K-Aufnahme (Puente Romano, 222 MB); mit neu installiertem `ffmpeg` auf 1280×720, ohne Ton, ~5,8 MB re-encodiert. `Hero.tsx` läuft jetzt per Default auf `videoType: "file"`, der YouTube-Embed bleibt als unbenutzter Fallback im State. |
 | C7 | **Texte sind nicht dauerhaft im CMS änderbar.** `EditableText` / `EditableImage` / `EditableVideo` schreiben nur in lokalen React-State — nach einem Reload ist jede Änderung weg. Es gibt keine Persistenz-Tabelle; der einzige Override-Mechanismus (`PageWrapper` → Tabelle `pages`) ist für keine Seite aktiv. **Konsequenz:** Was im Code steht, ist der Text. „Das ändert der Kunde später selbst" stimmt heute nicht. |
+| C8 | **Admin-Zugang: Fremde können sich selbst zum Admin machen — zum Schluss angehen, nach Paket E (Entscheidung Almedin, 25.09.2026).** Der Trigger `on_admin_user_created` (`handle_admin_signup`) gibt jedem die Rolle `admin`, der sich mit `frontierresidences@example.com` oder `frontier@frontierresidences.com` registriert. Beide Konten existieren nicht, und die Domain `frontierresidences.com` (ohne Bindestrich) ist **nicht registriert** — wer sie kauft, kann sich über `/auth` registrieren, die Bestätigung empfangen und hätte vollen Admin-Zugriff: Leads, Buchungen, Nachrichten, Objekte und über `pages` eigenes HTML auf `/`. Stand 25.09.2026: **null Admins**, ein einziges (Nicht-Admin-)Konto, `contacts` leer. RLS ist auf allen Tabellen korrekt — ohne Admin-Rolle sieht `/admin/*` nur leere Tabellen; nur `Builder.tsx` prüft `isAdmin` im Frontend. Zweiter Befund: `import-guesty-properties` prüft keine Rolle (`verify_jwt` akzeptiert den öffentlichen anon-Key) — jeder Besucher kann den Import auslösen und im ungünstigen Fall Guesty-Tokens verbrauchen. **Plan:** (1) Trigger per Migration entfernen, (2) im Supabase-Dashboard „Allow new users to sign up" ausschalten, (3) Import auf Admins beschränken (Guesty-Anbindung → einzeln rückfragen), (4) optional `/admin/*` ohne Rolle auf `/auth` umleiten. Admin-Code nicht löschen — das Inline-CMS hängt daran und steht auf „nicht ohne Rückfrage". Nebenfrage: Leads landen nur in `contacts`, eine E-Mail-Benachrichtigung gibt es nicht — ohne Admin sieht sie niemand. |
 
 ### 🟡 Offen, braucht eine Entscheidung
 
@@ -478,7 +497,7 @@ Umgesetzt und verifiziert:
 | D8 | **`collection`-Spalte für die Property-Tabelle.** Die drei Reihen in `PropertyCollections.tsx` leiten die Zuordnung aus `location` und dem Namen ab. Eine Immobilie in einem neuen Ort erscheint in **keiner** Reihe, bis jemand den Ort im Code ergänzt. |
 | D9 | **Objekt mit 63 Nächten Mindestaufenthalt im Buchungsfluss.** „6th floor Malaga Soho" steht auf Langzeitmiete (`terms.minNights = 63`). Ein Gast, der Daten wählt, bekommt dort ausnahmslos eine Absage. Produktfrage: soll es im normalen Flow überhaupt auftauchen? |
 | D12 | **Marbella und Estepona werden vorgeschlagen, haben aber kein Objekt.** `FEATURED_REGIONS` in `LocationAutocomplete.tsx` bietet beide Orte an, weil Almedin sie aktiv verfolgt (DECISIONS §53). Wer sie auswählt, landet zwangsläufig im generischen Leerzustand („no match" · „try different" · „clear filters") — der liest sich wie ein Fehler der Suche, nicht wie „hier kommt bald etwas". Zu entscheiden: eigener Hinweistext für Wunschorte ohne Bestand, samt Anfrage-CTA — oder die beiden Orte wieder herausnehmen, falls dort so bald kein Listing kommt. |
-| D10 | **Drei Objekte ohne Live-Preis** (Los Monteros Retreat, Luxury Escape Los Flamingos Golf Retreat, THE ONE Higuerón) — bei jedem getesteten Zeitfenster bis 400 Tage voraus „nicht verfügbar". Liest sich als in Guesty blockiert/inaktiv. In Guesty prüfen. |
+| D10 | **Drei Objekte ohne Live-Preis** (Los Monteros Retreat, Luxury Escape Los Flamingos Golf Retreat, THE ONE Higuerón) — bei jedem getesteten Zeitfenster bis 400 Tage voraus „nicht verfügbar". Liest sich als in Guesty blockiert/inaktiv. In Guesty prüfen. **Nachtrag 25.09.2026:** Los Monteros Retreat fehlt komplett in der Antwort von Guesty an den Import (22 statt 23 Objekte) — das Objekt ist in der Booking-Engine offenbar nicht freigegeben, steht auf der Website aber weiter als `available`. |
 
 ### Bewusst so gelassen
 

@@ -276,7 +276,7 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
                 <div className="aspect-[3/4] overflow-hidden">
                   <img
                     src={villaHigueron}
-                    alt="Villa Higuerón, Benalmádena — living room with sea view"
+                    alt="Villa Higuerón, Fuengirola — living room with sea view"
                     width={480}
                     height={640}
                     loading="lazy"
@@ -284,7 +284,7 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
                   />
                 </div>
                 <p className="t-card text-foreground mt-3">Villa Higuerón</p>
-                <p className="t-body text-muted-foreground">Benalmádena · from €1,180</p>
+                <p className="t-body text-muted-foreground">Fuengirola · from €1,180</p>
               </Link>
             </div>
           </Container>
