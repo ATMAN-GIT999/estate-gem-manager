@@ -105,7 +105,14 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             alt={i === index ? `${property.name} — ${property.location}` : ""}
             width={600}
             height={800}
-            loading={i === 0 ? "lazy" : "eager"}
+            /* Every frame is lazy, including the visible one. Cards sit
+               below the fold on both the landing page and the results grid;
+               the browser fetches the ones near the viewport immediately and
+               leaves the rest until they are scrolled towards. This used to
+               read `i === 0 ? "lazy" : "eager"`, which was backwards — it
+               deferred the photo on screen and eagerly fetched the invisible
+               preload stacked behind it. */
+            loading="lazy"
             aria-hidden={i !== index}
             className={cn(
               "absolute inset-0 w-full h-full object-cover",

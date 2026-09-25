@@ -36,6 +36,8 @@ interface MediaFrameProps {
   aspect?: "wide" | "photo" | "square";
   /** Light the placeholder for the sage-green fill rather than the page. */
   onPrimary?: boolean;
+  /** Above the fold: load it straight away instead of deferring it. */
+  priority?: boolean;
   className?: string;
 }
 
@@ -43,6 +45,17 @@ const aspectClass = {
   wide: "aspect-[16/9]",
   photo: "aspect-[4/3]",
   square: "aspect-square",
+} as const;
+
+// The same three ratios as numbers, for the img's width/height attributes.
+// These describe the BOX, not the photograph: every one of these images is
+// `object-cover`, so the box is what the page reserves and what the picture
+// gets cropped into. A `fill` frame gets none of this — it is positioned out
+// of the flow, so there is no space to hold open.
+const aspectSize = {
+  wide: { width: 1600, height: 900 },
+  photo: { width: 1600, height: 1200 },
+  square: { width: 1200, height: 1200 },
 } as const;
 
 const MediaFrame = ({
@@ -54,6 +67,7 @@ const MediaFrame = ({
   fill = false,
   aspect = "photo",
   onPrimary = false,
+  priority = false,
   className,
 }: MediaFrameProps) => {
   // `h-full` only makes sense in the `fill` case, where the parent is
@@ -70,12 +84,16 @@ const MediaFrame = ({
     : cn("w-full object-cover", aspectClass[aspect]);
 
   if (src) {
+    const size = fill ? undefined : aspectSize[aspect];
     return (
       <EditableImage
         id={id}
         src={src}
         alt={alt}
         onChange={onChange}
+        width={size?.width}
+        height={size?.height}
+        loading={priority ? "eager" : "lazy"}
         className={cn(shape, className)}
       />
     );

@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
+import { useLocale } from "@/contexts/LocaleContext";
 import { Calendar as CalendarIcon, Upload, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 /**
@@ -48,6 +49,7 @@ const safeFileName = (name: string) =>
   name.normalize("NFKD").replace(/[^\w.\-]+/g, "_").slice(-80);
 
 const ConsultationBooking = () => {
+  const { t } = useLocale();
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -349,7 +351,10 @@ const ConsultationBooking = () => {
                         <div key={index} className="relative group">
                           <img
                             src={URL.createObjectURL(file)}
-                            alt={`Property ${index + 1}`}
+                            alt={t("consult-upload-alt").replace("{file}", file.name)}
+                            width={200}
+                            height={96}
+                            loading="lazy"
                             className="w-full h-24 object-cover rounded-lg"
                           />
                           <button

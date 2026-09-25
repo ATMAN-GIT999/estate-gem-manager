@@ -89,6 +89,7 @@ const Footer = () => {
                 alt="Frontier Residences — Bespoke Property Management"
                 width={1640}
                 height={586}
+                loading="lazy"
                 className="w-1/2 min-w-[220px] h-auto brightness-0 invert opacity-90"
               />
             </Link>

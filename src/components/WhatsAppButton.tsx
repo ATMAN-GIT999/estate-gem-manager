@@ -12,7 +12,13 @@ const WhatsAppButton = () => {
       aria-label="Chat with us on WhatsApp"
       className="fixed bottom-5 right-5 z-50 block h-14 w-14 rounded-full shadow-lg transition-transform hover:scale-110 hover:shadow-xl"
     >
-      <img src={whatsappIcon} alt="WhatsApp" className="h-full w-full rounded-full" />
+      <img
+        src={whatsappIcon}
+        alt=""
+        width={56}
+        height={56}
+        className="h-full w-full rounded-full"
+      />
     </a>
   );
 };

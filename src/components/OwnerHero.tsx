@@ -183,6 +183,7 @@ const OwnerHero = () => {
             note="Owner hero — infinity pool over the sea"
             onPrimary
             fill
+            priority
           />
 
           <div className="relative w-[330px] max-w-full bg-background text-foreground rounded-md px-8 pt-[30px] pb-[34px] shadow-[0_12px_40px_-10px_hsl(var(--ink)/0.4)]">

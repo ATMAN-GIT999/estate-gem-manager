@@ -3,7 +3,18 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 
+/**
+ * Renders whatever HTML the `pages` table holds under a slug.
+ *
+ * `noindex` until someone can say what this route is for. It serves arbitrary
+ * stored markup under an arbitrary URL, with no title or description of its
+ * own — exactly the shape of thing a search engine files as thin or duplicate
+ * content, and every page it serves would otherwise compete with the real
+ * route covering the same subject. Nothing links to it from the site. Lift
+ * this once the route has a purpose and per-page metadata to go with it.
+ */
 export default function DynamicPage() {
   const { slug } = useParams<{ slug: string }>();
   const [html, setHtml] = useState("");
@@ -32,9 +43,12 @@ export default function DynamicPage() {
     })();
   }, [slug]);
 
+  const seo = <Seo title="Page" path={`/p/${slug ?? ""}`} noindex />;
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
+        {seo}
         <Navigation />
         <main className="flex-1 flex items-center justify-center pt-24">
           <div className="animate-pulse text-muted-foreground">Loading...</div>
@@ -47,6 +61,7 @@ export default function DynamicPage() {
   if (notFound) {
     return (
       <div className="min-h-screen flex flex-col">
+        {seo}
         <Navigation />
         <main className="flex-1 flex items-center justify-center pt-24">
           <div className="text-center">
@@ -61,6 +76,7 @@ export default function DynamicPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {seo}
       <Navigation />
       <main className="flex-1 pt-24">
         {css && <style dangerouslySetInnerHTML={{ __html: css }} />}

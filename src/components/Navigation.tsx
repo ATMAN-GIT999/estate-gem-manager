@@ -279,6 +279,7 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
                     alt="Villa Higuerón, Benalmádena — living room with sea view"
                     width={480}
                     height={640}
+                    loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>

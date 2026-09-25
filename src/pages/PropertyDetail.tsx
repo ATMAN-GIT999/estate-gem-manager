@@ -203,6 +203,19 @@ const PropertyDetail = () => {
   const guestyImages = property.images?.map((img: any) => img.url) || [];
   const images = guestyImages.length > 0 ? guestyImages : (propertyImages[property.slug] || [property3]);
 
+  // Guesty gives us no per-photo caption, so an honest alt text is the house,
+  // its town and which photo of how many this is — "Casa Heredia in Benahavís
+  // — photo 3 of 24". The old `${property.name} — 3` told a screen-reader
+  // user the number and nothing else. Naming a room we cannot see in the data
+  // would be a guess, and a confident wrong alt text is worse than a plain
+  // one.
+  const photoAlt = (n: number) =>
+    t("pd-photo-alt")
+      .replace("{name}", property.name)
+      .replace("{location}", property.location)
+      .replace("{n}", String(n))
+      .replace("{total}", String(images.length));
+
   // A property's own words if it has any, trimmed to roughly what a search
   // result will actually display, otherwise a sentence built from its facts.
   const keyFeatures: string[] = (property.amenities ?? []).slice(0, KEY_FEATURE_COUNT);
@@ -293,7 +306,9 @@ const PropertyDetail = () => {
               >
                 <img
                   src={images[0]}
-                  alt={`${property.name} — ${property.location}`}
+                  alt={photoAlt(1)}
+                  width={1200}
+                  height={900}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </button>
@@ -309,7 +324,9 @@ const PropertyDetail = () => {
                 >
                   <img
                     src={img}
-                    alt={`${property.name} — ${idx + 2}`}
+                    alt={photoAlt(idx + 2)}
+                    width={600}
+                    height={450}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </button>
@@ -357,7 +374,10 @@ const PropertyDetail = () => {
                 >
                   <img
                     src={img}
-                    alt={`${property.name} — ${idx + 1}`}
+                    alt={photoAlt(idx + 1)}
+                    width={800}
+                    height={600}
+                    loading="lazy"
                     className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </button>
@@ -378,7 +398,8 @@ const PropertyDetail = () => {
               <div className="relative flex h-full items-center justify-center">
                 <img
                   src={images[lightboxIndex]}
-                  alt={`${property.name} — ${lightboxIndex + 1}`}
+                  alt={photoAlt(lightboxIndex + 1)}
+                  loading="lazy"
                   className="max-h-full max-w-full object-contain"
                 />
                 {images.length > 1 && (

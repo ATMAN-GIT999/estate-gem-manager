@@ -20,6 +20,12 @@ interface EditableImageProps {
   onChange?: (url: string) => void;
   className?: string;
   bucketName?: string;
+  /** Intrinsic size, so the browser can hold the space before the file
+   * arrives. Omit when the box has no ratio to reserve (a `fill` image is
+   * absolutely positioned and takes no room in the flow). */
+  width?: number;
+  height?: number;
+  loading?: "lazy" | "eager";
 }
 
 export default function EditableImage({
@@ -29,6 +35,9 @@ export default function EditableImage({
   onChange,
   className,
   bucketName = "images",
+  width,
+  height,
+  loading,
 }: EditableImageProps) {
   const { editMode, isEditing, setIsEditing } = useInlineEdit();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -82,13 +91,29 @@ export default function EditableImage({
 
   // If not in edit mode, just render image normally
   if (!editMode) {
-    return <img src={src} alt={alt} className={className} />;
+    return (
+      <img
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        loading={loading}
+        className={className}
+      />
+    );
   }
 
   return (
     <>
       <div className="group relative inline-block">
-        <img src={src} alt={alt} className={cn(className, "outline outline-2 outline-dashed outline-primary/40 outline-offset-2 rounded")} />
+        <img
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          loading={loading}
+          className={cn(className, "outline outline-2 outline-dashed outline-primary/40 outline-offset-2 rounded")}
+        />
         <button
           onClick={() => {
             setIsEditing(id);

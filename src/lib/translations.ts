@@ -81,7 +81,7 @@ export const en = {
   "propertycard.featured": "Featured",
 
   // Hero (landing)
-  "hero-headline": "Luxury Villas & Vacation Rentals in Spain and Austria",
+  "hero-headline": "Luxury Vacation Rentals in Spain and Austria",
   "hero-subheadline": "23 villas on the Costa del Sol, in Vienna and in Carinthia. Booked direct, without the platform mark-up.",
 
   // Properties page header
@@ -390,6 +390,8 @@ export const en = {
   // from the database, not from here.
   "pd-back": "Back to Properties",
   "pd-show-all-photos": "Show all {n} photos",
+  "pd-photo-alt": "{name} in {location} — photo {n} of {total}",
+  "consult-upload-alt": "Photo you selected: {file}",
   "pd-bedrooms": "Bedrooms",
   "pd-bathrooms": "Bathrooms",
   "pd-guests": "Guests",
@@ -591,7 +593,7 @@ export const de: Record<TranslationKey, string> = {
   "propertycard.perNight": "/ Nacht",
   "propertycard.featured": "Empfohlen",
 
-  "hero-headline": "Luxusvillen & Ferienunterkünfte in Spanien und Österreich",
+  "hero-headline": "Luxus-Ferienunterkünfte in Spanien und Österreich",
   "hero-subheadline": "23 Villen an der Costa del Sol, in Wien und in Kärnten. Direkt gebucht, ohne Plattform-Aufschlag.",
 
   "properties-page-eyebrow": "Unsere Kollektion",
@@ -871,6 +873,8 @@ export const de: Record<TranslationKey, string> = {
 
   "pd-back": "Zurück zu den Objekten",
   "pd-show-all-photos": "Alle {n} Fotos anzeigen",
+  "pd-photo-alt": "{name} in {location} — Foto {n} von {total}",
+  "consult-upload-alt": "Von Ihnen ausgewähltes Foto: {file}",
   "pd-bedrooms": "Schlafzimmer",
   "pd-bathrooms": "Badezimmer",
   "pd-guests": "Gäste",
@@ -1064,7 +1068,7 @@ export const es: Record<TranslationKey, string> = {
   "propertycard.perNight": "/ noche",
   "propertycard.featured": "Destacado",
 
-  "hero-headline": "Villas de Lujo y Alquileres Vacacionales en España y Austria",
+  "hero-headline": "Alquileres vacacionales de lujo en España y Austria",
   "hero-subheadline": "23 villas en la Costa del Sol, en Viena y en Carintia. Reserva directa, sin el recargo de las plataformas.",
 
   "properties-page-eyebrow": "Nuestra colección",
@@ -1344,6 +1348,8 @@ export const es: Record<TranslationKey, string> = {
 
   "pd-back": "Volver a las Propiedades",
   "pd-show-all-photos": "Ver las {n} fotos",
+  "pd-photo-alt": "{name} en {location} — foto {n} de {total}",
+  "consult-upload-alt": "Foto seleccionada: {file}",
   "pd-bedrooms": "Dormitorios",
   "pd-bathrooms": "Baños",
   "pd-guests": "Huéspedes",

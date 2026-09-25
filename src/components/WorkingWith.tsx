@@ -24,17 +24,21 @@ import logoChekin from "@/assets/channel-chekin.webp";
  * wordmark typed out in the page font.
  */
 
-type Slot = { id: string; src?: string; label: string };
+type Slot = { id: string; src?: string; label: string; width?: number; height?: number };
 
+// `width`/`height` are each mark's real pixel dimensions, read off the files
+// themselves. Unlike the photographs elsewhere these are `object-contain` on
+// `w-auto`, so the mark's own ratio is what decides how wide its slot ends up
+// — a guessed ratio would shuffle the row sideways as the files land.
 const CHANNELS: Slot[] = [
-  { id: "channel-airbnb", src: logoAirbnb, label: "Airbnb" },
-  { id: "channel-booking", src: logoBooking, label: "Booking.com" },
+  { id: "channel-airbnb", src: logoAirbnb, label: "Airbnb", width: 600, height: 188 },
+  { id: "channel-booking", src: logoBooking, label: "Booking.com", width: 600, height: 100 },
   // Still waiting on a usable Vrbo mark; the hatched slot names it rather
   // than the row quietly becoming five.
   { id: "channel-vrbo", label: "Vrbo" },
-  { id: "channel-guesty", src: logoGuesty, label: "Guesty" },
-  { id: "channel-pricelabs", src: logoPriceLabs, label: "PriceLabs" },
-  { id: "channel-chekin", src: logoChekin, label: "Chekin" },
+  { id: "channel-guesty", src: logoGuesty, label: "Guesty", width: 1441, height: 377 },
+  { id: "channel-pricelabs", src: logoPriceLabs, label: "PriceLabs", width: 600, height: 156 },
+  { id: "channel-chekin", src: logoChekin, label: "Chekin", width: 600, height: 176 },
 ];
 
 const WorkingWith = () => {
@@ -73,6 +77,9 @@ const WorkingWith = () => {
                 src={slot.src}
                 alt={slot.label}
                 onChange={(url) => setSrc(slot.id, url)}
+                width={slot.width}
+                height={slot.height}
+                loading="lazy"
                 className="max-h-7 w-auto object-contain opacity-75 hover:opacity-100 transition-opacity"
               />
             ) : (
