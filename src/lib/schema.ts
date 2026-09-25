@@ -106,7 +106,8 @@ export const breadcrumbSchema = (
 
 interface PropertySchemaInput {
   name: string;
-  slug: string;
+  /** The canonical route, from `propertyPath()` — never built from `slug` here. */
+  path: string;
   description?: string | null;
   location?: string | null;
   bedrooms?: number | null;
@@ -138,7 +139,7 @@ export const propertySchema = (property: PropertySchemaInput) => ({
   "@context": "https://schema.org",
   "@type": "Accommodation",
   name: property.name,
-  url: absoluteUrl(`/property/${property.slug}`),
+  url: absoluteUrl(property.path),
   ...(property.description ? { description: property.description } : {}),
   ...(property.images?.length
     ? { image: property.images.slice(0, 6).map((i) => i.url) }

@@ -20,6 +20,7 @@ import {
   type VacationRentalCity as City,
 } from "@/lib/vacationRentals";
 import { en } from "@/lib/translations";
+import { propertyPath } from "@/lib/propertyUrl";
 import NotFound from "./NotFound";
 
 /**
@@ -103,7 +104,7 @@ const VacationRentalCityPage = ({ city }: { city: City }) => {
             name: en[vrKey(city.slug, "h1")],
             description: city.seoDescription,
             path,
-            items: homes.map((home) => ({ name: home.name, path: `/property/${home.slug}` })),
+            items: homes.map((home) => ({ name: home.name, path: propertyPath(home) })),
           }),
           breadcrumbSchema(trail),
           faqSchema(englishFaq(city)),

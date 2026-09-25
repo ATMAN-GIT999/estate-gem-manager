@@ -7,7 +7,7 @@ import EditableText from "./admin/EditableText";
 import { Container } from "./layout";
 import LanguageCurrencySwitcher from "./LanguageCurrencySwitcher";
 import { useLocale } from "@/contexts/LocaleContext";
-import { AUSTRIA_DESTINATIONS, SPAIN_DESTINATIONS } from "@/lib/destinations";
+import { AUSTRIA_DESTINATIONS, SPAIN_DESTINATIONS, type Destination } from "@/lib/destinations";
 import villaHigueron from "@/assets/wf-villa-higueron.webp";
 
 /**
@@ -106,6 +106,15 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
     setPanelOpen(false);
     setIsOpen(false);
     navigate(query ? `/properties?location=${encodeURIComponent(query)}` : "/properties");
+  };
+
+  // A place with a location page opens that page; one without (Estepona,
+  // Benalmádena) keeps the filtered search, since it has no page to open.
+  const goToPlace = (d: Destination) => {
+    if (!d.page) return go(d.query);
+    setPanelOpen(false);
+    setIsOpen(false);
+    navigate(`/vacation-rentals/${d.page}`);
   };
 
   const linkClass = cn(
@@ -230,7 +239,7 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
               <div className="col-span-3">
                 <p className="t-tag text-accent-strong mb-4">Spain</p>
                 {SPAIN.map((d) => (
-                  <button key={d.label} type="button" className={panelLink} onClick={() => go(d.query)}>
+                  <button key={d.label} type="button" className={panelLink} onClick={() => goToPlace(d)}>
                     {d.label}
                   </button>
                 ))}
@@ -246,7 +255,7 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
               <div className="col-span-3">
                 <p className="t-tag text-accent-strong mb-4">Austria</p>
                 {AUSTRIA.map((d) => (
-                  <button key={d.label} type="button" className={panelLink} onClick={() => go(d.query)}>
+                  <button key={d.label} type="button" className={panelLink} onClick={() => goToPlace(d)}>
                     {d.label}
                   </button>
                 ))}
@@ -269,7 +278,7 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
               </div>
 
               <Link
-                to="/property/villa-higueron"
+                to="/vacation-rentals/fuengirola"
                 className="col-span-3 group"
                 onClick={() => setPanelOpen(false)}
               >
@@ -284,7 +293,12 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
                   />
                 </div>
                 <p className="t-card text-foreground mt-3">Villa Higuerón</p>
-                <p className="t-body text-muted-foreground">Fuengirola · from €1,180</p>
+                {/* Links to the Fuengirola page: `/property/villa-higueron` was
+                    never a real address (the Guesty slugs carry a hash), so it
+                    ended on "not found". No price either — "from €1,180" was
+                    typed in by hand, and a price here has to come from Guesty
+                    live or not be shown (docs/PROJECT.md, "Preise"). */}
+                <p className="t-body text-muted-foreground">Fuengirola</p>
               </Link>
             </div>
           </Container>
@@ -298,7 +312,7 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
             <div className="flex flex-col gap-1">
               <p className="t-tag text-accent-strong mb-2">Destinations</p>
               {[...SPAIN, ...AUSTRIA].map((d) => (
-                <button key={d.label} type="button" className={panelLink} onClick={() => go(d.query)}>
+                <button key={d.label} type="button" className={panelLink} onClick={() => goToPlace(d)}>
                   {d.label}
                 </button>
               ))}

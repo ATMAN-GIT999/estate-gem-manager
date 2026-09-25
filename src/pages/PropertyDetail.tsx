@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Container, Grid, Panel, Section } from "@/components/layout";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
 import SurroundingsMap from "@/components/SurroundingsMap";
-import { Bed, Bath, Users, Images, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
+import { ArrowRight, Bed, Bath, Users, Images, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { getAmenityIcon } from "@/lib/amenityIcons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Seo from "@/components/Seo";
+import Breadcrumb from "@/components/Breadcrumb";
+import { propertyPath } from "@/lib/propertyUrl";
+import {
+  LOCATION_PAGE_EXCLUDED_LISTINGS,
+  findVacationRentalCity,
+  vrKey,
+} from "@/lib/vacationRentals";
+import { en } from "@/lib/translations";
 import { breadcrumbSchema, propertySchema } from "@/lib/schema";
 import property3 from "@/assets/property-3.webp";
 import losMonterosCard from "@/assets/los-monteros-card.webp";
@@ -94,11 +102,19 @@ const PropertyDetail = () => {
 
   useEffect(() => {
     const fetchProperty = async () => {
-      const { data, error } = await supabase
+      // Both URL forms are accepted: Frontier's `seo_slug` first, then the
+      // Guesty-derived `slug` it replaced (src/lib/propertyUrl.ts). Two plain
+      // lookups rather than one `.or()` filter, because `slug` comes straight
+      // from the address bar and a comma or bracket in it would be read as
+      // filter syntax.
+      const bySeoSlug = await supabase
         .from("properties")
         .select("*")
-        .eq("slug", slug)
+        .eq("seo_slug", slug ?? "")
         .maybeSingle();
+      const { data, error } = bySeoSlug.data
+        ? bySeoSlug
+        : await supabase.from("properties").select("*").eq("slug", slug ?? "").maybeSingle();
 
       if (error || !data) {
         toast({
@@ -108,6 +124,15 @@ const PropertyDetail = () => {
         });
         navigate("/properties");
         return;
+      }
+
+      // Arrived on the old address: move to the new one, keeping the dates
+      // the guest searched with. public/_redirects already answers this with
+      // a 301 on the live host; this covers the dev server, in-app links from
+      // before the switch, and any home whose seo_slug is set after the
+      // redirect list was written.
+      if (data.seo_slug && data.seo_slug !== slug) {
+        navigate(`${propertyPath(data)}${window.location.search}`, { replace: true });
       }
 
       setProperty(data);
@@ -121,29 +146,41 @@ const PropertyDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, navigate, toast]);
 
-  // Homes in the same place, minus this one. "Similar" by location is the
-  // only relationship the table actually models — anything finer (same size,
-  // same price band) would be a guess dressed up as a recommendation.
+  // Three homes to go on to (docs/seo/01_IMPLEMENTATION.md D2): the same
+  // location page first, then the closest match in guest count. Both are
+  // columns the table really has — anything finer (style, price band) would
+  // be a guess dressed up as a recommendation. The long-stay listing stays
+  // out for the same reason it is off the location pages: a guest sent there
+  // from here can never book it.
   useEffect(() => {
-    if (!property?.location) return;
+    if (!property?.id) return;
     let cancelled = false;
     const load = async () => {
       const { data } = await supabase
         .from("properties")
         .select("*")
         .eq("available", true)
-        .eq("location", property.location)
-        .neq("slug", property.slug)
-        .limit(3);
+        .neq("id", property.id);
+      if (cancelled || !data) return;
       // The generated row type widens `images` to `Json`; PropertyCard wants
       // the {url, caption} shape the importer actually writes.
-      if (!cancelled && data) setSimilar(data as unknown as Property[]);
+      const candidates = (data as unknown as Property[]).filter(
+        (p) => !LOCATION_PAGE_EXCLUDED_LISTINGS.has(p.guesty_listing_id ?? "")
+      );
+      const samePlace = (p: Property) =>
+        property.city_group ? p.city_group === property.city_group : p.location === property.location;
+      const ranked = [...candidates].sort(
+        (a, b) =>
+          Number(samePlace(b)) - Number(samePlace(a)) ||
+          Math.abs(a.guests - property.guests) - Math.abs(b.guests - property.guests)
+      );
+      setSimilar(ranked.slice(0, 3));
     };
     load();
     return () => {
       cancelled = true;
     };
-  }, [property?.location, property?.slug]);
+  }, [property?.id, property?.city_group, property?.location, property?.guests]);
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -229,6 +266,37 @@ const PropertyDetail = () => {
       )
     : [];
 
+  const path = propertyPath(property);
+  // The location page this home belongs to, if it has been given one. A home
+  // imported without a `city_group` falls back to the old trail through the
+  // filtered search, so it still has a way back.
+  const city = findVacationRentalCity(property.city_group ?? undefined);
+  const placeLabel = city ? t(vrKey(city.slug, "name")) : property.location;
+  // Dates and guests travel on to the location page, whose cards pass them
+  // on again — a guest who goes up a level and back down keeps their search.
+  const placeLink = (() => {
+    if (!city) return backToPropertiesLink;
+    const params = new URLSearchParams();
+    for (const key of ["checkIn", "checkOut", "guests"]) {
+      const value = searchParams.get(key);
+      if (value) params.set(key, value);
+    }
+    const query = params.toString();
+    return `/vacation-rentals/${city.slug}${query ? `?${query}` : ""}`;
+  })();
+  const schemaTrail = city
+    ? [
+        { name: "Home", path: "/" },
+        { name: "Vacation Rentals", path: "/vacation-rentals" },
+        { name: en[vrKey(city.slug, "name")], path: `/vacation-rentals/${city.slug}` },
+        { name: property.name, path },
+      ]
+    : [
+        { name: "Home", path: "/" },
+        { name: "Properties", path: "/properties" },
+        { name: property.name, path },
+      ];
+
   const metaDescription = property.description
     ? String(property.description).replace(/\s+/g, " ").trim().slice(0, 155)
     : `${property.bedrooms === 0 ? "Studio" : `${property.bedrooms}-bedroom`} ${String(property.type ?? "property").toLowerCase()} in ${property.location}, sleeping up to ${property.guests}. Book directly with Frontier Residences.`;
@@ -241,13 +309,13 @@ const PropertyDetail = () => {
       <Seo
         title={`${property.name} — ${property.location}`}
         description={metaDescription}
-        path={`/property/${property.slug}`}
+        path={path}
         type="article"
         image={images[0] ?? undefined}
         schema={[
           propertySchema({
             name: property.name,
-            slug: property.slug,
+            path,
             description: property.description,
             location: property.location,
             bedrooms: property.bedrooms,
@@ -256,41 +324,31 @@ const PropertyDetail = () => {
             images: property.images,
             amenities: property.amenities,
           }),
-          breadcrumbSchema([
-            { name: "Home", path: "/" },
-            { name: "Properties", path: "/properties" },
-            { name: property.name, path: `/property/${property.slug}` },
-          ]),
+          breadcrumbSchema(schemaTrail),
         ]}
       />
       <Navigation />
 
       <main className="flex-1 pt-24">
-        {/* Breadcrumb, not a back button. It says where the visitor is as well
-            as where they came from, and it keeps the filtered search they
-            arrived from alive in the link. */}
-        <Container className="py-sm">
-          <nav aria-label="Breadcrumb">
-            <ol className="flex flex-wrap items-center gap-2 t-body text-muted-foreground">
-              <li>
-                <Link to={backToPropertiesLink} className="hover:text-accent-strong transition-colors">
-                  {t("pd-all-homes")}
-                </Link>
-              </li>
-              <li aria-hidden="true">›</li>
-              <li>
-                <Link
-                  to={`/properties?location=${encodeURIComponent(property.location)}`}
-                  className="hover:text-accent-strong transition-colors"
-                >
-                  {property.location}
-                </Link>
-              </li>
-              <li aria-hidden="true">›</li>
-              <li className="text-foreground">{property.name}</li>
-            </ol>
-          </nav>
-        </Container>
+        {/* Breadcrumb, not a back button: it says where the visitor is as
+            well as how to get back. The place step leads to the location page
+            (docs/seo/01_IMPLEMENTATION.md D1) with the guest's dates still on
+            it. */}
+        <Breadcrumb
+          trail={
+            city
+              ? [
+                  { label: t("vr-home"), to: "/" },
+                  { label: t("vr-breadcrumb"), to: "/vacation-rentals" },
+                  { label: placeLabel, to: placeLink },
+                  { label: property.name, to: path },
+                ]
+              : [
+                  { label: t("pd-all-homes"), to: backToPropertiesLink },
+                  { label: property.name, to: path },
+                ]
+          }
+        />
 
         {/* Gallery — one lead image and four beside it in a 2×2, the clearest
             way to show a house before anyone reads a word. Tiles carry no
@@ -639,6 +697,23 @@ const PropertyDetail = () => {
             </Grid>
           </Section>
         )}
+
+        {/* One line for owners at the very bottom, and nothing more
+            (docs/seo/01_IMPLEMENTATION.md D3). Everything above it is for the
+            guest — owner language in the guest part of the page is this
+            project's historical main mistake. */}
+        <Section size="sm">
+          <p className="t-body text-muted-foreground border-t border-border pt-sm flex flex-wrap items-center gap-x-2 gap-y-1">
+            {t("vr-owner-bridge").replace("{place}", placeLabel)}
+            <Link
+              to="/property-management"
+              className="inline-flex items-center gap-1.5 text-accent-strong font-semibold hover:gap-2.5 transition-all"
+            >
+              {t("vr-owner-bridge-link")}
+              <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+            </Link>
+          </p>
+        </Section>
       </main>
 
       <Footer />

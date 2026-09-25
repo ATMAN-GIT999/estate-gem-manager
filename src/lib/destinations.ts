@@ -19,19 +19,27 @@
 export interface Destination {
   label: string;
   query: string;
+  /**
+   * The location page for this place (`/vacation-rentals/<page>`), where one
+   * exists. Browsing links (the header panel, the landing-page rail) go there
+   * instead of to a filtered search. Estepona and Benalmádena have none: there
+   * are no homes there, and a page without stock is a doorway page
+   * (docs/seo/struktur.md §11) — they keep the search behaviour.
+   */
+  page?: "malaga" | "marbella" | "fuengirola" | "vienna" | "carinthia";
 }
 
 export const SPAIN_DESTINATIONS: Destination[] = [
-  { label: "Marbella", query: "Marbella" },
-  { label: "Málaga", query: "Málaga" },
+  { label: "Marbella", query: "Marbella", page: "marbella" },
+  { label: "Málaga", query: "Málaga", page: "malaga" },
   { label: "Estepona", query: "Estepona" },
   { label: "Benalmádena", query: "Benalmádena" },
-  { label: "Fuengirola", query: "Fuengirola" },
+  { label: "Fuengirola", query: "Fuengirola", page: "fuengirola" },
 ];
 
 export const AUSTRIA_DESTINATIONS: Destination[] = [
-  { label: "Vienna", query: "Vienna" },
-  { label: "Carinthia", query: "Carinthia" },
+  { label: "Vienna", query: "Vienna", page: "vienna" },
+  { label: "Carinthia", query: "Carinthia", page: "carinthia" },
 ];
 
 export const ALL_DESTINATIONS: Destination[] = [...SPAIN_DESTINATIONS, ...AUSTRIA_DESTINATIONS];

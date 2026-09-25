@@ -417,6 +417,10 @@ Befüllt für alle 23 Objekte durch `20260925120100_property_city_groups_and_seo
 - Ein neu importiertes Objekt kommt **ohne** `city_group` an und erscheint auf
   keiner Ortsseite, bis jemand es zuordnet. Das ist Absicht.
 - `editorial_description` und `size_sqm` sind leer — beides muss Frontier liefern.
+- **Objekt-URLs laufen seit 25.09.2026 über `seo_slug`** (`src/lib/propertyUrl.ts`: Links, Canonical,
+  Sitemap, Schema). Die alten Guesty-Slugs antworten mit **301** (`public/_redirects`, 23 Zeilen, aus der DB
+  erzeugt); `PropertyDetail` akzeptiert beide Formen und leitet clientseitig weiter. Bekommt ein später
+  importiertes Objekt einen `seo_slug`, gehört seine Zeile in `_redirects` nachgetragen.
 
 ---
 

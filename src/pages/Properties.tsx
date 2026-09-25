@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
+import { VACATION_RENTAL_CITIES, vrKey } from "@/lib/vacationRentals";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import EditableText from "@/components/admin/EditableText";
@@ -282,6 +283,22 @@ const PropertiesContent = () => {
                 {t("properties.clear")}
               </button>
             )}
+
+            {/* The five location pages, as plain links (docs/seo/struktur.md
+                §8). Not a filter: the search above is what narrows this list
+                by place and dates. These open the page about the place. */}
+            <span className="lg:ml-auto flex flex-wrap items-center gap-x-3 gap-y-1 t-body text-muted-foreground">
+              {t("properties-by-destination")}
+              {VACATION_RENTAL_CITIES.map((city) => (
+                <Link
+                  key={city.slug}
+                  to={`/vacation-rentals/${city.slug}`}
+                  className="text-foreground underline-offset-4 hover:text-accent-strong hover:underline transition-colors"
+                >
+                  {t(vrKey(city.slug, "name"))}
+                </Link>
+              ))}
+            </span>
           </Container>
         </div>
 

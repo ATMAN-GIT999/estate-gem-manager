@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Container, MediaFrame, Section } from "./layout";
@@ -21,24 +21,23 @@ import placeVienna from "@/assets/wf-place-vienna.webp";
 interface Place {
   id: string;
   labelKey: "dest-marbella" | "dest-malaga" | "dest-vienna" | "dest-carinthia";
-  /** What /properties should filter on when the card is clicked. */
-  query: string;
+  /** The location page the card opens (`/vacation-rentals/<page>`). */
+  page: "malaga" | "marbella" | "vienna" | "carinthia";
   src?: string;
   note: string;
 }
 
 const PLACES: Place[] = [
-  { id: "dest-image-marbella", labelKey: "dest-marbella", query: "Marbella", src: placeMarbella, note: "Marbella — golf and the Sierra Blanca behind it, 3:2" },
-  { id: "dest-image-malaga", labelKey: "dest-malaga", query: "Málaga", src: placeMalaga, note: "Málaga — the port and the old town from above, 3:2" },
-  { id: "dest-image-vienna", labelKey: "dest-vienna", query: "Vienna", src: placeVienna, note: "Vienna — the inner city at dusk, 3:2" },
+  { id: "dest-image-marbella", labelKey: "dest-marbella", page: "marbella", src: placeMarbella, note: "Marbella — golf and the Sierra Blanca behind it, 3:2" },
+  { id: "dest-image-malaga", labelKey: "dest-malaga", page: "malaga", src: placeMalaga, note: "Málaga — the port and the old town from above, 3:2" },
+  { id: "dest-image-vienna", labelKey: "dest-vienna", page: "vienna", src: placeVienna, note: "Vienna — the inner city at dusk, 3:2" },
   // Still waiting on a photograph. A Costa del Sol pool standing in for an
   // Alpine lake would be the worse answer than an honest empty frame.
-  { id: "dest-image-carinthia", labelKey: "dest-carinthia", query: "Carinthia", note: "Carinthia — lake and mountains in summer, 3:2" },
+  { id: "dest-image-carinthia", labelKey: "dest-carinthia", page: "carinthia", note: "Carinthia — lake and mountains in summer, 3:2" },
 ];
 
 const DestinationsRail = () => {
   const { t, language } = useLocale();
-  const navigate = useNavigate();
   const railRef = useRef<HTMLDivElement>(null);
   const [heading, setHeading] = useState(t("dest-heading"));
 
@@ -104,10 +103,13 @@ const DestinationsRail = () => {
         className="app-bleed-inset scroll-pl-[var(--container-inset)] flex gap-6 overflow-x-auto snap-x snap-proximity pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {PLACES.map((place) => (
-          <button
+          // A real link to the location page rather than a button into a
+          // filtered search (docs/seo/struktur.md §8): the landing page is the
+          // strongest page on the site, and an <a href> is the only kind of
+          // link a crawler follows from it.
+          <Link
             key={place.id}
-            type="button"
-            onClick={() => navigate(`/properties?location=${encodeURIComponent(place.query)}`)}
+            to={`/vacation-rentals/${place.page}`}
             className="group snap-start shrink-0 w-[72vw] sm:w-[44vw] lg:w-[420px] text-left"
           >
             <div className="overflow-hidden">
@@ -123,7 +125,7 @@ const DestinationsRail = () => {
             <p className="t-card text-foreground mt-3.5 group-hover:text-accent-strong transition-colors">
               {t(place.labelKey)}
             </p>
-          </button>
+          </Link>
         ))}
       </div>
     </Section>

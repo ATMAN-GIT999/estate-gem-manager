@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/contexts/LocaleContext";
+import { propertyPath } from "@/lib/propertyUrl";
 import property3 from "@/assets/property-3.webp";
 import losMonterosCard from "@/assets/los-monteros-card.webp";
 
@@ -19,6 +20,9 @@ export interface Property {
   type: string;
   /** Present when rates come from Guesty and move with dates. */
   guesty_listing_id?: string | null;
+  /** Frontier's own URL and place (docs/PROJECT.md, "Redaktionelle Felder"). */
+  seo_slug?: string | null;
+  city_group?: string | null;
   images?: Array<{ url: string; caption?: string }>;
 }
 
@@ -83,7 +87,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     if (location) params.set('location', location);
 
     const queryString = params.toString();
-    return `/property/${property.slug}${queryString ? `?${queryString}` : ''}`;
+    return `${propertyPath(property)}${queryString ? `?${queryString}` : ''}`;
   };
 
   return (

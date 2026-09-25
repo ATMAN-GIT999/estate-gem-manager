@@ -30,6 +30,15 @@ const STATIC_ROUTES = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
   { path: "/property-management", priority: "0.9", changefreq: "monthly" },
   { path: "/properties", priority: "0.9", changefreq: "weekly" },
+  // The location pages (src/lib/vacationRentals.ts, which this .mjs cannot
+  // import). A place goes on this list only when it has homes and a page —
+  // Estepona and Benalmádena have neither, and must not appear here.
+  { path: "/vacation-rentals", priority: "0.8", changefreq: "weekly" },
+  { path: "/vacation-rentals/malaga", priority: "0.8", changefreq: "weekly" },
+  { path: "/vacation-rentals/marbella", priority: "0.8", changefreq: "weekly" },
+  { path: "/vacation-rentals/fuengirola", priority: "0.8", changefreq: "weekly" },
+  { path: "/vacation-rentals/vienna", priority: "0.8", changefreq: "weekly" },
+  { path: "/vacation-rentals/carinthia", priority: "0.8", changefreq: "weekly" },
   { path: "/guaranteed-income", priority: "0.8", changefreq: "monthly" },
   { path: "/renovations", priority: "0.8", changefreq: "monthly" },
   { path: "/investments", priority: "0.8", changefreq: "monthly" },
@@ -59,7 +68,7 @@ async function fetchPropertySlugs() {
   }
   try {
     const res = await fetch(
-      `${url}/rest/v1/properties?select=slug,updated_at&available=eq.true&order=updated_at.desc`,
+      `${url}/rest/v1/properties?select=slug,seo_slug,updated_at&available=eq.true&order=updated_at.desc`,
       { headers: { apikey: key } },
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -90,7 +99,10 @@ const urls = [
   ...STATIC_ROUTES.map(entry),
   ...properties.map((p) =>
     entry({
-      path: `/property/${p.slug}`,
+      // `seo_slug` where there is one — the old `slug` form 301s to it
+      // (public/_redirects), and a sitemap must list only final addresses.
+      // Same rule as propertyPath() in src/lib/propertyUrl.ts.
+      path: `/property/${p.seo_slug || p.slug}`,
       priority: "0.8",
       changefreq: "weekly",
       lastmod: p.updated_at ? p.updated_at.slice(0, 10) : today,
