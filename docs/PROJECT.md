@@ -48,6 +48,7 @@ Zielgruppenwechsel auf `/` passiert **genau einmal**, bei „Own a Property?".
 | `/` | `Index.tsx` | Gast |
 | `/property-management` | `PropertyManagementPage.tsx` | Eigentümer |
 | `/properties` · `/property/:slug` · `/booking-confirmation` | Buchungsflow | Gast |
+| `/vacation-rentals` · `/vacation-rentals/:city` | Ortsseiten (seit 25.09.2026): Übersicht + fünf Orte `malaga` · `marbella` · `fuengirola` · `vienna` · `carinthia`, geladen über `city_group`. Konfiguration in `src/lib/vacationRentals.ts`; ein unbekannter Ort ist eine echte 404. Ortstexte nur aus Guesty-Daten und berechneten Luftlinien — Quelle im Kommentar über den `vr-*`-Schlüsseln in `translations.ts`. „6th floor Malaga Soho" (D9) ist dort bewusst ausgeblendet | Gast |
 | `/evaluate` | Cashflow-Analyse | Eigentümer |
 | `/about` · `/projects` | Vertrauen / Portfolio | beide |
 | `/guaranteed-income` · `/renovations` · `/investments` | Unterseiten PM | Eigentümer |

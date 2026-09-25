@@ -22,6 +22,8 @@ import Evaluate from "./pages/Evaluate";
 import Auth from "./pages/Auth";
 import PropertyDetail from "./pages/PropertyDetail";
 import Properties from "./pages/Properties";
+import VacationRentals from "./pages/VacationRentals";
+import VacationRentalCity from "./pages/VacationRentalCity";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import PropertyManagementPage from "./pages/PropertyManagementPage";
 import GuaranteedIncomePage from "./pages/GuaranteedIncomePage";
@@ -100,6 +102,8 @@ const App = () => (
             <Route path="/properties" element={<Properties />} />
             <Route path="/booking-confirmation" element={<BookingConfirmation />} />
             <Route path="/property/:slug" element={<PropertyDetail />} />
+            <Route path="/vacation-rentals" element={<VacationRentals />} />
+            <Route path="/vacation-rentals/:city" element={<VacationRentalCity />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/properties" element={<AdminProperties />} />

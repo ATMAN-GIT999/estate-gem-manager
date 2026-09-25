@@ -808,8 +808,10 @@ export type Database = {
           available: boolean | null
           bathrooms: number
           bedrooms: number
+          city_group: string | null
           created_at: string
           description: string | null
+          editorial_description: string | null
           featured: boolean | null
           guests: number
           guesty_listing_id: string | null
@@ -823,6 +825,8 @@ export type Database = {
           price_last_synced_at: string | null
           price_per_night: number
           registration_number: string | null
+          seo_slug: string | null
+          size_sqm: number | null
           slug: string
           type: string
           updated_at: string
@@ -833,8 +837,10 @@ export type Database = {
           available?: boolean | null
           bathrooms: number
           bedrooms: number
+          city_group?: string | null
           created_at?: string
           description?: string | null
+          editorial_description?: string | null
           featured?: boolean | null
           guests: number
           guesty_listing_id?: string | null
@@ -848,6 +854,8 @@ export type Database = {
           price_last_synced_at?: string | null
           price_per_night: number
           registration_number?: string | null
+          seo_slug?: string | null
+          size_sqm?: number | null
           slug: string
           type: string
           updated_at?: string
@@ -858,8 +866,10 @@ export type Database = {
           available?: boolean | null
           bathrooms?: number
           bedrooms?: number
+          city_group?: string | null
           created_at?: string
           description?: string | null
+          editorial_description?: string | null
           featured?: boolean | null
           guests?: number
           guesty_listing_id?: string | null
@@ -873,6 +883,8 @@ export type Database = {
           price_last_synced_at?: string | null
           price_per_night?: number
           registration_number?: string | null
+          seo_slug?: string | null
+          size_sqm?: number | null
           slug?: string
           type?: string
           updated_at?: string
