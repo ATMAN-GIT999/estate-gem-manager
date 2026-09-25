@@ -8,10 +8,10 @@ import { en, type TranslationKey } from "./translations";
  * that column (migration 20260925120000) holds the same five values; a sixth
  * place means both changing together.
  *
- * Pages exist only where there is stock (docs/seo/struktur.md §11). Estepona
- * and Benalmádena are suggested in search but have no homes, so they have no
- * entry here and must not get one until a listing exists — a location page
- * with nothing to book is a doorway page.
+ * Pages exist only where there is stock (docs/seo/struktur.md §11). A place
+ * without homes (Estepona, Benalmádena) gets no entry here until a listing
+ * exists — a location page with nothing to book is a doorway page. The search
+ * suggestions (src/lib/destinations.ts) hold the same five places.
  *
  * The SEO title and description stay English and live here rather than in
  * translations.ts, like every other page's <Seo>: English is the one indexed

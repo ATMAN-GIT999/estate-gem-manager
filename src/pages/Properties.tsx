@@ -4,6 +4,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { VACATION_RENTAL_CITIES, vrKey } from "@/lib/vacationRentals";
+import { cityGroupsForSearch } from "@/lib/destinations";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import EditableText from "@/components/admin/EditableText";
@@ -82,8 +83,15 @@ const PropertiesContent = () => {
   // Apply location + guests client-side filter
   const filtered = useMemo(() => {
     return properties.filter((p) => {
-      if (activeLocation) {
-        const hay = `${p.location || ""} ${p.address || ""} ${p.name || ""}`.toLowerCase();
+      // One of our places (or the Costa del Sol / Austria) filters on
+      // `city_group`, so the result matches that place's location page —
+      // see cityGroupsForSearch() for why the text match got this wrong.
+      // Any other term still matches the text, e.g. "Torremolinos".
+      const groups = activeLocation ? cityGroupsForSearch(activeLocation) : null;
+      if (groups) {
+        if (!p.city_group || !(groups as string[]).includes(p.city_group)) return false;
+      } else if (activeLocation) {
+        const hay =`${p.location || ""} ${p.address || ""} ${p.name || ""}`.toLowerCase();
         const needle = activeLocation.toLowerCase().trim();
         // match any word of the search against haystack
         const tokens = needle.split(/[\s,]+/).filter(Boolean);

@@ -108,10 +108,9 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
     navigate(query ? `/properties?location=${encodeURIComponent(query)}` : "/properties");
   };
 
-  // A place with a location page opens that page; one without (Estepona,
-  // Benalmádena) keeps the filtered search, since it has no page to open.
+  // Every place in the panel has a location page, and browsing a place opens
+  // it; the region links below ("All on the Costa del Sol") stay searches.
   const goToPlace = (d: Destination) => {
-    if (!d.page) return go(d.query);
     setPanelOpen(false);
     setIsOpen(false);
     navigate(`/vacation-rentals/${d.page}`);
