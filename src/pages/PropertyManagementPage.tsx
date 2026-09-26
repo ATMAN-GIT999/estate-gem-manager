@@ -13,8 +13,19 @@ import WaysToWorkTogether from "@/components/WaysToWorkTogether";
 import RenovationsAndInvestments from "@/components/RenovationsAndInvestments";
 import OwnerContactForm from "@/components/OwnerContactForm";
 import FAQ, { OWNER_FAQ_ITEMS } from "@/components/FAQ";
+import { useEffect } from "react";
+import { useTrackEvent } from "@/hooks/use-track-event";
 
-const PropertyManagementPageContent = () => (
+const PropertyManagementPageContent = () => {
+  const track = useTrackEvent();
+
+  // The top of the owner funnel (docs/seo/01_IMPLEMENTATION.md, Paket E).
+  // Fires once the visitor has accepted analytics — see useTrackEvent.
+  useEffect(() => {
+    void track("pm_page_view");
+  }, [track]);
+
+  return (
   <div className="min-h-screen flex flex-col">
     <Seo
       title="Bespoke Property Management in Marbella, Málaga & Vienna"
@@ -85,7 +96,8 @@ const PropertyManagementPageContent = () => (
     </main>
     <Footer />
   </div>
-);
+  );
+};
 
 const PropertyManagementPage = () => (<PageWrapper slug="site--property-management"><PropertyManagementPageContent /></PageWrapper>);
 export default PropertyManagementPage;

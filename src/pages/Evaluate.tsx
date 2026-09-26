@@ -13,6 +13,7 @@ import PageWrapper from "@/components/PageWrapper";
 import { supabase } from "@/lib/supabaseClient";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema } from "@/lib/schema";
+import { useTrackEvent } from "@/hooks/use-track-event";
 
 interface PropertyAnalysis {
   monthlyIncome: number;
@@ -68,6 +69,7 @@ const EvaluateContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const track = useTrackEvent();
   const [loading, setLoading] = useState(true);
   const [loadingStep, setLoadingStep] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -140,6 +142,13 @@ const EvaluateContent = () => {
 
     analyzeProperty();
   }, [propertyData, navigate, toast]);
+
+  // The owner saw a number — the step between asking (evaluator_submitted)
+  // and writing in (owner_enquiry_submitted). Only when an analysis actually
+  // came back: the sign-in wall and a failed analysis both end without one.
+  useEffect(() => {
+    if (analysis) void track("evaluator_result_viewed");
+  }, [analysis, track]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-EU', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);

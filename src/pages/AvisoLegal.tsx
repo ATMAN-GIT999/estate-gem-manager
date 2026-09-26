@@ -165,7 +165,7 @@ const AvisoLegalContent = () => {
                     <strong>Técnicas y necesarias:</strong> permiten el funcionamiento básico del sitio, como mantener la sesión iniciada en el área de gestión. No requieren consentimiento (art. 22.2 LSSI-CE).
                   </li>
                   <li>
-                    <strong>De análisis (opcionales):</strong> registran de forma anónima las páginas visitadas, con fines estadísticos internos. Solo se activan si el usuario las acepta en el aviso mostrado al entrar al sitio.
+                    <strong>De análisis (opcionales):</strong> registran de forma anónima las páginas visitadas y los pasos dados en la calculadora de rentabilidad y en el formulario de contacto para propietarios, sin nombre, correo electrónico ni dirección, con fines estadísticos internos. Los pasos de una misma visita se agrupan mediante un identificador aleatorio que se guarda en el navegador y se elimina al cerrar la pestaña. Solo se activan si el usuario las acepta en el aviso mostrado al entrar al sitio.
                   </li>
                 </ul>
                 <p className="mt-4">

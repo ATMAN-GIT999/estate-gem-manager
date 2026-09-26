@@ -11,6 +11,7 @@ import EditableText from "./admin/EditableText";
 import { Container, MediaFrame, Section } from "./layout";
 import contactNight from "@/assets/wf-contact-night.webp";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useTrackEvent } from "@/hooks/use-track-event";
 
 /**
  * Was a Cal.com link to Almedin's own calendar, standing in until Frontier
@@ -84,6 +85,7 @@ const LABEL_CLASS = "text-primary-foreground/80";
 
 const OwnerContactForm = () => {
   const { toast } = useToast();
+  const track = useTrackEvent();
   const { t, language } = useLocale();
   const [eyebrow, setEyebrow] = useState(t("owner-form-eyebrow"));
   /* "We manage while you relax." and its photo both moved down from the
@@ -178,6 +180,9 @@ const OwnerContactForm = () => {
       return;
     }
 
+    // Only after the lead is safely in `contacts`. The form, not the
+    // person: no name or address goes into analytics.
+    void track("owner_enquiry_submitted", { form: "owner-contact" });
     setSent(true);
   };
 

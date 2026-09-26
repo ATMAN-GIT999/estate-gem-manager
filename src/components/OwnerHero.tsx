@@ -5,6 +5,8 @@ import EditableText from "./admin/EditableText";
 import AddressAutocomplete from "./AddressAutocomplete";
 import { MediaFrame } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTrackEvent } from "@/hooks/use-track-event";
 import { cn } from "@/lib/utils";
 import heroImage from "@/assets/wf-evaluator-hero.webp";
 
@@ -29,6 +31,8 @@ const BEDROOM_CHOICES = ["2", "3", "4", "5", "6"] as const;
 const OwnerHero = () => {
   const { t, language } = useLocale();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const track = useTrackEvent();
 
   const [address, setAddress] = useState("");
   const [bedrooms, setBedrooms] = useState("");
@@ -60,6 +64,11 @@ const OwnerHero = () => {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
+    // Counted here, at the moment of asking — /evaluate then decides whether
+    // an answer comes back. `signed_in` is there because it does not for most
+    // owners: Evaluate.tsx sends anyone without an account to /auth, and this
+    // is how many were stopped there (compare evaluator_result_viewed).
+    void track("evaluator_submitted", { entry: "owner-hero", signed_in: Boolean(user) });
     // The six fields /evaluate needs are asked for there; the two that decide
     // the answer are asked for here, so the hero stays one field deep.
     // Bathrooms/type/size/guests are left unset rather than guessed —

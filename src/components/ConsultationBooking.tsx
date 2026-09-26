@@ -8,6 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useTrackEvent } from "@/hooks/use-track-event";
 import { Calendar as CalendarIcon, Upload, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 /**
@@ -62,6 +63,7 @@ const ConsultationBooking = () => {
     message: "",
   });
   const { toast } = useToast();
+  const track = useTrackEvent();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -176,6 +178,9 @@ const ConsultationBooking = () => {
       });
     }
 
+    // Only after the lead is safely in `contacts`. The form, not the
+    // person: no name or address goes into analytics.
+    void track("owner_enquiry_submitted", { form: "consultation" });
     setSent(true);
   };
 
