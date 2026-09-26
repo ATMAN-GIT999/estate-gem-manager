@@ -18,6 +18,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Projects from "./pages/Projects";
+import IstriaProject from "./pages/IstriaProject";
 import Evaluate from "./pages/Evaluate";
 import Auth from "./pages/Auth";
 import PropertyDetail from "./pages/PropertyDetail";
@@ -87,6 +88,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
             <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/istria" element={<IstriaProject />} />
             {/* Orphaned page, not a nav item anymore, and a stale duplicate of
                 /property-management's positioning (docs/PROJECT.md D2). A
                 client-side redirect rather than deleting the route outright,

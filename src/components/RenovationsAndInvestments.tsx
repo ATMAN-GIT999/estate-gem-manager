@@ -178,7 +178,7 @@ const RenovationsAndInvestments = () => {
           >
             {caseLead}
           </EditableText>
-          <Link to="/projects" className="cta-link mt-md inline-block">
+          <Link to="/projects/istria" className="cta-link mt-md inline-block">
             <EditableText id="case-cta" value={caseCta} onChange={setCaseCta} as="span">
               {caseCta}
             </EditableText>{" "}
