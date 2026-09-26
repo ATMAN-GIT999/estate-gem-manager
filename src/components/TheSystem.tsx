@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BarChart3, ClipboardCheck, Globe, MessagesSquare, TrendingUp, Wrench } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Divider, Section } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -16,8 +17,13 @@ import type { TranslationKey } from "@/lib/translations";
  * copy, unedited — see the translation keys' own comment in translations.ts.
  *
  * Numbers in the mono face, a rule above each, no panels: the section is a
- * sequence, and a row of boxes reads as a menu.
+ * sequence, and a row of boxes reads as a menu. Each step also carries a thin
+ * gold line icon opposite its number (Almedin, 26.09.2026), the same treatment
+ * as "What every stay includes" and the pillars under Renovations.
  */
+
+/** Index-aligned with STEP_KEYS: visit & list, pricing, reach, guests, care, reporting. */
+const STEP_ICONS = [ClipboardCheck, TrendingUp, Globe, MessagesSquare, Wrench, BarChart3] as const;
 
 const STEP_KEYS: ReadonlyArray<{ titleKey: TranslationKey; descKey: TranslationKey }> = [
   { titleKey: "how-0-title", descKey: "how-0-desc" },
@@ -60,11 +66,14 @@ const TheSystem = () => {
       </EditableText>
 
       <ol className="grid gap-lg md:grid-cols-3 mt-lg">
-        {steps.map((step, index) => (
+        {steps.map((step, index) => {
+          const Icon = STEP_ICONS[index];
+          return (
           <li key={index} className="border-t-2 border-accent pt-5">
-            <p className="t-tag text-accent-strong mb-3">
-              {String(index + 1).padStart(2, "0")}
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <Icon className="w-7 h-7 text-accent-strong" strokeWidth={1.5} aria-hidden="true" />
+              <p className="t-tag text-accent-strong">{String(index + 1).padStart(2, "0")}</p>
+            </div>
             <EditableText
               id={STEP_KEYS[index].titleKey}
               value={step.title}
@@ -84,7 +93,8 @@ const TheSystem = () => {
               {step.desc}
             </EditableText>
           </li>
-        ))}
+          );
+        })}
       </ol>
 
       <div className="mt-2xl max-w-2xl mx-auto text-center">

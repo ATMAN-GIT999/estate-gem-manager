@@ -3,14 +3,27 @@ import EditableText from "./admin/EditableText";
 import { MediaFrame, Section } from "./layout";
 import claimImage from "@/assets/wf-we-take-it-on.webp";
 import { useLocale } from "@/contexts/LocaleContext";
+import { cn } from "@/lib/utils";
 
 /**
- * The sentence the whole owner page is an argument for, on its own, with one
- * photograph under it.
+ * The sentence the whole owner page is an argument for, with one photograph
+ * under it.
  *
- * Centred and alone on purpose: it is the only section of the page with
- * nothing to click. Everything above it is the calculator and the numbers,
- * everything below is how the work actually gets done.
+ * Staggered on purpose (Almedin, 26.09.2026): the words sit on the right, the
+ * picture on the left, and the two overlap. It used to be a centred title over
+ * a centred banner — the one section of the page that was symmetrical, which
+ * made it read as a pause instead of the claim.
+ *
+ * What makes it more than an offset: the photograph is darkened slightly, so
+ * the light boxes laid over its corner have something to stand out against,
+ * and each line of the claim is set as its own coloured label. The two lines
+ * are two colours — sage for what the owner saves, gold for what the property
+ * earns — so the sentence can be read from the colours alone. The lead
+ * paragraph sits in a beige box that straddles the photograph's top edge,
+ * which is what ties text and picture into one composition.
+ *
+ * ⚠️ Below `lg` there is no room for an overlap, so the boxes stack above the
+ * picture and stay right-aligned; only the desktop gets the layering.
  */
 const TheClaim = () => {
   const { t, language } = useLocale();
@@ -28,7 +41,8 @@ const TheClaim = () => {
 
   return (
     <Section size="md">
-      <div className="max-w-2xl mx-auto text-center">
+      {/* z-10 lifts the words above the photograph they overlap. */}
+      <div className="relative z-10 ml-auto text-right lg:w-[56%]">
         <EditableText
           id="claim-eyebrow"
           value={eyebrow}
@@ -38,27 +52,45 @@ const TheClaim = () => {
         >
           {eyebrow}
         </EditableText>
+
+        {/* The heading is one editable string with a line break in it; the
+            children draw it as two labels, the editor still edits one string. */}
         <EditableText
           id="claim-heading"
           value={heading}
           onChange={setHeading}
           as="h2"
-          className="t-section text-foreground text-balance whitespace-pre-line mt-3"
+          className="t-section text-balance mt-3"
         >
-          {heading}
+          {heading.split("\n").map((line, index) => (
+            <span
+              key={index}
+              className={cn(
+                "block w-fit ml-auto px-4 py-2.5",
+                index > 0 && "mt-2",
+                index % 2 === 0
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-accent text-accent-foreground"
+              )}
+            >
+              {line}
+            </span>
+          ))}
         </EditableText>
+
         <EditableText
           id="claim-lead"
           value={lead}
           onChange={setLead}
           as="p"
-          className="t-body text-muted-foreground mt-4 max-w-xl mx-auto"
+          className="t-body text-quiet-foreground bg-quiet shadow-elegant p-md mt-md ml-auto max-w-[34rem]"
         >
           {lead}
         </EditableText>
       </div>
 
-      <div className="mt-lg">
+      {/* Pulled up under the lead box on desktop so the two overlap. */}
+      <div className="relative mt-md lg:mt-[-7rem] lg:w-[72%]">
         <MediaFrame
           id="claim-image"
           src={image}
@@ -66,8 +98,11 @@ const TheClaim = () => {
           alt="A cluster of modern villas with private pools above the Costa del Sol"
           note="We take it on — aerial of a modern white villa cluster with pools, wide crop"
           aspect="wide"
-          className="aspect-[21/9]"
         />
+        {/* Not black, and not on the frame itself: --ink is the palette's
+            darkest green, so the photograph dims without going grey, and the
+            overlay is a sibling so a placeholder frame is dimmed too. */}
+        <div className="absolute inset-0 bg-ink/30 pointer-events-none" aria-hidden="true" />
       </div>
     </Section>
   );
