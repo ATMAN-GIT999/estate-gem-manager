@@ -3,6 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
+import CollectionTabs from "@/components/CollectionTabs";
+import { classifyProperty, COLLECTION_LABEL_KEY, COLLECTION_ORDER, type CollectionId } from "@/lib/homeCollections";
 import { VACATION_RENTAL_CITIES, vrKey } from "@/lib/vacationRentals";
 import { cityGroupsForSearch } from "@/lib/destinations";
 import { supabase } from "@/lib/supabaseClient";
@@ -19,6 +21,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLocale } from "@/contexts/LocaleContext";
 
 type SortOption = "recommended" | "price-asc" | "price-desc";
+
+/** "All" plus the same regions the landing page's "Our homes" row offers. */
+type RegionFilter = "all" | CollectionId;
 
 /** Three rows of three before the list asks to be continued. */
 const PAGE_SIZE = 9;
@@ -43,6 +48,7 @@ const PropertiesContent = () => {
   const [sortOption, setSortOption] = useState<SortOption>("price-desc");
   const [bedroomFilter, setBedroomFilter] = useState("any");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [regionFilter, setRegionFilter] = useState<RegionFilter>("all");
 
   const [locationInput, setLocationInput] = useState(searchParams.get("location") || "");
   const [checkInInput, setCheckInInput] = useState<Date | undefined>(() => parseDateParam(searchParams.get("checkIn")));
@@ -98,12 +104,27 @@ const PropertiesContent = () => {
         const ok = tokens.some((t) => hay.includes(t));
         if (!ok) return false;
       }
+      if (regionFilter !== "all" && classifyProperty(p) !== regionFilter) return false;
       if (activeGuests > 0 && (p.guests || 0) < activeGuests) return false;
       if (bedroomFilter !== "any" && (p.bedrooms || 0) < parseInt(bedroomFilter, 10)) return false;
       if (availabilityFilter && p.guesty_listing_id && !availabilityFilter.has(p.id)) return false;
       return true;
     });
-  }, [properties, activeLocation, activeGuests, availabilityFilter, bedroomFilter]);
+  }, [properties, activeLocation, activeGuests, availabilityFilter, bedroomFilter, regionFilter]);
+
+  // Same rule as the landing page: a region with no home behind it is not
+  // offered, because a tab that leads to an empty list reads as a broken filter.
+  const regionTabs = useMemo(() => {
+    const present = new Set(properties.map((p) => classifyProperty(p)));
+    return [
+      { id: "all" as RegionFilter, label: t("properties-region-all") },
+      ...COLLECTION_ORDER.filter((id) => present.has(id)).map((id) => ({
+        id: id as RegionFilter,
+        label: t(COLLECTION_LABEL_KEY[id]),
+      })),
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [properties, language]);
 
   // "Recommended" is the fetch order already (featured first, then newest) —
   // only the two price options need an actual re-sort.
@@ -189,7 +210,7 @@ const PropertiesContent = () => {
   // offering a page that no longer exists.
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [activeLocation, activeCheckIn, activeCheckOut, activeGuests, bedroomFilter, sortOption]);
+  }, [activeLocation, activeCheckIn, activeCheckOut, activeGuests, bedroomFilter, sortOption, regionFilter]);
 
   const applySearch = () => {
     const next = new URLSearchParams(searchParams);
@@ -202,6 +223,7 @@ const PropertiesContent = () => {
 
   const clearSearch = () => {
     setBedroomFilter("any");
+    setRegionFilter("all");
     setLocationInput("");
     setCheckInInput(undefined);
     setCheckOutInput(undefined);
@@ -282,7 +304,8 @@ const PropertiesContent = () => {
               activeCheckIn ||
               activeCheckOut ||
               activeGuests > 0 ||
-              bedroomFilter !== "any") && (
+              bedroomFilter !== "any" ||
+              regionFilter !== "all") && (
               <button
                 type="button"
                 onClick={clearSearch}
@@ -322,15 +345,21 @@ const PropertiesContent = () => {
 
           {/* The page's one h1, and the most useful sentence on it: how many
               homes there are and where they are. */}
-          <EditableText
-            id="properties-page-title"
-            value={pageTitle}
-            onChange={setPageTitle}
-            as="h1"
-            className="t-section text-foreground text-balance max-w-2xl mb-lg"
-          >
-            {pageTitle.replace("{n}", loading ? "" : String(sorted.length)).trim()}
-          </EditableText>
+          {/* Title left, region tabs right — the same arrangement as "Our
+              homes" on the landing page, and the same tabs. */}
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 mb-lg">
+            <EditableText
+              id="properties-page-title"
+              value={pageTitle}
+              onChange={setPageTitle}
+              as="h1"
+              className="t-section text-foreground text-balance max-w-2xl"
+            >
+              {pageTitle.replace("{n}", loading ? "" : String(sorted.length)).trim()}
+            </EditableText>
+
+            {!loading && <CollectionTabs<RegionFilter> tabs={regionTabs} current={regionFilter} onSelect={setRegionFilter} />}
+          </div>
 
           {loading ? (
             <Grid cols={3} gap="md">

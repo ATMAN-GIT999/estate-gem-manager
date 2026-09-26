@@ -35,6 +35,10 @@ const LocationAutocomplete = ({ value, onChange, placeholder, label }: LocationA
   const suggestions = useMemo(() => {
     const query = inputValue.trim().toLowerCase();
     if (!query) return ALL_DESTINATIONS;
+    // A place already chosen must not shrink the list to itself: reopening
+    // the field after picking "Marbella" showed Marbella alone, which reads
+    // as though it were the only place on offer.
+    if (ALL_DESTINATIONS.some((d) => d.label.toLowerCase() === query)) return ALL_DESTINATIONS;
     return ALL_DESTINATIONS.filter((d) => d.label.toLowerCase().includes(query));
   }, [inputValue]);
 

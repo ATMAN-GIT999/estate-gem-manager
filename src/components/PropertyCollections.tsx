@@ -1,69 +1,45 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
+import CollectionTabs from "@/components/CollectionTabs";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import EditableText from "@/components/admin/EditableText";
 import { Grid, Section } from "@/components/layout";
 import { useLocale } from "@/contexts/LocaleContext";
 import { cn } from "@/lib/utils";
+import {
+  classifyProperty,
+  COLLECTION_LABEL_KEY,
+  COLLECTION_ORDER,
+  type CollectionId,
+} from "@/lib/homeCollections";
 
 /**
- * "Our homes" — one tabbed row of three, not three stacked rails.
+ * "Our homes" — one tabbed row, paged with arrows.
  *
  * Three horizontal rails showed nine cropped cards and made the section the
- * tallest thing on the page; the tabs show three whole ones and put the choice
- * where a guest actually makes it — the country first, the house second.
+ * tallest thing on the page; the tabs show three whole ones at a time and put
+ * the choice where a guest actually makes it — the region first, the house
+ * second. Arrows page through the rest of that region's homes without leaving
+ * the landing page (Almedin, 26.09.2026): the row used to stop at the first
+ * three, so a guest who liked the Costa del Sol had to go to /properties to
+ * see the fourth.
  *
- * ⚠️ The grouping is still derived in code because the table has no column for
- * it. `location` alone is not enough: the two Los Flamingos properties are
- * tagged "Málaga" — the province, not the town — so a location-only filter
- * files two golf-resort villas under Austria's neighbours. Hence the name
- * override below. A `collection` column on `properties` is the durable fix
- * (docs/PROJECT.md D8); until then a property in a new town falls into "New"
- * rather than disappearing, which is the one thing the old rails got wrong.
+ * Which house belongs to which tab lives in src/lib/homeCollections.ts, shared
+ * with the filter on /properties.
  */
-
-/** Costa del Sol — the coast and the province around it. */
-const COSTA = [
-  "Marbella",
-  "Río Real",
-  "Calahonda",
-  "Fuengirola",
-  "Torremolinos",
-  "Málaga",
-  "Estepona",
-  "Benalmádena",
-  "Benahavís",
-];
-const VIENNA = ["Wien", "Vienna"];
-const CARINTHIA = ["Sauerwald", "Kärnten", "Carinthia"];
-
-/** Tagged with the province rather than the town; they belong on the coast. */
-const COSTA_BY_NAME = ["Los Flamingos"];
-
-type TabId = "costa" | "vienna" | "carinthia" | "new";
-
-const classify = (property: Property): TabId => {
-  const location = property.location ?? "";
-  const name = property.name ?? "";
-
-  if (COSTA_BY_NAME.some((needle) => name.includes(needle))) return "costa";
-  if (CARINTHIA.includes(location)) return "carinthia";
-  if (VIENNA.includes(location)) return "vienna";
-  if (COSTA.includes(location)) return "costa";
-  // Anything we have not filed yet is still reachable instead of invisible.
-  return "new";
-};
-
-/** Three whole cards, not a rail of cropped ones. */
-const CARDS_PER_TAB = 3;
 
 const PropertyCollections = () => {
   const { t, language } = useLocale();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [active, setActive] = useState<TabId>("costa");
+  const [active, setActive] = useState<CollectionId>("costa");
+  const [api, setApi] = useState<CarouselApi>();
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(false);
 
   const [heading, setHeading] = useState(t("trio-heading"));
   const [viewAllText, setViewAllText] = useState(t("collections-view-all"));
@@ -98,21 +74,16 @@ const PropertyCollections = () => {
     fetchProperties();
   }, []);
 
-  const tabs: { id: TabId; label: string }[] = [
-    { id: "costa", label: t("trio-tab-all") },
-    { id: "vienna", label: t("trio-tab-vienna") },
-    { id: "carinthia", label: t("trio-tab-carinthia") },
-    { id: "new", label: t("trio-tab-new") },
-  ];
+  const tabs = COLLECTION_ORDER.map((id) => ({ id, label: t(COLLECTION_LABEL_KEY[id]) }));
 
   const byTab = useMemo(() => {
-    const groups: Record<TabId, Property[]> = { costa: [], vienna: [], carinthia: [], new: [] };
-    properties.forEach((p) => groups[classify(p)].push(p));
+    const groups: Record<CollectionId, Property[]> = { costa: [], vienna: [], carinthia: [], new: [] };
+    properties.forEach((p) => groups[classifyProperty(p)].push(p));
     // Highest nightly rate first inside a tab, the same rule /properties
     // defaults to: in this portfolio the dearest homes are also the ones
     // worth opening with, and three city apartments leading "Costa del Sol"
     // is not the coast anyone pictures.
-    (Object.keys(groups) as TabId[]).forEach((key) => {
+    (Object.keys(groups) as CollectionId[]).forEach((key) => {
       groups[key].sort((a, b) => (b.price_per_night || 0) - (a.price_per_night || 0));
     });
     return groups;
@@ -122,7 +93,24 @@ const PropertyCollections = () => {
   // filter rather than as an empty category.
   const visibleTabs = loading ? tabs : tabs.filter((tab) => byTab[tab.id].length > 0);
   const current = visibleTabs.some((tab) => tab.id === active) ? active : visibleTabs[0]?.id ?? "costa";
-  const shown = byTab[current].slice(0, CARDS_PER_TAB);
+  const shown = byTab[current];
+
+  // Arrow state follows the carousel. The carousel is remounted per tab (see
+  // `key` below), so this re-subscribes to a fresh api on every switch.
+  useEffect(() => {
+    if (!api) return;
+    const sync = () => {
+      setCanPrev(api.canScrollPrev());
+      setCanNext(api.canScrollNext());
+    };
+    sync();
+    api.on("select", sync);
+    api.on("reInit", sync);
+    return () => {
+      api.off("select", sync);
+      api.off("reInit", sync);
+    };
+  }, [api]);
 
   return (
     <Section id="stays" size="md">
@@ -137,23 +125,7 @@ const PropertyCollections = () => {
           {heading}
         </EditableText>
 
-        <div className="flex flex-wrap gap-x-6 gap-y-2">
-          {visibleTabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActive(tab.id)}
-              className={cn(
-                "t-meta pb-1 border-b transition-colors",
-                tab.id === current
-                  ? "text-accent-strong border-accent-strong"
-                  : "text-muted-foreground border-transparent hover:text-foreground"
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <CollectionTabs<CollectionId> tabs={visibleTabs} current={current} onSelect={setActive} />
       </div>
 
       {loading ? (
@@ -167,20 +139,68 @@ const PropertyCollections = () => {
           ))}
         </Grid>
       ) : (
-        /* Not <Grid cols={3}> unconditionally: Vienna and Carinthia hold one
-           or two homes, and a three-column grid leaves those stranded
-           against the left edge with a third of the row empty. A centred
-           flex row keeps whatever the tab actually has in the middle, and at
-           three items it lands on exactly the same column widths. */
-        <div className="flex flex-wrap justify-center gap-x-md gap-y-lg">
-          {shown.map((property) => (
-            <div
-              key={property.id}
-              className="w-full sm:w-[calc(50%-var(--space-md)/2)] lg:w-[calc(33.333%-var(--space-md)*2/3)]"
+        /* A carousel, not a grid: the arrows appear only when the tab holds
+           more homes than fit in one view. Vienna and Carinthia hold one or
+           two, and a three-column grid would strand those against the left
+           edge — so a short row is centred instead, which at three items
+           lands on exactly the same column widths.
+
+           Below `lg` the arrows sit under the row; from `lg` they move out
+           into the page gutter (74px+ there), at the height of the photograph
+           rather than of the whole card. Not on the photograph itself: each
+           card already has its own photo arrows there, and two pairs on one
+           image would read as one control. */
+        <div className="relative">
+          <Carousel
+            key={current}
+            setApi={setApi}
+            opts={{ align: "start", slidesToScroll: "auto", containScroll: "trimSnaps" }}
+          >
+            <CarouselContent
+              className={cn(
+                "-ml-[var(--space-md)]",
+                shown.length < 3 && "sm:justify-center",
+                shown.length < 2 && "justify-center"
+              )}
             >
-              <PropertyCard property={property} />
+              {shown.map((property) => (
+                <CarouselItem
+                  key={property.id}
+                  className="pl-[var(--space-md)] basis-full sm:basis-1/2 lg:basis-1/3"
+                >
+                  <PropertyCard property={property} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+
+          {(canPrev || canNext) && (
+            <div className="mt-md flex justify-center gap-3 lg:mt-0 lg:contents">
+              {([-1, 1] as const).map((delta) => (
+                <button
+                  key={delta}
+                  type="button"
+                  onClick={() => (delta === -1 ? api?.scrollPrev() : api?.scrollNext())}
+                  disabled={delta === -1 ? !canPrev : !canNext}
+                  aria-label={delta === -1 ? "Previous homes" : "Next homes"}
+                  className={cn(
+                    "h-11 w-11 rounded-full border border-border bg-background text-foreground",
+                    "inline-flex items-center justify-center transition-colors",
+                    "hover:border-accent-strong hover:text-accent-strong",
+                    "disabled:opacity-30 disabled:pointer-events-none",
+                    "lg:absolute lg:top-[38%] lg:-translate-y-1/2",
+                    delta === -1 ? "lg:-left-14" : "lg:-right-14"
+                  )}
+                >
+                  {delta === -1 ? (
+                    <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+                  ) : (
+                    <ChevronRight className="h-5 w-5" strokeWidth={1.5} />
+                  )}
+                </button>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
 
