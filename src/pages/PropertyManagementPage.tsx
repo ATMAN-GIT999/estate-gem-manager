@@ -40,7 +40,7 @@ const PropertyManagementPageContent = () => {
         faqSchema(OWNER_FAQ_ITEMS),
       ]}
     />
-    <Navigation overlay variant="propertyManagement" />
+    <Navigation overlay variant="propertyManagement" logoOnDark />
 
     {/* Ten sections, and the order is the argument, not a list:
         here is what your house could earn → here is what we have already run →
