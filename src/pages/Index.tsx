@@ -1,7 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
-import SearchBand from "@/components/SearchBand";
 import PropertyCollections from "@/components/PropertyCollections";
 import GuestManagement from "@/components/GuestManagement";
 import DestinationsRail from "@/components/DestinationsRail";
@@ -45,18 +44,18 @@ const IndexContent = () => {
         description="Book luxury villas and apartments in Marbella, Málaga and Vienna directly with Frontier Residences — and see what your own property could earn under our management."
         schema={[organizationSchema(), faqSchema(FAQ_ITEMS)]}
       />
-      <Navigation overlay />
+      <Navigation overlay logoOnDark />
 
-      {/* Eight sections, in the order of the 09/2026 wireframe:
-          hero → search → homes → what a stay includes → where we are →
-          questions → the one hand-off to owners → footer.
+      {/* Seven sections, in the order of the 09/2026 wireframe:
+          hero (search bar included again, Almedin 29.09.2026) → homes →
+          what a stay includes → where we are → questions → the one hand-off
+          to owners → footer.
 
           The evaluator used to sit between the hand-off and the footer. It has
           moved to /property-management, where it is the hero: on a page a
           guest lands on to choose a house, a cash-flow calculator is owner
           language, which is the mistake this whole site is built to avoid. */}
       <Hero />
-      <SearchBand />
       <PropertyCollections />
       <GuestManagement />
       <DestinationsRail />

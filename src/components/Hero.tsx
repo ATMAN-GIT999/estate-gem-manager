@@ -1,40 +1,52 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
+import SearchBar from "./SearchBar";
 import { Container, Stack } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
 import heroPoster from "@/assets/wf-hero-poster.webp";
 
 /**
- * The opening band: eyebrow, headline, one supporting line, one quiet action —
- * on full-bleed video.
+ * The opening band: eyebrow, headline, one supporting line, search bar — on
+ * full-bleed video.
  *
- * The search bar used to live in here. It now has its own beige band directly
- * underneath (SearchBand.tsx), which is the only beige surface on the landing
- * page: on a white ground a band earns its colour by being the one thing the
- * visitor is meant to do next, not by being the page's default.
+ * ⚠️ A same-day trial (Almedin, 29.09.2026) swapped this video for a still
+ * photograph — reverted the same day ("nicht das hero video entfernen"). The
+ * photo (Villa Higuerón's stairwell glass) moved to TheClaim.tsx instead,
+ * full-bleed there. If a photo hero comes up again, swap the block below for
+ * a plain `<img>` + `.overlay-media` div, the way that trial did it — no
+ * need to rediscover the approach.
  *
- * It used to be `min-h-screen`: the video owned the entire first screen and
+ * Back to holding the search bar itself (Almedin, 29.09.2026) — it had moved
+ * out to its own beige band directly underneath (SearchBand.tsx) for a
+ * while; that band is gone now, not just visually folded back in here. The
+ * "See our homes" button that used to sit where the search bar is now is
+ * also gone — a second, quieter action right next to the search field just
+ * argued with it. The subheadline itself came back the same day with new
+ * copy naming the actual places rather than a number of villas.
+ *
+ * It used to be `min-h-screen`: the hero owned the entire first screen and
  * the search bar arrived half a second late on a slide-in from the right,
  * separated from the text above it by up to 48px of empty space. That is what
  * made it read as something laid over the hero rather than part of it, and it
  * meant nothing below the fold existed until the visitor scrolled.
  *
  * Now the band is ~62vh, so the section underneath is already visible at rest
- * — the video supports the composition instead of being it (§7). The three
- * pieces share one Stack, so the gap between the headline and the field the
- * visitor is meant to type in is one step on the same ladder the rest of the
- * page uses (§8).
+ * — the video supports the composition instead of being it (§7). The
+ * two pieces share one Stack, so the gap between the headline and the field
+ * the visitor is meant to type in is one step on the same ladder the rest of
+ * the page uses (§8).
  */
 const Hero = () => {
   const { t, language } = useLocale();
+  const navigate = useNavigate();
 
   // Editable content state
   const [eyebrow, setEyebrow] = useState(t("hero-eyebrow"));
   const [headline, setHeadline] = useState(t("hero-headline"));
   const [subheadline, setSubheadline] = useState(t("hero-subheadline"));
-  const [ctaLabel, setCtaLabel] = useState(t("hero-cta"));
 
   // See Navigation.tsx's identical effect — resets to the new language's
   // default rather than preserving a manual inline-CMS edit, since nothing
@@ -43,9 +55,24 @@ const Hero = () => {
     setEyebrow(t("hero-eyebrow"));
     setHeadline(t("hero-headline"));
     setSubheadline(t("hero-subheadline"));
-    setCtaLabel(t("hero-cta"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
+
+  // The same state and URL contract SearchBand.tsx used to hold — moved back
+  // in here with it, not rebuilt.
+  const [checkInDate, setCheckInDate] = useState<Date>();
+  const [checkOutDate, setCheckOutDate] = useState<Date>();
+  const [guests, setGuests] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (location) params.set("location", location);
+    if (checkInDate) params.set("checkIn", format(checkInDate, "yyyy-MM-dd"));
+    if (checkOutDate) params.set("checkOut", format(checkOutDate, "yyyy-MM-dd"));
+    if (guests) params.set("guests", guests);
+    navigate(`/properties?${params.toString()}`);
+  };
 
   /**
    * Self-hosted since 19.08.2026 (docs/DECISIONS.md §22, resolves PROJECT.md
@@ -143,45 +170,52 @@ const Hero = () => {
           welded to the page. */}
       <Container measure="wide" className="relative z-10 pb-2xl pt-lg text-center">
         <Stack gap="md" align="center" className="animate-fade-in">
+          {/* +10% over t-tag's fixed 10px (Almedin, 29.09.2026) — `text-[]`
+              only touches font-size, so line-height/tracking/weight still
+              come from t-tag itself. */}
           <EditableText
             id="hero-eyebrow"
             value={eyebrow}
             onChange={setEyebrow}
             as="p"
-            className="t-tag text-white/75"
+            className="t-tag text-[0.6875rem] text-white/75"
           >
             {eyebrow}
           </EditableText>
 
-          <div className="space-y-sm">
-            <EditableText
-              id="hero-headline"
-              value={headline}
-              onChange={setHeadline}
-              as="h1"
-              className="t-display text-white text-balance"
-            >
-              {headline}
-            </EditableText>
-            <EditableText
-              id="hero-subheadline"
-              value={subheadline}
-              onChange={setSubheadline}
-              as="p"
-              className="t-body text-[19px] text-white/[0.86] max-w-[52ch] mx-auto"
-            >
-              {subheadline}
-            </EditableText>
-          </div>
+          {/* +15% over t-display's clamp(1.7rem,1.24rem+1.92vw,2.6rem) — every
+              endpoint scaled by 1.15, same reasoning as above. */}
+          <EditableText
+            id="hero-headline"
+            value={headline}
+            onChange={setHeadline}
+            as="h1"
+            className="t-display text-[clamp(1.955rem,1.426rem+2.208vw,2.99rem)] text-white text-balance"
+          >
+            {headline}
+          </EditableText>
 
-          {/* One action, and the quiet one. The gold button in the header is
-              already the page's filled call; a second one here would make the
-              first screen argue with itself. */}
-          <Link to="/properties" className="cta-base cta-secondary on-dark">
-            <EditableText id="hero-cta" value={ctaLabel} onChange={setCtaLabel} as="span">
-              {ctaLabel}
-            </EditableText>
-          </Link>
+          <EditableText
+            id="hero-subheadline"
+            value={subheadline}
+            onChange={setSubheadline}
+            as="p"
+            className="t-body text-[19px] text-white/[0.86] max-w-[52ch] mx-auto"
+          >
+            {subheadline}
+          </EditableText>
+
+          <SearchBar
+            location={location}
+            checkInDate={checkInDate}
+            checkOutDate={checkOutDate}
+            guests={guests}
+            onLocationChange={setLocation}
+            onCheckInChange={setCheckInDate}
+            onCheckOutChange={setCheckOutDate}
+            onGuestsChange={setGuests}
+            onSearch={handleSearch}
+          />
         </Stack>
       </Container>
     </section>
