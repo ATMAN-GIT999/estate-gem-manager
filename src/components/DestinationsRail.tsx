@@ -7,15 +7,18 @@ import { useLocale } from "@/contexts/LocaleContext";
 import placeMarbella from "@/assets/wf-place-marbella.webp";
 import placeMalaga from "@/assets/wf-place-malaga.webp";
 import placeVienna from "@/assets/wf-place-vienna.webp";
+import placeCarinthia from "@/assets/wf-place-carinthia.jpg";
 
 /**
  * "Where we are at home" — the four places, full-bleed, with the fourth
  * deliberately cropped at the right edge so the row reads as continuing rather
  * than as a grid that happens to have run out.
  *
- * Every slot is a MediaFrame: there is no place photography in the repo yet
- * (a villa interior standing in for "Marbella" would be the worse answer), so
- * each frame names the shot it is waiting for until the photographs arrive.
+ * Every slot is a MediaFrame — a villa interior standing in for "Marbella"
+ * would be the worse answer than an honest hatched placeholder naming the
+ * shot it is waiting for. All four places now have their photograph
+ * (Carinthia last, 29.09.2026); a new destination added here still falls
+ * back to the placeholder until its own picture arrives.
  */
 
 interface Place {
@@ -31,9 +34,7 @@ const PLACES: Place[] = [
   { id: "dest-image-marbella", labelKey: "dest-marbella", page: "marbella", src: placeMarbella, note: "Marbella — golf and the Sierra Blanca behind it, 3:2" },
   { id: "dest-image-malaga", labelKey: "dest-malaga", page: "malaga", src: placeMalaga, note: "Málaga — the port and the old town from above, 3:2" },
   { id: "dest-image-vienna", labelKey: "dest-vienna", page: "vienna", src: placeVienna, note: "Vienna — the inner city at dusk, 3:2" },
-  // Still waiting on a photograph. A Costa del Sol pool standing in for an
-  // Alpine lake would be the worse answer than an honest empty frame.
-  { id: "dest-image-carinthia", labelKey: "dest-carinthia", page: "carinthia", note: "Carinthia — lake and mountains in summer, 3:2" },
+  { id: "dest-image-carinthia", labelKey: "dest-carinthia", page: "carinthia", src: placeCarinthia, note: "Carinthia — glacier peak above a green Alpine valley, 3:2 (Almedin, 29.09.2026)" },
 ];
 
 const DestinationsRail = () => {
