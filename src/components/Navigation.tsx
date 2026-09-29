@@ -9,6 +9,8 @@ import LanguageCurrencySwitcher from "./LanguageCurrencySwitcher";
 import { useLocale } from "@/contexts/LocaleContext";
 import { AUSTRIA_DESTINATIONS, SPAIN_DESTINATIONS, type Destination } from "@/lib/destinations";
 import villaHigueron from "@/assets/wf-villa-higueron.webp";
+import frontierIcon from "@/assets/frontier-icon.png";
+import frontierIconBeige from "@/assets/frontier-icon-beige.png";
 
 /**
  * The header has three states, and only three — there is no in-between.
@@ -21,7 +23,9 @@ import villaHigueron from "@/assets/wf-villa-higueron.webp";
  *      through a translucent panel — the half-way state is what used to read
  *      as the header text being dimmed.
  *   3. Destinations panel open: a white sheet under the bar with two country
- *      columns, the occasions list, and one property teaser.
+ *      columns, one property teaser, and a link to the full destinations
+ *      overview — the occasions column (golf, families, large groups) is
+ *      gone (Almedin, 29.09.2026), replaced by that link.
  *
  * Croatia deliberately does not appear in the panel: it is not an inventory
  * market, only a target market on /investments (docs/PROJECT.md §1).
@@ -35,18 +39,23 @@ interface NavigationProps {
    * white. Only the two pages that open on a hero pass this.
    */
   overlay?: boolean;
+  /**
+   * The badge's letters are sage-green — fine on white, but low-contrast
+   * wherever the transparent bar floats over something busy or green itself:
+   * `/` (video) and `/property-management` (`OwnerHero`'s solid green fill)
+   * both pass this (Almedin, 29.09.2026). Swaps in the all-beige badge only
+   * while still floating (`overlay && !solid`); once scrolled solid, or on a
+   * page that never passes this at all (a plain photo hero has enough of its
+   * own darkening — see `.overlay-media` — for the regular badge to read),
+   * the regular one is back.
+   */
+  logoOnDark?: boolean;
 }
 
 const SPAIN = SPAIN_DESTINATIONS;
 const AUSTRIA = AUSTRIA_DESTINATIONS;
 
-const OCCASIONS = [
-  { label: "Golf & sea", query: "golf" },
-  { label: "Families", query: "family" },
-  { label: "Large groups", query: "" },
-];
-
-const Navigation = ({ variant = "default", overlay = false }: NavigationProps) => {
+const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -180,18 +189,21 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
             {isOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
 
-          {/* Centre — the wordmark. Tracking eases off from the wireframe's
-              0.24em (tuned for the five-letter "FRONTIER" alone) — at the
-              same tracking "FRONTIER RESIDENCES" would run past the side
-              columns on a narrow desktop window. */}
-          <Link
-            to="/"
-            className={cn(
-              "justify-self-center t-meta tracking-[0.12em] sm:tracking-[0.16em] text-sm sm:text-base transition-opacity hover:opacity-70 whitespace-nowrap",
-              solid ? "text-foreground" : "text-white"
-            )}
-          >
-            FRONTIER RESIDENCES
+          {/* Centre — the monogram badge, trying out for the typed wordmark
+              (Almedin, 29.09.2026). The PNG's own ring and letters are the
+              only opaque pixels in it — no card behind them — so unlike the
+              text this mostly no longer needs the transparent/solid colour
+              swap: beige ring and sage-green letters read on white (state
+              2/3) fine. The one exception is `logoOnDark`, see the prop doc
+              above — an all-beige badge swaps in while still transparent. */}
+          <Link to="/" className="justify-self-center transition-opacity hover:opacity-80">
+            <img
+              src={logoOnDark && !solid ? frontierIconBeige : frontierIcon}
+              alt="Frontier Residences"
+              width={1736}
+              height={2670}
+              className="h-[52px] w-auto"
+            />
           </Link>
 
           {/* Right — utilities and the one filled action. */}
@@ -235,6 +247,31 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
         <div className="hidden lg:block border-t border-border bg-background animate-fade-in">
           <Container className="py-lg">
             <div className="grid grid-cols-12 gap-md">
+              {/* Leftmost on purpose (Almedin, 29.09.2026): the one link
+                  meant to read as "see everything" leads the row instead of
+                  trailing Spain and Austria, where it used to read as an
+                  afterthought once those two were already answered. Replaces
+                  the old "By occasion" column (golf, families, large groups)
+                  — none of the three led anywhere as useful as just browsing
+                  every place at once. Sized up to t-section (the "section
+                  title" role) on purpose — every other word in this panel is
+                  t-tag or t-body, and this link needs to out-weigh all of
+                  them, not blend in as a destination itself. */}
+              <div className="col-span-3 flex flex-col justify-center">
+                <p className="t-tag text-accent-strong mb-4">Explore</p>
+                <Link
+                  to="/vacation-rentals"
+                  onClick={() => setPanelOpen(false)}
+                  className="group/all inline-flex items-start gap-2 t-section text-foreground hover:text-accent-strong transition-colors text-balance"
+                >
+                  All destinations
+                  <ArrowRight
+                    className="h-5 w-5 shrink-0 mt-2 transition-transform group-hover/all:translate-x-1"
+                    strokeWidth={1.5}
+                  />
+                </Link>
+              </div>
+
               <div className="col-span-3">
                 <p className="t-tag text-accent-strong mb-4">Spain</p>
                 {SPAIN.map((d) => (
@@ -267,20 +304,15 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
                 </button>
               </div>
 
-              <div className="col-span-3">
-                <p className="t-tag text-accent-strong mb-4">By occasion</p>
-                {OCCASIONS.map((d) => (
-                  <button key={d.label} type="button" className={panelLink} onClick={() => go(d.query)}>
-                    {d.label}
-                  </button>
-                ))}
-              </div>
-
               <Link
                 to="/vacation-rentals/fuengirola"
                 className="col-span-3 group"
                 onClick={() => setPanelOpen(false)}
               >
+                {/* "Our favourite" (Almedin, 29.09.2026), same tag style as
+                    "Spain"/"Austria" so the one curated pick reads as a peer
+                    of those columns, not a caption on the photo. */}
+                <p className="t-tag text-accent-strong mb-4">Our favourite</p>
                 <div className="aspect-[3/4] overflow-hidden">
                   <img
                     src={villaHigueron}
@@ -322,13 +354,6 @@ const Navigation = ({ variant = "default", overlay = false }: NavigationProps) =
                 onClick={() => setIsOpen(false)}
               >
                 {listYourHome}
-              </Link>
-              <Link
-                to="/about"
-                className="t-item text-foreground py-2"
-                onClick={() => setIsOpen(false)}
-              >
-                {t("nav-3")}
               </Link>
               <Link
                 to={user ? authDestination : "/auth"}
