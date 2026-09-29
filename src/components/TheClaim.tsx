@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import EditableText from "./admin/EditableText";
 import { MediaFrame, Section } from "./layout";
-import claimImage from "@/assets/wf-we-take-it-on.webp";
+import claimImage from "@/assets/wf-hero-villa-higueron.jpg";
 import { useLocale } from "@/contexts/LocaleContext";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +24,18 @@ import { cn } from "@/lib/utils";
  *
  * ⚠️ Below `lg` there is no room for an overlap, so the boxes stack above the
  * picture and stay right-aligned; only the desktop gets the layering.
+ *
+ * Photo is full-bleed since 29.09.2026 (Almedin: "the same width as the
+ * hero") — `.app-bleed` breaks it out of this Section's Container back to
+ * 100vw, the same trick DestinationsRail's row uses (`.app-bleed-inset`),
+ * just without the inset padding since a photo has no leading card to line
+ * up. The text block above stays Container-width and right-aligned exactly
+ * as before; only the picture's own width changed, so the overlap still
+ * lands the beige lead box over the photo's top edge, just further from that
+ * edge now that the photo runs the full viewport instead of 72% of the
+ * column. Villa Higuerón replaces the old aerial villa-cluster shot — same
+ * trial that briefly stood in for the hero video, kept here instead once
+ * Almedin asked for the video back.
  */
 const TheClaim = () => {
   const { t, language } = useLocale();
@@ -89,14 +101,16 @@ const TheClaim = () => {
         </EditableText>
       </div>
 
-      {/* Pulled up under the lead box on desktop so the two overlap. */}
-      <div className="relative mt-md lg:mt-[-7rem] lg:w-[72%]">
+      {/* Pulled up under the lead box on desktop so the two overlap.
+          `app-bleed` takes it out to the full viewport width — see the file
+          comment for why, and why the overlap still works at this width. */}
+      <div className="relative app-bleed mt-md lg:mt-[-7rem]">
         <MediaFrame
           id="claim-image"
           src={image}
           onChange={setImage}
-          alt="A cluster of modern villas with private pools above the Costa del Sol"
-          note="We take it on — aerial of a modern white villa cluster with pools, wide crop"
+          alt="Villa Higuerón — the stairwell's angled glass over the pool"
+          note="We take it on — Villa Higuerón's stairwell glass over the pool, full width"
           aspect="wide"
         />
         {/* Not black, and not on the frame itself: --ink is the palette's
