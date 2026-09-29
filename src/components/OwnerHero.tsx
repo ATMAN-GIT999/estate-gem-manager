@@ -121,9 +121,21 @@ const OwnerHero = () => {
             {/* State A — one field. The pill is the field: the Input inside
                 loses its own border, fill and ring so the two do not read as
                 a box in a box. Its left padding stays, because
-                AddressAutocomplete puts a pin icon there. */}
+                AddressAutocomplete puts a pin icon there.
+
+                ⚠️ Almedin, 29.09.2026 — two bugs fixed here:
+                (1) `[&_input]:focus-visible:ring-0` put `:focus-visible` on
+                THIS div, not on the input — a plain div never matches it, so
+                the override was dead and the Input's own default ring
+                (`--ring`, a dark sage) showed in full on focus, reading as a
+                stray black outline. The pseudo-class has to sit inside the
+                bracket, on the actual target: `[&_input:focus-visible]`.
+                (2) Nothing set the input's text colour, so it inherited
+                `text-primary-foreground` (white) from this section's own
+                text colour — white text and a white caret on the white pill,
+                invisible while typing. `[&_input]:text-foreground` fixes it. */}
             <div className="flex items-stretch bg-background rounded-full overflow-hidden">
-              <div className="flex-1 min-w-0 flex items-center pl-4 [&_input]:border-0 [&_input]:bg-transparent [&_input]:h-[58px] [&_input]:text-base [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_svg]:text-accent-strong">
+              <div className="flex-1 min-w-0 flex items-center pl-4 [&_input]:border-0 [&_input]:bg-transparent [&_input]:h-[58px] [&_input]:text-base [&_input]:text-foreground [&_input]:shadow-none [&_input:focus-visible]:ring-0 [&_input:focus-visible]:ring-offset-0 [&_svg]:text-accent-strong">
                 <AddressAutocomplete
                   value={address}
                   onChange={setAddress}
@@ -136,8 +148,11 @@ const OwnerHero = () => {
                 // Stays disabled through State B too — it only goes live once
                 // a bedroom count is actually picked, not the moment State B
                 // appears, so the pills read as required rather than optional.
+                // No more `disabled:opacity-45` (Almedin, 29.09.2026): the
+                // gold read as grayed-out/broken rather than "not yet" —
+                // `disabled` still blocks the actual click.
                 disabled={!canSubmit}
-                className="shrink-0 w-[60px] bg-accent text-accent-foreground inline-flex items-center justify-center disabled:opacity-45 transition-opacity"
+                className="shrink-0 w-[60px] bg-accent text-accent-foreground inline-flex items-center justify-center"
               >
                 <ArrowRight className="h-5 w-5" strokeWidth={2} />
               </button>
