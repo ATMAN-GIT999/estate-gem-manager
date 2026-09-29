@@ -36,6 +36,17 @@ interface SearchBarProps extends SearchBarValues {
    * Desktop is unaffected, where the bar is a single row anyway.
    */
   collapsible?: boolean;
+  /**
+   * Full container width instead of the centred 900px pill — Properties.tsx
+   * (Almedin, 29.09.2026), so the bar lines up with the grid of photographs
+   * under it instead of floating narrower than everything below it, on its
+   * own beige band (the reference was avantstay.com's listings page: full
+   * width, no coloured band). Only the width changes — same `md:rounded-full`
+   * pill corners as Hero.tsx's bar; a first pass also flattened the corners
+   * here to a rectangle, which just made the two look like different
+   * controls (Almedin, 29.09.2026).
+   */
+  fullWidth?: boolean;
 }
 
 /**
@@ -61,6 +72,7 @@ const SearchBar = ({
   onGuestsChange,
   onSearch,
   collapsible = false,
+  fullWidth = false,
 }: SearchBarProps) => {
   const { t } = useLocale();
   const [checkInOpen, setCheckInOpen] = useState(false);
@@ -174,7 +186,30 @@ const SearchBar = ({
   const fieldLabel = "block t-tag text-accent-strong mb-1";
 
   return (
-    <div className="relative z-50 mx-auto w-full max-w-[900px] overflow-visible rounded-2xl border border-border bg-background p-1.5 shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.2)] md:rounded-full">
+    // z-30, not z-50: on Properties.tsx this bar sits directly under the
+    // fixed Navigation, and Navigation's own Destinations sheet is also
+    // z-50 — equal values fall back to DOM order, which put this bar on top
+    // of that sheet and left it visibly overlapping the open panel (Almedin,
+    // 29.09.2026). On Hero.tsx the bar sits inside that section's own
+    // `relative z-10` Container instead, a nested stacking context this
+    // z-30 never escapes, so it cannot repeat the clash there either way.
+    // z-30 still clears ordinary page content on both; the popovers below
+    // stay z-[70] and open above everything as before.
+    //
+    // `text-left` (Almedin, 29.09.2026): Hero.tsx's Container is `text-center`
+    // for the eyebrow/headline above this bar, which this bar then inherited
+    // for the first time once it moved back inside that Container — the
+    // field labels (plain text, no alignment of their own) centred while
+    // each value stayed put on the `text-left` its trigger Button sets
+    // explicitly, so a label no longer sat over its own value. Resetting
+    // alignment here means this bar looks the same regardless of what
+    // alignment its call site happens to use.
+    <div
+      className={cn(
+        "relative z-30 mx-auto w-full overflow-visible rounded-2xl border border-border bg-background p-1.5 text-left shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.2)] md:rounded-full",
+        fullWidth ? "max-w-none" : "max-w-[900px]"
+      )}
+    >
       <form
         onSubmit={handleSubmit}
         className="flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-0"

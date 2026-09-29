@@ -5,7 +5,6 @@ import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import CollectionTabs from "@/components/CollectionTabs";
 import { classifyProperty, COLLECTION_LABEL_KEY, COLLECTION_ORDER, type CollectionId } from "@/lib/homeCollections";
-import { VACATION_RENTAL_CITIES, vrKey } from "@/lib/vacationRentals";
 import { cityGroupsForSearch } from "@/lib/destinations";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -247,8 +246,14 @@ const PropertiesContent = () => {
         {/* The landing page's own search bar, in the place a hero would be.
             There is no photograph to overlay a hero on here, so the header is
             solid from the first pixel and the widget the guest already knows
-            takes the top of the page instead. */}
-        <Section tone="quiet" size="sm" measure="wide">
+            takes the top of the page instead.
+            Full width, on the plain page background, not its own beige band
+            (Almedin, 29.09.2026 — avantstay.com's listings page was the
+            reference): the bar now shares its left and right edge with the
+            photograph grid below it instead of floating narrower and on a
+            different surface, which read as a separate widget laid on top
+            of the page rather than the page's own first control. */}
+        <Section size="sm">
           <SearchBar
             location={locationInput}
             checkInDate={checkInInput}
@@ -259,6 +264,7 @@ const PropertiesContent = () => {
             onCheckOutChange={setCheckOutInput}
             onGuestsChange={setGuestsInput}
             onSearch={applySearch}
+            fullWidth
           />
         </Section>
 
@@ -314,22 +320,6 @@ const PropertiesContent = () => {
                 {t("properties.clear")}
               </button>
             )}
-
-            {/* The five location pages, as plain links (docs/seo/struktur.md
-                §8). Not a filter: the search above is what narrows this list
-                by place and dates. These open the page about the place. */}
-            <span className="lg:ml-auto flex flex-wrap items-center gap-x-3 gap-y-1 t-body text-muted-foreground">
-              {t("properties-by-destination")}
-              {VACATION_RENTAL_CITIES.map((city) => (
-                <Link
-                  key={city.slug}
-                  to={`/vacation-rentals/${city.slug}`}
-                  className="text-foreground underline-offset-4 hover:text-accent-strong hover:underline transition-colors"
-                >
-                  {t(vrKey(city.slug, "name"))}
-                </Link>
-              ))}
-            </span>
           </Container>
         </div>
 
@@ -344,19 +334,35 @@ const PropertiesContent = () => {
           )}
 
           {/* The page's one h1, and the most useful sentence on it: how many
-              homes there are and where they are. */}
+              homes there are and where they are — "where" now follows the
+              tab (Almedin, 29.09.2026): picking "Costa del Sol" used to
+              still leave Vienna and Carinthia named in the sentence next to
+              it, which read as the filter not having done anything. Only the
+              "all" sentence stays admin-editable (`pageTitle`); the
+              per-region one is a count and a label, recomputed every time
+              the count or the tab changes, so there is nothing stable to
+              hand the CMS. */}
           {/* Title left, region tabs right — the same arrangement as "Our
               homes" on the landing page, and the same tabs. */}
           <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 mb-lg">
-            <EditableText
-              id="properties-page-title"
-              value={pageTitle}
-              onChange={setPageTitle}
-              as="h1"
-              className="t-section text-foreground text-balance max-w-2xl"
-            >
-              {pageTitle.replace("{n}", loading ? "" : String(sorted.length)).trim()}
-            </EditableText>
+            {regionFilter === "all" ? (
+              <EditableText
+                id="properties-page-title"
+                value={pageTitle}
+                onChange={setPageTitle}
+                as="h1"
+                className="t-section text-foreground text-balance max-w-2xl"
+              >
+                {pageTitle.replace("{n}", loading ? "" : String(sorted.length)).trim()}
+              </EditableText>
+            ) : (
+              <h1 className="t-section text-foreground text-balance max-w-2xl">
+                {t("properties-page-title-region")
+                  .replace("{n}", loading ? "" : String(sorted.length))
+                  .replace("{region}", regionTabs.find((tab) => tab.id === regionFilter)?.label ?? "")
+                  .trim()}
+              </h1>
+            )}
 
             {!loading && <CollectionTabs<RegionFilter> tabs={regionTabs} current={regionFilter} onSelect={setRegionFilter} />}
           </div>
