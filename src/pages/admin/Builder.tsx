@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,7 +60,6 @@ interface PageData {
 }
 
 export default function BuilderPage() {
-  const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const editorRef = useRef<Editor | null>(null);
@@ -89,10 +87,13 @@ export default function BuilderPage() {
     return data;
   }, []);
 
+  // The redirect this used to do inline (`if (!isAdmin) navigate("/auth")`)
+  // now lives in RequireAdmin, one level up (docs/PROJECT.md C8) — this
+  // component only ever mounts once that gate has already confirmed
+  // `isAdmin`, so there is nothing left to check here but fetch the pages.
   useEffect(() => {
-    if (!isAdmin) { navigate("/auth"); return; }
     fetchPages();
-  }, [isAdmin, navigate, fetchPages]);
+  }, [fetchPages]);
 
   // Init GrapesJS
   useEffect(() => {
@@ -406,8 +407,6 @@ export default function BuilderPage() {
     setLoading(false);
     toast.success("Page content reset to current version");
   };
-
-  if (!isAdmin) return null;
 
   const isSitePage = currentSitePage !== null;
 

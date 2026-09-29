@@ -10,6 +10,7 @@ import { InlineEditProvider } from "./contexts/InlineEditContext";
 import { LocaleProvider } from "./contexts/LocaleContext";
 import { CookieConsentProvider } from "./contexts/CookieConsentContext";
 import EditModeToggle from "./components/admin/EditModeToggle";
+import RequireAdmin from "./components/admin/RequireAdmin";
 import WhatsAppButton from "./components/WhatsAppButton";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import ScrollToTop from "./components/ScrollToTop";
@@ -110,20 +111,23 @@ const App = () => (
             <Route path="/property/:slug" element={<PropertyDetail />} />
             <Route path="/vacation-rentals" element={<VacationRentals />} />
             <Route path="/vacation-rentals/:city" element={<VacationRentalCity />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/properties" element={<AdminProperties />} />
-            <Route path="/admin/bookings" element={<AdminBookings />} />
-            <Route path="/admin/blog" element={<AdminBlog />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/admin/marketing" element={<AdminMarketing />} />
-            <Route path="/admin/tasks" element={<AdminTasks />} />
-            <Route path="/admin/calendar" element={<AdminCalendar />} />
-            <Route path="/admin/messages" element={<AdminMessages />} />
-            <Route path="/admin/create" element={<AdminCreate />} />
-            <Route path="/admin/builder" element={<AdminBuilder />} />
-            <Route path="/admin/test-harness" element={<AdminTestHarness />} />
+            {/* Every /admin/* route behind one gate (docs/PROJECT.md C8) —
+                see RequireAdmin for why this used to let a visitor with no
+                admin role open the page shell at all, RLS or not. */}
+            <Route path="/admin/dashboard" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
+            <Route path="/admin" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
+            <Route path="/admin/properties" element={<RequireAdmin><AdminProperties /></RequireAdmin>} />
+            <Route path="/admin/bookings" element={<RequireAdmin><AdminBookings /></RequireAdmin>} />
+            <Route path="/admin/blog" element={<RequireAdmin><AdminBlog /></RequireAdmin>} />
+            <Route path="/admin/analytics" element={<RequireAdmin><AdminAnalytics /></RequireAdmin>} />
+            <Route path="/admin/settings" element={<RequireAdmin><AdminSettings /></RequireAdmin>} />
+            <Route path="/admin/marketing" element={<RequireAdmin><AdminMarketing /></RequireAdmin>} />
+            <Route path="/admin/tasks" element={<RequireAdmin><AdminTasks /></RequireAdmin>} />
+            <Route path="/admin/calendar" element={<RequireAdmin><AdminCalendar /></RequireAdmin>} />
+            <Route path="/admin/messages" element={<RequireAdmin><AdminMessages /></RequireAdmin>} />
+            <Route path="/admin/create" element={<RequireAdmin><AdminCreate /></RequireAdmin>} />
+            <Route path="/admin/builder" element={<RequireAdmin><AdminBuilder /></RequireAdmin>} />
+            <Route path="/admin/test-harness" element={<RequireAdmin><AdminTestHarness /></RequireAdmin>} />
             <Route path="/aviso-legal" element={<AvisoLegal />} />
             <Route path="/p/:slug" element={<DynamicPage />} />
               <Route path="*" element={<NotFound />} />

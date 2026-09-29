@@ -12,6 +12,42 @@ serve(async (req) => {
   }
 
   try {
+    // Admin-only (docs/PROJECT.md C8, second finding): this endpoint used to
+    // accept any request carrying a valid Supabase key — including the
+    // public anon key every visitor's browser already sends with every
+    // request — and would spend one of Guesty's 3-tokens-per-24h quota for
+    // it. `verify_jwt` (the project default, no per-function override in
+    // config.toml) only checks that SOME key was presented, not who it
+    // belongs to, so the actual role check has to live here. Built on the
+    // caller's own JWT (not the service-role client below, which has no
+    // caller identity to check) so `has_role` resolves against the real
+    // signed-in user.
+    const authHeader = req.headers.get('Authorization') ?? '';
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    const authUrl = Deno.env.get('SUPABASE_URL')!;
+    const callerClient = createClient(authUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const { data: userData, error: userError } = await callerClient.auth.getUser();
+    if (userError || !userData.user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: isAdmin, error: roleError } = await callerClient.rpc('has_role', {
+      _user_id: userData.user.id,
+      _role: 'admin',
+    });
+    if (roleError || !isAdmin) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden — admin role required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const clientId = Deno.env.get('GUESTY_CLIENT_ID');
     const clientSecret = Deno.env.get('GUESTY_CLIENT_SECRET');
     

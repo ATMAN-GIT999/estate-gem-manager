@@ -1,0 +1,36 @@
+-- Closes docs/PROJECT.md C8: anyone who registers with
+-- frontierresidences@example.com or frontier@frontierresidences.com is
+-- handed the admin role automatically. Neither address exists, but the
+-- domain frontierresidences.com (no hyphen, unlike the real
+-- frontier-residences.com) is unregistered — buying it would let anyone
+-- verify an inbox at that domain, sign up through /auth, and receive full
+-- admin access to leads, bookings, messages, properties, and (via `pages`)
+-- arbitrary HTML on /.
+--
+-- A prior migration (20260806071258) revoked EXECUTE on
+-- handle_admin_signup() from PUBLIC/anon/authenticated, which stops the
+-- function being called directly via RPC — it does NOT stop the trigger,
+-- which Postgres fires on every auth.users insert regardless of the
+-- inserting role, running as the function's SECURITY DEFINER owner. The
+-- backdoor was still live until this migration.
+--
+-- Dropping both the trigger and the function outright: nothing else
+-- reads handle_admin_signup, and "give this email admin on signup" is not
+-- a pattern worth keeping around to misconfigure again later. Admin roles
+-- are granted by hand, in user_roles, by someone who already has the
+-- admin role — see has_role() / the "Admins can manage all" policies
+-- already in place.
+--
+-- Verified before writing this: 0 rows in user_roles with role = 'admin'
+-- as of 25.09.2026 (docs/PROJECT.md C8), so dropping this trigger cannot
+-- deauthorize anyone who is actually using admin access today.
+DROP TRIGGER IF EXISTS on_admin_user_created ON auth.users;
+DROP FUNCTION IF EXISTS public.handle_admin_signup();
+
+-- The other half of C8: self-registration should not exist at all while
+-- there is no vetted way to become an admin through the UI. This cannot be
+-- done in SQL — it is the "Allow new users to sign up" toggle in
+-- Supabase Dashboard → Authentication → Sign In / Providers → Email — so
+-- it isn't in this migration. Do it by hand, or the trigger removal above
+-- only closes the automatic-admin path; anyone could still self-register
+-- as a plain (non-admin) user.
