@@ -39,7 +39,6 @@ import gjsBlocksBasic from "grapesjs-blocks-basic";
 
 const SITE_PAGES = [
   { name: "Homepage", route: "/", slug: "site--home" },
-  { name: "About Us", route: "/about", slug: "site--about" },
   { name: "Properties", route: "/properties", slug: "site--properties" },
   { name: "Projects", route: "/projects", slug: "site--projects" },
   { name: "Property Management", route: "/property-management", slug: "site--property-management" },

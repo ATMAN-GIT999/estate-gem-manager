@@ -16,7 +16,6 @@ import ScrollToTop from "./components/ScrollToTop";
 import PageTransition from "./components/PageTransition";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import About from "./pages/About";
 import Projects from "./pages/Projects";
 import IstriaProject from "./pages/IstriaProject";
 import Evaluate from "./pages/Evaluate";
@@ -86,7 +85,12 @@ const App = () => (
             <PageTransition>
             <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
+            {/* Removed from the header and the site (Almedin, 29.09.2026) —
+                same reasoning as /business-areas just below: a client-side
+                redirect rather than deleting the route outright, so an old
+                bookmark, backlink or indexed Google result still lands
+                somewhere real instead of on NotFound. */}
+            <Route path="/about" element={<Navigate to="/" replace />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/istria" element={<IstriaProject />} />
             {/* Orphaned page, not a nav item anymore, and a stale duplicate of

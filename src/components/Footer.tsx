@@ -48,6 +48,10 @@ const Footer = () => {
   const linkClass =
     "inline-block py-1.5 t-body text-ink-foreground/70 hover:text-accent-on-primary transition-colors";
 
+  // One constant so "For Guests" / "For Owners" / "Company" can't drift to
+  // three different sizes.
+  const columnHeadingClass = "t-tag text-accent-on-primary mb-3";
+
   const guestLinks = [
     { label: t("footer-all-homes-link"), to: "/properties" },
     { label: t("footer-costa-link"), to: "/properties?location=Costa%20del%20Sol" },
@@ -65,7 +69,6 @@ const Footer = () => {
   ];
 
   const companyLinks = [
-    { label: t("footer-about-link"), to: "/about" },
     { label: t("footer-projects-link"), to: "/projects" },
     { label: t("footer-aviso-legal-link"), to: "/aviso-legal" },
   ];
@@ -112,7 +115,7 @@ const Footer = () => {
                 value={guestsTitle}
                 onChange={setGuestsTitle}
                 as="h2"
-                className="t-tag text-accent-on-primary mb-3"
+                className={columnHeadingClass}
               >
                 {guestsTitle}
               </EditableText>
@@ -139,7 +142,7 @@ const Footer = () => {
                 value={ownersTitle}
                 onChange={setOwnersTitle}
                 as="h2"
-                className="t-tag text-accent-on-primary mb-3"
+                className={columnHeadingClass}
               >
                 {ownersTitle}
               </EditableText>
@@ -160,7 +163,7 @@ const Footer = () => {
                 value={companyTitle}
                 onChange={setCompanyTitle}
                 as="h2"
-                className="t-tag text-accent-on-primary mb-3"
+                className={columnHeadingClass}
               >
                 {companyTitle}
               </EditableText>

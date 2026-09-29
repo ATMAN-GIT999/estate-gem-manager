@@ -45,7 +45,9 @@ const STATIC_ROUTES = [
   { path: "/evaluate", priority: "0.8", changefreq: "monthly" },
   { path: "/projects", priority: "0.7", changefreq: "monthly" },
   { path: "/projects/istria", priority: "0.6", changefreq: "yearly" },
-  { path: "/about", priority: "0.7", changefreq: "monthly" },
+  // /about is a redirect to / now (Almedin, 29.09.2026), not a page of its
+  // own — nothing left here to list, and its own URL would tell Google to
+  // index a page that immediately bounces elsewhere.
   { path: "/aviso-legal", priority: "0.2", changefreq: "yearly" },
 ];
 
