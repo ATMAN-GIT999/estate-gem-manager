@@ -1,88 +1,55 @@
 import { useMemo } from "react";
-import { MapPin } from "lucide-react";
 
 /**
- * The location panel — a drawn map, not a tiled one.
+ * The location panel — a real Google Maps embed, not the drawn placeholder
+ * this used to be.
  *
- * A real tile layer would mean a third-party request for every visitor before
- * they have clicked anything, which is the same objection that keeps Google
- * Fonts off this site. It would also pin the house to a street address, and
- * what a guest actually needs at this point in the page is the shape of the
- * setting: water on one side, land on the other, and roughly where in it the
- * house sits.
+ * ⚠️ Decision (Almedin, 29.09.2026): loads on every page view, no
+ * click-to-load gate. That is a deliberate exception to the rest of the
+ * site's no-third-party-request-before-consent stance (the reasoning that
+ * keeps Google Fonts off this site) — the owner asked for the map itself
+ * over the drawn placeholder, and for it to load immediately.
  *
- * The coastline is derived from the property's own coordinates so two houses
- * in different towns do not get the same picture: the longitude decides how
- * far along the frame the bay sits, the latitude how high. `latitude` and
- * `longitude` are populated by `import-guesty-properties`; without them the
- * panel still renders, just centred.
+ * Built on the keyless `output=embed` iframe rather than the official Maps
+ * Embed API on purpose: the official API needs a Google Cloud project with
+ * billing enabled and an API key, which nobody has set up. The keyless
+ * version is undocumented and Google could change it without notice, but it
+ * has been the common way to embed a Maps location for years. If Google ever
+ * breaks it, swap the iframe `src` for the official Embed API URL once a key
+ * exists — the rest of this component does not need to change.
+ *
+ * Coordinates give the tightest, most accurate pin; `address` is the
+ * fallback when a listing has none (Google then geocodes the text itself),
+ * and `label` (the town/area name) is the last resort so the panel still
+ * renders something rather than nothing.
  */
 
 interface SurroundingsMapProps {
   latitude?: number | null;
   longitude?: number | null;
+  address?: string | null;
   label: string;
 }
 
-const SurroundingsMap = ({ latitude, longitude, label }: SurroundingsMapProps) => {
-  // Two stable numbers in 0..1 from the coordinates — the same house always
-  // gets the same coastline, a different house a different one.
-  const { cx, cy } = useMemo(() => {
-    const frac = (n: number) => Math.abs(n % 1);
-    return {
-      cx: 30 + frac(longitude ?? 0.5) * 40, // 30–70% across
-      cy: 34 + frac(latitude ?? 0.5) * 26, // 34–60% down
-    };
-  }, [latitude, longitude]);
+const SurroundingsMap = ({ latitude, longitude, address, label }: SurroundingsMapProps) => {
+  const query = useMemo(() => {
+    if (latitude != null && longitude != null) return `${latitude},${longitude}`;
+    if (address) return address;
+    return label;
+  }, [latitude, longitude, address, label]);
+
+  const zoom = latitude != null && longitude != null ? 14 : 12;
+  const src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=${zoom}&output=embed`;
 
   return (
-    <div
-      className="relative w-full aspect-[21/9] overflow-hidden"
-      style={{ background: "hsl(205 42% 72%)" }}
-      role="img"
-      aria-label={`Map of the area around ${label}`}
-    >
-      {/* The land mass. An ellipse rather than a traced coastline: it reads as
-          a map without claiming to be one. */}
-      <div
-        className="absolute rounded-[50%]"
-        style={{
-          background: "hsl(var(--quiet))",
-          left: "-18%",
-          right: "22%",
-          top: "18%",
-          bottom: "-30%",
-        }}
-        aria-hidden="true"
+    <div className="relative w-full aspect-[21/9] overflow-hidden bg-quiet">
+      <iframe
+        src={src}
+        title={`Map of the area around ${label}`}
+        className="absolute inset-0 h-full w-full border-0"
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
       />
-
-      {/* The radius around the house. */}
-      <div
-        className="absolute rounded-full"
-        style={{
-          background: "hsl(var(--primary) / 0.18)",
-          border: "1px solid hsl(var(--primary) / 0.35)",
-          width: "22%",
-          aspectRatio: "1",
-          left: `${cx}%`,
-          top: `${cy}%`,
-          transform: "translate(-50%, -50%)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* The pin. */}
-      <div
-        className="absolute flex flex-col items-center gap-1"
-        style={{ left: `${cx}%`, top: `${cy}%`, transform: "translate(-50%, -50%)" }}
-      >
-        <span className="t-tag bg-background text-foreground px-2 py-1 rounded-sm shadow-sm whitespace-nowrap">
-          {label}
-        </span>
-        <span className="h-7 w-7 rounded-full bg-primary text-primary-foreground inline-flex items-center justify-center shadow-sm">
-          <MapPin className="h-4 w-4" strokeWidth={1.5} />
-        </span>
-      </div>
     </div>
   );
 };

@@ -681,6 +681,7 @@ const PropertyDetail = () => {
           <SurroundingsMap
             latitude={property.latitude}
             longitude={property.longitude}
+            address={property.address}
             label={property.location}
           />
         </Section>
