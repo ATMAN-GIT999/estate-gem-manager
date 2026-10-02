@@ -77,16 +77,16 @@ const OwnAProperty = () => {
           </EditableText>
 
           {/* h2, not h1 — the page's h1 is the hero. +20% over t-section's
-              clamp(1.3rem,1.096rem+0.84vw,1.7rem) (Almedin, 29.09.2026) —
-              every endpoint scaled by 1.2; `text-[]` only touches
-              font-size, so weight/line-height/tracking still come from
-              t-section itself. */}
+              clamp(1.5rem,1.1rem+1.8vw,2.25rem) (Almedin, 29.09.2026,
+              recomputed 02.10.2026 when the base grew) — every endpoint
+              scaled by 1.2; `text-[]` only touches font-size, so
+              weight/line-height/tracking still come from t-section itself. */}
           <EditableText
             id="oap-heading"
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="t-section text-[clamp(1.56rem,1.3152rem+1.008vw,2.04rem)] text-white text-balance"
+            className="t-section text-[clamp(1.8rem,1.32rem+2.16vw,2.7rem)] text-white text-balance"
           >
             {heading}
           </EditableText>

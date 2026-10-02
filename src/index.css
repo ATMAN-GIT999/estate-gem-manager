@@ -32,11 +32,14 @@
 
 /* Sora — headings only (Almedin, 02.10.2026, matching the Lovable "template"
    rebuild's font-display). Archivo stays the body/tag/meta face; Sora takes
-   over `.t-display`/`.t-section`/`.t-block` only, see the rule below. 400 and
-   500 rather than Lovable's 300: Almedin asked for "a bit heavier" than that
-   reference, so regular is the default and 500 is there for the one spot
-   (TheSystem's closing line) that wants more weight. Self-hosted for the same
-   GDPR reason as the rest of this block, not fonts.googleapis.com. */
+   over `.t-display`/`.t-section`/`.t-block` only, see the rule below. 300 is
+   back (Almedin, 03.10.2026) — `.t-display`/`.t-section` now set font-weight
+   300 again, matching the Lovable reference's font-light; 400 stays loaded
+   too since .t-block (h3 role) and the original body/meta faces still want
+   it, and 500 for the one spot (TheSystem's closing line) that wants more
+   weight. Self-hosted for the same GDPR reason as the rest of this block,
+   not fonts.googleapis.com. */
+@import '@fontsource/sora/latin-300.css';
 @import '@fontsource/sora/latin-400.css';
 @import '@fontsource/sora/latin-500.css';
 
@@ -59,7 +62,15 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%; /* #ffffff — white is the ground now, beige is an accent surface */
-    --foreground: 133 14% 22%;
+    /* Was 133 14% 22% — read as visibly sage-green next to the Lovable
+       comparison's headings, which only look black. Lovable's own token is
+       oklch(0.23176 0.02003 147.9); converted to sRGB/HSL (same hue family,
+       same ballpark saturation, but roughly HALF the lightness) that is
+       127 16% 11% — not a desaturation, a darkening. Almedin confirmed
+       going this close to Lovable's value rather than a lighter middle
+       ground (02.10.2026). Site-wide: every public page's body text and
+       headings read off this token. */
+    --foreground: 127 16% 11%;
 
     --card: 0 0% 100%; /* #ffffff */
     --card-foreground: 133 14% 22%;
@@ -129,13 +140,19 @@ All colors MUST be HSL.
        tailwind.config.ts) because the full-bleed rails need them inside
        calc(), which a Tailwind token cannot do.
        --------------------------------------------------------------------- */
-    --container-max: 1440px;
-    /* 110px at 1440, which is the gutter every artboard in the 09/2026
-       wireframe is drawn on — so the content column is 1220px, not 1344px.
-       The extra 124px is why the page read as "everything slightly smaller":
-       the type was right, the column it sat in was too wide for it.
-       Ramped linearly from 20px at 390 so a phone keeps a sane edge. */
-    --container-gutter: clamp(1.25rem, 8.57vw - 0.84rem, 6.875rem);
+    /* 1280px + a ~24px→44px gutter (Almedin, 02.10.2026), not 1440px/110px:
+       the Lovable "GitHub Gem Manager" comparison on /property-management
+       read as noticeably more spacious at the same viewport widths, and the
+       gap traced to here, not to any one section — at ~1285px wide our old
+       110px gutter left content starting ~97px from the edge where Lovable's
+       `max-w-7xl` + `px-6`/`lg:px-10` started at ~42px. Site-wide, not just
+       that page: every public page shares this token. */
+    --container-max: 1280px;
+    /* Reaches its 44px ceiling around 1024px viewport width — the same point
+       Lovable's own `px-6`→`lg:px-10` step lands — and tracks close to its
+       24px mobile padding down at 375px. Ramped from 20px at the narrowest
+       phones so the edge never goes tighter than that. */
+    --container-gutter: clamp(1.25rem, 1rem + 2.2vw, 2.75rem);
     /* Left/right padding that lines a full-bleed element (a horizontally
        scrolling rail, an edge-to-edge image row) up with the container above
        it. Has to reproduce exactly what `.app-container`'s own
@@ -323,28 +340,32 @@ All colors MUST be HSL.
      the whole clamp() (MIN, the rem term, the vw term, and MAX) by the same
      0.8 so the responsive curve keeps its shape, just smaller throughout —
      not new endpoints picked by eye.
-     Weight 400 and -0.01em tracking (Almedin, 02.10.2026): Sora's own
-     regular cut reads lighter than Archivo 500 did at the same size, so the
-     old 500 wouldn't have been a fair swap — 400 is the closest match to
-     Archivo 500's visual weight, still a notch heavier than the Lovable
-     reference's font-light (300), which Almedin asked for explicitly. The
-     old -0.035em tracking was tuned for Archivo; Sora doesn't want to be
-     pulled in nearly as hard. */
+     Weight was 400 for a while (Almedin, 02.10.2026): a deliberate notch
+     heavier than the Lovable reference's font-light (300), on the reasoning
+     that Sora 400 was the closer visual match to the old Archivo 500. Back
+     to 300 (Almedin, 03.10.2026), alongside the darker --foreground above —
+     seeing the two side by side (darker, heavier text) made the page read
+     as trying harder than the reference rather than matching its quiet
+     register. Tracking also back to 0 (was -0.01em): Lovable's own classes
+     carry no tracking utility on these roles at all. Size stays raised —
+     see the note below — only weight/tracking reverted. */
   .t-display {
-    font-size: clamp(1.7rem, 1.24rem + 1.92vw, 2.6rem); /* 27 → 42 */
+    font-size: clamp(1.9rem, 1.1rem + 3.6vw, 3.625rem); /* 30 → 58 */
     line-height: 1.08;
-    letter-spacing: -0.01em;
-    font-weight: 400;
+    letter-spacing: 0;
+    font-weight: 300;
   }
 
-  /* H2 — the title of a section. Same 0.8× as Display. Line-height opened
-     up to 1.2 (was 1.08) — closer to the Lovable reference's leading-tight
-     (1.25) and more breathing room for a lighter-weight face. */
+  /* H2 — the title of a section. Same 0.8× as Display. Line-height all the
+     way to 1.25 (Almedin, 03.10.2026, was 1.2) — the Lovable reference's own
+     leading-tight, now matched exactly rather than approximated. Weight 300
+     and letter-spacing 0 (was 400 / -0.01em), same reasoning and same date
+     as .t-display above. Size stays raised — see the note below. */
   .t-section {
-    font-size: clamp(1.3rem, 1.096rem + 0.84vw, 1.7rem); /* 21 → 27 */
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    font-weight: 400;
+    font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.25rem); /* 24 → 36 */
+    line-height: 1.25;
+    letter-spacing: 0;
+    font-weight: 300;
   }
 
   /* H3 — a sub-unit inside a section. Same 0.8×. Weight 500 rather than
@@ -403,6 +424,20 @@ All colors MUST be HSL.
     letter-spacing: 0.16em;
     text-transform: uppercase;
   }
+}
+
+/* Property-management page only: Almedin's call (02.10.2026) to match the
+   Lovable "GitHub Gem Manager" reference's body face (Manrope, loaded via
+   the Google Fonts link in index.html — see that file's note) on this one
+   page. Scoped under .pmp-manrope rather than touching body/.t-body
+   directly, so every other page keeps Archivo. Headings stay on Sora
+   (.t-display/.t-section/.t-block already are, site-wide) and .t-tag stays
+   on its own mono face — neither is part of this swap. */
+.pmp-manrope .t-body,
+.pmp-manrope .t-item,
+.pmp-manrope .t-card,
+.pmp-manrope .t-meta {
+  font-family: 'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 /* ---------------------------------------------------------------------------

@@ -183,14 +183,17 @@ const Hero = () => {
             {eyebrow}
           </EditableText>
 
-          {/* +15% over t-display's clamp(1.7rem,1.24rem+1.92vw,2.6rem) — every
-              endpoint scaled by 1.15, same reasoning as above. */}
+          {/* +15% over t-display's clamp(1.9rem,1.1rem+3.6vw,3.625rem) — every
+              endpoint scaled by 1.15, same reasoning as above. Recomputed
+              02.10.2026 when the base clamp grew (Lovable comparison); this
+              `text-[]` only touches font-size, so it has to be redone by hand
+              whenever that base changes. */}
           <EditableText
             id="hero-headline"
             value={headline}
             onChange={setHeadline}
             as="h1"
-            className="t-display text-[clamp(1.955rem,1.426rem+2.208vw,2.99rem)] text-white text-balance"
+            className="t-display text-[clamp(2.185rem,1.265rem+4.14vw,4.169rem)] text-white text-balance"
           >
             {headline}
           </EditableText>
