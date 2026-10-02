@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, TrendingUp, Home, DollarSign, Calendar, Percent, CheckCircle2, BarChart3, Sun, Cloud, Snowflake } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Section } from "@/components/layout";
 import PageWrapper from "@/components/PageWrapper";
 import { supabase } from "@/lib/supabaseClient";
 import Seo from "@/components/Seo";
@@ -188,9 +189,7 @@ const EvaluateContent = () => {
           <PropertyEvaluator />
         </main>
       ) : (
-      <section className="pt-24 pb-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-7xl mx-auto">
+      <Section size="lg" className="pt-24 bg-background">
             {loading ? (
               <Card className="p-12 bg-card/80 backdrop-blur-sm border-border">
                 <div className="max-w-2xl mx-auto">
@@ -541,9 +540,7 @@ const EvaluateContent = () => {
                 <p className="text-xl text-muted-foreground">No analysis data available. Please try again.</p>
               </Card>
             )}
-          </div>
-        </div>
-      </section>
+      </Section>
       )}
 
       {!loading && analysis && <ConsultationBooking />}
