@@ -107,15 +107,22 @@ const TheSystem = () => {
         })}
       </ol>
 
-      <div className="mt-2xl max-w-2xl mx-auto text-center">
-        <Divider tone="gold" className="max-w-[6rem] mx-auto mb-lg" />
+      {/* Divider/heading treatment matched to the Lovable reference
+          (Almedin, 03.10.2026): `bar` (full-opacity gold, not the
+          translucent `gold` tone) at its own width/weight override to land
+          on Lovable's 64px/1px line, and the heading's size/weight/leading
+          overridden the same way Hero.tsx and OwnAProperty.tsx already
+          override .t-display's size — this role reads smaller and medium,
+          not the full H1 scale at font-bold. */}
+      <div className="mt-2xl max-w-4xl mx-auto text-center">
+        <Divider tone="bar" className="w-16 border-t mx-auto mb-lg" />
         <EditableText
           id="sys-closing-line"
           value={closing}
           onChange={setClosing}
           as="p"
           multiline
-          className="t-display font-bold text-foreground text-balance whitespace-pre-line"
+          className="t-display font-medium text-[clamp(1.875rem,1.6rem+3vw,3rem)] leading-tight text-foreground text-balance whitespace-pre-line"
         >
           {closing}
         </EditableText>
