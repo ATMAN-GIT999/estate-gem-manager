@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/contexts/LocaleContext";
 import { propertyPath } from "@/lib/propertyUrl";
+import { findVacationRentalCity, vrKey } from "@/lib/vacationRentals";
 import property3 from "@/assets/property-3.webp";
 import losMonterosCard from "@/assets/los-monteros-card.webp";
 
@@ -45,6 +46,18 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   const [searchParams] = useSearchParams();
   const { convertPrice, currencySymbol, t } = useLocale();
   const [index, setIndex] = useState(0);
+
+  // The card's own place label, not Guesty's raw `location` (Almedin,
+  // 02.10.2026): three Marbella-area homes come from Guesty tagged
+  // `Málaga` (the province) or `Río Real`, which a card then showed
+  // verbatim even on the Marbella page listing them. `city_group` is the
+  // one field Frontier assigns by hand and the import never touches
+  // (docs/PROJECT.md, "Redaktionelle Felder") — same derivation
+  // PropertyDetail.tsx's `placeLabel` already uses, so the two never
+  // disagree about what a home is called. Falls back to the raw value only
+  // for a property with no group yet.
+  const city = findVacationRentalCity(property.city_group ?? undefined);
+  const displayLocation = city ? t(vrKey(city.slug, "name")) : property.location;
 
   // Guesty's own photographs when the import brought any, otherwise the one
   // hard-coded fallback, otherwise the house-style stand-in.
@@ -106,7 +119,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           <img
             key={src + i}
             src={src}
-            alt={i === index ? `${property.name} — ${property.location}` : ""}
+            alt={i === index ? `${property.name} — ${displayLocation}` : ""}
             width={600}
             height={800}
             /* Every frame is lazy, including the visible one. Cards sit
@@ -177,7 +190,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           {property.name}
         </h3>
 
-        <p className="t-body text-muted-foreground mt-1">{property.location}</p>
+        <p className="t-body text-muted-foreground mt-1">{displayLocation}</p>
 
         <p className="t-body text-muted-foreground mt-0.5">
           {property.guests} {property.guests === 1 ? t("propertycard.guest") : t("propertycard.guests")} ·{" "}
