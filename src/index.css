@@ -30,6 +30,16 @@
 @import '@fontsource/ibm-plex-mono/latin-500.css';
 @import '@fontsource/ibm-plex-mono/latin-600.css';
 
+/* Sora — headings only (Almedin, 02.10.2026, matching the Lovable "template"
+   rebuild's font-display). Archivo stays the body/tag/meta face; Sora takes
+   over `.t-display`/`.t-section`/`.t-block` only, see the rule below. 400 and
+   500 rather than Lovable's 300: Almedin asked for "a bit heavier" than that
+   reference, so regular is the default and 500 is there for the one spot
+   (TheSystem's closing line) that wants more weight. Self-hosted for the same
+   GDPR reason as the rest of this block, not fonts.googleapis.com. */
+@import '@fontsource/sora/latin-400.css';
+@import '@fontsource/sora/latin-500.css';
+
 /* Playfair and Lato are still loaded for the admin area only — the GrapesJS
    page builder injects them into its preview iframe (admin/Builder.tsx) and
    the global h1-h6 fallback below still names Playfair for admin screens.
@@ -262,36 +272,48 @@ All colors MUST be HSL.
 }
 
 /* ---------------------------------------------------------------------------
-   The type scale — seven roles, one family.
+   The type scale — seven roles, two families.
 
-   Archivo carries every role now, body text included. There is no serif any
-   more, so the old "no Playfair below 28px" rule is gone with it; what
-   separates the roles is weight, size and tracking. Large sizes are tracked
-   in, small labels tracked out — that is where the quiet catalogue tone comes
-   from. Sizes are about a fifth smaller than in the serif version, because a
-   grotesque at 62px reads louder than a serif at 62px.
+   Archivo carries body text, item/card labels, tags and meta. The three
+   heading roles (display/section/block) are Sora instead, since 02.10.2026 —
+   see the rule below for why. There is no serif any more, so the old "no
+   Playfair below 28px" rule is gone with it; what separates the roles is
+   family, weight, size and tracking. Large sizes are tracked in, small labels
+   tracked out — that is where the quiet catalogue tone comes from. Sizes are
+   about a fifth smaller than in the serif version, because a grotesque at
+   62px reads louder than a serif at 62px.
 
    Why this lives here and not in tailwind.config.ts: a Tailwind `fontSize`
    token can carry size, line-height, tracking and weight, but NOT the font
    family. One class per role keeps "how big" and "which font" welded together.
 
-   Weights: Archivo has real 300/400/500/600/700 cuts bound above, so 500 and
-   600 are actual faces, not something the browser rounds or synthesises. (The
-   old "700, because Lato has no 600" rule died with Lato.)
+   Weights: Archivo has real 300/400/500/600/700 cuts bound above and Sora has
+   400/500 bound above, so every weight used below is an actual face, not
+   something the browser rounds or synthesises. (The old "700, because Lato
+   has no 600" rule died with Lato.)
 
    `.t-tag` is the only role in IBM Plex Mono — eyebrows and meta markers.
 
    Rule this enforces: no `text-xs` … `text-7xl` in a public component.
    --------------------------------------------------------------------------- */
 @layer components {
-  .t-display,
-  .t-section,
-  .t-block,
   .t-card,
   .t-item,
   .t-body,
   .t-meta {
     font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  /* .t-display/.t-section/.t-block are Sora, not Archivo (Almedin,
+     02.10.2026) — matching the Lovable "template" rebuild's heading face.
+     Body copy, tags and meta markers stay on Archivo above; only the three
+     heading roles change, which is also why weight and tracking loosen here
+     but nowhere else. Sora is self-hosted via @fontsource for the same GDPR
+     reason as every other face in this file. */
+  .t-display,
+  .t-section,
+  .t-block {
+    font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   /* H1 — once per page, never more.
@@ -300,28 +322,41 @@ All colors MUST be HSL.
      the page needing a 75% browser zoom to sit at a normal scale. Scaled
      the whole clamp() (MIN, the rem term, the vw term, and MAX) by the same
      0.8 so the responsive curve keeps its shape, just smaller throughout —
-     not new endpoints picked by eye. */
+     not new endpoints picked by eye.
+     Weight 400 and -0.01em tracking (Almedin, 02.10.2026): Sora's own
+     regular cut reads lighter than Archivo 500 did at the same size, so the
+     old 500 wouldn't have been a fair swap — 400 is the closest match to
+     Archivo 500's visual weight, still a notch heavier than the Lovable
+     reference's font-light (300), which Almedin asked for explicitly. The
+     old -0.035em tracking was tuned for Archivo; Sora doesn't want to be
+     pulled in nearly as hard. */
   .t-display {
     font-size: clamp(1.7rem, 1.24rem + 1.92vw, 2.6rem); /* 27 → 42 */
-    line-height: 1.02;
-    letter-spacing: -0.035em;
-    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    font-weight: 400;
   }
 
-  /* H2 — the title of a section. Same 0.8× as Display. */
+  /* H2 — the title of a section. Same 0.8× as Display. Line-height opened
+     up to 1.2 (was 1.08) — closer to the Lovable reference's leading-tight
+     (1.25) and more breathing room for a lighter-weight face. */
   .t-section {
     font-size: clamp(1.3rem, 1.096rem + 0.84vw, 1.7rem); /* 21 → 27 */
-    line-height: 1.08;
-    letter-spacing: -0.03em;
-    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 400;
   }
 
-  /* H3 — a sub-unit inside a section. Same 0.8×. */
+  /* H3 — a sub-unit inside a section. Same 0.8×. Weight 500 rather than
+     400: the Lovable reference itself sets its card/h3 headings a notch
+     heavier (font-medium) than its h1/h2, and that relative step is worth
+     keeping even though every absolute weight here is already a step above
+     the reference. */
   .t-block {
     font-size: clamp(1rem, 0.896rem + 0.424vw, 1.2rem); /* 16 → 19 */
-    line-height: 1.16;
-    letter-spacing: -0.02em;
-    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    font-weight: 500;
   }
 
   /* Property names and other catalogue titles. Caps and tracked out — this
