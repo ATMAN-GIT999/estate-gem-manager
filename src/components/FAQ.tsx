@@ -154,7 +154,10 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp, variant = "guest" }: 
   }, [language, isOwner]);
 
   return (
-    <Section id="faq" size="md" containerClassName="max-w-[820px] mx-auto">
+    // size="lg" only for the owner page (Almedin, 02.10.2026, see
+    // TheSystem.tsx's note) — the guest landing page's FAQ wasn't part of
+    // that comparison and keeps its existing "md" rhythm unchanged.
+    <Section id="faq" size={isOwner ? "lg" : "md"} containerClassName="max-w-[820px] mx-auto">
       <Stack gap="sm">
         <div className="space-y-sm">
           {eyebrow && (

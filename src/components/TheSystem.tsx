@@ -54,7 +54,17 @@ const TheSystem = () => {
     setSteps((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
 
   return (
-    <Section id="the-system" size="md">
+    // size="lg" (Almedin, 02.10.2026): a Lovable rebuild of this page used
+    // consistently for its content sections (≈96-128px top/bottom at desktop
+    // widths) made ours look cramped by comparison — our own "md" tier tops
+    // out at ~77px. "lg" (our existing --space-2xl step, ~58-112px) gets
+    // within a few px of that without inventing a new spacing value. Applied
+    // the same way across TheClaim, WaysToWorkTogether,
+    // RenovationsAndInvestments and AboutMini; TrustBand and WorkingWith stay
+    // on their lighter "sm" tier on purpose — they are breather bands between
+    // the heavier content sections, which is exactly how the Lovable version
+    // treated its own stats/logos rows too.
+    <Section id="the-system" size="lg">
       <EditableText
         id="how-heading"
         value={heading}

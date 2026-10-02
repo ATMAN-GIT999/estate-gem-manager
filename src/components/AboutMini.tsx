@@ -75,7 +75,8 @@ const AboutMini = () => {
     setTeam((prev) => prev.map((m, i) => (i === index ? { ...m, [field]: value } : m)));
 
   return (
-    <Section id="about-mini" size="md">
+    // size="lg" (Almedin, 02.10.2026) — see TheSystem.tsx's note.
+    <Section id="about-mini" size="lg">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
         <EditableText

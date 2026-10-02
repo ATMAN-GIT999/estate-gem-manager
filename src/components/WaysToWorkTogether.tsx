@@ -66,7 +66,8 @@ const WaysToWorkTogether = () => {
   ) => setModels((prev) => prev.map((m, i) => (i === index ? { ...m, [field]: value } : m)));
 
   return (
-    <Section id="ways-to-work" tone="quiet" size="md">
+    // size="lg" (Almedin, 02.10.2026) — see TheSystem.tsx's note.
+    <Section id="ways-to-work" tone="quiet" size="lg">
       <div className="max-w-2xl mx-auto text-center">
         <EditableText
           id="ways-heading"

@@ -66,7 +66,8 @@ const RenovationsAndInvestments = () => {
     setPillars((prev) => prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)));
 
   return (
-    <Section id="beyond-management" size="md" className="scroll-mt-24">
+    // size="lg" (Almedin, 02.10.2026) — see TheSystem.tsx's note.
+    <Section id="beyond-management" size="lg" className="scroll-mt-24">
       <div className="max-w-2xl mx-auto text-center">
         <EditableText
           id="ri-eyebrow"
