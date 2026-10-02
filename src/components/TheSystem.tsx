@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BarChart3, ClipboardCheck, Globe, MessagesSquare, TrendingUp, Wrench } from "lucide-react";
+import { BarChart3, ClipboardCheck, Globe, MessageSquareText, TrendingUp, Wrench } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Divider, Section } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -23,7 +23,7 @@ import type { TranslationKey } from "@/lib/translations";
  */
 
 /** Index-aligned with STEP_KEYS: visit & list, pricing, reach, guests, care, reporting. */
-const STEP_ICONS = [ClipboardCheck, TrendingUp, Globe, MessagesSquare, Wrench, BarChart3] as const;
+const STEP_ICONS = [ClipboardCheck, TrendingUp, Globe, MessageSquareText, Wrench, BarChart3] as const;
 
 const STEP_KEYS: ReadonlyArray<{ titleKey: TranslationKey; descKey: TranslationKey }> = [
   { titleKey: "how-0-title", descKey: "how-0-desc" },

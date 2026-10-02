@@ -117,13 +117,13 @@ const AboutMini = () => {
       <ul className="mt-[44px] flex justify-center gap-4 sm:gap-8 lg:gap-16">
         {team.slice(0, 3).map((member, index) => (
           <li key={index} className="w-full max-w-[320px]">
-            <div className="aspect-[3/4] overflow-hidden bg-secondary">
+            <div className="aspect-[4/5] overflow-hidden bg-secondary">
               {member.avatar_url ? (
                 <img
                   src={member.avatar_url}
                   alt={member.name}
                   width={640}
-                  height={853}
+                  height={800}
                   loading="lazy"
                   className="w-full h-full object-cover object-[50%_28%]"
                 />

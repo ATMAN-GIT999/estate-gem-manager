@@ -200,12 +200,17 @@ const OwnerHero = () => {
             )}
           </form>
 
+          {/* One colour for the whole line (Lovable reference, 02.10.2026):
+              the phone number used to be gold at rest, which made it read as
+              a second, competing accent next to the eyebrow and the submit
+              button. Gold now only shows up on hover, same as the rest of
+              the line's hover state. */}
           <p className="text-sm text-primary-foreground/[0.66]">
             <EditableText id="pmp-hero-alt" value={altLine} onChange={setAltLine} as="span">
               {altLine}
             </EditableText>{" "}
             ·{" "}
-            <a href="tel:+34649429678" className="text-accent-on-primary hover:underline">
+            <a href="tel:+34649429678" className="transition-colors hover:text-accent-on-primary">
               +34 649 429 678
             </a>
           </p>
