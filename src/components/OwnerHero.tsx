@@ -84,7 +84,13 @@ const OwnerHero = () => {
     // two-column split where the right column IS the photograph, with the
     // result card floating centred on top of it.
     <section className="relative bg-primary text-primary-foreground overflow-hidden pt-20">
-      <div className="grid lg:grid-cols-[1.12fr_1fr] lg:h-[624px]">
+      {/* ⚠️ Almedin, 02.10.2026 — brought in line with the Lovable "template"
+          rebuild (see chat): the text column used to be WIDER than the photo
+          (1.12fr vs 1fr), which read as text-led rather than photographic.
+          42/58 gives the picture the visual weight a property-management
+          hero wants. `min-h` instead of a fixed `h` so a longer DE/ES
+          translation can still grow the row instead of being clipped. */}
+      <div className="grid lg:grid-cols-[42%_58%] lg:min-h-[680px]">
         {/* Left — the whole argument, and the one field. */}
         <div className="flex flex-col justify-center gap-5 py-xl lg:py-0 pl-[var(--container-gutter)] pr-[var(--container-gutter)] lg:pr-[60px]">
           <EditableText
@@ -133,8 +139,19 @@ const OwnerHero = () => {
                 (2) Nothing set the input's text colour, so it inherited
                 `text-primary-foreground` (white) from this section's own
                 text colour — white text and a white caret on the white pill,
-                invisible while typing. `[&_input]:text-foreground` fixes it. */}
-            <div className="flex items-stretch bg-background rounded-full overflow-hidden">
+                invisible while typing. `[&_input]:text-foreground` fixes it.
+
+                ⚠️ Almedin, 02.10.2026 — third bug: `overflow-hidden` here was
+                clipping AddressAutocomplete's own suggestion dropdown (an
+                absolutely-positioned child), not just squaring off the accent
+                button's corners it was added for — so Nominatim's results came
+                back (visible in the network tab) but never appeared on screen.
+                The pill shape no longer depends on clipping its children:
+                the button gets its own `rounded-r-full` to cap the right
+                edge, and the left side was already transparent, so it needs
+                no rounding of its own — the parent's `rounded-full` background
+                shows through underneath either way. */}
+            <div className="flex items-stretch bg-background rounded-full">
               <div className="flex-1 min-w-0 flex items-center pl-4 [&_input]:border-0 [&_input]:bg-transparent [&_input]:h-[58px] [&_input]:text-base [&_input]:text-foreground [&_input]:shadow-none [&_input:focus-visible]:ring-0 [&_input:focus-visible]:ring-offset-0 [&_svg]:text-accent-strong">
                 <AddressAutocomplete
                   value={address}
@@ -152,7 +169,7 @@ const OwnerHero = () => {
                 // gold read as grayed-out/broken rather than "not yet" —
                 // `disabled` still blocks the actual click.
                 disabled={!canSubmit}
-                className="shrink-0 w-[60px] bg-accent text-accent-foreground inline-flex items-center justify-center"
+                className="shrink-0 w-[60px] rounded-r-full bg-accent text-accent-foreground inline-flex items-center justify-center"
               >
                 <ArrowRight className="h-5 w-5" strokeWidth={2} />
               </button>
@@ -198,7 +215,13 @@ const OwnerHero = () => {
             card promises a shape and does not claim a number: an empty area
             would promise nothing, an invented figure would be a lie. The real
             number comes from /evaluate. */}
-        <div className="relative grid place-items-center p-6 min-h-[22rem] lg:min-h-0 lg:p-[30px]">
+        {/* No padding here any more (Almedin, 02.10.2026): it used to inset
+            the photo from all four edges, which read as a framed picture in
+            a box rather than the true full-bleed photographic half the
+            Lovable template uses. MediaFrame's `fill` now reaches the
+            section's actual edges; the estimate card still centres on it via
+            `place-items-center`. */}
+        <div className="relative grid place-items-center min-h-[22rem] lg:min-h-0">
           <MediaFrame
             id="pmp-hero-image"
             src={image}
