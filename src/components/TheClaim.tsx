@@ -19,12 +19,14 @@ import { useLocale } from "@/contexts/LocaleContext";
  */
 const TheClaim = () => {
   const { t, language } = useLocale();
+  const [sectionHeading, setSectionHeading] = useState(t("claim-section-heading"));
   const [eyebrow, setEyebrow] = useState(t("claim-eyebrow"));
   const [heading, setHeading] = useState(t("claim-heading"));
   const [lead, setLead] = useState(t("claim-lead"));
   const [image, setImage] = useState<string | undefined>(claimImage);
 
   useEffect(() => {
+    setSectionHeading(t("claim-section-heading"));
     setEyebrow(t("claim-eyebrow"));
     setHeading(t("claim-heading"));
     setLead(t("claim-lead"));
@@ -36,6 +38,19 @@ const TheClaim = () => {
     // page's main sections breathe the way the Lovable template comparison
     // did — see TheSystem.tsx's own note for the full reasoning.
     <Section size="lg">
+      {/* Section-level eyebrow above the whole image+text pairing, not part
+          of either column (Almedin, 03.10.2026 — was a t-section heading,
+          corrected to an eyebrow the same day). */}
+      <EditableText
+        id="claim-section-heading"
+        value={sectionHeading}
+        onChange={setSectionHeading}
+        as="p"
+        className="t-tag text-accent-strong text-center mb-lg"
+      >
+        {sectionHeading}
+      </EditableText>
+
       {/* items-end: the lead box's bottom edge lines up with the photo's,
           the same bottom-alignment the Lovable reference uses — a
           deliberate asymmetry (image taller than the text block) rather
