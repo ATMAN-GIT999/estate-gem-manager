@@ -42,7 +42,10 @@ const SurroundingsMap = ({ latitude, longitude, address, label }: SurroundingsMa
   const src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=${zoom}&output=embed`;
 
   return (
-    <div className="relative w-full aspect-[21/9] overflow-hidden bg-quiet">
+    // aspect-video (16:9), not the old 21/9 full-bleed strip (Almedin,
+    // 04.10.2026) — sits inside the page's normal container now, not
+    // edge-to-edge, see the Section it's rendered in on PropertyDetail.tsx.
+    <div className="relative w-full aspect-video overflow-hidden bg-quiet">
       <iframe
         src={src}
         title={`Map of the area around ${label}`}

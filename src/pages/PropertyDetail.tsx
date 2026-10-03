@@ -644,46 +644,50 @@ const PropertyDetail = () => {
           </div>
         </Section>
 
-        {/* The setting. */}
-        <Section size="md" bleed>
-          <Container className="mb-md">
-            <p className="t-tag text-accent-strong">{t("pd-location-eyebrow")}</p>
-            <h2 className="t-section text-foreground mt-3">{t("pd-surroundings-heading")}</h2>
+        {/* The setting. Not `bleed` any more (Almedin, 04.10.2026): the map
+            used to run edge to edge at 21:9, which read as a stray strip
+            rather than part of the page. Section's own Container now wraps
+            both the text and the map, so the map sits inside the normal
+            content width at a calmer 16:9 — see SurroundingsMap.tsx. */}
+        <Section size="md">
+          <p className="t-tag text-accent-strong">{t("pd-location-eyebrow")}</p>
+          <h2 className="t-section text-foreground mt-3">{t("pd-surroundings-heading")}</h2>
 
-            <dl className="grid sm:grid-cols-2 gap-lg mt-md max-w-2xl">
+          <dl className="grid sm:grid-cols-2 gap-lg mt-md max-w-2xl">
+            <div>
+              <dt className="t-meta text-muted-foreground">{t("pd-setting")}</dt>
+              <dd className="t-body text-foreground mt-1">
+                {property.type ?? property.location}
+              </dd>
+            </div>
+            {nearby.length > 0 && (
               <div>
-                <dt className="t-meta text-muted-foreground">{t("pd-setting")}</dt>
-                <dd className="t-body text-foreground mt-1">
-                  {property.type ?? property.location}
+                <dt className="t-meta text-muted-foreground">{t("pd-nearby")}</dt>
+                <dd className="mt-1">
+                  {nearby.map((entry, idx) => (
+                    <p key={idx} className="t-body text-foreground">
+                      {entry}
+                    </p>
+                  ))}
                 </dd>
               </div>
-              {nearby.length > 0 && (
-                <div>
-                  <dt className="t-meta text-muted-foreground">{t("pd-nearby")}</dt>
-                  <dd className="mt-1">
-                    {nearby.map((entry, idx) => (
-                      <p key={idx} className="t-body text-foreground">
-                        {entry}
-                      </p>
-                    ))}
-                  </dd>
-                </div>
-              )}
-              {property.address && (
-                <div className="sm:col-span-2">
-                  <dt className="t-meta text-muted-foreground">{t("pd-location-title")}</dt>
-                  <dd className="t-body text-foreground mt-1">{property.address}</dd>
-                </div>
-              )}
-            </dl>
-          </Container>
+            )}
+            {property.address && (
+              <div className="sm:col-span-2">
+                <dt className="t-meta text-muted-foreground">{t("pd-location-title")}</dt>
+                <dd className="t-body text-foreground mt-1">{property.address}</dd>
+              </div>
+            )}
+          </dl>
 
-          <SurroundingsMap
-            latitude={property.latitude}
-            longitude={property.longitude}
-            address={property.address}
-            label={property.location}
-          />
+          <div className="mt-md">
+            <SurroundingsMap
+              latitude={property.latitude}
+              longitude={property.longitude}
+              address={property.address}
+              label={property.location}
+            />
+          </div>
         </Section>
 
         {/* Similar homes — our own cards, not a fourth outside pattern. */}
