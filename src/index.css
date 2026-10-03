@@ -217,6 +217,21 @@ All colors MUST be HSL.
       hsl(133 16% 13% / 0.34) 45%,
       hsl(133 16% 13% / 0.68) 100%
     );
+    /* Hero-only (Almedin, 04.10.2026) — not a change to --overlay-media
+       itself, which Navigation's floating state, OwnAProperty and
+       IstriaProject all also rely on for their own contrast. Two asks: a
+       longer, more deliberate fade at the top — the same visual move as
+       --overlay-ink-fade below, just not blending into a solid colour, so
+       it reads as a vignette under the floating nav rather than a hard
+       peak — and a slightly darker read everywhere else. Every stop is a
+       few points above --overlay-media's own, nothing more. */
+    --overlay-hero: linear-gradient(
+      180deg,
+      hsl(133 16% 13% / 0.78) 0%,
+      hsl(133 16% 13% / 0.46) 22%,
+      hsl(133 16% 13% / 0.4) 50%,
+      hsl(133 16% 13% / 0.72) 100%
+    );
     /* For the two bands that run into the footer with no seam (owner bridge
        on the landing page, the contact form on the owner page): a photograph
        darkened until its bottom edge IS the footer's ink, so there is no
@@ -691,6 +706,10 @@ All colors MUST be HSL.
 
   .overlay-media {
     background: var(--overlay-media);
+  }
+
+  .overlay-hero {
+    background: var(--overlay-hero);
   }
   
   .shadow-elegant {

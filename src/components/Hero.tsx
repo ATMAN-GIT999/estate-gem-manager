@@ -158,8 +158,11 @@ const Hero = () => {
               </p>
             </div>
           )}
-          {/* Palette-derived, not black — see --overlay-media in index.css. */}
-          <div className="absolute inset-0 overlay-media" aria-hidden="true" />
+          {/* Palette-derived, not black — see --overlay-hero in index.css.
+              Hero-only variant of --overlay-media: a longer fade at the top
+              (under the floating nav) and a touch more darkening throughout
+              (Almedin, 04.10.2026). */}
+          <div className="absolute inset-0 overlay-hero" aria-hidden="true" />
         </div>
       </EditableVideo>
 
