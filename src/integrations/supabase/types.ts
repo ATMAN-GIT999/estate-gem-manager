@@ -839,6 +839,65 @@ export type Database = {
           },
         ]
       }
+      midterm_requests: {
+        Row: {
+          created_at: string
+          desired_from: string | null
+          desired_months: number | null
+          email: string
+          first_name: string
+          guests: number | null
+          id: string
+          last_name: string | null
+          listing_id: string | null
+          listing_name: string
+          message: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          desired_from?: string | null
+          desired_months?: number | null
+          email: string
+          first_name: string
+          guests?: number | null
+          id?: string
+          last_name?: string | null
+          listing_id?: string | null
+          listing_name: string
+          message?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          desired_from?: string | null
+          desired_months?: number | null
+          email?: string
+          first_name?: string
+          guests?: number | null
+          id?: string
+          last_name?: string | null
+          listing_id?: string | null
+          listing_name?: string
+          message?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "midterm_requests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "midterm_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pages: {
         Row: {
           content_components: string | null

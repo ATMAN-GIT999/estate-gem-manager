@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
+import type { Database } from "@/integrations/supabase/types";
 import { toMidtermListing, winterListingPath, type MidtermListing, type MidtermStatus } from "@/lib/winterRentals";
 
 /**
@@ -37,9 +38,13 @@ const STATUS_OPTIONS: Array<{ value: MidtermStatus; label: string }> = [
   { value: "let", label: "Let" },
 ];
 
+type Enquiry = Database["public"]["Tables"]["midterm_requests"]["Row"];
+const ENQUIRY_STATUS = ["new", "contacted", "confirmed", "declined"] as const;
+
 const AdminWinterRentals = () => {
   const { toast } = useToast();
   const [homes, setHomes] = useState<MidtermListing[]>([]);
+  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,6 +58,11 @@ const AdminWinterRentals = () => {
         toast({ title: "Could not load winter rentals", description: error.message, variant: "destructive" });
       }
       setHomes((data ?? []).map(toMidtermListing));
+      const { data: requests } = await supabase
+        .from("midterm_requests")
+        .select("*")
+        .order("created_at", { ascending: false });
+      setEnquiries(requests ?? []);
       setLoading(false);
     };
     load();
@@ -69,6 +79,16 @@ const AdminWinterRentals = () => {
       return;
     }
     toast({ title: "Saved" });
+  };
+
+  const setEnquiryStatus = async (id: string, status: string) => {
+    const previous = enquiries;
+    setEnquiries((rows) => rows.map((r) => (r.id === id ? { ...r, status } : r)));
+    const { error } = await supabase.from("midterm_requests").update({ status }).eq("id", id);
+    if (error) {
+      setEnquiries(previous);
+      toast({ title: "Not saved", description: error.message, variant: "destructive" });
+    }
   };
 
   return (
@@ -155,6 +175,53 @@ const AdminWinterRentals = () => {
               {homes.length === 0 && <p className="t-body text-muted-foreground">No winter rentals yet.</p>}
             </div>
           )}
+
+          <h2 className="t-section text-foreground mt-12">Enquiries</h2>
+          <p className="t-body text-muted-foreground mt-2 max-w-prose">
+            New enquiries from the website. When you confirm one, set the home&apos;s status above and send the payment
+            link for the deposit and first month.
+          </p>
+          <div className="space-y-4 mt-6">
+            {enquiries.map((r) => (
+              <Card key={r.id}>
+                <CardContent className="p-4 grid gap-3 md:grid-cols-[1.6fr_1fr_auto] items-start">
+                  <div>
+                    <p className="t-card text-foreground">
+                      {r.first_name} {r.last_name ?? ""} · {r.listing_name}
+                    </p>
+                    <p className="t-meta text-muted-foreground">
+                      <a href={`mailto:${r.email}`} className="hover:underline">{r.email}</a>
+                      {r.phone ? ` · ${r.phone}` : ""}
+                    </p>
+                    <p className="t-meta text-muted-foreground mt-1">
+                      {[
+                        r.desired_from ? `from ${r.desired_from}` : null,
+                        r.desired_months ? `${r.desired_months} months` : null,
+                        r.guests ? `${r.guests} guests` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                    {r.message && <p className="t-body text-foreground mt-2">{r.message}</p>}
+                  </div>
+                  <p className="t-meta text-muted-foreground">{new Date(r.created_at).toLocaleString("en-GB")}</p>
+                  <Select value={r.status} onValueChange={(v) => setEnquiryStatus(r.id, v)}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ENQUIRY_STATUS.map((st) => (
+                        <SelectItem key={st} value={st}>
+                          {st}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+            ))}
+            {!loading && enquiries.length === 0 && <p className="t-body text-muted-foreground">No enquiries yet.</p>}
+          </div>
         </Container>
       </main>
     </div>

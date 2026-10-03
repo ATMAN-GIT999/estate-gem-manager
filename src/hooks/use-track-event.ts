@@ -16,7 +16,8 @@ export type TrackedEvent =
   | "pm_page_view"
   | "evaluator_submitted"
   | "evaluator_result_viewed"
-  | "owner_enquiry_submitted";
+  | "owner_enquiry_submitted"
+  | "winter_enquiry_submitted";
 
 const SESSION_KEY = "session_id";
 

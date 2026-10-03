@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 import Breadcrumb from "@/components/Breadcrumb";
 import WinterListingCard from "@/components/winter/WinterListingCard";
+import WinterEnquiryForm from "@/components/winter/WinterEnquiryForm";
 import { useBedroomsLabel, useTypeLabel } from "@/hooks/useWinterLabels";
 import { Grid, MediaFrame, Section } from "@/components/layout";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -206,12 +207,7 @@ const WinterRentalDetailPage = ({
               </div>
 
               {open ? (
-                <a
-                  href={enquiryUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="cta-base cta-primary mt-md"
-                >
+                <a href="#enquiry" className="cta-base cta-primary mt-md">
                   {t("wr-cta-enquire")}
                 </a>
               ) : (
@@ -242,6 +238,12 @@ const WinterRentalDetailPage = ({
             ))}
           </dl>
         </Section>
+
+        {open && (
+          <Section size="sm" measure="text">
+            <WinterEnquiryForm home={home} />
+          </Section>
+        )}
 
         <Section size="md" measure="text">
           <h2 className="t-section text-foreground mb-md">{t("wr-how-heading")}</h2>
