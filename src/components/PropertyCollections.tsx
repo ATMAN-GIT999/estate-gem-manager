@@ -115,15 +115,20 @@ const PropertyCollections = () => {
   return (
     <Section id="stays" size="md">
       <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 mb-lg">
-        <EditableText
-          id="trio-heading"
-          value={heading}
-          onChange={setHeading}
-          as="h2"
-          className="t-section text-foreground"
-        >
-          {heading}
-        </EditableText>
+        {/* Links to /vacation-rentals (Almedin, 04.10.2026) — the heading
+            doubles as a second way into the same destination the "View all"
+            link below already opens. */}
+        <Link to="/vacation-rentals" className="group">
+          <EditableText
+            id="trio-heading"
+            value={heading}
+            onChange={setHeading}
+            as="h2"
+            className="t-section text-foreground transition-colors group-hover:text-accent-strong"
+          >
+            {heading}
+          </EditableText>
+        </Link>
 
         <CollectionTabs<CollectionId> tabs={visibleTabs} current={current} onSelect={setActive} />
       </div>
