@@ -10,7 +10,7 @@ import logoVrbo from "@/assets/channel-vrbo.svg";
 import logoGuesty from "@/assets/channel-guesty.svg";
 import logoPriceLabs from "@/assets/channel-pricelabs.webp";
 import logoChekin from "@/assets/channel-chekin.webp";
-import logoVasari from "@/assets/partner-vasari.png";
+import logoCima from "@/assets/partner-cima.svg";
 
 /**
  * "We are working with" — distribution channels plus renovation partners, as
@@ -33,8 +33,6 @@ type Slot = {
   label: string;
   width?: number;
   height?: number;
-  /** Overrides the shared `max-h-9` when one mark needs to read larger than the rest. */
-  maxH?: string;
 };
 
 // `width`/`height` are each mark's real pixel dimensions, read off the files
@@ -48,13 +46,11 @@ const CHANNELS: Slot[] = [
   { id: "channel-guesty", src: logoGuesty, label: "Guesty", width: 1441, height: 377 },
   { id: "channel-pricelabs", src: logoPriceLabs, label: "PriceLabs", width: 600, height: 156 },
   { id: "channel-chekin", src: logoChekin, label: "Chekin", width: 600, height: 176 },
-  // Renovation partner, not a booking channel — back in this row on
-  // Almedin's call (29.09.2026); see the block comment above for why it had
-  // been left out. Sized up a step past the shared max-h-9 (Almedin,
-  // 29.09.2026): the mark reads thin and light next to the others at the
-  // same height, and this is the one entry meant to stand out as a partner
-  // rather than blend in as a seventh channel.
-  { id: "partner-vasari", src: logoVasari, label: "Vasari", width: 315, height: 140, maxH: "max-h-12" },
+  // Real-estate partner, not a booking channel — same slot Vasari held
+  // (Almedin, 03.10.2026: swapped out for Cima Real Estate, a Marbella
+  // agency). Same max-h-9 as every other mark (Almedin, 03.10.2026): the
+  // row reads as one consistent size, not some marks standing out.
+  { id: "partner-cima", src: logoCima, label: "Cima Real Estate", width: 261, height: 85 },
 ];
 
 const WorkingWith = () => {
@@ -105,10 +101,7 @@ const WorkingWith = () => {
                 width={slot.width}
                 height={slot.height}
                 loading="lazy"
-                className={cn(
-                  "w-auto object-contain opacity-90 hover:opacity-100 transition-opacity",
-                  slot.maxH ?? "max-h-9"
-                )}
+                className="w-auto max-h-9 object-contain opacity-90 hover:opacity-100 transition-opacity"
               />
             ) : (
               <span
