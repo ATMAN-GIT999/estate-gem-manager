@@ -61,7 +61,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* #ffffff — white is the ground now, beige is an accent surface */
+    --background: 42 28% 94%; /* warm editorial paper */
     /* Was 133 14% 22% — read as visibly sage-green next to the Lovable
        comparison's headings, which only look black. Lovable's own token is
        oklch(0.23176 0.02003 147.9); converted to sRGB/HSL (same hue family,
@@ -70,7 +70,7 @@ All colors MUST be HSL.
        going this close to Lovable's value rather than a lighter middle
        ground (02.10.2026). Site-wide: every public page's body text and
        headings read off this token. */
-    --foreground: 127 16% 11%;
+    --foreground: 218 35% 12%;
 
     --card: 0 0% 100%; /* #ffffff */
     --card-foreground: 133 14% 22%;
@@ -78,7 +78,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%; /* #ffffff */
     --popover-foreground: 133 14% 22%;
 
-    --primary: 133 11% 36%; /* #546458 - Header green */
+    --primary: 218 35% 18%; /* deep architectural navy */
     --primary-foreground: 0 0% 100%; /* #ffffff */
 
     --secondary: 32 24% 87%; /* #e6ded6 — the placeholder/hatch surface */
@@ -100,7 +100,7 @@ All colors MUST be HSL.
     /* Brand gold. Use as a FILL (bg-accent) with accent-foreground on top — 6.05:1.
        As a text/icon colour it only reaches 2.19:1 on --background, so use the
        two variants below instead of text-accent. */
-    --accent: 41 46% 56%; /* #c2a15c */
+    --accent: 13 58% 60%; /* warm terracotta */
     --accent-foreground: 41 53% 9%; /* #241c0b */
     /* Gold for text & icons on light surfaces (background/card) — 5.6:1 / 6.6:1 */
     --accent-strong: 38 55% 30%;
@@ -272,7 +272,7 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   /* The variable cut registers under its own family name, so it has to be
@@ -283,7 +283,7 @@ All colors MUST be HSL.
      type scale below (and for the admin area, which is out of scope). Anything
      public should carry a .t-* class, which overrides both of these. */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 600;
   }
 }
@@ -318,7 +318,7 @@ All colors MUST be HSL.
   .t-item,
   .t-body,
   .t-meta {
-    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   /* .t-display/.t-section/.t-block are Sora, not Archivo (Almedin,
