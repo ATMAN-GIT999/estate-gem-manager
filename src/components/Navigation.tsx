@@ -270,6 +270,13 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
                     strokeWidth={1.5}
                   />
                 </Link>
+                <Link
+                  to="/winter-rentals"
+                  onClick={() => setPanelOpen(false)}
+                  className="cta-link mt-4 text-[0.9375rem] inline-block"
+                >
+                  {t("wr-nav-label")} →
+                </Link>
               </div>
 
               <div className="col-span-3">

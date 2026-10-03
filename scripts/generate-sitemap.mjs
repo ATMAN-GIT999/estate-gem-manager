@@ -82,6 +82,30 @@ async function fetchPropertySlugs() {
   }
 }
 
+/**
+ * Published winter rentals (src/lib/winterRentals.ts). Unlike the static list,
+ * these routes are built from live data: the hub and a place page are listed
+ * only when at least one published home exists there — a page with nothing on
+ * it is noindex in the app and must not be offered to Google here either.
+ */
+async function fetchWinterListings() {
+  const url = readEnv("VITE_SUPABASE_URL");
+  const key = readEnv("VITE_SUPABASE_PUBLISHABLE_KEY");
+  if (!url || !key) return [];
+  try {
+    const res = await fetch(
+      `${url}/rest/v1/midterm_listings?select=slug,city_group,updated_at&published=eq.true&order=updated_at.desc`,
+      { headers: { apikey: key } },
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    // Expected until the migration is applied: the table does not exist yet.
+    console.warn(`[sitemap] Could not load winter rentals (${err.message}) — none listed.`);
+    return [];
+  }
+}
+
 const escapeXml = (s) =>
   s.replace(/[<>&'"]/g, (c) =>
     ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c]);
@@ -97,6 +121,8 @@ const entry = ({ path, priority, changefreq, lastmod }) =>
   </url>`;
 
 const properties = await fetchPropertySlugs();
+const winter = await fetchWinterListings();
+const winterCities = [...new Set(winter.map((w) => w.city_group))];
 
 const urls = [
   ...STATIC_ROUTES.map(entry),
@@ -111,6 +137,22 @@ const urls = [
       lastmod: p.updated_at ? p.updated_at.slice(0, 10) : today,
     }),
   ),
+  ...(winter.length
+    ? [
+        entry({ path: "/winter-rentals", priority: "0.8", changefreq: "weekly" }),
+        ...winterCities.map((c) =>
+          entry({ path: `/winter-rentals/${c}`, priority: "0.8", changefreq: "weekly" }),
+        ),
+        ...winter.map((w) =>
+          entry({
+            path: `/winter-rentals/${w.city_group}/${w.slug}`,
+            priority: "0.7",
+            changefreq: "weekly",
+            lastmod: w.updated_at ? w.updated_at.slice(0, 10) : today,
+          }),
+        ),
+      ]
+    : []),
 ];
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -122,5 +164,5 @@ ${urls.join("\n")}
 const outPath = resolve(root, "dist", "sitemap.xml");
 writeFileSync(outPath, xml, "utf8");
 console.log(
-  `[sitemap] ${urls.length} URLs written (${STATIC_ROUTES.length} static, ${properties.length} properties).`,
+  `[sitemap] ${urls.length} URLs written (${STATIC_ROUTES.length} static, ${properties.length} properties, ${winter.length} winter rentals).`,
 );

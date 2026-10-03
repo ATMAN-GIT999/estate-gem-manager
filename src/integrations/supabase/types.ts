@@ -735,6 +735,110 @@ export type Database = {
         }
         Relationships: []
       }
+      midterm_listings: {
+        Row: {
+          amenities: string[] | null
+          available_from: string | null
+          available_until: string | null
+          bathrooms: number | null
+          bedrooms: number
+          city_group: string
+          created_at: string
+          deposit: number | null
+          description: string | null
+          guesty_listing_id: string | null
+          guests: number | null
+          id: string
+          idealista_id: string | null
+          images: Json
+          location: string
+          max_stay_months: number | null
+          min_stay_months: number | null
+          monthly_price: number
+          name: string
+          property_id: string | null
+          property_type: string
+          published: boolean
+          registration_number: string | null
+          size_sqm: number | null
+          slug: string
+          sort_order: number
+          status: string
+          updated_at: string
+          utilities_included: boolean | null
+        }
+        Insert: {
+          amenities?: string[] | null
+          available_from?: string | null
+          available_until?: string | null
+          bathrooms?: number | null
+          bedrooms: number
+          city_group: string
+          created_at?: string
+          deposit?: number | null
+          description?: string | null
+          guesty_listing_id?: string | null
+          guests?: number | null
+          id?: string
+          idealista_id?: string | null
+          images?: Json
+          location: string
+          max_stay_months?: number | null
+          min_stay_months?: number | null
+          monthly_price: number
+          name: string
+          property_id?: string | null
+          property_type: string
+          published?: boolean
+          registration_number?: string | null
+          size_sqm?: number | null
+          slug: string
+          sort_order?: number
+          status?: string
+          updated_at?: string
+          utilities_included?: boolean | null
+        }
+        Update: {
+          amenities?: string[] | null
+          available_from?: string | null
+          available_until?: string | null
+          bathrooms?: number | null
+          bedrooms?: number
+          city_group?: string
+          created_at?: string
+          deposit?: number | null
+          description?: string | null
+          guesty_listing_id?: string | null
+          guests?: number | null
+          id?: string
+          idealista_id?: string | null
+          images?: Json
+          location?: string
+          max_stay_months?: number | null
+          min_stay_months?: number | null
+          monthly_price?: number
+          name?: string
+          property_id?: string | null
+          property_type?: string
+          published?: boolean
+          registration_number?: string | null
+          size_sqm?: number | null
+          slug?: string
+          sort_order?: number
+          status?: string
+          updated_at?: string
+          utilities_included?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "midterm_listings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pages: {
         Row: {
           content_components: string | null
