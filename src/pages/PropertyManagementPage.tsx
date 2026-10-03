@@ -15,6 +15,7 @@ import OwnerContactForm from "@/components/OwnerContactForm";
 import FAQ, { OWNER_FAQ_ITEMS } from "@/components/FAQ";
 import { useEffect } from "react";
 import { useTrackEvent } from "@/hooks/use-track-event";
+import "@/styles/property-management.css";
 
 const PropertyManagementPageContent = () => {
   const track = useTrackEvent();
@@ -29,7 +30,7 @@ const PropertyManagementPageContent = () => {
   // pmp-manrope: this page's body text matches the Lovable reference's
   // Manrope face (see index.css's rule and index.html's font-link note) —
   // scoped here, not site-wide.
-  <div className="min-h-screen flex flex-col pmp-manrope">
+  <div className="min-h-screen flex flex-col pmp-manrope pmp-editorial">
     <Seo
       title="Bespoke Property Management in Marbella, Málaga & Vienna"
       description="Full-service short-term rental management for luxury homes on the Costa del Sol and in Austria — listing, dynamic pricing, guests, housekeeping and owner reporting. Or lease your property to us for a fixed monthly income."
