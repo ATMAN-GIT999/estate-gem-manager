@@ -26,7 +26,7 @@ type Member = { name: string; role: string; languages: string; avatar_url?: stri
 
 const TEAM_NAMES = ["Lorenz Aschbacher", "Alejandro Marinetto Rohr", "Julien"];
 const TEAM_PHOTOS = [teamLorenz, teamAlejandro, teamJulien];
-const TEAM_LANGUAGES = ["EN · DE · ES", "EN · ES", "EN"];
+const TEAM_LANGUAGES = ["EN · DE · ES", "EN · ES", "ES · FR"];
 
 const AboutMini = () => {
   const { t, language } = useLocale();
