@@ -5,6 +5,7 @@
   --pmp-line: rgba(24, 34, 27, 0.22);
   background: var(--pmp-paper);
   color: var(--pmp-ink);
+  font-family: "Sora", sans-serif;
 }
 
 .pmp-editorial main > section {
@@ -29,7 +30,7 @@
 }
 
 .pmp-editorial main > section:first-child h1 {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: "Sora", sans-serif;
   font-size: clamp(3.5rem, 7vw, 8rem);
   font-weight: 400;
   letter-spacing: -0.065em;
@@ -77,7 +78,7 @@
 }
 
 .pmp-editorial main > section:nth-child(2) dt {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Sora", sans-serif;
   font-size: clamp(2rem, 4vw, 4.25rem);
   letter-spacing: -.08em;
 }
@@ -105,7 +106,7 @@
 
 .pmp-editorial main > section:nth-child(3) h2 {
   color: var(--pmp-paper) !important;
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: "Sora", sans-serif;
   font-size: clamp(2.75rem, 5vw, 6rem);
   font-weight: 400;
   letter-spacing: -.06em;
@@ -167,7 +168,7 @@
 .pmp-editorial main > section:nth-child(5) h2,
 .pmp-editorial main > section:nth-child(7) h2,
 .pmp-editorial main > section:nth-child(8) h2 {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: "Sora", sans-serif;
   font-size: clamp(2.75rem, 5vw, 6rem);
   font-weight: 400;
   letter-spacing: -.06em;
@@ -193,7 +194,7 @@
 }
 
 .pmp-editorial main > section:last-child h2 {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: "Sora", sans-serif;
   font-size: clamp(3rem, 6vw, 7rem);
   font-weight: 400;
   letter-spacing: -.06em;
