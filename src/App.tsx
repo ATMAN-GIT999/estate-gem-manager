@@ -24,6 +24,9 @@ import Auth from "./pages/Auth";
 import PropertyDetail from "./pages/PropertyDetail";
 import Properties from "./pages/Properties";
 import VacationRentals from "./pages/VacationRentals";
+import WinterRentals from "./pages/WinterRentals";
+import WinterRentalCity from "./pages/WinterRentalCity";
+import WinterRentalDetail from "./pages/WinterRentalDetail";
 import VacationRentalCity from "./pages/VacationRentalCity";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import PropertyManagementPage from "./pages/PropertyManagementPage";
@@ -47,6 +50,7 @@ import UpdatePassword from "./pages/UpdatePassword";
  */
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminProperties = lazy(() => import("./pages/admin/Properties"));
+const AdminWinterRentals = lazy(() => import("./pages/admin/WinterRentals"));
 const AdminBookings = lazy(() => import("./pages/admin/Bookings"));
 const AdminBlog = lazy(() => import("./pages/admin/Blog"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics"));
@@ -111,12 +115,16 @@ const App = () => (
             <Route path="/property/:slug" element={<PropertyDetail />} />
             <Route path="/vacation-rentals" element={<VacationRentals />} />
             <Route path="/vacation-rentals/:city" element={<VacationRentalCity />} />
+            <Route path="/winter-rentals" element={<WinterRentals />} />
+            <Route path="/winter-rentals/:city" element={<WinterRentalCity />} />
+            <Route path="/winter-rentals/:city/:slug" element={<WinterRentalDetail />} />
             {/* Every /admin/* route behind one gate (docs/PROJECT.md C8) —
                 see RequireAdmin for why this used to let a visitor with no
                 admin role open the page shell at all, RLS or not. */}
             <Route path="/admin/dashboard" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
             <Route path="/admin" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
             <Route path="/admin/properties" element={<RequireAdmin><AdminProperties /></RequireAdmin>} />
+            <Route path="/admin/winter-rentals" element={<RequireAdmin><AdminWinterRentals /></RequireAdmin>} />
             <Route path="/admin/bookings" element={<RequireAdmin><AdminBookings /></RequireAdmin>} />
             <Route path="/admin/blog" element={<RequireAdmin><AdminBlog /></RequireAdmin>} />
             <Route path="/admin/analytics" element={<RequireAdmin><AdminAnalytics /></RequireAdmin>} />

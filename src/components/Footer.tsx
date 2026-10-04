@@ -56,6 +56,7 @@ const Footer = () => {
     { label: t("footer-all-homes-link"), to: "/properties" },
     { label: t("footer-costa-link"), to: "/properties?location=Costa%20del%20Sol" },
     { label: t("footer-austria-link"), to: "/properties?location=Austria" },
+    { label: t("wr-nav-label"), to: "/winter-rentals" },
     { label: t("footer-faq-link"), to: "/#faq" },
     { label: t("footer-signin-link"), to: "/auth" },
   ];
