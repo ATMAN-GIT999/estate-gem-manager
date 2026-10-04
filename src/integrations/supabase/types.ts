@@ -852,7 +852,6 @@ export type Database = {
           listing_id: string | null
           listing_name: string
           message: string | null
-          notified_at: string | null
           phone: string | null
           status: string
           updated_at: string
@@ -869,7 +868,6 @@ export type Database = {
           listing_id?: string | null
           listing_name: string
           message?: string | null
-          notified_at?: string | null
           phone?: string | null
           status?: string
           updated_at?: string
@@ -886,7 +884,6 @@ export type Database = {
           listing_id?: string | null
           listing_name?: string
           message?: string | null
-          notified_at?: string | null
           phone?: string | null
           status?: string
           updated_at?: string

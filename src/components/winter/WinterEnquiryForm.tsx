@@ -19,6 +19,54 @@ import { whatsAppEnquiryUrl, type MidtermListing } from "@/lib/winterRentals";
  * have no SELECT policy, so asking for the row back would turn a successful
  * write into an error.
  */
+/**
+ * Emails Frontier through Web3Forms. It is called from the browser on purpose:
+ * Web3Forms' free plan refuses server-side calls, and the key is meant to be
+ * public (it only lets someone send a form mail to the address it was created
+ * for). That is also why the enquiry itself is stored in Supabase first — this
+ * mail is a notification, never the record. The key comes from the build
+ * environment (VITE_WEB3FORMS_ACCESS_KEY, set in Netlify); without it nothing
+ * is sent and the admin list is the only place the enquiry shows up.
+ */
+const notifyFrontier = async (d: {
+  home: string;
+  location: string;
+  name: string;
+  email: string;
+  phone: string;
+  moveIn: string;
+  months: string;
+  guests: string;
+  message: string;
+}) => {
+  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+  if (!accessKey) return;
+  try {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        access_key: accessKey,
+        subject: `Winter rental enquiry: ${d.home} (${d.name})`,
+        from_name: "Frontier Residences website",
+        // `email` is what Web3Forms uses as reply-to, so "Reply" goes to the guest.
+        name: d.name,
+        email: d.email,
+        home: `${d.home} — ${d.location}`,
+        phone: d.phone || "-",
+        move_in: d.moveIn || "-",
+        months: d.months || "-",
+        guests: d.guests || "-",
+        message: d.message || "-",
+        botcheck: "",
+      }),
+    });
+    if (!res.ok) console.warn("Enquiry mail not sent:", res.status);
+  } catch (err) {
+    console.warn("Enquiry mail not sent:", err);
+  }
+};
+
 const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
   const { t } = useLocale();
   const { toast } = useToast();
@@ -103,11 +151,17 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
     }
     // The enquiry is stored; the mail to Frontier is a courtesy on top. A failure
     // here must not tell the guest their enquiry failed — it is in the admin list.
-    void supabase.functions
-      .invoke("notify-winter-enquiry", { body: { id } })
-      .then(({ error: mailError }) => {
-        if (mailError) console.warn("Enquiry mail not sent:", mailError.message);
-      });
+    void notifyFrontier({
+      home: home.name,
+      location: home.location,
+      name: `${parsed.data.firstName} ${parsed.data.lastName}`.trim(),
+      email: parsed.data.email,
+      phone: parsed.data.phone,
+      moveIn: form.desiredFrom,
+      months: form.desiredMonths,
+      guests: form.guests,
+      message: parsed.data.message,
+    });
     // After the enquiry is safely stored; no personal data in analytics.
     void track("winter_enquiry_submitted", { city: home.city_group });
     setSent(true);
