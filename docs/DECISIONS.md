@@ -2558,3 +2558,24 @@ Sichtprüfung im Browser** — die Änderungen lagen fertig im Working Tree;
 dokumentiert und committet wurde der vorgefundene Zustand, nicht neu gebaut.
 Der Rücksprung in die gefilterte Suche und die Gewichtung in „Zwei Wege"
 sollten vor dem nächsten Deploy einmal live angeschaut werden.
+
+## 56 · Winter-/Mittelfristmieten: eigene Tabelle, Anfrage statt Buchung
+
+**Entscheidung (04.10.2026, Almedin):** Monatsmieten bekommen eine eigene Seitenschiene `/winter-rentals/:ort/:objekt` und eine eigene Tabelle `midterm_listings`, nicht Zeilen in `properties`.
+
+**Warum.** `properties` ist der Guesty-Spiegel: Nachtpreis, Sofortbuchung, Stripe im Checkout. Eine Monatsmiete hat nichts davon (Monatsmiete, Kaution, Aufenthalt mit manueller Bestätigung), und ein Nachtpreis auf einer Monatsmiete wäre falsch. Das 63-Nächte-Objekt „6th floor Malaga Soho" (D9) hat das schon gezeigt. Sieben der Objekte stehen nur auf Idealista, nicht in Guesty.
+
+**Die Website ist die führende Quelle.** Idealista ist nur Anfragekanal und einmalige Datenquelle (`idealista_id` ist ein Verweis fürs Team, kein Sync-Schlüssel). Frontier pflegt den Status (verfügbar/reserviert/vermietet) im Admin-Bereich; bei Bestätigung setzt Frontier außerdem Idealista von Hand und blockt bei Häusern, die auch in Guesty stehen, die Tage dort (Stufe 1, manuell; `property_id` verknüpft die beiden). Eine automatische Sperre per API (Stufe 3) braucht eine eigene Freigabe.
+
+**Anfrage, keine Buchung.** Das Formular schreibt in `midterm_requests` (eigene Tabelle statt `contacts`: dort ist die Insert-Policy auf einen einzigen `source`-Wert festgelegt, und die Felder passen nicht). Frontier bestätigt per Hand, danach geht ein Stripe-Link für Kaution und ersten Monat raus. Auf der Seite wird nichts gebucht oder abgebucht — der Zahlungsfluss bleibt unangetastet.
+
+**Estepona** ist nur auf der Winter-Seite ein Ort (`src/lib/winterRentals.ts`); `vacationRentals.ts`, `destinations.ts` und die Sitemap-Liste der Ferienorte bleiben ohne Estepona. Zuordnung: Torremolinos → Málaga, Benahavís → Marbella, Higuerón und Benalmádena → Fuengirola.
+
+**Sichtbarkeit.** Reservierte/vermietete Objekte bleiben mit Status sichtbar, damit die URL nicht zum 404 wird. Ein Ort ohne veröffentlichtes Objekt ist `noindex` und steht nicht in der Sitemap (Doorway-Seite, struktur.md §11). Sitemap-Einträge kommen live aus der DB.
+
+**Benachrichtigung per E-Mail.** Resend scheiterte daran, dass das DNS von frontier-residences.com in einem Cloudflare-Konto liegt, auf das Almedin keinen Zugriff hat. Eine Edge Function mit Telegram wurde gebaut und wieder verworfen. Es bleibt Web3Forms, **aus dem Browser** aufgerufen, weil der Gratis-Tarif Aufrufe von einem Server ablehnt. Der Schlüssel ist bei Web3Forms bewusst öffentlich; die Anfrage selbst liegt immer zuerst in Supabase, die Mail ist nur ein Hinweis. Der Schlüssel kommt aus `VITE_WEB3FORMS_ACCESS_KEY` (Netlify), nicht aus `.env`, die Lovable überschreiben kann. Offen: siehe PROJECT.md B7.
+
+**Migrationen** wurden am 04.10.2026 auf Almedins ausdrückliche Anweisung per SQL angewendet, nicht über die Migrations-Historie (die ist kaputt, PROJECT.md §6) — ein späteres `db push` kennt sie nicht als erledigt.
+
+**Verifikation:** `tsc`, Build und `eslint` ohne neue Befunde. Die Seiten und das Formular wurden im Browser gegen **simulierte** Supabase-Antworten angesehen (Übersicht, Ort, Objekt, 404, Absenden); gegen die echte DB, die Admin-Seite im Browser und die Web3Forms-Mail ist nichts geprüft.
+
