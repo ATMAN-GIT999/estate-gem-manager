@@ -74,7 +74,11 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
     }
 
     setSubmitting(true);
+    // The id is made here because visitors cannot read the row back; the notify
+    // function needs it to find the enquiry.
+    const id = crypto.randomUUID();
     const { error } = await supabase.from("midterm_requests").insert({
+      id,
       listing_id: home.id,
       listing_name: home.name,
       first_name: parsed.data.firstName,
@@ -97,6 +101,13 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
       });
       return;
     }
+    // The enquiry is stored; the mail to Frontier is a courtesy on top. A failure
+    // here must not tell the guest their enquiry failed — it is in the admin list.
+    void supabase.functions
+      .invoke("notify-winter-enquiry", { body: { id } })
+      .then(({ error: mailError }) => {
+        if (mailError) console.warn("Enquiry mail not sent:", mailError.message);
+      });
     // After the enquiry is safely stored; no personal data in analytics.
     void track("winter_enquiry_submitted", { city: home.city_group });
     setSent(true);
