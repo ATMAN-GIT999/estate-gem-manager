@@ -18,6 +18,7 @@ import { breadcrumbSchema } from "@/lib/schema";
 import { Section, Container, Grid } from "@/components/layout";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocale } from "@/contexts/LocaleContext";
+import frontierLogoGreen from "@/assets/frontier-logo-green.webp";
 
 type SortOption = "recommended" | "price-asc" | "price-desc";
 
@@ -324,85 +325,105 @@ const PropertiesContent = () => {
         </div>
 
         <Section size="md">
-          {/* A per-property Guesty calendar check takes a few seconds, and a
-              small inline label read as the page being done loading rather
-              than still filtering. */}
-          {checkingAvailability && (
-            <p className="mb-md flex items-center justify-center gap-2 t-item text-accent-strong text-center">
-              <Loader2 className="w-5 h-5 animate-spin" /> {t("properties.checkingAvailability")}
-            </p>
-          )}
-
-          {/* The page's one h1, and the most useful sentence on it: how many
-              homes there are and where they are — "where" now follows the
-              tab (Almedin, 29.09.2026): picking "Costa del Sol" used to
-              still leave Vienna and Carinthia named in the sentence next to
-              it, which read as the filter not having done anything. Only the
-              "all" sentence stays admin-editable (`pageTitle`); the
-              per-region one is a count and a label, recomputed every time
-              the count or the tab changes, so there is nothing stable to
-              hand the CMS. */}
-          {/* Title left, region tabs right — the same arrangement as "Our
-              homes" on the landing page, and the same tabs. */}
-          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 mb-lg">
-            {regionFilter === "all" ? (
-              <EditableText
-                id="properties-page-title"
-                value={pageTitle}
-                onChange={setPageTitle}
-                as="h1"
-                className="t-section text-foreground text-balance max-w-2xl"
-              >
-                {pageTitle.replace("{n}", loading ? "" : String(sorted.length)).trim()}
-              </EditableText>
-            ) : (
-              <h1 className="t-section text-foreground text-balance max-w-2xl">
-                {t("properties-page-title-region")
-                  .replace("{n}", loading ? "" : String(sorted.length))
-                  .replace("{region}", regionTabs.find((tab) => tab.id === regionFilter)?.label ?? "")
-                  .trim()}
-              </h1>
-            )}
-
-            {!loading && <CollectionTabs<RegionFilter> tabs={regionTabs} current={regionFilter} onSelect={setRegionFilter} />}
-          </div>
-
-          {loading ? (
-            <Grid cols={3} gap="md">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="aspect-[3/4] w-full" />
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-              ))}
-            </Grid>
-          ) : sorted.length === 0 ? (
-            <div className="text-center py-xl border-t border-border">
-              <p className="t-block text-foreground mb-2">{t("properties.noMatch")}</p>
-              <p className="t-body text-muted-foreground mb-4">{t("properties.tryDifferent")}</p>
-              <button type="button" onClick={clearSearch} className="cta-base cta-secondary">
-                {t("properties.clearFilters")}
-              </button>
+          {checkingAvailability ? (
+            /* Full takeover while the per-property Guesty calendar check runs
+               (Almedin, 04.10.2026) — it used to be a small inline line above
+               a grid that kept rendering underneath it, which read as the
+               page being done loading rather than still filtering. Replacing
+               the title, tabs and grid outright makes the wait unambiguous:
+               nothing below is real until this clears. */
+            <div className="flex flex-col items-center justify-center gap-md py-2xl text-center">
+              <Loader2 className="w-8 h-8 animate-spin text-accent-strong" />
+              {/* t-section, not t-item — this is now the sole content of the
+                  section rather than a small aside, so it carries the same
+                  weight as a page heading. Sized down 10% from there
+                  (Almedin, 04.10.2026) — every endpoint of t-section's own
+                  clamp(1.5rem,1.1rem+1.8vw,2.25rem) × 0.9, same pattern
+                  Hero.tsx uses to scale off a t-* role's own clamp. */}
+              <p className="t-section text-[clamp(1.35rem,0.99rem+1.62vw,2.025rem)] text-accent-strong">
+                {t("properties.checkingAvailability")}
+              </p>
+              {/* 15% over the previous max-w-md/max-w-lg (28rem/32rem × 1.15). */}
+              <img
+                src={frontierLogoGreen}
+                alt="Frontier Residences"
+                className="mt-lg w-full max-w-[32.2rem] md:max-w-[36.8rem]"
+              />
             </div>
           ) : (
             <>
-              <Grid cols={3} gap="md">
-                {sorted.slice(0, visibleCount).map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
-              </Grid>
-
-              {visibleCount < sorted.length && (
-                <div className="mt-lg text-center">
-                  <button
-                    type="button"
-                    onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
-                    className="cta-base cta-secondary"
+              {/* The page's one h1, and the most useful sentence on it: how many
+                  homes there are and where they are — "where" now follows the
+                  tab (Almedin, 29.09.2026): picking "Costa del Sol" used to
+                  still leave Vienna and Carinthia named in the sentence next to
+                  it, which read as the filter not having done anything. Only the
+                  "all" sentence stays admin-editable (`pageTitle`); the
+                  per-region one is a count and a label, recomputed every time
+                  the count or the tab changes, so there is nothing stable to
+                  hand the CMS. */}
+              {/* Title left, region tabs right — the same arrangement as "Our
+                  homes" on the landing page, and the same tabs. */}
+              <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 mb-lg">
+                {regionFilter === "all" ? (
+                  <EditableText
+                    id="properties-page-title"
+                    value={pageTitle}
+                    onChange={setPageTitle}
+                    as="h1"
+                    className="t-section text-foreground text-balance max-w-2xl"
                   >
-                    {t("properties.viewMore")} &rarr;
+                    {pageTitle.replace("{n}", loading ? "" : String(sorted.length)).trim()}
+                  </EditableText>
+                ) : (
+                  <h1 className="t-section text-foreground text-balance max-w-2xl">
+                    {t("properties-page-title-region")
+                      .replace("{n}", loading ? "" : String(sorted.length))
+                      .replace("{region}", regionTabs.find((tab) => tab.id === regionFilter)?.label ?? "")
+                      .trim()}
+                  </h1>
+                )}
+
+                {!loading && <CollectionTabs<RegionFilter> tabs={regionTabs} current={regionFilter} onSelect={setRegionFilter} />}
+              </div>
+
+              {loading ? (
+                <Grid cols={3} gap="md">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="space-y-3">
+                      <Skeleton className="aspect-[3/4] w-full" />
+                      <Skeleton className="h-5 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  ))}
+                </Grid>
+              ) : sorted.length === 0 ? (
+                <div className="text-center py-xl border-t border-border">
+                  <p className="t-block text-foreground mb-2">{t("properties.noMatch")}</p>
+                  <p className="t-body text-muted-foreground mb-4">{t("properties.tryDifferent")}</p>
+                  <button type="button" onClick={clearSearch} className="cta-base cta-secondary">
+                    {t("properties.clearFilters")}
                   </button>
                 </div>
+              ) : (
+                <>
+                  <Grid cols={3} gap="md">
+                    {sorted.slice(0, visibleCount).map((property) => (
+                      <PropertyCard key={property.id} property={property} />
+                    ))}
+                  </Grid>
+
+                  {visibleCount < sorted.length && (
+                    <div className="mt-lg text-center">
+                      <button
+                        type="button"
+                        onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+                        className="cta-base cta-secondary"
+                      >
+                        {t("properties.viewMore")} &rarr;
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
