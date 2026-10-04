@@ -11,7 +11,7 @@ import { Container, Grid, Panel, Section } from "@/components/layout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Bath, Bed, ChevronLeft, ChevronRight, Images, Users } from "lucide-react";
+import { Bath, Bed, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { getAmenityIcon } from "@/lib/amenityIcons";
 import SurroundingsMap from "@/components/SurroundingsMap";
 import { supabase } from "@/lib/supabaseClient";
@@ -67,7 +67,6 @@ const WinterRentalDetailPage = ({
   const [home, setHome] = useState<MidtermListing | null>(null);
   const [similar, setSimilar] = useState<MidtermListing[]>([]);
   const [loading, setLoading] = useState(true);
-  const [galleryOpen, setGalleryOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -268,46 +267,8 @@ const WinterRentalDetailPage = ({
               </div>
             )}
 
-            {home.images.length > 1 && (
-              <button
-                type="button"
-                onClick={() => setGalleryOpen(true)}
-                className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-foreground/85 backdrop-blur-sm px-4 h-9 t-body text-background shadow-sm hover:bg-foreground transition-colors"
-              >
-                <Images className="w-4 h-4" strokeWidth={1.5} />
-                {home.images.length}
-              </button>
-            )}
           </div>
         </Container>
-
-        <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
-          <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto">
-            <DialogTitle className="t-section text-foreground">{home.name}</DialogTitle>
-            <div className="grid sm:grid-cols-2 gap-3 mt-2">
-              {home.images.map((img, idx) => (
-                <button
-                  key={img.url}
-                  type="button"
-                  onClick={() => {
-                    setGalleryOpen(false);
-                    setLightboxIndex(idx);
-                  }}
-                  className="group relative overflow-hidden"
-                >
-                  <img
-                    src={img.url}
-                    alt={photoAlt(idx + 1)}
-                    width={800}
-                    height={600}
-                    loading="lazy"
-                    className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </button>
-              ))}
-            </div>
-          </DialogContent>
-        </Dialog>
 
         <Dialog open={lightboxIndex !== null} onOpenChange={(o) => !o && setLightboxIndex(null)}>
           <DialogContent className="max-w-6xl w-[calc(100vw-2rem)] h-[calc(100vh-4rem)] p-0 bg-background/95 border-0 [&>button]:text-foreground [&>button]:opacity-100">

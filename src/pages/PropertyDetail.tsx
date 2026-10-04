@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Container, Grid, Panel, Section } from "@/components/layout";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
 import SurroundingsMap from "@/components/SurroundingsMap";
-import { ArrowRight, Bed, Bath, Users, Images, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
+import { ArrowRight, Bed, Bath, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { getAmenityIcon } from "@/lib/amenityIcons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,7 +56,6 @@ const PropertyDetail = () => {
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showBookingSummary, setShowBookingSummary] = useState(false);
-  const [galleryOpen, setGalleryOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [datesValid, setDatesValid] = useState(false);
   const [similar, setSimilar] = useState<Property[]>([]);
@@ -181,20 +180,6 @@ const PropertyDetail = () => {
       cancelled = true;
     };
   }, [property?.id, property?.city_group, property?.location, property?.guests]);
-
-  const handleShare = async () => {
-    const url = window.location.href;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: property?.name, url });
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      toast({ title: t("pd-copied") });
-    } catch {
-      // A cancelled share sheet rejects too — nothing to report to the guest.
-    }
-  };
 
   const handleBookNow = () => {
     // Open in-app booking flow powered by the Guesty Booking API
@@ -390,59 +375,8 @@ const PropertyDetail = () => {
                 </button>
               ))}
             </div>
-
-            <button
-              type="button"
-              onClick={handleShare}
-              className="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full bg-background/90 backdrop-blur-sm px-4 h-9 t-body text-foreground shadow-sm hover:bg-background transition-colors"
-            >
-              <Share2 className="w-4 h-4" strokeWidth={1.5} />
-              {t("pd-share")}
-            </button>
-
-            {images.length > 1 && (
-              <button
-                type="button"
-                onClick={() => setGalleryOpen(true)}
-                className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-foreground/85 backdrop-blur-sm px-4 h-9 t-body text-background shadow-sm hover:bg-foreground transition-colors"
-              >
-                <Images className="w-4 h-4" strokeWidth={1.5} />
-                {t("pd-view-gallery")} · {images.length}
-              </button>
-            )}
           </div>
         </Container>
-
-        {/* Overview grid — every photo at once, for scanning rather than
-            looking closely. Clicking one hands off to the solo lightbox
-            below instead of enlarging inline. */}
-        <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
-          <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto">
-            <DialogTitle className="t-section text-foreground">{property.name}</DialogTitle>
-            <div className="grid sm:grid-cols-2 gap-3 mt-2">
-              {images.map((img: string, idx: number) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    setGalleryOpen(false);
-                    setLightboxIndex(idx);
-                  }}
-                  className="group relative overflow-hidden"
-                >
-                  <img
-                    src={img}
-                    alt={photoAlt(idx + 1)}
-                    width={800}
-                    height={600}
-                    loading="lazy"
-                    className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </button>
-              ))}
-            </div>
-          </DialogContent>
-        </Dialog>
 
         {/* Solo lightbox — one photo at a time, uncropped (`object-contain`,
             not `object-cover`, so nothing gets sliced off to fill the frame
