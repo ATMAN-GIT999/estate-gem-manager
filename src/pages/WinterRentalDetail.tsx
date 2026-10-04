@@ -7,12 +7,18 @@ import Breadcrumb from "@/components/Breadcrumb";
 import WinterListingCard from "@/components/winter/WinterListingCard";
 import WinterEnquiryForm from "@/components/winter/WinterEnquiryForm";
 import { useBedroomsLabel, useTypeLabel } from "@/hooks/useWinterLabels";
-import { Grid, MediaFrame, Section } from "@/components/layout";
+import { Container, Grid, Panel, Section } from "@/components/layout";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Bath, Bed, ChevronLeft, ChevronRight, Images, Users } from "lucide-react";
+import { getAmenityIcon } from "@/lib/amenityIcons";
+import SurroundingsMap from "@/components/SurroundingsMap";
 import { supabase } from "@/lib/supabaseClient";
 import { useLocale } from "@/contexts/LocaleContext";
 import { breadcrumbSchema, propertySchema } from "@/lib/schema";
 import {
+  GUEST_LISTING_COLUMNS,
   WINTER_RENTALS_PATH,
   findWinterRentalCity,
   hasTypeLabel,
@@ -37,6 +43,10 @@ import NotFound from "./NotFound";
  * rate in markup has to be the rate on the page, and Frontier changes these by
  * hand.
  */
+
+/** Eight standout items, not the full amenity checklist — same as PropertyDetail.tsx. */
+const KEY_FEATURE_COUNT = 8;
+
 const WinterRentalDetailRoute = () => {
   const { city: citySlug, slug } = useParams<{ city: string; slug: string }>();
   const city = findWinterRentalCity(citySlug);
@@ -55,23 +65,42 @@ const WinterRentalDetailPage = ({
   const bedrooms = useBedroomsLabel();
   const typeLabel = useTypeLabel();
   const [home, setHome] = useState<MidtermListing | null>(null);
-  const [others, setOthers] = useState<MidtermListing[]>([]);
+  const [similar, setSimilar] = useState<MidtermListing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
+      // `property:property_id(...)` is only on this query, not
+      // GUEST_LISTING_COLUMNS — the list/card views never need a house's
+      // exact coordinates, only the detail page's map does.
+      //
+      // Not scoped to `citySlug`: with only a handful of homes published at
+      // all, filtering "You might also like" to the same city left it empty
+      // on any city with just one home (Málaga, Marbella right now) — same
+      // problem PropertyDetail.tsx's own `similar` query solves by ranking
+      // same-place first but falling back across the whole set.
       const { data, error } = await supabase
         .from("midterm_listings")
-        .select("*")
+        .select(`${GUEST_LISTING_COLUMNS}, property:property_id(latitude, longitude, address)`)
         .eq("published", true)
-        .eq("city_group", citySlug)
         .order("sort_order", { ascending: true });
       if (cancelled) return;
       if (error) console.error("Error fetching winter rental:", error);
       const all = (data ?? []).map(toMidtermListing);
-      setHome(all.find((h) => h.slug === slug) ?? null);
-      setOthers(all.filter((h) => h.slug !== slug));
+      const current = all.find((h) => h.slug === slug) ?? null;
+      setHome(current);
+      if (current) {
+        const others = all.filter((h) => h.slug !== slug);
+        const ranked = [...others].sort(
+          (a, b) =>
+            Number(b.city_group === current.city_group) - Number(a.city_group === current.city_group) ||
+            Math.abs(a.monthly_price - current.monthly_price) - Math.abs(b.monthly_price - current.monthly_price)
+        );
+        setSimilar(ranked.slice(0, 3));
+      }
       setLoading(false);
     };
     load();
@@ -114,11 +143,21 @@ const WinterRentalDetailPage = ({
       .replace("{beds}", bedrooms(home.bedrooms))
       .replace("{size}", size ?? "");
 
+  // Deposit and commission are policy, not figures Frontier wants
+  // re-confirmed on every home: 1 month's rent each (DECISIONS.md §57/§58).
+  // Shown as "1 month" rather than the euro amount so the fact reads as the
+  // rule it is — only falls back to the amount if one is ever entered that
+  // is not a whole multiple of the rent.
+  const monthsOrAmount = (value: number) =>
+    home.monthly_price > 0 && value % home.monthly_price === 0
+      ? months(value / home.monthly_price)
+      : money(value);
+
+  // Bedrooms and bathrooms sit in the icon row by the headline instead, same
+  // as PropertyDetail.tsx — this list is the facts that row has no room for.
   const facts: Array<[string, string]> = [
     [t("wr-fact-type"), typeLabel(home.property_type)],
     [t("wr-fact-location"), home.location],
-    [t("wr-fact-bedrooms"), String(home.bedrooms)],
-    ...(home.bathrooms ? ([[t("wr-fact-bathrooms"), String(home.bathrooms)]] as Array<[string, string]>) : []),
     ...(size ? ([[t("wr-fact-size"), size]] as Array<[string, string]>) : []),
     ...(home.available_from
       ? ([[t("wr-fact-available-from"), new Date(home.available_from).toLocaleDateString("en-GB")]] as Array<[string, string]>)
@@ -126,12 +165,20 @@ const WinterRentalDetailPage = ({
     ...(home.min_stay_months
       ? ([[t("wr-fact-min-stay"), months(home.min_stay_months)]] as Array<[string, string]>)
       : []),
-    ...(home.deposit ? ([[t("wr-fact-deposit"), money(home.deposit)]] as Array<[string, string]>) : []),
+    ...(home.deposit ? ([[t("wr-fact-deposit"), monthsOrAmount(home.deposit)]] as Array<[string, string]>) : []),
+    ...(home.commission
+      ? ([[t("wr-fact-commission"), monthsOrAmount(home.commission)]] as Array<[string, string]>)
+      : []),
   ];
 
   const enquiryUrl = whatsAppEnquiryUrl(
     t("wr-cta-message").replace("{name}", home.name).replace("{location}", home.location)
   );
+
+  // Same honesty rule as PropertyDetail.tsx's photoAlt: the house, its area
+  // and which photo of how many this is. No room/feature guessed from pixels.
+  const photoAlt = (n: number) =>
+    `${home.name} — ${home.location} — photo ${n} of ${home.images.length}`;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -176,78 +223,262 @@ const WinterRentalDetailPage = ({
           ]}
         />
 
-        <Section size="sm">
-          <Grid cols={2} gap="md">
-            <div>
-              {home.images.length > 0 ? (
-                <MediaFrame
-                  id={`winter-detail-${home.id}`}
-                  src={home.images[0].url}
-                  alt={home.images[0].caption ?? home.name}
-                  note={t("wr-image-note")}
-                  aspect="photo"
-                  priority
-                />
-              ) : (
-                <MediaFrame id={`winter-detail-${home.id}`} note={t("wr-image-note")} aspect="photo" />
-              )}
+        {/* Gallery — same shape as PropertyDetail.tsx: one lead image and up
+            to four beside it in a 2×2, the clearest way to show a house
+            before anyone reads a word. The 28–55 photos these four homes
+            carry (copied from their Guesty listing, DECISIONS.md §57) were
+            wasted on a single MediaFrame slot before this. */}
+        <Container>
+          <div className="relative">
+            {home.images.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-0.5 h-[52vh] min-h-[320px] max-h-[560px] overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setLightboxIndex(0)}
+                  className="md:col-span-2 md:row-span-2 group relative overflow-hidden"
+                >
+                  <img
+                    src={home.images[0].url}
+                    alt={photoAlt(1)}
+                    width={1200}
+                    height={900}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </button>
+                {home.images.slice(1, 5).map((img, idx) => (
+                  <button
+                    key={img.url}
+                    type="button"
+                    onClick={() => setLightboxIndex(idx + 1)}
+                    className="hidden md:block group relative overflow-hidden"
+                  >
+                    <img
+                      src={img.url}
+                      alt={photoAlt(idx + 2)}
+                      width={600}
+                      height={450}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="aspect-[16/9] w-full bg-placeholder-hatch flex items-center justify-center p-sm">
+                <p className="t-meta text-accent-strong/70 text-center text-balance">{t("wr-image-note")}</p>
+              </div>
+            )}
+
+            {home.images.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setGalleryOpen(true)}
+                className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-foreground/85 backdrop-blur-sm px-4 h-9 t-body text-background shadow-sm hover:bg-foreground transition-colors"
+              >
+                <Images className="w-4 h-4" strokeWidth={1.5} />
+                {home.images.length}
+              </button>
+            )}
+          </div>
+        </Container>
+
+        <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
+          <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto">
+            <DialogTitle className="t-section text-foreground">{home.name}</DialogTitle>
+            <div className="grid sm:grid-cols-2 gap-3 mt-2">
+              {home.images.map((img, idx) => (
+                <button
+                  key={img.url}
+                  type="button"
+                  onClick={() => {
+                    setGalleryOpen(false);
+                    setLightboxIndex(idx);
+                  }}
+                  className="group relative overflow-hidden"
+                >
+                  <img
+                    src={img.url}
+                    alt={photoAlt(idx + 1)}
+                    width={800}
+                    height={600}
+                    loading="lazy"
+                    className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </button>
+              ))}
             </div>
-            <div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={lightboxIndex !== null} onOpenChange={(o) => !o && setLightboxIndex(null)}>
+          <DialogContent className="max-w-6xl w-[calc(100vw-2rem)] h-[calc(100vh-4rem)] p-0 bg-background/95 border-0 [&>button]:text-foreground [&>button]:opacity-100">
+            <DialogTitle className="sr-only">
+              {home.name} — photo {lightboxIndex !== null ? lightboxIndex + 1 : 0} of {home.images.length}
+            </DialogTitle>
+            {lightboxIndex !== null && (
+              <div className="relative flex h-full items-center justify-center">
+                <img
+                  src={home.images[lightboxIndex].url}
+                  alt={photoAlt(lightboxIndex + 1)}
+                  loading="lazy"
+                  className="max-h-full max-w-full object-contain"
+                />
+                {home.images.length > 1 && (
+                  <>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      aria-label={t("pd-previous-photo")}
+                      onClick={() =>
+                        setLightboxIndex((lightboxIndex - 1 + home.images.length) % home.images.length)
+                      }
+                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      aria-label={t("pd-next-photo")}
+                      onClick={() => setLightboxIndex((lightboxIndex + 1) % home.images.length)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
+                    <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-background/90 px-3 py-1 t-body text-foreground shadow-elegant">
+                      {lightboxIndex + 1} / {home.images.length}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Head and enquiry panel — the same 12-col split as PropertyDetail's
+            head-and-booking section, Panel standing in for its booking card
+            (gold rule + sage tint, §24/§1b — a monthly let needs a CTA, not a
+            calendar). */}
+        <Section size="md">
+          <Grid gap="lg">
+            <div className="md:col-span-7">
               {!open && <p className="t-tag text-accent-strong">{t(statusKey(home.status))}</p>}
               <h1 className="t-display text-foreground text-balance mt-2">{home.name}</h1>
-              <p className="t-body text-muted-foreground mt-sm">{summary}</p>
+              <p className="t-body text-muted-foreground mt-2">{home.location}</p>
 
-              <div className="border-t border-border pt-sm mt-md">
+              <ul className="flex flex-wrap items-center gap-x-lg gap-y-2 mt-md py-4 border-y border-border">
+                {home.guests && (
+                  <li className="flex items-center gap-2 t-body text-foreground">
+                    <Users className="w-4 h-4 text-accent-strong" strokeWidth={1.5} />
+                    {home.guests} {t("wr-guests")}
+                  </li>
+                )}
+                <li className="flex items-center gap-2 t-body text-foreground">
+                  <Bed className="w-4 h-4 text-accent-strong" strokeWidth={1.5} />
+                  {home.bedrooms} {t("wr-fact-bedrooms")}
+                </li>
+                {home.bathrooms && (
+                  <li className="flex items-center gap-2 t-body text-foreground">
+                    <Bath className="w-4 h-4 text-accent-strong" strokeWidth={1.5} />
+                    {home.bathrooms} {t("wr-fact-bathrooms")}
+                  </li>
+                )}
+              </ul>
+
+              <p className="t-body text-muted-foreground mt-md whitespace-pre-line">{summary}</p>
+
+              {home.amenities && home.amenities.length > 0 && (
+                <div className="mt-lg">
+                  <h2 className="t-tag text-accent-strong">{t("wr-amenities-heading")}</h2>
+                  <ul className="grid sm:grid-cols-2 gap-x-lg gap-y-3 mt-4">
+                    {home.amenities.slice(0, KEY_FEATURE_COUNT).map((amenity) => {
+                      const Icon = getAmenityIcon(amenity);
+                      return (
+                        <li key={amenity} className="flex items-center gap-3">
+                          <Icon className="w-4 h-4 text-accent-strong shrink-0" strokeWidth={1.5} />
+                          <span className="t-body text-foreground">{amenity}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {/* "Home at a glance" lives here now, not as its own full-width
+                  section after the map — the Panel beside it runs tall once
+                  the enquiry form is inside it, and this is what fills that
+                  column instead of leaving it empty next to a long card
+                  (Almedin, 04.10.2026). */}
+              <div className="mt-lg">
+                <h2 className="t-tag text-accent-strong">{t("wr-facts-heading")}</h2>
+                <dl className="mt-4">
+                  {facts.map(([label, value]) => (
+                    <div key={label} className="border-t border-border py-sm flex justify-between gap-md">
+                      <dt className="t-body text-muted-foreground">{label}</dt>
+                      <dd className="t-body text-foreground text-right">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </div>
+
+            <div className="md:col-span-4 md:col-start-9">
+              <Panel className="md:sticky md:top-24">
                 <p className="t-meta text-muted-foreground">{t("wr-price-heading")}</p>
                 <p className="t-section text-foreground mt-1">
                   {money(home.monthly_price)}{" "}
                   <span className="t-meta text-muted-foreground">{t("wr-per-month")}</span>
                 </p>
                 <p className="t-meta text-muted-foreground mt-2">{t("wr-price-note")}</p>
-              </div>
 
-              {open ? (
-                <a href="#enquiry" className="cta-base cta-primary mt-md">
-                  {t("wr-cta-enquire")}
-                </a>
-              ) : (
-                <div className="mt-md">
-                  <p className="t-body text-muted-foreground">{t("wr-unavailable-note")}</p>
-                  <a
-                    href={enquiryUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cta-base cta-secondary mt-sm"
-                  >
-                    {t("wr-empty-link")}
-                  </a>
-                </div>
-              )}
+                {/* Price, then the enquiry fields right in the same card —
+                    the costasolvillas.com reference (Almedin, 04.10.2026),
+                    not a button that jumps to a form elsewhere on the page. */}
+                {open ? (
+                  <WinterEnquiryForm home={home} />
+                ) : (
+                  <div className="mt-md">
+                    <p className="t-body text-muted-foreground">{t("wr-unavailable-note")}</p>
+                    <a
+                      href={enquiryUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="cta-base cta-secondary w-full mt-sm"
+                    >
+                      {t("wr-empty-link")}
+                    </a>
+                  </div>
+                )}
+              </Panel>
             </div>
           </Grid>
         </Section>
 
-        <Section size="sm" measure="text">
-          <h2 className="t-section text-foreground mb-md">{t("wr-facts-heading")}</h2>
-          <dl>
-            {facts.map(([label, value]) => (
-              <div key={label} className="border-t border-border py-sm flex justify-between gap-md">
-                <dt className="t-body text-muted-foreground">{label}</dt>
-                <dd className="t-body text-foreground text-right">{value}</dd>
-              </div>
-            ))}
-          </dl>
+        {/* Surroundings/map — the linked Guesty house's real coordinates for
+            a precise pin (DECISIONS.md §57), or just the area name for the
+            three homes with no Guesty match yet. Same aspect-video, same
+            Section-contained width as PropertyDetail.tsx's map, not the old
+            21:9 full-bleed strip. */}
+        <Section size="md">
+          <p className="t-tag text-accent-strong">{t("pd-location-eyebrow")}</p>
+          <h2 className="t-section text-foreground mt-3">{t("pd-surroundings-heading")}</h2>
+          {home.property?.address && (
+            <p className="t-body text-foreground mt-md max-w-2xl">{home.property.address}</p>
+          )}
+          <div className="mt-md">
+            <SurroundingsMap
+              latitude={home.property?.latitude}
+              longitude={home.property?.longitude}
+              address={home.property?.address}
+              label={home.location}
+            />
+          </div>
         </Section>
 
-        {open && (
-          <Section size="sm" measure="text">
-            <WinterEnquiryForm home={home} />
-          </Section>
-        )}
-
-        <Section size="md" measure="text">
+        <Section size="md">
           <h2 className="t-section text-foreground mb-md">{t("wr-how-heading")}</h2>
-          <div className="space-y-md">
+          <div className="space-y-md max-w-2xl">
             {[1, 2, 3].map((n) => (
               <div key={n} className="border-t border-border pt-sm">
                 <h3 className="t-block text-foreground">
@@ -261,20 +492,19 @@ const WinterRentalDetailPage = ({
           </div>
         </Section>
 
-        {others.length > 0 && (
+        {similar.length > 0 && (
           <Section size="md">
-            <h2 className="t-section text-foreground mb-lg">
-              {t("wr-more-heading").replace("{place}", place)}
-            </h2>
+            <p className="t-tag text-accent-strong">{t("pd-similar-eyebrow")}</p>
+            <h2 className="t-section text-foreground mt-3 mb-lg">{t("pd-similar-heading")}</h2>
             <Grid cols={3} gap="md">
-              {others.map((other) => (
-                <WinterListingCard key={other.id} home={other} />
+              {similar.map((s) => (
+                <WinterListingCard key={s.id} home={s} />
               ))}
             </Grid>
           </Section>
         )}
 
-        <Section size="sm" measure="text">
+        <Section size="sm">
           <Link to={cityPath} className="t-body text-accent-strong hover:underline">
             {t("wr-back-link").replace("{place}", place)}
           </Link>

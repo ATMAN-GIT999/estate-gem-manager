@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { toMidtermListing, type MidtermListing } from "@/lib/winterRentals";
+import { GUEST_LISTING_COLUMNS, toMidtermListing, type MidtermListing } from "@/lib/winterRentals";
 
 /**
  * Published winter rentals, optionally for one place. RLS already hides
@@ -16,7 +16,7 @@ export const useWinterListings = (city?: string) => {
     const load = async () => {
       let query = supabase
         .from("midterm_listings")
-        .select("*")
+        .select(GUEST_LISTING_COLUMNS)
         .eq("published", true)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: true });

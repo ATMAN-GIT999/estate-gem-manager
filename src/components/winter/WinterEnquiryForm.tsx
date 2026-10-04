@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -74,8 +74,10 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+    // One field, like the reference card (costasolvillas.com) and the field
+    // list Almedin gave — not split first/last. Stored whole in `first_name`;
+    // `last_name` is nullable precisely for this (see the migration).
+    name: "",
     email: "",
     phone: "",
     desiredFrom: home.available_from ?? "",
@@ -93,8 +95,7 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const schema = z.object({
-    firstName: z.string().trim().min(1, t("wr-form-error-name")).max(100),
-    lastName: z.string().trim().max(100),
+    name: z.string().trim().min(1, t("wr-form-error-name")).max(150),
     email: z.string().trim().email(t("wr-form-error-email")).max(255),
     phone: z.string().trim().max(40),
     message: z.string().trim().max(2000),
@@ -129,8 +130,8 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
       id,
       listing_id: home.id,
       listing_name: home.name,
-      first_name: parsed.data.firstName,
-      last_name: parsed.data.lastName || null,
+      first_name: parsed.data.name,
+      last_name: null,
       email: parsed.data.email,
       phone: parsed.data.phone || null,
       desired_from: form.desiredFrom || null,
@@ -154,7 +155,7 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
     void notifyFrontier({
       home: home.name,
       location: home.location,
-      name: `${parsed.data.firstName} ${parsed.data.lastName}`.trim(),
+      name: parsed.data.name,
       email: parsed.data.email,
       phone: parsed.data.phone,
       moveIn: form.desiredFrom,
@@ -167,33 +168,36 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
     setSent(true);
   };
 
+  const whatsapp = whatsAppEnquiryUrl(
+    t("wr-cta-message").replace("{name}", home.name).replace("{location}", home.location)
+  );
+
   if (sent) {
     return (
-      <div id="enquiry" className="scroll-mt-24 border-t border-border pt-md">
-        <CheckCircle2 className="h-6 w-6 text-accent-strong" strokeWidth={1.5} aria-hidden="true" />
-        <h2 className="t-section text-foreground mt-3">{t("wr-form-sent-heading")}</h2>
+      <div className="border-t border-border pt-md mt-md text-center">
+        <CheckCircle2 className="h-10 w-10 text-accent-strong mx-auto mb-4" strokeWidth={1.5} aria-hidden="true" />
+        <h2 className="t-block text-foreground text-balance">{t("wr-form-sent-heading")}</h2>
         <p className="t-body text-muted-foreground mt-2">{t("wr-form-sent-body")}</p>
       </div>
     );
   }
 
-  const whatsapp = whatsAppEnquiryUrl(
-    t("wr-cta-message").replace("{name}", home.name).replace("{location}", home.location)
-  );
-
   return (
-    <form id="enquiry" onSubmit={handleSubmit} className="scroll-mt-24 border-t border-border pt-md" noValidate>
-      <h2 className="t-section text-foreground">{t("wr-form-heading")}</h2>
-      <p className="t-body text-muted-foreground mt-2">{t("wr-form-lead")}</p>
+    // Price above, enquiry fields directly below in the same Panel — the
+    // costasolvillas.com reference card Almedin pointed to (04.10.2026), not
+    // a CTA that jumps down to a form further down the page. Single column
+    // throughout: this lives in the sticky ~1/3-width Panel next to the
+    // gallery, not a full-width page section, so a paired sm:grid-cols-2 row
+    // (as OwnerContactForm.tsx uses on the wide property-management page)
+    // would squeeze two fields into less room than one has here.
+    <form onSubmit={handleSubmit} className="border-t border-border pt-md mt-md" noValidate>
+      <h2 className="t-block text-foreground">{t("wr-form-heading")}</h2>
+      <p className="t-meta text-muted-foreground mt-1">{t("wr-form-lead")}</p>
 
-      <div className="grid gap-4 sm:grid-cols-2 mt-md">
+      <div className="space-y-3 mt-md">
         <div className="space-y-1">
-          <Label htmlFor="wr-first">{t("wr-form-first-name")}</Label>
-          <Input id="wr-first" autoComplete="given-name" required value={form.firstName} onChange={update("firstName")} />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="wr-last">{t("wr-form-last-name")}</Label>
-          <Input id="wr-last" autoComplete="family-name" value={form.lastName} onChange={update("lastName")} />
+          <Label htmlFor="wr-name">{t("wr-form-name")}</Label>
+          <Input id="wr-name" autoComplete="name" required value={form.name} onChange={update("name")} />
         </div>
         <div className="space-y-1">
           <Label htmlFor="wr-email">{t("wr-form-email")}</Label>
@@ -207,21 +211,18 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
           <Label htmlFor="wr-from">{t("wr-form-from")}</Label>
           <Input id="wr-from" type="date" value={form.desiredFrom} onChange={update("desiredFrom")} />
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <Label htmlFor="wr-months">{t("wr-form-months")}</Label>
-            <Input id="wr-months" type="number" min={1} max={24} value={form.desiredMonths} onChange={update("desiredMonths")} />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="wr-guests">{t("wr-form-guests")}</Label>
-            <Input id="wr-guests" type="number" min={1} max={20} value={form.guests} onChange={update("guests")} />
-          </div>
+        <div className="space-y-1">
+          <Label htmlFor="wr-months">{t("wr-form-months")}</Label>
+          <Input id="wr-months" type="number" min={1} max={24} value={form.desiredMonths} onChange={update("desiredMonths")} />
         </div>
-      </div>
-
-      <div className="space-y-1 mt-4">
-        <Label htmlFor="wr-message">{t("wr-form-message")}</Label>
-        <Textarea id="wr-message" rows={4} value={form.message} onChange={update("message")} />
+        <div className="space-y-1">
+          <Label htmlFor="wr-guests">{t("wr-form-guests")}</Label>
+          <Input id="wr-guests" type="number" min={1} max={20} value={form.guests} onChange={update("guests")} />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="wr-message">{t("wr-form-message")}</Label>
+          <Textarea id="wr-message" rows={3} value={form.message} onChange={update("message")} />
+        </div>
       </div>
 
       {/* Honeypot — off-screen rather than display:none, which some bots skip. */}
@@ -230,20 +231,25 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
         <input id="wr-website" tabIndex={-1} autoComplete="off" value={form.website} onChange={update("website")} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 mt-md">
-        <button type="submit" disabled={submitting} className="cta-base cta-primary">
-          {submitting ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" /> {t("wr-form-sending")}
-            </>
-          ) : (
-            t("wr-form-submit")
-          )}
-        </button>
-        <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="t-body text-accent-strong hover:underline">
-          {t("wr-form-or-whatsapp")}
-        </a>
-      </div>
+      <button type="submit" disabled={submitting} className="cta-base cta-primary w-full mt-md">
+        {submitting ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("wr-form-sending")}
+          </>
+        ) : (
+          t("wr-form-submit")
+        )}
+      </button>
+
+      <a
+        href={whatsapp}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 t-meta text-accent-strong hover:underline mt-3"
+      >
+        <MessageCircle className="h-3.5 w-3.5" strokeWidth={1.5} />
+        {t("wr-form-or-whatsapp")}
+      </a>
     </form>
   );
 };

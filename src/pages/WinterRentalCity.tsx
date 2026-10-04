@@ -74,9 +74,15 @@ const WinterRentalCityPage = ({ city }: { city: City }) => {
           ]}
         />
 
-        <Section size="sm" measure="text">
-          <h1 className="t-display text-foreground text-balance">{t(wrKey(city.slug, "h1"))}</h1>
-          <p className="t-body text-muted-foreground mt-sm">{t(wrKey(city.slug, "intro"))}</p>
+        {/* `measure="full"` (the default), not "text" — same reason as
+            WinterRentals.tsx's hero: "text" would nest a centered `max-w-3xl`
+            inside the already-centered `.app-container`, shifting this off
+            the left edge every other section on the page shares. */}
+        <Section size="sm">
+          <div className="max-w-3xl">
+            <h1 className="t-display text-foreground text-balance">{t(wrKey(city.slug, "h1"))}</h1>
+            <p className="t-body text-muted-foreground mt-sm">{t(wrKey(city.slug, "intro"))}</p>
+          </div>
         </Section>
 
         <Section size="sm">
@@ -114,9 +120,9 @@ const WinterRentalCityPage = ({ city }: { city: City }) => {
           )}
         </Section>
 
-        <Section size="md" measure="text">
+        <Section size="md">
           <h2 className="t-section text-foreground mb-md">{t("wr-how-heading")}</h2>
-          <div className="space-y-md">
+          <div className="space-y-md max-w-2xl">
             {[1, 2, 3].map((n) => (
               <div key={n} className="border-t border-border pt-sm">
                 <h3 className="t-block text-foreground">

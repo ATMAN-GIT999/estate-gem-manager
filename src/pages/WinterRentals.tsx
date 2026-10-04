@@ -64,10 +64,16 @@ const WinterRentals = () => {
           ]}
         />
 
-        <Section size="sm" measure="text">
-          <p className="t-tag text-accent-strong">{t("wr-overview-eyebrow")}</p>
-          <h1 className="t-display text-foreground text-balance mt-3">{t("wr-overview-h1")}</h1>
-          <p className="t-body text-muted-foreground mt-sm">{t("wr-overview-lead")}</p>
+        {/* `measure="full"` (the default) on purpose, not "text" — that would
+            nest a centered `max-w-3xl` inside the already-centered
+            `.app-container`, shifting this block off the left edge every
+            other section on the page shares (Almedin, 04.10.2026). */}
+        <Section size="sm">
+          <div className="max-w-3xl">
+            <p className="t-tag text-accent-strong">{t("wr-overview-eyebrow")}</p>
+            <h1 className="t-display text-foreground text-balance mt-3">{t("wr-overview-h1")}</h1>
+            <p className="t-body text-muted-foreground mt-sm">{t("wr-overview-lead")}</p>
+          </div>
         </Section>
 
         <Section size="md">
@@ -121,9 +127,9 @@ const WinterRentals = () => {
           )}
         </Section>
 
-        <Section size="md" measure="text">
+        <Section size="md">
           <h2 className="t-section text-foreground mb-md">{t("wr-how-heading")}</h2>
-          <div className="space-y-md">
+          <div className="space-y-md max-w-2xl">
             {[1, 2, 3].map((n) => (
               <div key={n} className="border-t border-border pt-sm">
                 <h3 className="t-block text-foreground">

@@ -77,6 +77,13 @@ export interface MidtermListing {
   size_sqm: number | null;
   monthly_price: number;
   deposit: number | null;
+  /**
+   * Agency commission, EUR. Was internal-only (DECISIONS.md §57); made
+   * guest-facing again in §58 (Almedin, 04.10.2026) — `wr-price-note` states
+   * it and `GUEST_LISTING_COLUMNS` now selects it. Don't re-hide it without
+   * updating both.
+   */
+  commission: number | null;
   utilities_included: boolean | null;
   min_stay_months: number | null;
   max_stay_months: number | null;
@@ -88,7 +95,28 @@ export interface MidtermListing {
   description: string | null;
   amenities: string[] | null;
   sort_order: number;
+  /**
+   * The linked Guesty house's map coordinates, for homes that are the same
+   * physical property as an existing vacation rental (DECISIONS.md §57).
+   * Only present when the detail page's own query asks for it — `property_id`
+   * links the two, but `midterm_listings` deliberately stores no address of
+   * its own (see the comment on that column in the migration): the exact
+   * location is fetched live from `properties` for display, never copied in.
+   * `undefined` on every other fetch (list/card/admin), `null` when the row
+   * has no `property_id` or the query didn't ask.
+   */
+  property?: { latitude: number | null; longitude: number | null; address: string | null } | null;
 }
+
+/**
+ * Column list for the public-facing guest queries — deliberately not
+ * `select("*")`, so a column added to the table later (another internal one,
+ * like `commission` used to be between §57 and §58) doesn't reach a guest
+ * just because `*` includes it. `commission` itself is public again as of
+ * §58 and is listed below on purpose.
+ */
+export const GUEST_LISTING_COLUMNS =
+  "id, slug, name, city_group, location, property_type, bedrooms, bathrooms, guests, size_sqm, monthly_price, deposit, commission, utilities_included, min_stay_months, max_stay_months, available_from, available_until, status, published, images, description, amenities, sort_order";
 
 /** The generated row type widens `images` to `Json`; this is the shape the admin writes. */
 export const toMidtermListing = (row: unknown): MidtermListing => {
