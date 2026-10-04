@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { addDays, format, startOfDay } from "date-fns";
+import { format, startOfDay } from "date-fns";
+import type { DateRange } from "react-day-picker";
 import { ArrowRight, CalendarIcon, Minus, Plus, Search, SlidersHorizontal } from "lucide-react";
 import LocationAutocomplete from "@/components/LocationAutocomplete";
 import { Button } from "@/components/ui/button";
@@ -75,8 +76,7 @@ const SearchBar = ({
   fullWidth = false,
 }: SearchBarProps) => {
   const { t } = useLocale();
-  const [checkInOpen, setCheckInOpen] = useState(false);
-  const [checkOutOpen, setCheckOutOpen] = useState(false);
+  const [datesOpen, setDatesOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [manualExpand, setManualExpand] = useState(false);
@@ -113,20 +113,16 @@ const SearchBar = ({
     onGuestsChange(clamped === 0 ? "" : String(clamped));
   };
 
-  const handleCheckInSelect = (date: Date | undefined) => {
-    onCheckInChange(date);
-    if (date && checkOutDate && checkOutDate <= date) {
-      onCheckOutChange(undefined);
-    }
-    setCheckInOpen(false);
-    if (date) {
-      setTimeout(() => setCheckOutOpen(true), 100);
-    }
-  };
-
-  const handleCheckOutSelect = (date: Date | undefined) => {
-    onCheckOutChange(date);
-    setCheckOutOpen(false);
+  /** One range picker instead of two single-date ones (Almedin, 04.10.2026)
+   *  — `from`/`to` map straight onto the existing checkIn/checkOut state, so
+   *  Hero.tsx and Properties.tsx need no changes. Closes itself only once
+   *  both ends are picked; a `from`-only selection (the first click) leaves
+   *  it open for the second.
+   */
+  const handleRangeSelect = (range: DateRange | undefined) => {
+    onCheckInChange(range?.from);
+    onCheckOutChange(range?.to);
+    if (range?.from && range?.to) setDatesOpen(false);
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -218,43 +214,34 @@ const SearchBar = ({
           <LocationAutocomplete value={location} onChange={onLocationChange} label={t("searchbar.whereLabel")} />
         </div>
 
+        {/* Check-in and check-out merged into one range field (Almedin,
+            04.10.2026) — one popover, one calendar, instead of clicking
+            check-in then having a second popover open for check-out. */}
         <div className={cn("relative flex-1 shrink-0", fieldPad, fieldDivider)}>
-          <span className={fieldLabel}>{t("searchbar.checkInLabel")}</span>
-          <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
+          <span className={fieldLabel}>{t("searchbar.whenLabel")}</span>
+          <Popover open={datesOpen} onOpenChange={setDatesOpen}>
             <PopoverTrigger asChild>
               <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-[15px] text-foreground")}>
-                <span className="truncate">{checkInDate ? format(checkInDate, "d MMM yyyy") : t("searchbar.checkIn")}</span>
+                <span className="truncate">
+                  {checkInDate
+                    ? checkOutDate
+                      ? `${format(checkInDate, "d MMM")} – ${format(checkOutDate, "d MMM yyyy")}`
+                      : format(checkInDate, "d MMM yyyy")
+                    : t("searchbar.when")}
+                </span>
                 <CalendarIcon className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="z-[70] w-auto p-0" align="start">
+              {/* numberOfMonths={2} (Almedin, 04.10.2026) — the current and
+                  next month side by side, so picking a check-out a few weeks
+                  out doesn't need a click through to the next page first. */}
               <Calendar
-                mode="single"
-                selected={checkInDate}
-                onSelect={handleCheckInSelect}
+                mode="range"
+                numberOfMonths={2}
+                selected={{ from: checkInDate, to: checkOutDate }}
+                onSelect={handleRangeSelect}
                 disabled={(date) => date < today}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <div className={cn("relative flex-1 shrink-0", fieldPad, fieldDivider)}>
-          <span className={fieldLabel}>{t("searchbar.checkOutLabel")}</span>
-          <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-[15px] text-foreground")}>
-                <span className="truncate">{checkOutDate ? format(checkOutDate, "d MMM yyyy") : t("searchbar.checkOut")}</span>
-                <CalendarIcon className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="z-[70] w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={checkOutDate}
-                onSelect={handleCheckOutSelect}
-                defaultMonth={checkInDate ? addDays(checkInDate, 1) : undefined}
-                disabled={(date) => date < today || Boolean(checkInDate && date <= checkInDate)}
                 initialFocus
               />
             </PopoverContent>
