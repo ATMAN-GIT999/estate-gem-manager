@@ -547,6 +547,24 @@ export type Database = {
           },
         ]
       }
+      evaluator_rate_limits: {
+        Row: {
+          id: string
+          identifier: string
+          requested_at: string
+        }
+        Insert: {
+          id?: string
+          identifier: string
+          requested_at?: string
+        }
+        Update: {
+          id?: string
+          identifier?: string
+          requested_at?: string
+        }
+        Relationships: []
+      }
       guesty_calendar_cache: {
         Row: {
           created_at: string
@@ -678,63 +696,6 @@ export type Database = {
           },
         ]
       }
-      offers: {
-        Row: {
-          completion_percentage: number | null
-          created_at: string
-          description: string | null
-          discount_type: string | null
-          discount_value: number | null
-          end_date: string | null
-          id: string
-          max_redemptions: number | null
-          properties: string[] | null
-          redemption_count: number | null
-          start_date: string | null
-          status: string
-          target_audience: string | null
-          tasks: Json | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          completion_percentage?: number | null
-          created_at?: string
-          description?: string | null
-          discount_type?: string | null
-          discount_value?: number | null
-          end_date?: string | null
-          id?: string
-          max_redemptions?: number | null
-          properties?: string[] | null
-          redemption_count?: number | null
-          start_date?: string | null
-          status?: string
-          target_audience?: string | null
-          tasks?: Json | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          completion_percentage?: number | null
-          created_at?: string
-          description?: string | null
-          discount_type?: string | null
-          discount_value?: number | null
-          end_date?: string | null
-          id?: string
-          max_redemptions?: number | null
-          properties?: string[] | null
-          redemption_count?: number | null
-          start_date?: string | null
-          status?: string
-          target_audience?: string | null
-          tasks?: Json | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       midterm_listings: {
         Row: {
           amenities: string[] | null
@@ -743,11 +704,12 @@ export type Database = {
           bathrooms: number | null
           bedrooms: number
           city_group: string
+          commission: number | null
           created_at: string
           deposit: number | null
           description: string | null
-          guesty_listing_id: string | null
           guests: number | null
+          guesty_listing_id: string | null
           id: string
           idealista_id: string | null
           images: Json
@@ -774,11 +736,12 @@ export type Database = {
           bathrooms?: number | null
           bedrooms: number
           city_group: string
+          commission?: number | null
           created_at?: string
           deposit?: number | null
           description?: string | null
-          guesty_listing_id?: string | null
           guests?: number | null
+          guesty_listing_id?: string | null
           id?: string
           idealista_id?: string | null
           images?: Json
@@ -805,11 +768,12 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number
           city_group?: string
+          commission?: number | null
           created_at?: string
           deposit?: number | null
           description?: string | null
-          guesty_listing_id?: string | null
           guests?: number | null
+          guesty_listing_id?: string | null
           id?: string
           idealista_id?: string | null
           images?: Json
@@ -897,6 +861,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      offers: {
+        Row: {
+          completion_percentage: number | null
+          created_at: string
+          description: string | null
+          discount_type: string | null
+          discount_value: number | null
+          end_date: string | null
+          id: string
+          max_redemptions: number | null
+          properties: string[] | null
+          redemption_count: number | null
+          start_date: string | null
+          status: string
+          target_audience: string | null
+          tasks: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completion_percentage?: number | null
+          created_at?: string
+          description?: string | null
+          discount_type?: string | null
+          discount_value?: number | null
+          end_date?: string | null
+          id?: string
+          max_redemptions?: number | null
+          properties?: string[] | null
+          redemption_count?: number | null
+          start_date?: string | null
+          status?: string
+          target_audience?: string | null
+          tasks?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completion_percentage?: number | null
+          created_at?: string
+          description?: string | null
+          discount_type?: string | null
+          discount_value?: number | null
+          end_date?: string | null
+          id?: string
+          max_redemptions?: number | null
+          properties?: string[] | null
+          redemption_count?: number | null
+          start_date?: string | null
+          status?: string
+          target_audience?: string | null
+          tasks?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       pages: {
         Row: {
@@ -1220,6 +1241,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      sync_guesty_prices: {
+        Args: never
+        Returns: {
+          detail: string
+          ok: boolean
+          slug: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -1245,12 +1274,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1274,11 +1303,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1299,11 +1328,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1324,11 +1353,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1341,11 +1370,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

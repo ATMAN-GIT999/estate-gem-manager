@@ -2579,3 +2579,87 @@ sollten vor dem nächsten Deploy einmal live angeschaut werden.
 
 **Verifikation:** `tsc`, Build und `eslint` ohne neue Befunde. Die Seiten und das Formular wurden im Browser gegen **simulierte** Supabase-Antworten angesehen (Übersicht, Ort, Objekt, 404, Absenden); gegen die echte DB, die Admin-Seite im Browser und die Web3Forms-Mail ist nichts geprüft.
 
+## 57 · Kommerzielle Grunddaten gesetzt, vier Winter-Rentals an Guesty-Häuser verknüpft und veröffentlicht
+
+*04.10.2026, direkt auf der Live-DB (`womaoywuhjchtubacbvn`), nach Rücksprache mit Almedin im Chat.*
+
+**Kaution, Kommission, Mindestaufenthalt (alle 7 Objekte).** Policy: Kaution =
+Kommission = 1 Monatsmiete, Mindestaufenthalt = 1 Monat. Die Kaution stand
+schon auf jedem Idealista-Inserat als „fianza 1 mes"; Kommission ist Frontiers
+Standardsatz. Dafür kam eine neue Spalte `commission` dazu
+(`20261004140000_midterm_listings_commission.sql`) — bewusst **nicht**
+gäste-sichtbar, weil Nebenkosten (`utilities_included`) noch offen ist und
+Almedin selbst unsicher war, ob es überhaupt welche gibt. Da RLS auf
+`midterm_listings` zeilenbasiert ist, hätte ein `select("*")` die Kommission
+trotzdem an jeden Besucher ausgeliefert; `useWinterListings.ts` und
+`WinterRentalDetail.tsx` wählen seitdem eine explizite Spaltenliste
+(`GUEST_LISTING_COLUMNS` in `winterRentals.ts`) statt `*`. Die Admin-Query
+bleibt `select("*")`, dort ist es erlaubt.
+
+**Vier Objekte sind dieselben Häuser wie bestehende Guesty-Listings.** Keine
+Vermutung anhand von Lage/Zimmerzahl — das ging erst schief (die erste
+Zuordnung von `townhouse-higueron`/`semi-detached-capellania` war
+vertauscht), **Almedin hat die Paare im Chat benannt**:
+
+| `midterm_listings.slug` | Guesty-Haus (`properties.name`) |
+|---|---|
+| `apartment-soho` | 6th floor Malaga Soho Apartment |
+| `townhouse-higueron` | Luxury Villa with Infinity Pool & Sea Views \| Higuerón |
+| `semi-detached-la-quinta` | Casa Heredia - Rural Andalusian Retreat |
+| `semi-detached-capellania` | THE ONE – Sea View Luxury Villa in Higuerón |
+
+Für diese vier: `property_id` gesetzt, `images` und `description` 1:1 vom
+Guesty-Haus übernommen (es ist dasselbe physische Haus, keine
+Idealista-Inhalte — die „nichts erraten"-Regel aus §56 gilt hier nicht) und
+**veröffentlicht**. Die übrigen drei (`apartment-las-gaviotas`,
+`apartment-casasola`, `penthouse-los-alamos`) stehen in keinem Guesty-Haus,
+bleiben unveröffentlicht und warten auf eigene Fotos/Texte von Frontier.
+
+`registration_number` ist bei allen vier verknüpften Guesty-Häusern selbst
+schon leer — keine neue Lücke, dieselbe wie auf der Vacation-Rentals-Seite.
+
+**Dateien:** `supabase/migrations/20261004140000_midterm_listings_commission.sql`,
+`supabase/update_midterm_listings_commercial_terms.sql`,
+`supabase/update_midterm_listings_property_links.sql` (beide Updates NICHT
+über die Migrationshistorie, analog zum Seed in §56).
+
+**Verifikation:** `tsc`, Build, `eslint` ohne neue Befunde. `/winter-rentals`
+im Dev-Server gegen die echte Live-DB angesehen (zum Zeitpunkt der Prüfung
+noch vor der Veröffentlichung: korrekter Leerzustand, keine Konsolenfehler).
+Die veröffentlichten Seiten der vier Objekte wurden danach **nicht** erneut
+im Browser angesehen — offen für die nächste Session.
+
+## 58 · Kommission ist jetzt doch gäste-sichtbar — Umkehrung von §57
+
+*04.10.2026, direkt auf der Live-DB, nach Rückfrage im Chat.*
+
+**Entscheidung (Almedin):** Die Kommission wird den Gästen jetzt angezeigt,
+nicht mehr geheim gehalten. Auslöser: Almedin hat den Preishinweis auf der
+Objektseite über die Browser-Konsole live editiert, um zu testen, wie „Kaution
+und Kommission, je 1 Monatsmiete, zusätzlich zur Miete fällig" wirkt — dieser
+Test-Text stand im Widerspruch zu §57, wurde aber auf Rückfrage ausdrücklich
+bestätigt statt verworfen.
+
+**Was das rückgängig macht:** §57 hatte die `commission`-Spalte bewusst aus
+`GUEST_LISTING_COLUMNS` ausgeschlossen (RLS ist zeilen-, nicht spaltenbasiert,
+`select("*")` hätte sie sonst an jeden Besucher ausgeliefert). Jetzt steht sie
+wieder in der Spaltenliste, `MidtermListing` hat das Feld zurück, und
+`WinterRentalDetail.tsx` zeigt eine „Commission"-Zeile in der Faktenliste —
+„1 month", nach demselben Muster wie die Kaution (Vielfaches der Monatsmiete →
+als Monatszahl, sonst als Euro-Betrag).
+
+**Text:** `wr-price-note` nennt jetzt Kaution UND Kommission explizit
+(„plus one month's deposit and one month's commission"), der Hinweis auf noch
+offene Nebenkosten bleibt stehen (B7, weiterhin ungeklärt).
+
+**Nicht angefasst:** Die Migration `20261004140000_midterm_listings_commission.sql`
+und `update_midterm_listings_commercial_terms.sql` behalten ihren
+ursprünglichen Wortlaut („internal, never shown to guests") — das war zum
+Zeitpunkt des Schreibens korrekt, und ein nachträgliches Umschreiben der
+historischen Begründung wäre irreführend. Der Spaltenkommentar in der
+Live-DB (`COMMENT ON COLUMN`) wurde aktualisiert, da er aktuellen Stand
+beschreibt, keine Historie.
+
+**Verifikation:** `tsc`, Build und `eslint` sauber, keine neuen Befunde
+gegenüber dem vorherigen Stand.
+
