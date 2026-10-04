@@ -1,22 +1,23 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 /**
- * Emails Frontier when a winter rental enquiry comes in.
+ * Tells Frontier on Telegram when a winter rental enquiry comes in.
+ *
+ * Telegram instead of email because email needs a sender domain verified in DNS,
+ * and the DNS of frontier-residences.com is not in our hands. A bot message needs
+ * no domain and reaches the phone at once.
  *
  * The browser calls this right after inserting the enquiry, with the id it
  * generated for the row. The function is public (the visitor is anonymous), so
  * it trusts nothing in the request: it reads the row itself with the service
  * role and sends only if the row exists, is still 'new', is under ten minutes
  * old and has not been notified yet (`notified_at`). A forged or repeated call
- * therefore cannot make it send more than one mail per real enquiry, or mail
+ * therefore cannot make it send more than one message per real enquiry, or send
  * anything the visitor did not already enter.
  *
  * Secrets (Supabase function secrets, never the repo):
- *   RESEND_API_KEY  — Resend API key
- *   NOTIFY_TO       — recipient, default hello@frontier-residences.com
- *   NOTIFY_FROM     — verified sender, default onboarding@resend.dev (Resend's
- *                     test sender, which only delivers to the account owner —
- *                     set a sender on the verified domain before go-live)
+ *   TELEGRAM_BOT_TOKEN — token from @BotFather
+ *   TELEGRAM_CHAT_ID   — the chat or group that should get the message
  */
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -65,11 +66,12 @@ Deno.serve(async (req) => {
       .select('id');
     if (!claimed?.length) return json({ sent: false });
 
-    const apiKey = Deno.env.get('RESEND_API_KEY');
-    if (!apiKey) {
-      console.error('RESEND_API_KEY missing — enquiry stored, no mail sent');
+    const token = Deno.env.get('TELEGRAM_BOT_TOKEN');
+    const chatId = Deno.env.get('TELEGRAM_CHAT_ID');
+    if (!token || !chatId) {
+      console.error('Telegram secrets missing — enquiry stored, no message sent');
       await supabase.from('midterm_requests').update({ notified_at: null }).eq('id', id);
-      return json({ sent: false, error: 'mail not configured' }, 500);
+      return json({ sent: false, error: 'notifications not configured' }, 500);
     }
 
     const name = `${r.first_name} ${r.last_name ?? ''}`.trim();
@@ -83,28 +85,27 @@ Deno.serve(async (req) => {
       ['Guests', r.guests],
     ].filter(([, v]) => v !== null && v !== undefined && v !== '');
 
-    const html = `<p>New winter rental enquiry.</p>
-<table cellpadding="4">${lines.map(([k, v]) => `<tr><td><b>${esc(k)}</b></td><td>${esc(v)}</td></tr>`).join('')}</table>
-${r.message ? `<p><b>Message</b><br>${esc(r.message).replace(/\n/g, '<br>')}</p>` : ''}
-<p><a href="${ADMIN_URL}">Open in the admin area</a></p>`;
+    const text = `<b>New winter rental enquiry</b>\n` +
+      lines.map(([k, v]) => `${esc(k)}: ${esc(v)}`).join('\n') +
+      (r.message ? `\n\n${esc(r.message)}` : '') +
+      `\n\n<a href="${ADMIN_URL}">Open in the admin area</a>`;
 
-    const res = await fetch('https://api.resend.com/emails', {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: Deno.env.get('NOTIFY_FROM') ?? 'Frontier Residences <onboarding@resend.dev>',
-        to: [Deno.env.get('NOTIFY_TO') ?? 'hello@frontier-residences.com'],
-        // Reply goes straight to the guest.
-        reply_to: r.email,
-        subject: `Winter rental enquiry: ${r.listing_name} (${name})`,
-        html,
+        chat_id: chatId,
+        text,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
       }),
     });
     if (!res.ok) {
-      console.error('Resend failed:', res.status, await res.text());
+      // Log the status only — the response can echo the bot URL, which holds the token.
+      console.error('Telegram failed:', res.status);
       // Release the claim so a retry (or a manual look in the admin list) is possible.
       await supabase.from('midterm_requests').update({ notified_at: null }).eq('id', id);
-      return json({ sent: false, error: 'mail failed' }, 502);
+      return json({ sent: false, error: 'message failed' }, 502);
     }
     return json({ sent: true });
   } catch (err) {
