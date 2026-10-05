@@ -47,7 +47,7 @@ export default function PageWrapper({ slug, children }: PageWrapperProps) {
         .select("content_html, content_css, is_published")
         .eq("slug", slug)
         .eq("is_published", true)
-        .single();
+        .maybeSingle();
 
       if (data && data.content_html) {
         setOverride({ html: data.content_html, css: data.content_css || "" });

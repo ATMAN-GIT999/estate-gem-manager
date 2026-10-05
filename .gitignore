@@ -36,3 +36,6 @@ vite.config.ts.timestamp-*.mjs
 #   prompt.md — Almedins Notizzettel.
 partner/
 prompt.md
+
+# Local Netlify folder
+.netlify
