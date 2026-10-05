@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, CreditCard, Mail, Calendar, Users, Home, Hash, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Seo from "@/components/Seo";
+import { Container } from "@/components/layout";
 
 interface ConfirmationState {
   reservationId?: string;
@@ -60,15 +61,15 @@ const BookingConfirmation = () => {
       <Seo title="Booking Confirmation" path="/booking-confirmation" noindex />
       <Navigation />
       <main className="flex-1 pt-24 pb-12">
-        <div className="container mx-auto px-4 max-w-3xl">
+        <Container measure="text">
           <div className="text-center mb-8 animate-fade-in">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
               <CheckCircle2 className="w-9 h-9 text-primary" />
             </div>
-            <h1 className="font-playfair text-4xl font-bold text-primary mb-2">
+            <h1 className="t-display text-primary mb-2">
               {isInstant ? "Booking Confirmed" : "Request Received"}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="t-body text-muted-foreground">
               {isInstant
                 ? "Your reservation is secured. A confirmation email is on its way."
                 : "We've received your request and will be in touch shortly."}
@@ -78,7 +79,7 @@ const BookingConfirmation = () => {
           <Card className="shadow-elegant">
             <CardHeader>
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <CardTitle className="font-playfair text-2xl">Reservation Details</CardTitle>
+                <CardTitle className="t-section font-normal">Reservation Details</CardTitle>
                 <Badge variant={isInstant ? "default" : "secondary"}>
                   {state.status || (isInstant ? "Confirmed" : "Pending")}
                 </Badge>
@@ -89,12 +90,12 @@ const BookingConfirmation = () => {
               <div className="grid sm:grid-cols-2 gap-4">
                 {state.reservationId && (
                   <div>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <p className="t-meta text-muted-foreground flex items-center gap-1">
                       <Hash className="w-3 h-3" /> Reservation ID
                     </p>
                     <button
                       onClick={() => copy(state.reservationId)}
-                      className="font-mono text-sm font-semibold flex items-center gap-2 hover:text-primary transition-colors"
+                      className="t-item font-mono flex items-center gap-2 hover:text-primary transition-colors"
                     >
                       {state.reservationId}
                       <Copy className="w-3 h-3" />
@@ -103,10 +104,10 @@ const BookingConfirmation = () => {
                 )}
                 {state.confirmationCode && (
                   <div>
-                    <p className="text-xs text-muted-foreground">Confirmation Code</p>
+                    <p className="t-meta text-muted-foreground">Confirmation Code</p>
                     <button
                       onClick={() => copy(state.confirmationCode)}
-                      className="font-mono text-sm font-semibold flex items-center gap-2 hover:text-primary transition-colors"
+                      className="t-item font-mono flex items-center gap-2 hover:text-primary transition-colors"
                     >
                       {state.confirmationCode}
                       <Copy className="w-3 h-3" />
@@ -122,8 +123,8 @@ const BookingConfirmation = () => {
                 <div className="flex items-start gap-3">
                   <Home className="w-5 h-5 text-primary mt-0.5" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Property</p>
-                    <p className="font-semibold">{state.propertyName}</p>
+                    <p className="t-meta text-muted-foreground">Property</p>
+                    <p className="t-item">{state.propertyName}</p>
                   </div>
                 </div>
               )}
@@ -134,8 +135,8 @@ const BookingConfirmation = () => {
                   <div className="flex items-start gap-2">
                     <Calendar className="w-4 h-4 text-primary mt-1" />
                     <div>
-                      <p className="text-xs text-muted-foreground">Check In</p>
-                      <p className="font-semibold">{format(new Date(state.checkIn), "MMM d, yyyy")}</p>
+                      <p className="t-meta text-muted-foreground">Check In</p>
+                      <p className="t-item">{format(new Date(state.checkIn), "MMM d, yyyy")}</p>
                     </div>
                   </div>
                 )}
@@ -143,8 +144,8 @@ const BookingConfirmation = () => {
                   <div className="flex items-start gap-2">
                     <Calendar className="w-4 h-4 text-primary mt-1" />
                     <div>
-                      <p className="text-xs text-muted-foreground">Check Out</p>
-                      <p className="font-semibold">{format(new Date(state.checkOut), "MMM d, yyyy")}</p>
+                      <p className="t-meta text-muted-foreground">Check Out</p>
+                      <p className="t-item">{format(new Date(state.checkOut), "MMM d, yyyy")}</p>
                     </div>
                   </div>
                 )}
@@ -152,8 +153,8 @@ const BookingConfirmation = () => {
                   <div className="flex items-start gap-2">
                     <Users className="w-4 h-4 text-primary mt-1" />
                     <div>
-                      <p className="text-xs text-muted-foreground">Guests</p>
-                      <p className="font-semibold">{state.guests}</p>
+                      <p className="t-meta text-muted-foreground">Guests</p>
+                      <p className="t-item">{state.guests}</p>
                     </div>
                   </div>
                 )}
@@ -166,14 +167,14 @@ const BookingConfirmation = () => {
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-primary" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Payment Status</p>
-                    <p className="font-semibold">{paymentLabel}</p>
+                    <p className="t-meta text-muted-foreground">Payment Status</p>
+                    <p className="t-item">{paymentLabel}</p>
                   </div>
                 </div>
                 {state.total != null && (
                   <div className="text-right">
-                    <p className="text-xs text-muted-foreground">Total</p>
-                    <p className="text-2xl font-bold text-primary">
+                    <p className="t-meta text-muted-foreground">Total</p>
+                    <p className="t-section text-primary">
                       {state.currency === "USD" ? "$" : "€"}
                       {state.total.toFixed(2)}
                     </p>
@@ -187,9 +188,9 @@ const BookingConfirmation = () => {
               <div className="flex items-start gap-3">
                 <Mail className="w-5 h-5 text-primary mt-0.5" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Confirmation sent to</p>
-                  <p className="font-semibold">{state.guestName}</p>
-                  <p className="text-sm text-muted-foreground">{state.guestEmail}</p>
+                  <p className="t-meta text-muted-foreground">Confirmation sent to</p>
+                  <p className="t-item">{state.guestName}</p>
+                  <p className="t-body text-muted-foreground">{state.guestEmail}</p>
                 </div>
               </div>
             </CardContent>
@@ -203,7 +204,7 @@ const BookingConfirmation = () => {
               <Link to="/">Back to home</Link>
             </Button>
           </div>
-        </div>
+        </Container>
       </main>
       <Footer />
     </div>

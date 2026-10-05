@@ -1,132 +1,119 @@
 import { useEffect, useState } from "react";
 import EditableText from "./admin/EditableText";
 import EditableImage from "./admin/EditableImage";
-import { Section, Container } from "./layout";
+import { Section } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
-import { useInlineEdit } from "@/contexts/InlineEditContext";
 import { cn } from "@/lib/utils";
-import logoSurFilm from "@/assets/partner-sur-film.webp";
-import logoGuesty from "@/assets/partner-guesty.webp";
-import logoVasari from "@/assets/partner-vasari.webp";
-import logoChekin from "@/assets/partner-chekin.webp";
+import logoAirbnb from "@/assets/channel-airbnb.webp";
+import logoBooking from "@/assets/channel-booking.webp";
+import logoVrbo from "@/assets/channel-vrbo.svg";
+import logoGuesty from "@/assets/channel-guesty.svg";
+import logoPriceLabs from "@/assets/channel-pricelabs.webp";
+import logoChekin from "@/assets/channel-chekin.webp";
+import logoCima from "@/assets/partner-cima.svg";
 
 /**
- * The lightest section on the page, on purpose — a short breather right
- * after Proof, the heaviest one. No headline, no body copy, no CTA: just an
- * eyebrow and a row of logos, on the beige page background rather than
- * continuing Proof's green fill, so the change of register itself reads as
- * "we can stop pushing for a moment."
+ * "We are working with" — distribution channels plus renovation partners, as
+ * one quiet row.
  *
- * Deliberately mixes different kinds of "partner" under one label —
- * guest-facing brands alongside trade contractors and vendors — confirmed
- * with Almedin rather than assumed; both belong here as "who we work with"
- * in the broadest sense.
- *
- * All four logos are real now (22.08.2026). Sur Film and Guesty started as
- * screenshot crops off each company's own site (DECISIONS.md §42, no
- * downloadable brand asset existed on either site) and were later replaced
- * with the official transparent files Almedin supplied, auto-cropped to
- * their opaque content (`Image.getbbox()` after keying white to
- * transparent) plus a small uniform padding so all four sit at a visually
- * similar scale despite arriving at different native sizes. Grupo Vasari's
- * emblem keeps its own white tile as-is, since that square is part of how
- * the brand presents the mark, not an artifact of the crop. Chekin (guest
- * ID verification / online check-in) replaced the Netflix placeholder slot
- * — Netflix never got a logo file, Chekin arrived with one already supplied.
- * `object-contain`, not MediaFrame's own `object-cover`, since a cropped
- * logo is a wrong logo in a way a cropped photo usually isn't.
+ * Reverted from "Where your home goes live" (Almedin, 22.09.2026) back to the
+ * "working with" framing. Vasari (a renovation trade) was deliberately left
+ * out of that pass — the channels alone were the argument (reach you do not
+ * have on your own), and a trade in the same row blunts it. Put back in on
+ * Almedin's explicit call (29.09.2026): "working with" now reads as the whole
+ * network around a listing, not only its booking reach. Sur Film is still not
+ * in the repo, so it stays out rather than becoming a bare wordmark — a slot
+ * with no `src` renders as the same hatched placeholder the rest of the site
+ * uses, rather than as a gap.
  */
-interface Partner {
-  /** Shown in the placeholder until a real logo is supplied. */
-  name: string;
-  src?: string;
-  /** Each partner's own site — confirmed real URLs, not guessed (Chekin's
-      via a web search, since Almedin never sent that one directly). */
-  href: string;
-}
 
-const INITIAL_PARTNERS: Partner[] = [
-  { name: "Sur Film", src: logoSurFilm, href: "https://www.sur-film.com" },
-  { name: "Guesty", src: logoGuesty, href: "https://www.guesty.com" },
-  { name: "Chekin", src: logoChekin, href: "https://chekin.com" },
-  { name: "Grupo Vasari", src: logoVasari, href: "https://www.grupovasari.com" },
+type Slot = {
+  id: string;
+  src?: string;
+  label: string;
+  width?: number;
+  height?: number;
+};
+
+// `width`/`height` are each mark's real pixel dimensions, read off the files
+// themselves. Unlike the photographs elsewhere these are `object-contain` on
+// `w-auto`, so the mark's own ratio is what decides how wide its slot ends up
+// — a guessed ratio would shuffle the row sideways as the files land.
+const CHANNELS: Slot[] = [
+  { id: "channel-airbnb", src: logoAirbnb, label: "Airbnb", width: 600, height: 188 },
+  { id: "channel-booking", src: logoBooking, label: "Booking.com", width: 600, height: 100 },
+  { id: "channel-vrbo", src: logoVrbo, label: "Vrbo", width: 600, height: 222 },
+  { id: "channel-guesty", src: logoGuesty, label: "Guesty", width: 1441, height: 377 },
+  { id: "channel-pricelabs", src: logoPriceLabs, label: "PriceLabs", width: 600, height: 156 },
+  { id: "channel-chekin", src: logoChekin, label: "Chekin", width: 600, height: 176 },
+  // Real-estate partner, not a booking channel — same slot Vasari held
+  // (Almedin, 03.10.2026: swapped out for Cima Real Estate, a Marbella
+  // agency). Same max-h-9 as every other mark (Almedin, 03.10.2026): the
+  // row reads as one consistent size, not some marks standing out.
+  { id: "partner-cima", src: logoCima, label: "Cima Real Estate", width: 261, height: 85 },
 ];
 
 const WorkingWith = () => {
   const { t, language } = useLocale();
-  const { editMode } = useInlineEdit();
-  const [eyebrow, setEyebrow] = useState(t("working-with-eyebrow"));
-  const [partners, setPartners] = useState(INITIAL_PARTNERS);
+  const [eyebrow, setEyebrow] = useState(t("logoband-eyebrow"));
+  const [slots, setSlots] = useState(CHANNELS);
 
   useEffect(() => {
-    setEyebrow(t("working-with-eyebrow"));
+    setEyebrow(t("logoband-eyebrow"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
-  const updateLogo = (index: number, url: string) => {
-    const next = [...partners];
-    next[index] = { ...next[index], src: url };
-    setPartners(next);
-  };
+  const setSrc = (id: string, url: string) =>
+    setSlots((prev) => prev.map((s) => (s.id === id ? { ...s, src: url } : s)));
 
   return (
     <Section size="sm">
-      <Container measure="text" className="text-center">
-        <EditableText
-          id="working-with-eyebrow"
-          value={eyebrow}
-          onChange={setEyebrow}
-          as="span"
-          className="block t-meta text-accent-strong mb-lg"
-        >
-          {eyebrow}
-        </EditableText>
+      <EditableText
+        id="logoband-eyebrow"
+        value={eyebrow}
+        onChange={setEyebrow}
+        as="h2"
+        className="t-tag text-accent-strong text-center"
+      >
+        {eyebrow}
+      </EditableText>
 
-        {/* flex-nowrap, not flex-wrap: Almedin asked for the four side by
-            side, not two-by-two on narrow screens. The boxes and gap both
-            shrink at the smallest breakpoint instead — four 192px slots
-            with a 2xl gap between them cannot fit one row on a phone,
-            regardless of wrap behaviour.
-
-            Sized up 22.08.2026 (DECISIONS §44) — 72px is the ceiling that
-            still fits four boxes plus three `gap-x-xs` (12px) gaps inside a
-            375px phone's content width (~335px after gutters): 4×72 + 3×12
-            = 324px, just under. Going wider here would overflow on the
-            narrowest still-relevant phones instead of just looking tight. */}
-        <div className="flex flex-nowrap items-center justify-center gap-x-xs sm:gap-x-xl">
-          {partners.map((partner, index) => (
-            <a
-              key={index}
-              href={partner.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Visit ${partner.name}`}
-              // In edit mode a click has to reach EditableImage's own pencil
-              // button (opens the swap-image dialog), not leave the page —
-              // preventDefault still lets that click bubble and fire.
-              onClick={editMode ? (e) => e.preventDefault() : undefined}
-              className="flex h-14 w-[72px] shrink-0 items-center justify-center sm:h-20 sm:w-48"
-            >
-              {partner.src ? (
-                <EditableImage
-                  id={`working-with-logo-${index}`}
-                  src={partner.src}
-                  alt={partner.name}
-                  onChange={(url) => updateLogo(index, url)}
-                  className="max-h-full max-w-full object-contain"
-                />
-              ) : (
-                <div
-                  className={cn("bg-placeholder-hatch flex h-full w-full items-center justify-center rounded-md p-1 sm:p-2")}
-                  aria-hidden="true"
-                >
-                  <p className="t-meta text-accent-strong/70 text-center leading-tight">{partner.name}</p>
-                </div>
-              )}
-            </a>
-          ))}
-        </div>
-      </Container>
+      {/* One row, not a grid: the marks are different widths and a fixed
+          grid gives the narrow ones a box of their own.
+          `flex-nowrap` keeps all seven on one line at the widths this row
+          actually renders at; `overflow-x-auto` is only a safety net for a
+          narrower window, not the intended way to read it (Almedin,
+          29.09.2026 — the row used to wrap to a second line). */}
+      <ul
+        className={cn(
+          "mt-md flex flex-nowrap items-center justify-center gap-x-md gap-y-md",
+          "overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        )}
+      >
+        {slots.map((slot) => (
+          <li key={slot.id} className="flex items-center shrink-0">
+            {slot.src ? (
+              <EditableImage
+                id={slot.id}
+                src={slot.src}
+                alt={slot.label}
+                onChange={(url) => setSrc(slot.id, url)}
+                width={slot.width}
+                height={slot.height}
+                loading="lazy"
+                className="w-auto max-h-9 object-contain opacity-90 hover:opacity-100 transition-opacity"
+              />
+            ) : (
+              <span
+                className="bg-placeholder-hatch h-10 w-36 inline-flex items-center justify-center"
+                aria-hidden="true"
+              >
+                <span className="t-tag text-accent-strong/70">{slot.label}</span>
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
     </Section>
   );
 };

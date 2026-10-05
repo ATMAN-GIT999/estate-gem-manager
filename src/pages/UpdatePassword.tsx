@@ -57,7 +57,7 @@ const UpdatePassword = () => {
       <Seo title="Update Password" path="/update-password" noindex />
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="font-playfair text-3xl text-center">Set a new password</CardTitle>
+          <CardTitle className="t-section text-primary text-center">Set a new password</CardTitle>
           <CardDescription className="text-center">Enter and confirm your new password.</CardDescription>
         </CardHeader>
         <CardContent>

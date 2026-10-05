@@ -3,20 +3,19 @@ import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import PropertyCollections from "@/components/PropertyCollections";
 import GuestManagement from "@/components/GuestManagement";
+import DestinationsRail from "@/components/DestinationsRail";
 import OwnAProperty from "@/components/OwnAProperty";
-import PropertyEvaluator from "@/components/PropertyEvaluator";
 import FAQ, { FAQ_ITEMS } from "@/components/FAQ";
 import { useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { useLocation } from "react-router-dom";
 import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
 import { faqSchema, organizationSchema } from "@/lib/schema";
-import { useCookieConsent } from "@/contexts/CookieConsentContext";
+import { useTrackEvent } from "@/hooks/use-track-event";
 
 const IndexContent = () => {
   const location = useLocation();
-  const { consent } = useCookieConsent();
+  const track = useTrackEvent();
 
   // Handle hash navigation for Property Evaluation section
   useEffect(() => {
@@ -30,21 +29,11 @@ const IndexContent = () => {
     }
   }, [location.hash]);
 
+  // Page view, once the visitor has accepted the analytics cookie. Consent,
+  // the awaited insert and the session id all live in useTrackEvent.
   useEffect(() => {
-    // Track page view — only once the visitor has accepted the analytics
-    // cookie in the consent banner (CookieConsentContext). The insert is
-    // awaited inside an IIFE because supabase-js's query builder is a lazy
-    // thenable: without a `.then()`/`await`, the request is built but never
-    // actually sent.
-    if (consent !== "accepted") return;
-    (async () => {
-      await supabase.from("analytics_events").insert({
-        event_type: "page_view",
-        page_path: "/",
-        session_id: sessionStorage.getItem("session_id") || crypto.randomUUID(),
-      });
-    })();
-  }, [consent]);
+    void track("page_view");
+  }, [track]);
 
   return (
     <div className="min-h-screen">
@@ -55,27 +44,27 @@ const IndexContent = () => {
         description="Book luxury villas and apartments in Marbella, Málaga and Vienna directly with Frontier Residences — and see what your own property could earn under our management."
         schema={[organizationSchema(), faqSchema(FAQ_ITEMS)]}
       />
-      <Navigation overlay />
-      <Hero />
+      <Navigation overlay logoOnDark />
 
-      {/* One uninterrupted guest run — homes, then what the stay is like.
-          The portfolio-numbers trust band that used to open here is gone
-          (Almedin: drop the stats section from the landing page); these two
-          now follow the hero directly instead of behind a green band. */}
+      {/* Seven sections, in the order of the 09/2026 wireframe:
+          hero (search bar included again, Almedin 29.09.2026) → homes →
+          what a stay includes → where we are → questions → the one hand-off
+          to owners → footer.
+
+          The evaluator used to sit between the hand-off and the footer. It has
+          moved to /property-management, where it is the hero: on a page a
+          guest lands on to choose a house, a cash-flow calculator is owner
+          language, which is the mistake this whole site is built to avoid. */}
+      <Hero />
       <PropertyCollections />
       <GuestManagement />
+      <DestinationsRail />
 
-      {/* FAQ moved ahead of the owner hand-off, on Almedin's direction: a
-          guest with a question gets it answered before the page asks them to
-          switch audiences, rather than after. */}
-      <FAQ />
+      {/* A guest with a question gets it answered before the page asks them
+          to switch audiences, not after. */}
+      <FAQ eyebrow="" />
 
-      {/* The hand-off to the owner half, once, at the end of the guest
-          argument: everything above is written for someone choosing a stay,
-          everything below for someone choosing a manager. */}
       <OwnAProperty />
-
-      <PropertyEvaluator />
       <Footer />
     </div>
   );

@@ -547,6 +547,24 @@ export type Database = {
           },
         ]
       }
+      evaluator_rate_limits: {
+        Row: {
+          id: string
+          identifier: string
+          requested_at: string
+        }
+        Insert: {
+          id?: string
+          identifier: string
+          requested_at?: string
+        }
+        Update: {
+          id?: string
+          identifier?: string
+          requested_at?: string
+        }
+        Relationships: []
+      }
       guesty_calendar_cache: {
         Row: {
           created_at: string
@@ -674,6 +692,172 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      midterm_listings: {
+        Row: {
+          amenities: string[] | null
+          available_from: string | null
+          available_until: string | null
+          bathrooms: number | null
+          bedrooms: number
+          city_group: string
+          commission: number | null
+          created_at: string
+          deposit: number | null
+          description: string | null
+          guests: number | null
+          guesty_listing_id: string | null
+          id: string
+          idealista_id: string | null
+          images: Json
+          location: string
+          max_stay_months: number | null
+          min_stay_months: number | null
+          monthly_price: number
+          name: string
+          property_id: string | null
+          property_type: string
+          published: boolean
+          registration_number: string | null
+          size_sqm: number | null
+          slug: string
+          sort_order: number
+          status: string
+          updated_at: string
+          utilities_included: boolean | null
+        }
+        Insert: {
+          amenities?: string[] | null
+          available_from?: string | null
+          available_until?: string | null
+          bathrooms?: number | null
+          bedrooms: number
+          city_group: string
+          commission?: number | null
+          created_at?: string
+          deposit?: number | null
+          description?: string | null
+          guests?: number | null
+          guesty_listing_id?: string | null
+          id?: string
+          idealista_id?: string | null
+          images?: Json
+          location: string
+          max_stay_months?: number | null
+          min_stay_months?: number | null
+          monthly_price: number
+          name: string
+          property_id?: string | null
+          property_type: string
+          published?: boolean
+          registration_number?: string | null
+          size_sqm?: number | null
+          slug: string
+          sort_order?: number
+          status?: string
+          updated_at?: string
+          utilities_included?: boolean | null
+        }
+        Update: {
+          amenities?: string[] | null
+          available_from?: string | null
+          available_until?: string | null
+          bathrooms?: number | null
+          bedrooms?: number
+          city_group?: string
+          commission?: number | null
+          created_at?: string
+          deposit?: number | null
+          description?: string | null
+          guests?: number | null
+          guesty_listing_id?: string | null
+          id?: string
+          idealista_id?: string | null
+          images?: Json
+          location?: string
+          max_stay_months?: number | null
+          min_stay_months?: number | null
+          monthly_price?: number
+          name?: string
+          property_id?: string | null
+          property_type?: string
+          published?: boolean
+          registration_number?: string | null
+          size_sqm?: number | null
+          slug?: string
+          sort_order?: number
+          status?: string
+          updated_at?: string
+          utilities_included?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "midterm_listings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      midterm_requests: {
+        Row: {
+          created_at: string
+          desired_from: string | null
+          desired_months: number | null
+          email: string
+          first_name: string
+          guests: number | null
+          id: string
+          last_name: string | null
+          listing_id: string | null
+          listing_name: string
+          message: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          desired_from?: string | null
+          desired_months?: number | null
+          email: string
+          first_name: string
+          guests?: number | null
+          id?: string
+          last_name?: string | null
+          listing_id?: string | null
+          listing_name: string
+          message?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          desired_from?: string | null
+          desired_months?: number | null
+          email?: string
+          first_name?: string
+          guests?: number | null
+          id?: string
+          last_name?: string | null
+          listing_id?: string | null
+          listing_name?: string
+          message?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "midterm_requests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "midterm_listings"
             referencedColumns: ["id"]
           },
         ]
@@ -808,8 +992,10 @@ export type Database = {
           available: boolean | null
           bathrooms: number
           bedrooms: number
+          city_group: string | null
           created_at: string
           description: string | null
+          editorial_description: string | null
           featured: boolean | null
           guests: number
           guesty_listing_id: string | null
@@ -823,6 +1009,8 @@ export type Database = {
           price_last_synced_at: string | null
           price_per_night: number
           registration_number: string | null
+          seo_slug: string | null
+          size_sqm: number | null
           slug: string
           type: string
           updated_at: string
@@ -833,8 +1021,10 @@ export type Database = {
           available?: boolean | null
           bathrooms: number
           bedrooms: number
+          city_group?: string | null
           created_at?: string
           description?: string | null
+          editorial_description?: string | null
           featured?: boolean | null
           guests: number
           guesty_listing_id?: string | null
@@ -848,6 +1038,8 @@ export type Database = {
           price_last_synced_at?: string | null
           price_per_night: number
           registration_number?: string | null
+          seo_slug?: string | null
+          size_sqm?: number | null
           slug: string
           type: string
           updated_at?: string
@@ -858,8 +1050,10 @@ export type Database = {
           available?: boolean | null
           bathrooms?: number
           bedrooms?: number
+          city_group?: string | null
           created_at?: string
           description?: string | null
+          editorial_description?: string | null
           featured?: boolean | null
           guests?: number
           guesty_listing_id?: string | null
@@ -873,6 +1067,8 @@ export type Database = {
           price_last_synced_at?: string | null
           price_per_night?: number
           registration_number?: string | null
+          seo_slug?: string | null
+          size_sqm?: number | null
           slug?: string
           type?: string
           updated_at?: string
@@ -1045,6 +1241,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      sync_guesty_prices: {
+        Args: never
+        Returns: {
+          detail: string
+          ok: boolean
+          slug: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -1070,12 +1274,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1099,11 +1303,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1124,11 +1328,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1149,11 +1353,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1166,11 +1370,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

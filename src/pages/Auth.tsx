@@ -69,7 +69,7 @@ const Auth = () => {
       <Seo title="Sign In" path="/auth" noindex />
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="font-playfair text-3xl text-center">Frontier Residences</CardTitle>
+          <CardTitle className="t-section text-primary text-center">Frontier Residences</CardTitle>
           <CardDescription className="text-center">Luxury Property Management</CardDescription>
         </CardHeader>
         <CardContent>

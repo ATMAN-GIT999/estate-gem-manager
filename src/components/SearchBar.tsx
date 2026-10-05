@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { addDays, format, startOfDay } from "date-fns";
-import { CalendarIcon, Minus, Plus, Search, SlidersHorizontal } from "lucide-react";
+import { format, startOfDay } from "date-fns";
+import type { DateRange } from "react-day-picker";
+import { ArrowRight, CalendarIcon, Minus, Plus, Search, SlidersHorizontal } from "lucide-react";
 import LocationAutocomplete from "@/components/LocationAutocomplete";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -37,6 +37,17 @@ interface SearchBarProps extends SearchBarValues {
    * Desktop is unaffected, where the bar is a single row anyway.
    */
   collapsible?: boolean;
+  /**
+   * Full container width instead of the centred 900px pill — Properties.tsx
+   * (Almedin, 29.09.2026), so the bar lines up with the grid of photographs
+   * under it instead of floating narrower than everything below it, on its
+   * own beige band (the reference was avantstay.com's listings page: full
+   * width, no coloured band). Only the width changes — same `md:rounded-full`
+   * pill corners as Hero.tsx's bar; a first pass also flattened the corners
+   * here to a rectangle, which just made the two look like different
+   * controls (Almedin, 29.09.2026).
+   */
+  fullWidth?: boolean;
 }
 
 /**
@@ -62,10 +73,10 @@ const SearchBar = ({
   onGuestsChange,
   onSearch,
   collapsible = false,
+  fullWidth = false,
 }: SearchBarProps) => {
   const { t } = useLocale();
-  const [checkInOpen, setCheckInOpen] = useState(false);
-  const [checkOutOpen, setCheckOutOpen] = useState(false);
+  const [datesOpen, setDatesOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [manualExpand, setManualExpand] = useState(false);
@@ -102,20 +113,16 @@ const SearchBar = ({
     onGuestsChange(clamped === 0 ? "" : String(clamped));
   };
 
-  const handleCheckInSelect = (date: Date | undefined) => {
-    onCheckInChange(date);
-    if (date && checkOutDate && checkOutDate <= date) {
-      onCheckOutChange(undefined);
-    }
-    setCheckInOpen(false);
-    if (date) {
-      setTimeout(() => setCheckOutOpen(true), 100);
-    }
-  };
-
-  const handleCheckOutSelect = (date: Date | undefined) => {
-    onCheckOutChange(date);
-    setCheckOutOpen(false);
+  /** One range picker instead of two single-date ones (Almedin, 04.10.2026)
+   *  — `from`/`to` map straight onto the existing checkIn/checkOut state, so
+   *  Hero.tsx and Properties.tsx need no changes. Closes itself only once
+   *  both ends are picked; a `from`-only selection (the first click) leaves
+   *  it open for the second.
+   */
+  const handleRangeSelect = (range: DateRange | undefined) => {
+    onCheckInChange(range?.from);
+    onCheckOutChange(range?.to);
+    if (range?.from && range?.to) setDatesOpen(false);
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -167,15 +174,38 @@ const SearchBar = ({
   // Stacked on mobile, so the dividers have to run horizontally there and
   // switch to vertical only once the fields sit side by side.
   const fieldDivider = "border-b md:border-b-0 md:border-r border-border";
-  const fieldPad = "px-4 py-1.5";
+  const fieldPad = "px-6 py-2";
   // Gold micro-label above a dark value — the OmniVillas reference layout.
   // Same look everywhere the bar appears now (hero video, sticky filter
   // strip); the two call sites used to diverge here (colour, background),
   // which is why a `variant` prop existed — dropped along with that split.
-  const fieldLabel = "block text-[10px] font-bold uppercase tracking-wide text-accent-strong mb-0.5";
+  const fieldLabel = "block t-tag text-accent-strong mb-1";
 
   return (
-    <Card className="relative z-50 mx-auto w-full max-w-2xl overflow-visible rounded-2xl border border-border bg-card p-1.5 shadow-sm md:rounded-full">
+    // z-30, not z-50: on Properties.tsx this bar sits directly under the
+    // fixed Navigation, and Navigation's own Destinations sheet is also
+    // z-50 — equal values fall back to DOM order, which put this bar on top
+    // of that sheet and left it visibly overlapping the open panel (Almedin,
+    // 29.09.2026). On Hero.tsx the bar sits inside that section's own
+    // `relative z-10` Container instead, a nested stacking context this
+    // z-30 never escapes, so it cannot repeat the clash there either way.
+    // z-30 still clears ordinary page content on both; the popovers below
+    // stay z-[70] and open above everything as before.
+    //
+    // `text-left` (Almedin, 29.09.2026): Hero.tsx's Container is `text-center`
+    // for the eyebrow/headline above this bar, which this bar then inherited
+    // for the first time once it moved back inside that Container — the
+    // field labels (plain text, no alignment of their own) centred while
+    // each value stayed put on the `text-left` its trigger Button sets
+    // explicitly, so a label no longer sat over its own value. Resetting
+    // alignment here means this bar looks the same regardless of what
+    // alignment its call site happens to use.
+    <div
+      className={cn(
+        "relative z-30 mx-auto w-full overflow-visible rounded-2xl border border-border bg-background p-1.5 text-left shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.2)] md:rounded-full",
+        fullWidth ? "max-w-none" : "max-w-[900px]"
+      )}
+    >
       <form
         onSubmit={handleSubmit}
         className="flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-0"
@@ -184,43 +214,34 @@ const SearchBar = ({
           <LocationAutocomplete value={location} onChange={onLocationChange} label={t("searchbar.whereLabel")} />
         </div>
 
+        {/* Check-in and check-out merged into one range field (Almedin,
+            04.10.2026) — one popover, one calendar, instead of clicking
+            check-in then having a second popover open for check-out. */}
         <div className={cn("relative flex-1 shrink-0", fieldPad, fieldDivider)}>
-          <span className={fieldLabel}>{t("searchbar.checkInLabel")}</span>
-          <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
+          <span className={fieldLabel}>{t("searchbar.whenLabel")}</span>
+          <Popover open={datesOpen} onOpenChange={setDatesOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-sm text-foreground")}>
-                <span className="truncate">{checkInDate ? format(checkInDate, "d MMM yyyy") : t("searchbar.checkIn")}</span>
+              <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-[15px] text-foreground")}>
+                <span className="truncate">
+                  {checkInDate
+                    ? checkOutDate
+                      ? `${format(checkInDate, "d MMM")} – ${format(checkOutDate, "d MMM yyyy")}`
+                      : format(checkInDate, "d MMM yyyy")
+                    : t("searchbar.when")}
+                </span>
                 <CalendarIcon className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="z-[70] w-auto p-0" align="start">
+              {/* numberOfMonths={2} (Almedin, 04.10.2026) — the current and
+                  next month side by side, so picking a check-out a few weeks
+                  out doesn't need a click through to the next page first. */}
               <Calendar
-                mode="single"
-                selected={checkInDate}
-                onSelect={handleCheckInSelect}
+                mode="range"
+                numberOfMonths={2}
+                selected={{ from: checkInDate, to: checkOutDate }}
+                onSelect={handleRangeSelect}
                 disabled={(date) => date < today}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <div className={cn("relative flex-1 shrink-0", fieldPad, fieldDivider)}>
-          <span className={fieldLabel}>{t("searchbar.checkOutLabel")}</span>
-          <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" className={cn(triggerClass, "flex w-full items-center gap-1.5 text-sm text-foreground")}>
-                <span className="truncate">{checkOutDate ? format(checkOutDate, "d MMM yyyy") : t("searchbar.checkOut")}</span>
-                <CalendarIcon className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="z-[70] w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={checkOutDate}
-                onSelect={handleCheckOutSelect}
-                defaultMonth={checkInDate ? addDays(checkInDate, 1) : undefined}
-                disabled={(date) => date < today || Boolean(checkInDate && date <= checkInDate)}
                 initialFocus
               />
             </PopoverContent>
@@ -233,7 +254,7 @@ const SearchBar = ({
           <span className={fieldLabel}>{t("searchbar.whoLabel")}</span>
           <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className={cn(triggerClass, "text-sm text-foreground")}>
+              <Button variant="ghost" className={cn(triggerClass, "text-[15px] text-foreground")}>
                 {guestCount > 0 ? `${guestCount} ${guestCount === 1 ? t("searchbar.guest") : t("searchbar.guestsPlural")}` : t("searchbar.guests")}
               </Button>
             </PopoverTrigger>
@@ -283,16 +304,22 @@ const SearchBar = ({
           </Popover>
         </div>
 
+        {/* A 52px circle, not a labelled pill: on the wireframe's bar the
+            three fields carry all the words and the button is the full stop.
+            The label stays as the accessible name. */}
         <Button
           type="submit"
-          aria-label="Search properties"
-          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-none rounded-full h-10 px-5 gap-2 shrink-0"
+          aria-label={t("searchbar.search")}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-none rounded-full h-[52px] w-full md:w-[52px] shrink-0 p-0"
         >
-          <Search className="h-4 w-4" />
-          {t("searchbar.search")}
+          <ArrowRight className="h-5 w-5 hidden md:block" strokeWidth={1.75} />
+          <span className="md:hidden inline-flex items-center gap-2">
+            <Search className="h-4 w-4" />
+            {t("searchbar.search")}
+          </span>
         </Button>
       </form>
-    </Card>
+    </div>
   );
 };
 

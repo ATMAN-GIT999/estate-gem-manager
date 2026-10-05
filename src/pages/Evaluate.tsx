@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ConsultationBooking from "@/components/ConsultationBooking";
@@ -9,10 +9,12 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, TrendingUp, Home, DollarSign, Calendar, Percent, CheckCircle2, BarChart3, Sun, Cloud, Snowflake } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Section } from "@/components/layout";
 import PageWrapper from "@/components/PageWrapper";
 import { supabase } from "@/lib/supabaseClient";
 import Seo from "@/components/Seo";
 import { breadcrumbSchema } from "@/lib/schema";
+import { useTrackEvent } from "@/hooks/use-track-event";
 
 interface PropertyAnalysis {
   monthlyIncome: number;
@@ -66,8 +68,8 @@ interface PropertyAnalysis {
 
 const EvaluateContent = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const track = useTrackEvent();
   const [loading, setLoading] = useState(true);
   const [loadingStep, setLoadingStep] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -103,18 +105,11 @@ const EvaluateContent = () => {
           });
         }, 1500);
 
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (!sessionData.session) {
-          clearInterval(stepInterval);
-          toast({
-            title: "Sign in required",
-            description: "Please sign in to run a property analysis.",
-            variant: "destructive",
-          });
-          navigate("/auth");
-          return;
-        }
-
+        // No login wall (docs/PROJECT.md C9, Almedin 29.09.2026): no owner
+        // has an account, so this used to end the hero form's whole point
+        // on the sign-in page for practically every visitor. The edge
+        // function rate-limits by IP now instead of requiring a session —
+        // see analyze-property/index.ts.
         const { data, error } = await supabase.functions.invoke("analyze-property", {
           body: { propertyData },
         });
@@ -122,7 +117,18 @@ const EvaluateContent = () => {
         clearInterval(stepInterval);
 
         if (error) {
-          throw new Error(error.message || "Analysis failed");
+          // supabase-js's own `error.message` for a non-2xx response is a
+          // hardcoded "Edge Function returned a non-2xx status code" — not
+          // what the function actually said. The real message (including
+          // the rate-limit one) is in the response body, on `.context`.
+          let message = "Analysis failed";
+          try {
+            const body = await (error as { context?: Response }).context?.json();
+            message = body?.error || message;
+          } catch {
+            // context wasn't there or wasn't JSON — keep the generic message.
+          }
+          throw new Error(message);
         }
         setAnalysis(data.analysis);
         setProgress(100);
@@ -139,7 +145,14 @@ const EvaluateContent = () => {
     };
 
     analyzeProperty();
-  }, [propertyData, navigate, toast]);
+  }, [propertyData, toast]);
+
+  // The owner saw a number — the step between asking (evaluator_submitted)
+  // and writing in (owner_enquiry_submitted). Only when an analysis actually
+  // came back: the sign-in wall and a failed analysis both end without one.
+  useEffect(() => {
+    if (analysis) void track("evaluator_result_viewed");
+  }, [analysis, track]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-EU', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
@@ -176,9 +189,7 @@ const EvaluateContent = () => {
           <PropertyEvaluator />
         </main>
       ) : (
-      <section className="pt-24 pb-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-7xl mx-auto">
+      <Section size="lg" className="pt-24 bg-background">
             {loading ? (
               <Card className="p-12 bg-card/80 backdrop-blur-sm border-border">
                 <div className="max-w-2xl mx-auto">
@@ -246,7 +257,7 @@ const EvaluateContent = () => {
                   </Card>
                   <Card className="p-6 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-shadow">
                     <Home className="w-8 h-8 text-accent-strong mx-auto mb-2" />
-                    <div className="text-3xl font-bold text-primary">{propertyData?.bathrooms}</div>
+                    <div className="text-3xl font-bold text-primary">{propertyData?.bathrooms || "N/A"}</div>
                     <div className="text-sm text-foreground/70">Bathrooms</div>
                   </Card>
                   <Card className="p-6 text-center bg-card/80 backdrop-blur-sm border-border hover:shadow-elegant transition-shadow">
@@ -529,9 +540,7 @@ const EvaluateContent = () => {
                 <p className="text-xl text-muted-foreground">No analysis data available. Please try again.</p>
               </Card>
             )}
-          </div>
-        </div>
-      </section>
+      </Section>
       )}
 
       {!loading && analysis && <ConsultationBooking />}

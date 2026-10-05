@@ -1,37 +1,50 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import SearchBar from "./SearchBar";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
+import SearchBar from "./SearchBar";
 import { Container, Stack } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
+import heroPoster from "@/assets/wf-hero-poster.webp";
 
 /**
- * Headline, one supporting line and the search bar, as a single block over a
- * band of video.
+ * The opening band: eyebrow, headline, one supporting line, search bar — on
+ * full-bleed video.
  *
- * It used to be `min-h-screen`: the video owned the entire first screen and
+ * ⚠️ A same-day trial (Almedin, 29.09.2026) swapped this video for a still
+ * photograph — reverted the same day ("nicht das hero video entfernen"). The
+ * photo (Villa Higuerón's stairwell glass) moved to TheClaim.tsx instead,
+ * full-bleed there. If a photo hero comes up again, swap the block below for
+ * a plain `<img>` + `.overlay-media` div, the way that trial did it — no
+ * need to rediscover the approach.
+ *
+ * Back to holding the search bar itself (Almedin, 29.09.2026) — it had moved
+ * out to its own beige band directly underneath (SearchBand.tsx) for a
+ * while; that band is gone now, not just visually folded back in here. The
+ * "See our homes" button that used to sit where the search bar is now is
+ * also gone — a second, quieter action right next to the search field just
+ * argued with it. The subheadline itself came back the same day with new
+ * copy naming the actual places rather than a number of villas.
+ *
+ * It used to be `min-h-screen`: the hero owned the entire first screen and
  * the search bar arrived half a second late on a slide-in from the right,
  * separated from the text above it by up to 48px of empty space. That is what
  * made it read as something laid over the hero rather than part of it, and it
  * meant nothing below the fold existed until the visitor scrolled.
  *
  * Now the band is ~62vh, so the section underneath is already visible at rest
- * — the video supports the composition instead of being it (§7). The three
- * pieces share one Stack, so the gap between the headline and the field the
- * visitor is meant to type in is one step on the same ladder the rest of the
- * page uses (§8).
+ * — the video supports the composition instead of being it (§7). The
+ * two pieces share one Stack, so the gap between the headline and the field
+ * the visitor is meant to type in is one step on the same ladder the rest of
+ * the page uses (§8).
  */
 const Hero = () => {
-  const [checkInDate, setCheckInDate] = useState<Date>();
-  const [checkOutDate, setCheckOutDate] = useState<Date>();
-  const [guests, setGuests] = useState<string>("");
-  const [location, setLocation] = useState<string>("");
-  const navigate = useNavigate();
   const { t, language } = useLocale();
+  const navigate = useNavigate();
 
   // Editable content state
+  const [eyebrow, setEyebrow] = useState(t("hero-eyebrow"));
   const [headline, setHeadline] = useState(t("hero-headline"));
   const [subheadline, setSubheadline] = useState(t("hero-subheadline"));
 
@@ -39,10 +52,27 @@ const Hero = () => {
   // default rather than preserving a manual inline-CMS edit, since nothing
   // persists past a reload today anyway (docs/PROJECT.md C7).
   useEffect(() => {
+    setEyebrow(t("hero-eyebrow"));
     setHeadline(t("hero-headline"));
     setSubheadline(t("hero-subheadline"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
+
+  // The same state and URL contract SearchBand.tsx used to hold — moved back
+  // in here with it, not rebuilt.
+  const [checkInDate, setCheckInDate] = useState<Date>();
+  const [checkOutDate, setCheckOutDate] = useState<Date>();
+  const [guests, setGuests] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (location) params.set("location", location);
+    if (checkInDate) params.set("checkIn", format(checkInDate, "yyyy-MM-dd"));
+    if (checkOutDate) params.set("checkOut", format(checkOutDate, "yyyy-MM-dd"));
+    if (guests) params.set("guests", guests);
+    navigate(`/properties?${params.toString()}`);
+  };
 
   /**
    * Self-hosted since 19.08.2026 (docs/DECISIONS.md §22, resolves PROJECT.md
@@ -66,15 +96,6 @@ const Hero = () => {
   const [videoId, setVideoId] = useState("tqmWpFCv_1M");
   const [videoFileSrc, setVideoFileSrc] = useState("/videos/hero-background.mp4");
 
-  const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (location) params.set('location', location);
-    if (checkInDate) params.set('checkIn', format(checkInDate, 'yyyy-MM-dd'));
-    if (checkOutDate) params.set('checkOut', format(checkOutDate, 'yyyy-MM-dd'));
-    if (guests) params.set('guests', guests);
-    navigate(`/properties?${params.toString()}`);
-  };
-
   const handleVideoChange = (src: string, type: "youtube" | "file") => {
     setVideoType(type);
     if (type === "youtube") {
@@ -95,7 +116,7 @@ const Hero = () => {
     // supported and falls back to top-alignment instead of overflowing in both
     // directions when the block still does not fit, and the first is what
     // browsers without `safe` keyword support fall back to.
-    <section className="relative flex items-center [align-items:safe_center] overflow-hidden pt-20 min-h-[clamp(34rem,62vh,44rem)]">
+    <section className="relative flex items-end overflow-hidden pt-20 min-h-[clamp(36rem,78vh,52rem)]">
       <EditableVideo
         id="hero-video"
         type={videoType === "none" ? "file" : videoType}
@@ -114,6 +135,10 @@ const Hero = () => {
           ) : videoType === "file" && videoFileSrc ? (
             <video
               src={videoFileSrc}
+              /* A poster so the first paint is the brand rather than a black
+                 rectangle — the clip is 5.8 MB and decodes a beat after the
+                 rest of the page is already up. */
+              poster={heroPoster}
               className="absolute inset-0 w-full h-full object-cover"
               autoPlay
               muted
@@ -133,8 +158,11 @@ const Hero = () => {
               </p>
             </div>
           )}
-          {/* Palette-derived, not black — see --overlay-media in index.css. */}
-          <div className="absolute inset-0 overlay-media" aria-hidden="true" />
+          {/* Palette-derived, not black — see --overlay-hero in index.css.
+              Hero-only variant of --overlay-media: a longer fade at the top
+              (under the floating nav) and a touch more darkening throughout
+              (Almedin, 04.10.2026). */}
+          <div className="absolute inset-0 overlay-hero" aria-hidden="true" />
         </div>
       </EditableVideo>
 
@@ -143,45 +171,57 @@ const Hero = () => {
           full 1440px container: the bar reads as a single control at ~1024px,
           and stretched to the full container it starts to look like a toolbar
           welded to the page. */}
-      <Container measure="wide" className="relative z-10 py-lg">
+      <Container measure="wide" className="relative z-10 pb-2xl pt-lg text-center">
         <Stack gap="md" align="center" className="animate-fade-in">
-          <div className="space-y-sm">
-            <EditableText
-              id="hero-headline"
-              value={headline}
-              onChange={setHeadline}
-              as="h1"
-              className="t-display text-white text-balance drop-shadow-2xl"
-            >
-              {headline}
-            </EditableText>
-            {/* Deliberately held to one line's worth of width and left at body
-                size: §9 asks for the headline to get the room and the
-                supporting text not to compete with the search bar. */}
-            <EditableText
-              id="hero-subheadline"
-              value={subheadline}
-              onChange={setSubheadline}
-              as="p"
-              className="t-body text-white/90 max-w-2xl mx-auto drop-shadow-lg"
-            >
-              {subheadline}
-            </EditableText>
-          </div>
+          {/* +10% over t-tag's fixed 10px (Almedin, 29.09.2026) — `text-[]`
+              only touches font-size, so line-height/tracking/weight still
+              come from t-tag itself. */}
+          <EditableText
+            id="hero-eyebrow"
+            value={eyebrow}
+            onChange={setEyebrow}
+            as="p"
+            className="t-tag text-[0.6875rem] text-white/75"
+          >
+            {eyebrow}
+          </EditableText>
 
-          <div className="text-left">
-            <SearchBar
-              location={location}
-              checkInDate={checkInDate}
-              checkOutDate={checkOutDate}
-              guests={guests}
-              onLocationChange={setLocation}
-              onCheckInChange={setCheckInDate}
-              onCheckOutChange={setCheckOutDate}
-              onGuestsChange={setGuests}
-              onSearch={handleSearch}
-            />
-          </div>
+          {/* +15% over t-display's clamp(1.9rem,1.1rem+3.6vw,3.625rem) — every
+              endpoint scaled by 1.15, same reasoning as above. Recomputed
+              02.10.2026 when the base clamp grew (Lovable comparison); this
+              `text-[]` only touches font-size, so it has to be redone by hand
+              whenever that base changes. */}
+          <EditableText
+            id="hero-headline"
+            value={headline}
+            onChange={setHeadline}
+            as="h1"
+            className="t-display text-[clamp(2.185rem,1.265rem+4.14vw,4.169rem)] text-white text-balance"
+          >
+            {headline}
+          </EditableText>
+
+          <EditableText
+            id="hero-subheadline"
+            value={subheadline}
+            onChange={setSubheadline}
+            as="p"
+            className="t-body text-[19px] text-white/[0.86] max-w-[52ch] mx-auto"
+          >
+            {subheadline}
+          </EditableText>
+
+          <SearchBar
+            location={location}
+            checkInDate={checkInDate}
+            checkOutDate={checkOutDate}
+            guests={guests}
+            onLocationChange={setLocation}
+            onCheckInChange={setCheckInDate}
+            onCheckOutChange={setCheckOutDate}
+            onGuestsChange={setGuests}
+            onSearch={handleSearch}
+          />
         </Stack>
       </Container>
     </section>

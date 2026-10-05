@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { Instagram } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Container } from "./layout";
 import { BUSINESS } from "@/lib/siteMeta";
@@ -9,342 +9,213 @@ import { useLocale } from "@/contexts/LocaleContext";
 import { useCookieConsent } from "@/contexts/CookieConsentContext";
 
 /**
- * Only networks with a real profile are rendered. Facebook and LinkedIn are
- * listed here so adding them later is a one-line change — until then they stay
- * out of the markup rather than linking to "#", which reads as a broken link.
+ * The footer, on ink rather than the sage green it used to carry.
+ *
+ * Three columns split by audience — guests, owners, company — because the
+ * whole site's architecture rests on that split, and the footer was the one
+ * place that still mixed the two. The band above it (owner bridge on the
+ * landing page, contact form on the owner page) fades a photograph to exactly
+ * this ink, so the two meet with no visible seam. No gold rule between them
+ * for that reason: a line there would put back the join the fade removes.
  */
+
 const SOCIAL_LINKS: { label: string; href: string; Icon: typeof Instagram }[] = [
   { label: "Instagram", href: "https://www.instagram.com/frontier.residences/", Icon: Instagram },
-  // { label: "Facebook", href: "", Icon: Facebook },
-  // { label: "LinkedIn", href: "", Icon: Linkedin },
 ];
 
 const Footer = () => {
   const { t, language } = useLocale();
   const { openSettings } = useCookieConsent();
-  const [tagline, setTagline] = useState(t("footer-tagline"));
-  const [email, setEmail] = useState("Hello@frontier-residences.com");
-  // Must stay identical to the number in the Aviso Legal and the Google
-  // Business Profile — local search treats a mismatched phone number as a
-  // signal that it is looking at two different businesses.
-  const [phone, setPhone] = useState("+34 649 429 678");
-  const [companyName, setCompanyName] = useState("Frontier Residences");
-  const [servicesTitle, setServicesTitle] = useState(t("footer-services-title"));
-  const [companyTitle, setCompanyTitle] = useState(t("footer-company-title"));
-  const [contactTitle, setContactTitle] = useState(t("footer-contact-title"));
-  const [pmLink, setPmLink] = useState(t("footer-pm-link"));
-  const [beyondLink, setBeyondLink] = useState(t("footer-beyond-link"));
-  const [browseLink, setBrowseLink] = useState(t("footer-browse-link"));
-  const [aboutLink, setAboutLink] = useState(t("footer-about-link"));
-  const [evalLink, setEvalLink] = useState(t("footer-eval-link"));
-  const [faqLink, setFaqLink] = useState(t("footer-faq-link"));
-  const [avisoLegalLink, setAvisoLegalLink] = useState(t("footer-aviso-legal-link"));
-  const [cookieSettingsLink, setCookieSettingsLink] = useState(t("footer-cookie-settings-link"));
-  // Must stay identical to the Aviso Legal and the Google Business Profile,
-  // for the same reason as the phone number above.
-  const [address, setAddress] = useState(`${BUSINESS.street}, ${BUSINESS.postalCode} ${BUSINESS.city}`);
-  const [copyright, setCopyright] = useState(t("footer-copyright"));
 
-  // Company name, email, phone and address are never translated — a brand
-  // name and contact details stay identical in every language.
+  const [positioning, setPositioning] = useState(t("footer-positioning"));
+  const [guestsTitle, setGuestsTitle] = useState(t("footer-guests-title"));
+  const [ownersTitle, setOwnersTitle] = useState(t("footer-owners-title"));
+  const [companyTitle, setCompanyTitle] = useState(t("footer-company-title"));
+  const [copyright, setCopyright] = useState(t("footer-copyright"));
+  // Must stay identical to the Aviso Legal and the Google Business Profile —
+  // local search reads a mismatched number as two different businesses.
+  const [phone, setPhone] = useState("+34 649 429 678");
+
   useEffect(() => {
-    setTagline(t("footer-tagline"));
-    setServicesTitle(t("footer-services-title"));
+    setPositioning(t("footer-positioning"));
+    setGuestsTitle(t("footer-guests-title"));
+    setOwnersTitle(t("footer-owners-title"));
     setCompanyTitle(t("footer-company-title"));
-    setContactTitle(t("footer-contact-title"));
-    setPmLink(t("footer-pm-link"));
-    setBeyondLink(t("footer-beyond-link"));
-    setBrowseLink(t("footer-browse-link"));
-    setAboutLink(t("footer-about-link"));
-    setEvalLink(t("footer-eval-link"));
-    setFaqLink(t("footer-faq-link"));
-    setAvisoLegalLink(t("footer-aviso-legal-link"));
-    setCookieSettingsLink(t("footer-cookie-settings-link"));
     setCopyright(t("footer-copyright"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
+  const linkClass =
+    "inline-block py-1.5 t-body text-ink-foreground/70 hover:text-accent-on-primary transition-colors";
+
+  // One constant so "For Guests" / "For Owners" / "Company" can't drift to
+  // three different sizes.
+  const columnHeadingClass = "t-tag text-accent-on-primary mb-3";
+
+  const guestLinks = [
+    { label: t("footer-all-homes-link"), to: "/properties" },
+    { label: t("footer-costa-link"), to: "/properties?location=Costa%20del%20Sol" },
+    { label: t("footer-austria-link"), to: "/properties?location=Austria" },
+    { label: t("wr-nav-label"), to: "/winter-rentals" },
+    { label: t("footer-faq-link"), to: "/#faq" },
+    { label: t("footer-signin-link"), to: "/auth" },
+  ];
+
+  const ownerLinks = [
+    { label: t("footer-pm-link"), to: "/property-management" },
+    { label: t("footer-earn-link"), to: "/evaluate" },
+    { label: t("footer-gi-link"), to: "/guaranteed-income" },
+    { label: t("footer-renovations-link"), to: "/renovations" },
+    { label: t("footer-investments-link"), to: "/investments" },
+  ];
+
+  const companyLinks = [
+    { label: t("footer-projects-link"), to: "/projects" },
+    { label: t("footer-aviso-legal-link"), to: "/aviso-legal" },
+  ];
+
   return (
-    // `edge-gold-top` rather than the `border-t-2 border-accent` this used to
-    // carry: the footer is one of three green/light seams on the site
-    // (portfolio numbers, the differentiation band, here) and §24 only works
-    // if all three are the same line. A 2px version here and a 1px version
-    // above read as two different ideas.
-    //
-    // `pb-24` below `sm:` rather than a symmetric `py-lg`: the floating
-    // WhatsApp button is fixed to the viewport's bottom-right regardless of
-    // scroll position, so once a narrow screen is scrolled to the true page
-    // end, the button's 56px circle sits directly over the centred copyright
-    // line. On wider screens the button is far enough from the container's
-    // centred content that this never happens, so only mobile needs the
-    // extra clearance.
-    <footer className="bg-primary text-primary-foreground edge-gold-top pt-lg pb-24 sm:pb-lg">
+    // `pb-24` below `sm:`: the floating WhatsApp button is fixed to the
+    // viewport's bottom-right, and on a narrow screen scrolled to the true
+    // page end its 56px circle sits over the centred copyright line.
+    <footer className="bg-ink text-ink-foreground pt-2xl pb-24 sm:pb-xl">
       <Container>
-        <div className="grid md:grid-cols-4 gap-md mb-lg">
-          <div>
+        <div className="grid gap-lg md:grid-cols-12">
+          {/* The full lockup (monogram + "Frontier Residences" + tagline)
+              lives in one image — a separate hand-typed wordmark beside it
+              at the old 44px height just duplicated text the logo already
+              carries, illegibly small. At half the column's width the
+              logo's own type is what reads, so the duplicate is gone. */}
+          <div className="md:col-span-4">
+            <Link to="/" className="inline-block mb-4">
+              <img
+                src={logo}
+                alt="Frontier Residences — Bespoke Property Management"
+                width={1640}
+                height={586}
+                loading="lazy"
+                className="w-1/2 min-w-[220px] h-auto brightness-0 invert opacity-90"
+              />
+            </Link>
             <EditableText
-              id="footer-company-name"
-              value={companyName}
-              onChange={setCompanyName}
-              /* The brand mark, not an outline node. As an <h3> it was the one
-                 heading on the page carrying a different size from every other
-                 h3, because it is not the same kind of thing. */
-              as="p"
-              className="t-block mb-4"
-            >
-              {companyName}
-            </EditableText>
-            <EditableText
-              id="footer-tagline"
-              value={tagline}
-              onChange={setTagline}
+              id="footer-positioning"
+              value={positioning}
+              onChange={setPositioning}
               as="p"
               multiline
-              className="text-primary-foreground/80 leading-relaxed"
+              className="t-body text-ink-foreground/60 max-w-xs"
             >
-              {tagline}
+              {positioning}
             </EditableText>
-            {/* Bigger than the header's own logo (h-12 md:h-14) on purpose —
-                sitting alone in a whole footer column of its own weight,
-                the header's size read small here. */}
-            <img src={logo} alt="Frontier Residences" className="h-16 md:h-20 mt-6" />
           </div>
 
-          <div>
-            <EditableText
-              id="footer-services-title"
-              value={servicesTitle}
-              onChange={setServicesTitle}
-              as="h4"
-              className="t-item mb-4"
-            >
-              {servicesTitle}
-            </EditableText>
-            {/* Guaranteed Income's own link is gone (Almedin, 2026-08-20) —
-                the program is still real and still on `/guaranteed-income`,
-                just not worth its own footer line next to the two other
-                engagement paths. Renovations and Investments collapsed into
-                one "Beyond Management" link, since that's exactly the label
-                already used for the section on the PM page that holds both
-                (`#beyond-management`, see WaysToWorkTogether.tsx) — two
-                separate footer lines for what reads as one offer on the page
-                itself. "Browse Homes" is new: the footer had no link at all
-                to `/properties`, the one page every guest visit is actually
-                for. */}
-            <ul className="space-y-2">
-              <li>
-                <Link to="/property-management" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
-                  <EditableText
-                    id="footer-pm-link"
-                    value={pmLink}
-                    onChange={setPmLink}
-                    as="span"
-                    className="text-primary-foreground/80"
-                  >
-                    {pmLink}
-                  </EditableText>
-                </Link>
-              </li>
-              <li>
-                <a href="/property-management#beyond-management" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
-                  <EditableText
-                    id="footer-beyond-link"
-                    value={beyondLink}
-                    onChange={setBeyondLink}
-                    as="span"
-                    className="text-primary-foreground/80"
-                  >
-                    {beyondLink}
-                  </EditableText>
-                </a>
-              </li>
-              <li>
-                <Link to="/properties" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
-                  <EditableText
-                    id="footer-browse-link"
-                    value={browseLink}
-                    onChange={setBrowseLink}
-                    as="span"
-                    className="text-primary-foreground/80"
-                  >
-                    {browseLink}
-                  </EditableText>
-                </Link>
-              </li>
-            </ul>
-          </div>
+          <div className="md:col-span-8 grid gap-lg sm:grid-cols-3">
+            <div>
+              <EditableText
+                id="footer-guests-title"
+                value={guestsTitle}
+                onChange={setGuestsTitle}
+                as="h2"
+                className={columnHeadingClass}
+              >
+                {guestsTitle}
+              </EditableText>
+              <ul>
+                {guestLinks.map(({ label, to }) => (
+                  <li key={label}>
+                    {to.startsWith("/#") ? (
+                      <a href={to} className={linkClass}>
+                        {label}
+                      </a>
+                    ) : (
+                      <Link to={to} className={linkClass}>
+                        {label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          <div>
-            <EditableText
-              id="footer-company-title"
-              value={companyTitle}
-              onChange={setCompanyTitle}
-              as="h4"
-              className="t-item mb-4"
-            >
-              {companyTitle}
-            </EditableText>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/about" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
-                  <EditableText
-                    id="footer-about-link"
-                    value={aboutLink}
-                    onChange={setAboutLink}
-                    as="span"
-                    className="text-primary-foreground/80"
-                  >
-                    {aboutLink}
-                  </EditableText>
-                </Link>
-              </li>
-              <li>
-                <Link to="/evaluate" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
-                  <EditableText
-                    id="footer-eval-link"
-                    value={evalLink}
-                    onChange={setEvalLink}
-                    as="span"
-                    className="text-primary-foreground/80"
-                  >
-                    {evalLink}
-                  </EditableText>
-                </Link>
-              </li>
-              <li>
-                {/* Was `/property-management#faq` — the same FAQ.tsx
-                    component also runs on the landing page itself (Index.tsx),
-                    guest-facing there instead of behind the owner-context PM
-                    page. A guest reading the footer lands on the copy
-                    actually written for them. */}
-                <a href="/#faq" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
-                  <EditableText
-                    id="footer-faq-link"
-                    value={faqLink}
-                    onChange={setFaqLink}
-                    as="span"
-                    className="text-primary-foreground/80"
-                  >
-                    {faqLink}
-                  </EditableText>
-                </a>
-              </li>
-              <li>
-                <Link to="/aviso-legal" className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors">
-                  <EditableText
-                    id="footer-aviso-legal-link"
-                    value={avisoLegalLink}
-                    onChange={setAvisoLegalLink}
-                    as="span"
-                    className="text-primary-foreground/80"
-                  >
-                    {avisoLegalLink}
-                  </EditableText>
-                </Link>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={openSettings}
-                  className="inline-block py-1.5 text-primary-foreground/80 hover:text-accent-on-primary transition-colors text-left"
-                >
-                  <EditableText
-                    id="footer-cookie-settings-link"
-                    value={cookieSettingsLink}
-                    onChange={setCookieSettingsLink}
-                    as="span"
-                    className="text-primary-foreground/80"
-                  >
-                    {cookieSettingsLink}
-                  </EditableText>
-                </button>
-              </li>
-            </ul>
-          </div>
+            <div>
+              <EditableText
+                id="footer-owners-title"
+                value={ownersTitle}
+                onChange={setOwnersTitle}
+                as="h2"
+                className={columnHeadingClass}
+              >
+                {ownersTitle}
+              </EditableText>
+              <ul>
+                {ownerLinks.map(({ label, to }) => (
+                  <li key={label}>
+                    <Link to={to} className={linkClass}>
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          <div>
-            <EditableText
-              id="footer-contact-title"
-              value={contactTitle}
-              onChange={setContactTitle}
-              as="h4"
-              className="t-item mb-4"
-            >
-              {contactTitle}
-            </EditableText>
-            <ul className="space-y-3">
-              <li className="flex items-center gap-2 text-primary-foreground/80">
-                <Mail className="w-4 h-4" />
-                <EditableText
-                  id="footer-email"
-                  value={email}
-                  onChange={setEmail}
-                  as="span"
-                  className="text-primary-foreground/80"
-                >
-                  {email}
-                </EditableText>
-              </li>
-              <li className="flex items-center gap-2 text-primary-foreground/80">
-                <Phone className="w-4 h-4" />
-                <EditableText
-                  id="footer-phone"
-                  value={phone}
-                  onChange={setPhone}
-                  as="span"
-                  className="text-primary-foreground/80"
-                >
-                  {phone}
-                </EditableText>
-              </li>
-              <li className="flex items-start gap-2 text-primary-foreground/80">
-                <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
-                <EditableText
-                  id="footer-address"
-                  value={address}
-                  onChange={setAddress}
-                  as="span"
-                  className="text-primary-foreground/80"
-                >
-                  {address}
-                </EditableText>
-              </li>
-            </ul>
-            {/* w-4 h-4, no padding on the anchor: the contact list above uses
-                16px icons flush with the column's left edge. The old w-5 h-5
-                plus p-1.5 wrapper made the Instagram mark both bigger and
-                offset from that edge, which is the "schief" (crooked)
-                Almedin flagged — it wasn't crooked, it just wasn't aligned to
-                its own column. */}
-            <div className="flex gap-4 mt-4">
-              {SOCIAL_LINKS.map(({ label, href, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Frontier Residences on ${label}`}
-                  className="inline-block text-primary-foreground/80 hover:text-accent-on-primary transition-colors"
-                >
-                  <Icon className="w-4 h-4" />
-                </a>
-              ))}
+            <div>
+              <EditableText
+                id="footer-company-title"
+                value={companyTitle}
+                onChange={setCompanyTitle}
+                as="h2"
+                className={columnHeadingClass}
+              >
+                {companyTitle}
+              </EditableText>
+              <ul>
+                {companyLinks.map(({ label, to }) => (
+                  <li key={label}>
+                    <Link to={to} className={linkClass}>
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <button type="button" onClick={openSettings} className={linkClass}>
+                    {t("footer-cookie-settings-link")}
+                  </button>
+                </li>
+                <li>
+                  <a href={`tel:${phone.replace(/\s/g, "")}`} className={linkClass}>
+                    <EditableText id="footer-phone" value={phone} onChange={setPhone} as="span">
+                      {phone}
+                    </EditableText>
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 pt-md text-center text-primary-foreground/60">
+        <div className="mt-2xl flex flex-col sm:flex-row items-center justify-between gap-3 t-body text-ink-foreground/45">
           <p>
             &copy; {new Date().getFullYear()}{" "}
-            <EditableText
-              id="footer-copyright"
-              value={copyright}
-              onChange={setCopyright}
-              as="span"
-            >
+            <EditableText id="footer-copyright" value={copyright} onChange={setCopyright} as="span">
               {copyright}
-            </EditableText>
+            </EditableText>{" "}
+            · {BUSINESS.city}
           </p>
+          <div className="flex gap-4">
+            {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Frontier Residences on ${label}`}
+                className="inline-flex items-center gap-2 hover:text-accent-on-primary transition-colors"
+              >
+                <Icon className="w-4 h-4" strokeWidth={1.5} />
+                {label}
+              </a>
+            ))}
+          </div>
         </div>
       </Container>
     </footer>

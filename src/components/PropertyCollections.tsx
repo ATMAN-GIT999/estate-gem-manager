@@ -1,265 +1,64 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
+import CollectionTabs from "@/components/CollectionTabs";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import EditableText from "@/components/admin/EditableText";
-import { Container, Section, Grid } from "@/components/layout";
+import { Grid, Section } from "@/components/layout";
 import { useLocale } from "@/contexts/LocaleContext";
+import { cn } from "@/lib/utils";
+import {
+  classifyProperty,
+  COLLECTION_LABEL_KEY,
+  COLLECTION_ORDER,
+  type CollectionId,
+} from "@/lib/homeCollections";
 
 /**
- * The portfolio as three collections rather than one undifferentiated list.
+ * "Our homes" — one tabbed row, paged with arrows.
  *
- * A guest arrives wanting a kind of trip, not a kind of property: a villa on the
- * coast, a few days in a city, or somewhere with nothing around it. Three rails
- * let someone recognise their trip in the first one they scroll past, which a
- * single mixed rail cannot do.
+ * Three horizontal rails showed nine cropped cards and made the section the
+ * tallest thing on the page; the tabs show three whole ones at a time and put
+ * the choice where a guest actually makes it — the region first, the house
+ * second. Arrows page through the rest of that region's homes without leaving
+ * the landing page (Almedin, 26.09.2026): the row used to stop at the first
+ * three, so a guest who liked the Costa del Sol had to go to /properties to
+ * see the fourth.
  *
- * ⚠️ Collections are derived in code because the table has no column for them.
- * `location` alone is not enough: the two Los Flamingos properties are tagged
- * "Málaga" — the province, not the town — so a location-only filter files two
- * golf-resort villas under city apartments. Hence the name override below.
- *
- * A `collection` column on `properties` would be the durable fix, and would let
- * the client re-file a property without a deploy. Until then, adding a property
- * in a new town means adding its location here or it appears in no rail.
+ * Which house belongs to which tab lives in src/lib/homeCollections.ts, shared
+ * with the filter on /properties.
  */
-
-/** Coastal Costa del Sol. Marbella and everything within reach of it. */
-const COASTAL = ["Marbella", "Río Real", "Calahonda", "Fuengirola", "Torremolinos"];
-/** City breaks. Málaga city centre and Vienna. */
-const CITY = ["Málaga", "Wien"];
-/** The Alpine lodges. */
-const OFF_GRID = ["Sauerwald"];
-
-/** Tagged with the province rather than the town; they belong on the coast. */
-const COASTAL_BY_NAME = ["Los Flamingos"];
-
-type Collection = {
-  id: string;
-  title: string;
-  lead: string;
-  properties: Property[];
-};
-
-const classify = (property: Property): "coastal" | "city" | "offgrid" | null => {
-  const location = property.location ?? "";
-  const name = property.name ?? "";
-
-  if (COASTAL_BY_NAME.some((needle) => name.includes(needle))) return "coastal";
-  if (OFF_GRID.includes(location)) return "offgrid";
-  if (COASTAL.includes(location)) return "coastal";
-  if (CITY.includes(location)) return "city";
-  return null;
-};
-
-/**
- * How many cards a rail may show at once before the rest have to be
- * revealed with an arrow click — matching the pattern AvantStay's own
- * "Stays you will love" rails use.
- *
- * Without a cap, the rail's width was purely a function of the viewport: on
- * an ordinary laptop it happened to show 4-5, so the effect passed for a
- * discovery rail, but at a very wide monitor or a zoomed-out browser (25%
- * is roughly a 4x-wide viewport) there was room for 12+ cards side by side,
- * and the rail stopped reading as "a curated few, click for more" — it just
- * *was* the full list.
- */
-const MAX_VISIBLE_CARDS = 4;
-/** w-80 on the card wrapper below. */
-const CARD_WIDTH_PX = 320;
-/** gap-6 on the scrolling track below. */
-const CARD_GAP_PX = 24;
-/** Six cards, five gaps between them — the scrolling track's hard ceiling. */
-const RAIL_MAX_WIDTH_PX =
-  MAX_VISIBLE_CARDS * CARD_WIDTH_PX + (MAX_VISIBLE_CARDS - 1) * CARD_GAP_PX; // 2040
-/** One card plus its gap, so an arrow click always lands on a card edge. */
-const SCROLL_STEP_PX = CARD_WIDTH_PX + CARD_GAP_PX;
-
-const Rail = ({
-  collection,
-  loading,
-}: {
-  collection: Collection;
-  loading: boolean;
-}) => {
-  const { language } = useLocale();
-  const railRef = useRef<HTMLDivElement>(null);
-  const [title, setTitle] = useState(collection.title);
-  const [lead, setLead] = useState(collection.lead);
-
-  // `collection.title`/`.lead` come from the parent's `t()` call, recomputed
-  // every render — this resyncs the local EditableText state to match
-  // whenever the language actually changes (see Navigation.tsx's identical
-  // pattern for why a reset rather than a merge).
-  useEffect(() => {
-    setTitle(collection.title);
-    setLead(collection.lead);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language]);
-
-  const scrollRail = (direction: -1 | 1) => {
-    const rail = railRef.current;
-    if (!rail) return;
-    rail.scrollBy({ left: direction * SCROLL_STEP_PX, behavior: "smooth" });
-  };
-
-  // An empty collection renders nothing rather than an empty rail with a
-  // heading over it.
-  if (!loading && collection.properties.length === 0) return null;
-
-  // A collection that fits within MAX_VISIBLE_CARDS never needs to scroll —
-  // and a fixed-width flex row (below) only ever fills the container edge to
-  // edge by coincidence, since RAIL_MAX_WIDTH_PX is a fixed pixel value while
-  // the container's own width is fluid (up to --container-max). Rendering it
-  // as a Grid instead guarantees the same left/right edges as every other
-  // section, the way OmniVillas' own "Featured homes" row does. Only a
-  // collection that genuinely overflows keeps the scrolling rail, where a
-  // card peeking at the edge is the intended "there is more" hint.
-  const needsScroll = loading || collection.properties.length > MAX_VISIBLE_CARDS;
-
-  return (
-    <div>
-      <Container>
-        <div className="flex flex-wrap items-end justify-between gap-sm mb-md">
-          <div className="max-w-xl">
-            <EditableText
-              id={`coll-${collection.id}-title`}
-              value={title}
-              onChange={setTitle}
-              as="h2"
-              className="t-section text-primary mb-2"
-            >
-              {title}
-            </EditableText>
-            <EditableText
-              id={`coll-${collection.id}-lead`}
-              value={lead}
-              onChange={setLead}
-              as="p"
-              className="text-foreground/70"
-            >
-              {lead}
-            </EditableText>
-          </div>
-
-          {/* Visible on every width, not just desktop (was `hidden md:flex`)
-              — a phone has no hover state to hint that the row scrolls, and
-              without these the only way to find the rest of the rail was an
-              undiscoverable swipe. Pointless (and hidden) when the row
-              already shows every card. */}
-          {needsScroll && (
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                aria-label={`Scroll ${title} left`}
-                onClick={() => scrollRail(-1)}
-                className="rounded-full"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                aria-label={`Scroll ${title} right`}
-                onClick={() => scrollRail(1)}
-                className="rounded-full"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-        </div>
-      </Container>
-
-      {needsScroll ? (
-        /* Two nested boxes doing two separate jobs.
-            The OUTER box only positions: its `paddingLeft` is
-            `--container-inset`, the same value every other section uses to
-            line its content up with the container above, and it carries no
-            width cap of its own, so it still spans the full bleed width the
-            section gives it.
-
-            The INNER box is the one that scrolls, and it is the one capped to
-            `RAIL_MAX_WIDTH_PX` — exactly four cards. Capping the OUTER box
-            instead (padding and max-width on the same element) was the first
-            version of this fix, and it broke on wide viewports: at 25% zoom
-            `--container-inset` alone can exceed 1600px, more than the cap,
-            so the padding would have consumed the entire budget and left no
-            room for the cards it was meant to be capping the number of.
-
-            Within its cap, the inner box still runs to that boundary rather
-            than stopping early, so a card straddling the edge is visibly cut
-            off — the same "there is more" hint the original full-bleed
-            version had, just bounded at four instead of at "however many the
-            screen happens to fit". This box only renders once there are more
-            cards than fit, so its right edge falling short of the container
-            (a fixed card-width cap vs. the container's fluid width) reads as
-            "scroll for more" rather than as a stray gap. */
-        <div style={{ paddingLeft: "var(--container-inset)" }}>
-          <div
-            ref={railRef}
-            style={{ maxWidth: `${RAIL_MAX_WIDTH_PX}px` }}
-            className="flex gap-6 overflow-x-auto snap-x snap-proximity scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {/* `w-[85vw] max-w-80`, not a flat `w-80`: on a ~360px phone a
-                fixed 320px card left only a sliver of the next one peeking in
-                (and touched the right edge, no matching gap on the right at
-                all) — 85vw keeps a consistent, deliberate peek at any phone
-                width, capped at the same 320px the rail's own width math
-                assumes on desktop. */}
-            {loading
-              ? [1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="w-[85vw] max-w-80 shrink-0 space-y-4">
-                    <Skeleton className="aspect-[4/3] w-full" />
-                    <Skeleton className="h-8 w-3/4" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                ))
-              : collection.properties.map((property) => (
-                  <div key={property.id} className="w-[85vw] max-w-80 shrink-0 snap-start">
-                    <PropertyCard property={property} />
-                  </div>
-                ))}
-          </div>
-        </div>
-      ) : (
-        <Container>
-          <Grid cols={4} gap="md">
-            {collection.properties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </Grid>
-        </Container>
-      )}
-    </div>
-  );
-};
 
 const PropertyCollections = () => {
   const { t, language } = useLocale();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState<CollectionId>("costa");
+  const [api, setApi] = useState<CarouselApi>();
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(false);
+
+  const [heading, setHeading] = useState(t("trio-heading"));
   const [viewAllText, setViewAllText] = useState(t("collections-view-all"));
 
   useEffect(() => {
+    setHeading(t("trio-heading"));
     setViewAllText(t("collections-view-all"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
   useEffect(() => {
     const fetchProperties = async () => {
-      // One request for everything, split in memory — three filtered queries
-      // would be three round trips for the same rows.
+      // One request for everything, split in memory — four filtered queries
+      // would be four round trips for the same rows.
       const { data, error } = await supabase
         .from("properties")
         .select("*")
         .eq("available", true)
+        .order("featured", { ascending: false })
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -275,63 +74,154 @@ const PropertyCollections = () => {
     fetchProperties();
   }, []);
 
-  // Highest nightly rate first within a rail — the same default /properties
-  // itself opens on (Properties.tsx's `sortOption` starts at "price-desc").
-  // Without this, a rail ordered by `created_at` puts whichever property was
-  // imported last in front, which for "Luxury Stays for You" specifically
-  // undersells the collection: the point of that rail is to lead with the
-  // homes that earn the name.
-  const byPriceDesc = (a: Property, b: Property) => (b.price_per_night || 0) - (a.price_per_night || 0);
+  const tabs = COLLECTION_ORDER.map((id) => ({ id, label: t(COLLECTION_LABEL_KEY[id]) }));
 
-  const collections: Collection[] = [
-    {
-      id: "luxury",
-      title: t("coll-luxury-title"),
-      lead: t("coll-luxury-lead"),
-      properties: properties.filter((p) => classify(p) === "coastal").sort(byPriceDesc),
-    },
-    {
-      id: "city",
-      title: t("coll-city-title"),
-      lead: t("coll-city-lead"),
-      properties: properties.filter((p) => classify(p) === "city").sort(byPriceDesc),
-    },
-    {
-      id: "offgrid",
-      title: t("coll-offgrid-title"),
-      lead: t("coll-offgrid-lead"),
-      properties: properties.filter((p) => classify(p) === "offgrid").sort(byPriceDesc),
-    },
-  ];
+  const byTab = useMemo(() => {
+    const groups: Record<CollectionId, Property[]> = { costa: [], vienna: [], carinthia: [], new: [] };
+    properties.forEach((p) => groups[classifyProperty(p)].push(p));
+    // Highest nightly rate first inside a tab, the same rule /properties
+    // defaults to: in this portfolio the dearest homes are also the ones
+    // worth opening with, and three city apartments leading "Costa del Sol"
+    // is not the coast anyone pictures.
+    (Object.keys(groups) as CollectionId[]).forEach((key) => {
+      groups[key].sort((a, b) => (b.price_per_night || 0) - (a.price_per_night || 0));
+    });
+    return groups;
+  }, [properties]);
+
+  // A tab with nothing behind it is worse than no tab: it reads as a broken
+  // filter rather than as an empty category.
+  const visibleTabs = loading ? tabs : tabs.filter((tab) => byTab[tab.id].length > 0);
+  const current = visibleTabs.some((tab) => tab.id === active) ? active : visibleTabs[0]?.id ?? "costa";
+  const shown = byTab[current];
+
+  // Arrow state follows the carousel. The carousel is remounted per tab (see
+  // `key` below), so this re-subscribes to a fresh api on every switch.
+  useEffect(() => {
+    if (!api) return;
+    const sync = () => {
+      setCanPrev(api.canScrollPrev());
+      setCanNext(api.canScrollNext());
+    };
+    sync();
+    api.on("select", sync);
+    api.on("reInit", sync);
+    return () => {
+      api.off("select", sync);
+      api.off("reInit", sync);
+    };
+  }, [api]);
 
   return (
-    // `bleed`: the rails set their own inset so they can run past the
-    // container edge. Everything inside them still starts on that edge.
-    <Section id="stays" size="md" bleed>
-      <div className="space-y-xl">
-        {collections.map((collection) => (
-          <Rail key={collection.id} collection={collection} loading={loading} />
-        ))}
+    <Section id="stays" size="md">
+      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 mb-lg">
+        {/* Links to /vacation-rentals (Almedin, 04.10.2026) — the heading
+            doubles as a second way into the same destination the "View all"
+            link below already opens. */}
+        <Link to="/vacation-rentals" className="group">
+          <EditableText
+            id="trio-heading"
+            value={heading}
+            onChange={setHeading}
+            as="h2"
+            className="t-section text-foreground transition-colors group-hover:text-accent-strong"
+          >
+            {heading}
+          </EditableText>
+        </Link>
+
+        <CollectionTabs<CollectionId> tabs={visibleTabs} current={current} onSelect={setActive} />
       </div>
 
-      <Container className="mt-lg text-center">
-        <Button
-          asChild
-          size="lg"
-          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant"
-        >
-          <Link to="/properties">
-            <EditableText
-              id="collections-view-all"
-              value={viewAllText}
-              onChange={setViewAllText}
-              as="span"
+      {loading ? (
+        <Grid cols={3} gap="md">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="aspect-[3/4] w-full" />
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </Grid>
+      ) : (
+        /* A carousel, not a grid: the arrows appear only when the tab holds
+           more homes than fit in one view. Vienna and Carinthia hold one or
+           two, and a three-column grid would strand those against the left
+           edge — so a short row is centred instead, which at three items
+           lands on exactly the same column widths.
+
+           Below `lg` the arrows sit under the row; from `lg` they move out
+           into the page gutter (74px+ there), at the height of the photograph
+           rather than of the whole card. Not on the photograph itself: each
+           card already has its own photo arrows there, and two pairs on one
+           image would read as one control. */
+        <div className="relative">
+          <Carousel
+            key={current}
+            setApi={setApi}
+            opts={{ align: "start", slidesToScroll: "auto", containScroll: "trimSnaps" }}
+          >
+            <CarouselContent
+              className={cn(
+                "-ml-[var(--space-md)]",
+                shown.length < 3 && "sm:justify-center",
+                shown.length < 2 && "justify-center"
+              )}
             >
-              {viewAllText}
-            </EditableText>
-          </Link>
-        </Button>
-      </Container>
+              {shown.map((property) => (
+                <CarouselItem
+                  key={property.id}
+                  className="pl-[var(--space-md)] basis-full sm:basis-1/2 lg:basis-1/3"
+                >
+                  <PropertyCard property={property} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+
+          {(canPrev || canNext) && (
+            <div className="mt-md flex justify-center gap-3 lg:mt-0 lg:contents">
+              {([-1, 1] as const).map((delta) => (
+                <button
+                  key={delta}
+                  type="button"
+                  onClick={() => (delta === -1 ? api?.scrollPrev() : api?.scrollNext())}
+                  disabled={delta === -1 ? !canPrev : !canNext}
+                  aria-label={delta === -1 ? "Previous homes" : "Next homes"}
+                  className={cn(
+                    "h-11 w-11 rounded-full border border-border bg-background text-foreground",
+                    "inline-flex items-center justify-center transition-colors",
+                    "hover:border-accent-strong hover:text-accent-strong",
+                    "disabled:opacity-30 disabled:pointer-events-none",
+                    "lg:absolute lg:top-[38%] lg:-translate-y-1/2",
+                    delta === -1 ? "lg:-left-14" : "lg:-right-14"
+                  )}
+                >
+                  {delta === -1 ? (
+                    <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+                  ) : (
+                    <ChevronRight className="h-5 w-5" strokeWidth={1.5} />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="mt-lg text-center">
+        <Link to="/properties" className="cta-link">
+          <EditableText
+            id="collections-view-all"
+            value={viewAllText}
+            onChange={setViewAllText}
+            as="span"
+          >
+            {viewAllText}
+          </EditableText>{" "}
+          →
+        </Link>
+      </div>
     </Section>
   );
 };

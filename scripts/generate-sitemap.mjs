@@ -30,14 +30,24 @@ const STATIC_ROUTES = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
   { path: "/property-management", priority: "0.9", changefreq: "monthly" },
   { path: "/properties", priority: "0.9", changefreq: "weekly" },
+  // The location pages (src/lib/vacationRentals.ts, which this .mjs cannot
+  // import). A place goes on this list only when it has homes and a page —
+  // Estepona and Benalmádena have neither, and must not appear here.
+  { path: "/vacation-rentals", priority: "0.8", changefreq: "weekly" },
+  { path: "/vacation-rentals/malaga", priority: "0.8", changefreq: "weekly" },
+  { path: "/vacation-rentals/marbella", priority: "0.8", changefreq: "weekly" },
+  { path: "/vacation-rentals/fuengirola", priority: "0.8", changefreq: "weekly" },
+  { path: "/vacation-rentals/vienna", priority: "0.8", changefreq: "weekly" },
+  { path: "/vacation-rentals/carinthia", priority: "0.8", changefreq: "weekly" },
   { path: "/guaranteed-income", priority: "0.8", changefreq: "monthly" },
   { path: "/renovations", priority: "0.8", changefreq: "monthly" },
   { path: "/investments", priority: "0.8", changefreq: "monthly" },
   { path: "/evaluate", priority: "0.8", changefreq: "monthly" },
   { path: "/projects", priority: "0.7", changefreq: "monthly" },
-  { path: "/about", priority: "0.7", changefreq: "monthly" },
-  { path: "/business-areas", priority: "0.6", changefreq: "monthly" },
-  { path: "/book", priority: "0.6", changefreq: "weekly" },
+  { path: "/projects/istria", priority: "0.6", changefreq: "yearly" },
+  // /about is a redirect to / now (Almedin, 29.09.2026), not a page of its
+  // own — nothing left here to list, and its own URL would tell Google to
+  // index a page that immediately bounces elsewhere.
   { path: "/aviso-legal", priority: "0.2", changefreq: "yearly" },
 ];
 
@@ -61,13 +71,37 @@ async function fetchPropertySlugs() {
   }
   try {
     const res = await fetch(
-      `${url}/rest/v1/properties?select=slug,updated_at&available=eq.true&order=updated_at.desc`,
+      `${url}/rest/v1/properties?select=slug,seo_slug,updated_at&available=eq.true&order=updated_at.desc`,
       { headers: { apikey: key } },
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.json();
   } catch (err) {
     console.warn(`[sitemap] Could not load properties (${err.message}) — static routes only.`);
+    return [];
+  }
+}
+
+/**
+ * Published winter rentals (src/lib/winterRentals.ts). Unlike the static list,
+ * these routes are built from live data: the hub and a place page are listed
+ * only when at least one published home exists there — a page with nothing on
+ * it is noindex in the app and must not be offered to Google here either.
+ */
+async function fetchWinterListings() {
+  const url = readEnv("VITE_SUPABASE_URL");
+  const key = readEnv("VITE_SUPABASE_PUBLISHABLE_KEY");
+  if (!url || !key) return [];
+  try {
+    const res = await fetch(
+      `${url}/rest/v1/midterm_listings?select=slug,city_group,updated_at&published=eq.true&order=updated_at.desc`,
+      { headers: { apikey: key } },
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    // Expected until the migration is applied: the table does not exist yet.
+    console.warn(`[sitemap] Could not load winter rentals (${err.message}) — none listed.`);
     return [];
   }
 }
@@ -87,17 +121,38 @@ const entry = ({ path, priority, changefreq, lastmod }) =>
   </url>`;
 
 const properties = await fetchPropertySlugs();
+const winter = await fetchWinterListings();
+const winterCities = [...new Set(winter.map((w) => w.city_group))];
 
 const urls = [
   ...STATIC_ROUTES.map(entry),
   ...properties.map((p) =>
     entry({
-      path: `/property/${p.slug}`,
+      // `seo_slug` where there is one — the old `slug` form 301s to it
+      // (public/_redirects), and a sitemap must list only final addresses.
+      // Same rule as propertyPath() in src/lib/propertyUrl.ts.
+      path: `/property/${p.seo_slug || p.slug}`,
       priority: "0.8",
       changefreq: "weekly",
       lastmod: p.updated_at ? p.updated_at.slice(0, 10) : today,
     }),
   ),
+  ...(winter.length
+    ? [
+        entry({ path: "/winter-rentals", priority: "0.8", changefreq: "weekly" }),
+        ...winterCities.map((c) =>
+          entry({ path: `/winter-rentals/${c}`, priority: "0.8", changefreq: "weekly" }),
+        ),
+        ...winter.map((w) =>
+          entry({
+            path: `/winter-rentals/${w.city_group}/${w.slug}`,
+            priority: "0.7",
+            changefreq: "weekly",
+            lastmod: w.updated_at ? w.updated_at.slice(0, 10) : today,
+          }),
+        ),
+      ]
+    : []),
 ];
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -109,5 +164,5 @@ ${urls.join("\n")}
 const outPath = resolve(root, "dist", "sitemap.xml");
 writeFileSync(outPath, xml, "utf8");
 console.log(
-  `[sitemap] ${urls.length} URLs written (${STATIC_ROUTES.length} static, ${properties.length} properties).`,
+  `[sitemap] ${urls.length} URLs written (${STATIC_ROUTES.length} static, ${properties.length} properties, ${winter.length} winter rentals).`,
 );

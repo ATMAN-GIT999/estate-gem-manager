@@ -17,6 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTrackEvent } from "@/hooks/use-track-event";
 
 const PropertyEvaluator = () => {
   const [loading, setLoading] = useState(false);
@@ -32,6 +34,8 @@ const PropertyEvaluator = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t, language } = useLocale();
+  const { user } = useAuth();
+  const track = useTrackEvent();
 
   // Editable content state. Renamed from "Property Cashflow Analysis" /
   // "Get Free Cash Flow Analysis" to match the nav's existing "Property
@@ -62,7 +66,12 @@ const PropertyEvaluator = () => {
     }
 
     setLoading(true);
-    
+    // Counted here, at the moment of asking — /evaluate then decides whether
+    // an answer comes back. `signed_in` is there because it does not for most
+    // owners: Evaluate.tsx sends anyone without an account to /auth, and this
+    // is how many were stopped there (compare evaluator_result_viewed).
+    void track("evaluator_submitted", { entry: "evaluate-page", signed_in: Boolean(user) });
+
     // Navigate immediately - the analysis will happen on the results page
     navigate("/evaluate", { state: { propertyData: formData } });
   };

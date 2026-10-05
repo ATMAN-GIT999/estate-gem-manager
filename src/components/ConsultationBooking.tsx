@@ -6,7 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/components/ui/use-toast";
+import { Container, Section } from "@/components/layout";
 import { supabase } from "@/lib/supabaseClient";
+import { useLocale } from "@/contexts/LocaleContext";
+import { useTrackEvent } from "@/hooks/use-track-event";
 import { Calendar as CalendarIcon, Upload, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 /**
@@ -48,6 +51,7 @@ const safeFileName = (name: string) =>
   name.normalize("NFKD").replace(/[^\w.\-]+/g, "_").slice(-80);
 
 const ConsultationBooking = () => {
+  const { t } = useLocale();
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -60,6 +64,7 @@ const ConsultationBooking = () => {
     message: "",
   });
   const { toast } = useToast();
+  const track = useTrackEvent();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -174,6 +179,9 @@ const ConsultationBooking = () => {
       });
     }
 
+    // Only after the lead is safely in `contacts`. The form, not the
+    // person: no name or address goes into analytics.
+    void track("owner_enquiry_submitted", { form: "consultation" });
     setSent(true);
   };
 
@@ -191,9 +199,8 @@ const ConsultationBooking = () => {
   // submission, which is how one owner becomes three rows in the CRM.
   if (sent) {
     return (
-      <section className="py-20 bg-gradient-to-b from-background to-accent/5">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
+      <Section size="lg" className="bg-gradient-to-b from-background to-accent/5">
+        <Container measure="narrow" className="text-center">
             <CheckCircle2 className="w-14 h-14 text-accent-strong mx-auto mb-6" strokeWidth={1.5} />
             <h2 className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-4">
               Consultation requested
@@ -202,16 +209,14 @@ const ConsultationBooking = () => {
               We have your details. Our team will review them and come back to you
               within 24 hours to talk through next steps.
             </p>
-          </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
     );
   }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-accent/5">
-      <div className="container mx-auto px-4">
-        <div className="max-w-5xl mx-auto">
+    <Section size="lg" className="bg-gradient-to-b from-background to-accent/5">
+      <Container measure="wide">
           <div className="text-center mb-12">
             <CalendarIcon className="w-16 h-16 text-accent-strong mx-auto mb-6" />
             <h2 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-4">
@@ -349,7 +354,10 @@ const ConsultationBooking = () => {
                         <div key={index} className="relative group">
                           <img
                             src={URL.createObjectURL(file)}
-                            alt={`Property ${index + 1}`}
+                            alt={t("consult-upload-alt").replace("{file}", file.name)}
+                            width={200}
+                            height={96}
+                            loading="lazy"
                             className="w-full h-24 object-cover rounded-lg"
                           />
                           <button
@@ -397,9 +405,8 @@ const ConsultationBooking = () => {
               </Button>
             </form>
           </Card>
-        </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 };
 

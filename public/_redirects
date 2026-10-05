@@ -1,3 +1,42 @@
+# /business-areas is an orphaned page (docs/PROJECT.md D2) with no nav item
+# left pointing at it — a real 301 here, not just the client-side <Navigate>
+# in App.tsx, so a search engine that still has the old URL indexed updates
+# to /property-management instead of showing two competing pages. Must sit
+# above the SPA fallback below, since Netlify/Cloudflare take the first
+# matching rule.
+/business-areas    /property-management   301
+
+# Property pages moved from the Guesty-derived slug to Frontier's own
+# `seo_slug` on 25.09.2026 (src/lib/propertyUrl.ts). 301 so a search engine
+# moves any ranking over to the new address instead of seeing two pages.
+# Generated from the database (slug -> seo_slug); the query string, and with
+# it a guest's dates, is passed through. When a home that was imported
+# later is given a seo_slug, add its line here — until then PropertyDetail
+# still forwards the old address client-side, just without the 301.
+/property/lima-alpine-lodges-almhaus-gertraud-8a4682                 /property/carinthia-lima-almhaus-gertraud   301
+/property/lima-alpine-lodges-almhaus-petra-488f63                    /property/carinthia-lima-almhaus-petra   301
+/property/lima-alpine-lodges-almhaus-theresia-6aacf1                 /property/carinthia-lima-almhaus-theresia   301
+/property/lima-alpine-lodges-troadkasten-lisa-488c47                 /property/carinthia-lima-troadkasten-lisa   301
+/property/lima-alpine-lodges-troadkasten-matthias-6aaa11             /property/carinthia-lima-troadkasten-matthias   301
+/property/oaks-thistle-calahonda-golf-5b154d                         /property/fuengirola-calahonda-oaks-and-thistle   301
+/property/luxury-villa-with-infinity-pool-sea-views-higuer-n-d37c59  /property/fuengirola-higueron-infinity-villa   301
+/property/the-one-sea-view-luxury-villa-in-higuer-n-84aba9           /property/fuengirola-the-one-higueron   301
+/property/centro-historico-soho-6070fb                               /property/malaga-centro-historico-soho   301
+/property/studio-malaga-centro-b1e498                                /property/malaga-centro-studio   301
+/property/native-quarter-malaga-centro-7065f6                        /property/malaga-native-quarter-centro   301
+/property/soho-alameda-art-district-d8fa5e                           /property/malaga-soho-alameda-art-district   301
+/property/soho-art-experience-b80616                                 /property/malaga-soho-art-experience   301
+/property/6th-floor-malaga-soho-apartment-ebe170                     /property/malaga-soho-sixth-floor   301
+/property/new-renovated-first-line-beach-apartment-dd61ec            /property/malaga-torremolinos-first-line-beach-apartment   301
+/property/cozy-ground-floor-2br-steps-from-playa-mar-beach-ec56df    /property/malaga-torremolinos-playa-mar-ground-floor   301
+/property/sol-arena-y-mar-first-line-beach-studio-82a230             /property/malaga-torremolinos-sol-arena-y-mar-studio   301
+/property/casa-heredia-rural-andalusian-retreat-830366               /property/marbella-casa-heredia   301
+/property/luxury-escape-los-flamingos-golf-retreat-abdc97            /property/marbella-los-flamingos-golf-retreat   301
+/property/the-hideaway-los-flamingos-marbella-dbf202                 /property/marbella-los-flamingos-hideaway   301
+/property/los-monteros-retreat-5a9d3a                                /property/marbella-los-monteros-retreat   301
+/property/vienna-city-duplex-apartment-ottakring-77caff              /property/vienna-ottakring-duplex   301
+/property/2br-apartment-near-prater-city-center-8eb09a               /property/vienna-prater-two-bedroom   301
+
 # SPA fallback: this is a client-side-routed React app (react-router), so any
 # path that isn't a real static file has to still serve index.html and let
 # the router take over — otherwise a reload or a link opened in a new tab on

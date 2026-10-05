@@ -1,114 +1,125 @@
 import { useEffect, useState } from "react";
-import { Users, Shield, Key, Clock, BookOpen, Package } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { BadgePercent, KeyRound, Sparkles, UserRoundCheck, Wifi } from "lucide-react";
 import EditableText from "./admin/EditableText";
-import { Section, Grid, Stack } from "./layout";
+import { MediaFrame, Section } from "./layout";
+import stayImage from "@/assets/wf-stay-includes.webp";
 import { useLocale } from "@/contexts/LocaleContext";
 import type { TranslationKey } from "@/lib/translations";
 
 /**
- * Lifted out of PropertyManagement, where it was the middle of three pillars,
- * because it belongs in front of guests rather than owners: it is the answer to
- * "who looks after me once I have booked".
+ * "What every stay includes" — the guest half's one proof section.
  *
- * The copy is written to the guest, in the second person. It previously spoke
- * over their head to the owner — "your guests can contact us", and a screening
- * card about keeping unwanted guests out, which on a booking page a reader
- * applies to themselves. Every item states the same fact as before from the
- * side of the person reading it.
+ * Picture on the left, five checkable claims on the right, each on a hairline.
+ * Each claim carries a thin gold line icon (Almedin, 26.09.2026 — the same
+ * treatment as the two pillars under "Renovations & Investments"). Still no
+ * cards: the icon sits in the row, not in a tile, so the claims keep reading
+ * as things a guest can verify rather than as features.
  *
- * Structurally this was the site's densest surviving box: a `<Card>` on a
- * gradient, holding four more translucent cards with borders, each with a hover
- * state. §25 and the project's own "fewer boxes" rule both land on the same
- * answer — the green band already separates this from the page, so the items
- * on it need a hairline and space, not four more frames.
+ * On white, not the sage band this used to carry. The landing page now spends
+ * its one coloured surface on the search band; a second full band here would
+ * put the page back to alternating stripes.
  */
-const ITEM_ICONS = ["Shield", "Key", "Clock", "BookOpen"];
+
+const ITEMS = [0, 1, 2, 3, 4] as const;
+
+/** Index-aligned with ITEMS: check-in, Wi-Fi, on-site help, clean, direct. */
+const ITEM_ICONS = [KeyRound, Wifi, UserRoundCheck, Sparkles, BadgePercent] as const;
 
 const GuestManagement = () => {
   const { t, language } = useLocale();
-  const [guestTitle, setGuestTitle] = useState(t("pm-guest-title"));
-  const [guestDesc, setGuestDesc] = useState(t("pm-guest-desc"));
-  const [guestBadge, setGuestBadge] = useState(t("pm-guest-badge"));
-  const [contactBtnText, setContactBtnText] = useState(t("pm-contact-btn-2"));
 
-  const buildItems = () =>
-    ITEM_ICONS.map((icon, i) => ({
-      icon,
-      title: t(`pm-guest-title-${i}` as TranslationKey),
-      description: t(`pm-guest-desc-${i}` as TranslationKey),
-    }));
-
-  const [guestManagement, setGuestManagement] = useState(buildItems());
+  const [heading, setHeading] = useState(t("stay-heading"));
+  const [lead, setLead] = useState(t("stay-lead"));
+  const [image, setImage] = useState<string | undefined>(stayImage);
+  const [items, setItems] = useState(
+    ITEMS.map((i) => ({
+      title: t(`stay-${i}-title` as TranslationKey),
+      desc: t(`stay-${i}-desc` as TranslationKey),
+    }))
+  );
 
   useEffect(() => {
-    setGuestTitle(t("pm-guest-title"));
-    setGuestDesc(t("pm-guest-desc"));
-    setGuestBadge(t("pm-guest-badge"));
-    setContactBtnText(t("pm-contact-btn-2"));
-    setGuestManagement(buildItems());
+    setHeading(t("stay-heading"));
+    setLead(t("stay-lead"));
+    setItems(
+      ITEMS.map((i) => ({
+        title: t(`stay-${i}-title` as TranslationKey),
+        desc: t(`stay-${i}-desc` as TranslationKey),
+      }))
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
-  const iconMap: Record<string, any> = { Users, Shield, Key, Clock, BookOpen, Package };
-
-  const updateItem = (index: number, field: string, value: string) => {
-    const updated = [...guestManagement];
-    updated[index] = { ...updated[index], [field]: value };
-    setGuestManagement(updated);
-  };
+  const update = (index: number, field: "title" | "desc", value: string) =>
+    setItems((prev) => prev.map((it, i) => (i === index ? { ...it, [field]: value } : it)));
 
   return (
-    <Section tone="primary" size="md" edge="both">
-      <Stack gap="lg">
-        <div className="max-w-3xl space-y-sm">
-          {/* Was a filled gold pill. An eyebrow says the same thing in the
-              typography the rest of the site already uses for it. */}
+    <Section size="md">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-14 lg:items-center">
+        <div className="lg:basis-[46%] lg:shrink-0">
+          <MediaFrame
+            id="stay-image"
+            src={image}
+            onChange={setImage}
+            alt="A covered terrace with a long dining table, at one of the managed homes"
+            note="Covered terrace, long table laid for dinner — the picture the five claims are about"
+            aspect="photo"
+            className="lg:aspect-auto lg:h-[560px]"
+          />
+        </div>
+
+        <div className="lg:flex-1">
           <EditableText
-            id="pm-guest-badge"
-            value={guestBadge}
-            onChange={setGuestBadge}
-            as="span"
-            className="block t-meta text-accent-on-primary"
+            id="stay-heading"
+            value={heading}
+            onChange={setHeading}
+            as="h2"
+            className="t-section text-foreground text-balance max-w-[16ch]"
           >
-            {guestBadge}
+            {heading}
           </EditableText>
-          <EditableText id="pm-guest-title" value={guestTitle} onChange={setGuestTitle} as="h2" className="t-section text-primary-foreground text-balance">{guestTitle}</EditableText>
-          <EditableText id="pm-guest-desc" value={guestDesc} onChange={setGuestDesc} as="p" multiline className="t-body text-primary-foreground/85">{guestDesc}</EditableText>
-        </div>
-
-        <Grid cols={4}>
-          {guestManagement.map((item, index) => {
-            const Icon = iconMap[item.icon] || Package;
-            return (
-              <div key={index} className="border-t border-primary-foreground/20 pt-sm">
-                <Icon className="w-6 h-6 text-accent-on-primary mb-sm" strokeWidth={1.5} />
-                <EditableText id={`pm-guest-title-${index}`} value={item.title} onChange={(v) => updateItem(index, "title", v)} as="h3" className="t-item text-primary-foreground mb-xs">{item.title}</EditableText>
-                <EditableText id={`pm-guest-desc-${index}`} value={item.description} onChange={(v) => updateItem(index, "description", v)} as="p" className="t-body text-primary-foreground/75">{item.description}</EditableText>
-              </div>
-            );
-          })}
-        </Grid>
-
-        {/* Was `/properties` (see docs/DECISIONS.md §32 for the `/book`
-            history before that) — Almedin asked "Contact us" to lead to the
-            actual contact form, and `#get-in-touch` on the PM page is the
-            only one that exists on this site. It asks for a property
-            address as a required field, which is an owner's question, not a
-            guest's — flagged in the same decision entry rather than silently
-            fixed, since the right answer (a separate guest enquiry form) is
-            a bigger piece of work than a link change. */}
-        <div>
-          <Button
-            asChild
-            className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-soft px-8 py-6 text-base"
+          <EditableText
+            id="stay-lead"
+            value={lead}
+            onChange={setLead}
+            as="p"
+            className="t-body text-muted-foreground mt-2.5 max-w-[44ch]"
           >
-            <a href="/property-management#get-in-touch">
-              <EditableText id="pm-contact-btn-2" value={contactBtnText} onChange={setContactBtnText} as="span">{contactBtnText}</EditableText>
-            </a>
-          </Button>
+            {lead}
+          </EditableText>
+
+          <dl className="mt-5">
+            {items.map((item, index) => {
+              const Icon = ITEM_ICONS[index];
+              return (
+                <div key={index} className="flex items-start gap-4 border-t border-border py-4">
+                  <Icon className="w-6 h-6 shrink-0 mt-0.5 text-accent-strong" strokeWidth={1.5} aria-hidden="true" />
+                  <div>
+                    <EditableText
+                      id={`stay-${index}-title`}
+                      value={item.title}
+                      onChange={(v) => update(index, "title", v)}
+                      as="dt"
+                      className="t-item text-foreground"
+                    >
+                      {item.title}
+                    </EditableText>
+                    <EditableText
+                      id={`stay-${index}-desc`}
+                      value={item.desc}
+                      onChange={(v) => update(index, "desc", v)}
+                      as="dd"
+                      className="t-body text-[15px] text-muted-foreground mt-1"
+                    >
+                      {item.desc}
+                    </EditableText>
+                  </div>
+                </div>
+              );
+            })}
+          </dl>
         </div>
-      </Stack>
+      </div>
     </Section>
   );
 };

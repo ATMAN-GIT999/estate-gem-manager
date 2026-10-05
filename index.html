@@ -4,12 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Frontier Residences | Luxury Property Management & Investment Services</title>
-    <meta name="description" content="Bespoke property management, renovation, and investment solutions for exclusive villas and apartments in Spain, Austria, and Croatia." />
+    <meta name="description" content="Bespoke property management, renovation, and investment solutions for exclusive villas and apartments in Spain and Austria." />
     <meta name="author" content="Frontier Residences" />
     <link rel="icon" href="/favicon.png" type="image/png">
-    <!-- Fonts are bundled via @fontsource in src/index.css. Do not add a
-         stylesheet link back to a font CDN here: that hands the visitor's IP
-         to a third party before anything renders. See the note in index.css. -->
+    <!-- Every other face on the site is self-hosted via @fontsource in
+         src/index.css for exactly the reason this used to warn about: a
+         fonts.googleapis.com request hands the visitor's IP to Google before
+         the page renders, which is a GDPR problem for a business with an
+         Austrian office and Austrian clients.
+
+         This one link is a deliberate, scoped exception — Almedin's explicit
+         call (02.10.2026) to pull Manrope in for the property-management
+         page's body text, matching the Lovable "GitHub Gem Manager"
+         reference 1:1, after being told what the self-hosted alternative
+         would cost. Do not copy this pattern onto another page without the
+         same conversation. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <!-- Site-level fallbacks only. Per-page title, description, canonical,
          og: and twitter: tags come from <Seo> (react-helmet-async).

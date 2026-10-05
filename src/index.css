@@ -21,9 +21,33 @@
    in unicode-range blocks (cyrillic, vietnamese, latin-ext) this site never
    uses — harmless, since a browser only fetches the woff2 for a range that
    actually appears in the page, so only the latin file downloads. */
+@import '@fontsource/archivo/latin-300.css';
+@import '@fontsource/archivo/latin-400.css';
+@import '@fontsource/archivo/latin-500.css';
+@import '@fontsource/archivo/latin-600.css';
+@import '@fontsource/archivo/latin-700.css';
+@import '@fontsource/archivo/latin-400-italic.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+@import '@fontsource/ibm-plex-mono/latin-600.css';
+
+/* Sora — headings only (Almedin, 02.10.2026, matching the Lovable "template"
+   rebuild's font-display). Archivo stays the body/tag/meta face; Sora takes
+   over `.t-display`/`.t-section`/`.t-block` only, see the rule below. 300 is
+   back (Almedin, 03.10.2026) — `.t-display`/`.t-section` now set font-weight
+   300 again, matching the Lovable reference's font-light; 400 stays loaded
+   too since .t-block (h3 role) and the original body/meta faces still want
+   it, and 500 for the one spot (TheSystem's closing line) that wants more
+   weight. Self-hosted for the same GDPR reason as the rest of this block,
+   not fonts.googleapis.com. */
+@import '@fontsource/sora/latin-300.css';
+@import '@fontsource/sora/latin-400.css';
+@import '@fontsource/sora/latin-500.css';
+
+/* Playfair and Lato are still loaded for the admin area only — the GrapesJS
+   page builder injects them into its preview iframe (admin/Builder.tsx) and
+   the global h1-h6 fallback below still names Playfair for admin screens.
+   Nothing public uses them any more. */
 @import '@fontsource-variable/playfair-display';
-@import '@fontsource-variable/playfair-display/wght-italic.css';
-@import '@fontsource/lato/latin-300.css';
 @import '@fontsource/lato/latin-400.css';
 @import '@fontsource/lato/latin-700.css';
 
@@ -37,8 +61,16 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 32 26% 92%; /* #efe6d9 */
-    --foreground: 133 14% 22%;
+    --background: 0 0% 100%; /* #ffffff — white is the ground now, beige is an accent surface */
+    /* Was 133 14% 22% — read as visibly sage-green next to the Lovable
+       comparison's headings, which only look black. Lovable's own token is
+       oklch(0.23176 0.02003 147.9); converted to sRGB/HSL (same hue family,
+       same ballpark saturation, but roughly HALF the lightness) that is
+       127 16% 11% — not a desaturation, a darkening. Almedin confirmed
+       going this close to Lovable's value rather than a lighter middle
+       ground (02.10.2026). Site-wide: every public page's body text and
+       headings read off this token. */
+    --foreground: 127 16% 11%;
 
     --card: 0 0% 100%; /* #ffffff */
     --card-foreground: 133 14% 22%;
@@ -49,21 +81,31 @@ All colors MUST be HSL.
     --primary: 133 11% 36%; /* #546458 - Header green */
     --primary-foreground: 0 0% 100%; /* #ffffff */
 
-    --secondary: 32 24% 87%;
+    --secondary: 32 24% 87%; /* #e6ded6 — the placeholder/hatch surface */
     --secondary-foreground: 133 14% 22%;
 
+    /* The beige that used to be the page. Now an accent band: search on the
+       landing page, the trust numbers and "two ways" on the owner page. */
+    --quiet: 35 41% 89%; /* #efe6d9 */
+    --quiet-foreground: 133 14% 22%;
+
+    /* The darkest surface — footer and the full-bleed photo bands that fade
+       into it with no seam. Not neutral black: same hue family as the sage. */
+    --ink: 135 17% 9%; /* #131b15 */
+    --ink-foreground: 0 0% 100%;
+
     --muted: 32 20% 88%;
-    --muted-foreground: 133 10% 34%;
+    --muted-foreground: 165 4% 36%; /* #59615f */
 
     /* Brand gold. Use as a FILL (bg-accent) with accent-foreground on top — 6.05:1.
        As a text/icon colour it only reaches 2.19:1 on --background, so use the
        two variants below instead of text-accent. */
-    --accent: 40 42% 52%;
-    --accent-foreground: 36 30% 12%;
+    --accent: 41 46% 56%; /* #c2a15c */
+    --accent-foreground: 41 53% 9%; /* #241c0b */
     /* Gold for text & icons on light surfaces (background/card) — 5.6:1 / 6.6:1 */
     --accent-strong: 38 55% 30%;
     /* Gold for text & icons on the dark green --primary surfaces — 4.6:1 */
-    --accent-on-primary: 42 60% 82%;
+    --accent-on-primary: 41 60% 82%; /* #eddcb6 */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -98,8 +140,19 @@ All colors MUST be HSL.
        tailwind.config.ts) because the full-bleed rails need them inside
        calc(), which a Tailwind token cannot do.
        --------------------------------------------------------------------- */
-    --container-max: 1440px;
-    --container-gutter: clamp(1.25rem, 3.5vw, 3rem);
+    /* 1280px + a ~24px→44px gutter (Almedin, 02.10.2026), not 1440px/110px:
+       the Lovable "GitHub Gem Manager" comparison on /property-management
+       read as noticeably more spacious at the same viewport widths, and the
+       gap traced to here, not to any one section — at ~1285px wide our old
+       110px gutter left content starting ~97px from the edge where Lovable's
+       `max-w-7xl` + `px-6`/`lg:px-10` started at ~42px. Site-wide, not just
+       that page: every public page shares this token. */
+    --container-max: 1280px;
+    /* Reaches its 44px ceiling around 1024px viewport width — the same point
+       Lovable's own `px-6`→`lg:px-10` step lands — and tracks close to its
+       24px mobile padding down at 375px. Ramped from 20px at the narrowest
+       phones so the edge never goes tighter than that. */
+    --container-gutter: clamp(1.25rem, 1rem + 2.2vw, 2.75rem);
     /* Left/right padding that lines a full-bleed element (a horizontally
        scrolling rail, an edge-to-edge image row) up with the container above
        it. Has to reproduce exactly what `.app-container`'s own
@@ -134,13 +187,22 @@ All colors MUST be HSL.
        `py-20` / `py-24` / `py-28` / `py-36` drift this file used to have. */
     --space-xs: 0.75rem;                                   /* 12 */
     --space-sm: 1.5rem;                                    /* 24 */
-    --space-md: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem);    /* 28 → 40 */
-    --space-lg: clamp(2.5rem, 1.9rem + 2.6vw, 4rem);       /* 40 → 64 */
-    --space-xl: clamp(3.5rem, 2.4rem + 4.6vw, 6rem);       /* 56 → 96 */
-    --space-2xl: clamp(4.5rem, 2.4rem + 8.5vw, 8.75rem);   /* 72 → 140 */
+    /* md through 2xl carry an 0.8× factor the four steps below it don't:
+       these four are what set a Section's own top/bottom padding
+       (sizeClass in layout/Section.tsx), so they're what made the page feel
+       like it needed a 75% browser zoom to look normal-sized — a `size="lg"`
+       band was 140px of padding top AND bottom at 1440px, 280px of empty
+       space around every heavy section. Scaled the clamp() uniformly
+       (MIN/MAX and the vw coefficient by the same 0.8) rather than picking
+       new endpoints by eye, so the responsive curve keeps its exact shape,
+       just smaller throughout. */
+    --space-md: clamp(1.4rem, 1.12rem + 1.2vw, 2rem);      /* 22 → 32 */
+    --space-lg: clamp(2rem, 1.52rem + 2.08vw, 3.2rem);     /* 32 → 51 */
+    --space-xl: clamp(2.8rem, 1.92rem + 3.68vw, 4.8rem);   /* 45 → 77 */
+    --space-2xl: clamp(3.6rem, 1.92rem + 6.8vw, 7rem);     /* 58 → 112 */
 
     /* Custom gradients and shadows */
-    --gradient-hero: linear-gradient(135deg, hsl(32, 26%, 92%) 0%, hsl(32, 30%, 88%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(35, 41%, 89%) 0%, hsl(32, 30%, 86%) 100%);
     --gradient-sage: linear-gradient(135deg, hsl(133, 11%, 36%) 0%, hsl(133, 11%, 28%) 100%);
     --gradient-gold: linear-gradient(135deg, hsl(42, 48%, 60%) 0%, hsl(38, 42%, 46%) 100%);
     /* Darkening layer for photo and video bands. Derived from --foreground
@@ -154,6 +216,33 @@ All colors MUST be HSL.
       hsl(133 16% 13% / 0.62) 0%,
       hsl(133 16% 13% / 0.34) 45%,
       hsl(133 16% 13% / 0.68) 100%
+    );
+    /* Hero-only (Almedin, 04.10.2026) — not a change to --overlay-media
+       itself, which Navigation's floating state, OwnAProperty and
+       IstriaProject all also rely on for their own contrast. Two asks: a
+       longer, more deliberate fade at the top — the same visual move as
+       --overlay-ink-fade below, just not blending into a solid colour, so
+       it reads as a vignette under the floating nav rather than a hard
+       peak — and a slightly darker read everywhere else. Every stop is a
+       few points above --overlay-media's own, nothing more. */
+    --overlay-hero: linear-gradient(
+      180deg,
+      hsl(133 16% 13% / 0.78) 0%,
+      hsl(133 16% 13% / 0.46) 22%,
+      hsl(133 16% 13% / 0.4) 50%,
+      hsl(133 16% 13% / 0.72) 100%
+    );
+    /* For the two bands that run into the footer with no seam (owner bridge
+       on the landing page, the contact form on the owner page): a photograph
+       darkened until its bottom edge IS the footer's ink, so there is no
+       visible join. Darker than --overlay-media on purpose — white copy and
+       a form sit on top of it. */
+    --overlay-ink-fade: linear-gradient(
+      180deg,
+      hsl(135 17% 9% / 0.55) 0%,
+      hsl(135 17% 9% / 0.72) 45%,
+      hsl(135 17% 9% / 0.94) 82%,
+      hsl(135 17% 9% / 1) 100%
     );
     --shadow-elegant: 0 10px 40px -10px hsl(133 11% 36% / 0.15);
     --shadow-soft: 0 8px 30px -8px hsl(133 11% 36% / 0.2);
@@ -198,7 +287,7 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Lato', 'Open Sans', sans-serif;
+    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   /* The variable cut registers under its own family name, so it has to be
@@ -209,87 +298,234 @@ All colors MUST be HSL.
      type scale below (and for the admin area, which is out of scope). Anything
      public should carry a .t-* class, which overrides both of these. */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display Variable', 'Playfair Display', serif;
+    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 600;
   }
 }
 
 /* ---------------------------------------------------------------------------
-   The type scale — six roles, nothing else.
+   The type scale — seven roles, two families.
+
+   Archivo carries body text, item/card labels, tags and meta. The three
+   heading roles (display/section/block) are Sora instead, since 02.10.2026 —
+   see the rule below for why. There is no serif any more, so the old "no
+   Playfair below 28px" rule is gone with it; what separates the roles is
+   family, weight, size and tracking. Large sizes are tracked in, small labels
+   tracked out — that is where the quiet catalogue tone comes from. Sizes are
+   about a fifth smaller than in the serif version, because a grotesque at
+   62px reads louder than a serif at 62px.
 
    Why this lives here and not in tailwind.config.ts: a Tailwind `fontSize`
    token can carry size, line-height, tracking and weight, but NOT the font
-   family. Splitting "how big" from "which font" across two classes is exactly
-   how the page ended up with twelve 16px headings set in a display serif. One
-   class per role keeps the two decisions welded together.
+   family. One class per role keeps "how big" and "which font" welded together.
 
-   Sizes are clamp()ed, so a role needs no responsive variant — `.t-section` is
-   30px on a phone and 44px on a desktop by itself. That removes the second
-   source of drift, where a heading got its `md:` breakpoint but its neighbour
-   did not.
+   Weights: Archivo has real 300/400/500/600/700 cuts bound above and Sora has
+   400/500 bound above, so every weight used below is an actual face, not
+   something the browser rounds or synthesises. (The old "700, because Lato
+   has no 600" rule died with Lato.)
 
-   Weights: Playfair is the variable cut (400-700 continuous). Lato is NOT —
-   only 300/400/700 are bound in the imports above, and Lato has no 600 at all.
-   Item and Meta therefore use 700; asking for 600 would let the browser round
-   or synthesise a fake bold.
+   `.t-tag` is the only role in IBM Plex Mono — eyebrows and meta markers.
 
    Rule this enforces: no `text-xs` … `text-7xl` in a public component.
-   Full rationale in docs/DESIGN.md §5.
    --------------------------------------------------------------------------- */
 @layer components {
-  .t-display,
-  .t-section,
-  .t-block {
-    font-family: 'Playfair Display Variable', 'Playfair Display', serif;
-    font-weight: 700;
-  }
-
+  .t-card,
   .t-item,
   .t-body,
   .t-meta {
-    font-family: 'Lato', 'Open Sans', sans-serif;
+    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
-  /* H1 — once per page, never more */
-  .t-display {
-    font-size: clamp(2.375rem, 1.6rem + 3.2vw, 4rem);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-  }
-
-  /* H2 — the title of a section */
-  .t-section {
-    font-size: clamp(1.875rem, 1.35rem + 2.15vw, 2.75rem);
-    line-height: 1.1;
-    letter-spacing: -0.015em;
-  }
-
-  /* H3 — a sub-unit inside a section */
+  /* .t-display/.t-section/.t-block are Sora, not Archivo (Almedin,
+     02.10.2026) — matching the Lovable "template" rebuild's heading face.
+     Body copy, tags and meta markers stay on Archivo above; only the three
+     heading roles change, which is also why weight and tracking loosen here
+     but nowhere else. Sora is self-hosted via @fontsource for the same GDPR
+     reason as every other face in this file. */
+  .t-display,
+  .t-section,
   .t-block {
-    font-size: clamp(1.375rem, 1.1rem + 1.1vw, 1.75rem);
-    line-height: 1.2;
+    font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  /* H1 — once per page, never more.
+     0.8× the wireframe's literal 34→52: taken 1:1 the display role alone
+     was already close to a third of a 900px-tall viewport, which read as
+     the page needing a 75% browser zoom to sit at a normal scale. Scaled
+     the whole clamp() (MIN, the rem term, the vw term, and MAX) by the same
+     0.8 so the responsive curve keeps its shape, just smaller throughout —
+     not new endpoints picked by eye.
+     Weight was 400 for a while (Almedin, 02.10.2026): a deliberate notch
+     heavier than the Lovable reference's font-light (300), on the reasoning
+     that Sora 400 was the closer visual match to the old Archivo 500. Back
+     to 300 (Almedin, 03.10.2026), alongside the darker --foreground above —
+     seeing the two side by side (darker, heavier text) made the page read
+     as trying harder than the reference rather than matching its quiet
+     register. Tracking also back to 0 (was -0.01em): Lovable's own classes
+     carry no tracking utility on these roles at all. Size stays raised —
+     see the note below — only weight/tracking reverted. */
+  .t-display {
+    font-size: clamp(1.9rem, 1.1rem + 3.6vw, 3.625rem); /* 30 → 58 */
+    line-height: 1.08;
+    letter-spacing: 0;
+    font-weight: 300;
+  }
+
+  /* H2 — the title of a section. Same 0.8× as Display. Line-height all the
+     way to 1.25 (Almedin, 03.10.2026, was 1.2) — the Lovable reference's own
+     leading-tight, now matched exactly rather than approximated. Weight 300
+     and letter-spacing 0 (was 400 / -0.01em), same reasoning and same date
+     as .t-display above. Size stays raised — see the note below. */
+  .t-section {
+    font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.25rem); /* 24 → 36 */
+    line-height: 1.25;
+    letter-spacing: 0;
+    font-weight: 300;
+  }
+
+  /* H3 — a sub-unit inside a section. Same 0.8×. Weight 500 rather than
+     400: the Lovable reference itself sets its card/h3 headings a notch
+     heavier (font-medium) than its h1/h2, and that relative step is worth
+     keeping even though every absolute weight here is already a step above
+     the reference. */
+  .t-block {
+    font-size: clamp(1rem, 0.896rem + 0.424vw, 1.2rem); /* 16 → 19 */
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+  }
+
+  /* Property names and other catalogue titles. Caps and tracked out — this
+     is the tone that carries the collection pages. A gentler 0.85×: it is
+     already the smallest of the four "big" roles, and tracked-out uppercase
+     caption text loses legibility fast once it drops much below 14px. */
+  .t-card {
+    font-size: clamp(0.9rem, 0.85rem + 0.22vw, 1rem); /* 14 → 16 */
+    line-height: 1.25;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    font-weight: 400;
   }
 
   /* H4 — a single item in a list. Separated from body by weight, not size. */
   .t-item {
-    font-size: clamp(1.0625rem, 1.03rem + 0.15vw, 1.125rem);
+    font-size: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem); /* 16 → 17 */
     line-height: 1.4;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .t-body {
-    font-size: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem);
+    font-size: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem); /* 16 → 17 */
     line-height: 1.6;
     font-weight: 400;
   }
 
-  /* Eyebrows, labels, caption-level text */
+  /* Labels and captions */
   .t-meta {
-    font-size: clamp(0.75rem, 0.73rem + 0.08vw, 0.8125rem);
+    font-size: 0.75rem; /* 12 */
     line-height: 1.4;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    font-weight: 600;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
+  }
+
+  /* Eyebrow tags — the only role in the mono face. Gold on light surfaces;
+     pass text-accent-on-primary / text-white-ish yourself on dark ones. */
+  .t-tag {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.625rem; /* 10 */
+    line-height: 1.4;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+}
+
+/* Property-management page only: Almedin's call (02.10.2026) to match the
+   Lovable "GitHub Gem Manager" reference's body face (Manrope, loaded via
+   the Google Fonts link in index.html — see that file's note) on this one
+   page. Scoped under .pmp-manrope rather than touching body/.t-body
+   directly, so every other page keeps Archivo. Headings stay on Sora
+   (.t-display/.t-section/.t-block already are, site-wide) and .t-tag stays
+   on its own mono face — neither is part of this swap. */
+.pmp-manrope .t-body,
+.pmp-manrope .t-item,
+.pmp-manrope .t-card,
+.pmp-manrope .t-meta {
+  font-family: 'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   The three call-to-action shapes from the wireframe.
+
+   Deliberately NOT variants on the shadcn <Button>: that primitive is shared
+   with the admin area's forms and dialogs, which want the square 10px-high
+   control, not a 48px pill. These are the public site's buttons.
+
+   .cta-primary   gold fill, near-black text — the one action of a section
+   .cta-secondary outline, inherits colour; `.on-dark` for photo bands
+   .cta-link      a text link with a rule under it, for secondary paths
+   --------------------------------------------------------------------------- */
+@layer components {
+  .cta-base {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5625rem;
+    height: 3rem;
+    padding-inline: 1.75rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s ease-out;
+  }
+
+  .cta-primary {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+  .cta-primary:hover {
+    background-color: hsl(var(--accent) / 0.88);
+  }
+
+  .cta-secondary {
+    background-color: transparent;
+    border: 1px solid hsl(var(--foreground) / 0.4);
+    color: hsl(var(--foreground));
+  }
+  .cta-secondary:hover {
+    background-color: hsl(var(--foreground) / 0.06);
+  }
+
+  .cta-secondary.on-dark {
+    border-color: hsl(0 0% 100% / 0.6);
+    color: #fff;
+  }
+  .cta-secondary.on-dark:hover {
+    background-color: hsl(0 0% 100% / 0.12);
+  }
+
+  .cta-link {
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--accent-strong));
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 2px;
+    text-decoration: none;
+    transition: color 0.2s ease-out;
+  }
+  .cta-link:hover {
+    color: hsl(var(--foreground));
+  }
+  .cta-link.on-dark {
+    color: hsl(var(--accent-on-primary));
+  }
+  .cta-link.on-dark:hover {
+    color: #fff;
   }
 }
 
@@ -430,11 +666,29 @@ All colors MUST be HSL.
   .animate-fade-in {
     animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   @keyframes fadeIn {
     from {
       opacity: 0;
       transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* PageTransition.tsx — quick, not the 0.8s hero reveal above: this fires
+     on every route click, so a slow one would read as a delay rather than a
+     transition. */
+  .animate-page-in {
+    animation: pageIn 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes pageIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
     }
     to {
       opacity: 1;
@@ -452,6 +706,10 @@ All colors MUST be HSL.
 
   .overlay-media {
     background: var(--overlay-media);
+  }
+
+  .overlay-hero {
+    background: var(--overlay-hero);
   }
   
   .shadow-elegant {

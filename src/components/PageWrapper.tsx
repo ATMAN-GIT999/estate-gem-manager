@@ -13,18 +13,33 @@ interface PageWrapperProps {
 /**
  * Wraps a React page. If there's a published override in the pages table,
  * renders the stored HTML/CSS instead of the React children.
+ *
+ * The React page renders immediately and an override, if one comes back,
+ * replaces it. It used to be the other way round: a spinner held back the
+ * whole page — headline, copy, everything — until the Supabase round-trip
+ * for `pages` finished, on all ten wrapped routes. No route has an override
+ * stored, so every visitor and every crawler paid a network round-trip to be
+ * told "nothing to see here" before any content existed. First paint is now
+ * the content itself.
+ *
+ * The audit offered a second option (switch the mechanism off for `/` and
+ * `/property-management`). This one was taken instead: it fixes all ten
+ * routes rather than two, and it keeps one code path instead of leaving the
+ * wrapper behaving differently depending on which page it wraps.
+ *
+ * The cost is the flash the old spinner was there to prevent — but only on a
+ * page that actually HAS a published override, where the React version shows
+ * for one round-trip before the stored HTML takes over. That trade is worth
+ * it while no override exists; if editors start publishing them, the fix is
+ * to serve the override with the document, not to hide the page again.
  */
 export default function PageWrapper({ slug, children }: PageWrapperProps) {
   const [override, setOverride] = useState<{ html: string; css: string } | null>(null);
-  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     // Don't check for overrides if we're in edit mode (iframe inside builder)
     const params = new URLSearchParams(window.location.search);
-    if (params.get("edit") === "true") {
-      setChecked(true);
-      return;
-    }
+    if (params.get("edit") === "true") return;
 
     (async () => {
       const { data } = await supabase
@@ -37,22 +52,8 @@ export default function PageWrapper({ slug, children }: PageWrapperProps) {
       if (data && data.content_html) {
         setOverride({ html: data.content_html, css: data.content_css || "" });
       }
-      setChecked(true);
     })();
   }, [slug]);
-
-  // Show nothing until we've checked (prevents flash)
-  if (!checked) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navigation />
-        <main className="flex-1 flex items-center justify-center pt-24">
-          <div className="animate-pulse text-muted-foreground">Loading...</div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   // If we have a published override, render it
   if (override) {

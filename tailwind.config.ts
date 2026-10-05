@@ -47,6 +47,17 @@ export default {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
+        /* The beige band. It used to be the page background; since the ground
+           went white it is an accent surface you place deliberately. */
+        quiet: {
+          DEFAULT: "hsl(var(--quiet))",
+          foreground: "hsl(var(--quiet-foreground))",
+        },
+        /* The darkest surface — footer, and the photo bands that fade into it. */
+        ink: {
+          DEFAULT: "hsl(var(--ink))",
+          foreground: "hsl(var(--ink-foreground))",
+        },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
@@ -115,6 +126,13 @@ export default {
         gold: "var(--shadow-gold)",
       },
       fontFamily: {
+        /* Archivo carries every text role; the mono face is for eyebrow tags
+           and meta markers only. Both are self-hosted via @fontsource — never
+           add a fonts.googleapis.com link (GDPR, clients in Austria). */
+        sans: ["Archivo", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        archivo: ["Archivo", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        mono: ["IBM Plex Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        /* Admin area only (the GrapesJS builder preview). */
         playfair: ["Playfair Display Variable", "Playfair Display", "serif"],
         lato: ["Lato", "sans-serif"],
       },

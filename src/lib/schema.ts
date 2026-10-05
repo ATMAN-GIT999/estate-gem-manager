@@ -106,7 +106,8 @@ export const breadcrumbSchema = (
 
 interface PropertySchemaInput {
   name: string;
-  slug: string;
+  /** The canonical route, from `propertyPath()` — never built from `slug` here. */
+  path: string;
   description?: string | null;
   location?: string | null;
   bedrooms?: number | null;
@@ -138,7 +139,7 @@ export const propertySchema = (property: PropertySchemaInput) => ({
   "@context": "https://schema.org",
   "@type": "Accommodation",
   name: property.name,
-  url: absoluteUrl(`/property/${property.slug}`),
+  url: absoluteUrl(property.path),
   ...(property.description ? { description: property.description } : {}),
   ...(property.images?.length
     ? { image: property.images.slice(0, 6).map((i) => i.url) }
@@ -171,4 +172,39 @@ export const propertySchema = (property: PropertySchemaInput) => ({
       }
     : {}),
   provider: { "@id": ORG_ID },
+});
+
+/**
+ * A page whose job is to list things — the location pages and their overview.
+ *
+ * `CollectionPage` with an `ItemList` inside rather than an `ItemList` alone:
+ * the page is the thing being described, the list is what it contains, and
+ * `isPartOf` ties it to the site. Items are URLs, not nested `Accommodation`
+ * objects — each home already publishes its own full markup on its own page,
+ * and repeating it here would be a second, drifting copy (and would have to
+ * leave the price out a second time; see `propertySchema`).
+ */
+export const collectionPageSchema = (input: {
+  name: string;
+  description: string;
+  path: string;
+  items: Array<{ name: string; path: string }>;
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: input.name,
+  description: input.description,
+  url: absoluteUrl(input.path),
+  isPartOf: { "@type": "WebSite", url: SITE_URL },
+  provider: { "@id": ORG_ID },
+  mainEntity: {
+    "@type": "ItemList",
+    numberOfItems: input.items.length,
+    itemListElement: input.items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      url: absoluteUrl(item.path),
+    })),
+  },
 });

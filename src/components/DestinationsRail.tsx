@@ -1,0 +1,136 @@
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import EditableText from "./admin/EditableText";
+import { Container, MediaFrame, Section } from "./layout";
+import { useLocale } from "@/contexts/LocaleContext";
+import placeMarbella from "@/assets/wf-place-marbella.webp";
+import placeMalaga from "@/assets/wf-place-malaga.webp";
+import placeVienna from "@/assets/wf-place-vienna.webp";
+import placeCarinthia from "@/assets/wf-place-carinthia.jpg";
+
+/**
+ * "Where we are at home" — the four places, full-bleed, with the fourth
+ * deliberately cropped at the right edge so the row reads as continuing rather
+ * than as a grid that happens to have run out.
+ *
+ * Every slot is a MediaFrame — a villa interior standing in for "Marbella"
+ * would be the worse answer than an honest hatched placeholder naming the
+ * shot it is waiting for. All four places now have their photograph
+ * (Carinthia last, 29.09.2026); a new destination added here still falls
+ * back to the placeholder until its own picture arrives.
+ */
+
+interface Place {
+  id: string;
+  labelKey: "dest-marbella" | "dest-malaga" | "dest-vienna" | "dest-carinthia";
+  /** The location page the card opens (`/vacation-rentals/<page>`). */
+  page: "malaga" | "marbella" | "vienna" | "carinthia";
+  src?: string;
+  note: string;
+}
+
+const PLACES: Place[] = [
+  { id: "dest-image-marbella", labelKey: "dest-marbella", page: "marbella", src: placeMarbella, note: "Marbella — golf and the Sierra Blanca behind it, 3:2" },
+  { id: "dest-image-malaga", labelKey: "dest-malaga", page: "malaga", src: placeMalaga, note: "Málaga — the port and the old town from above, 3:2" },
+  { id: "dest-image-vienna", labelKey: "dest-vienna", page: "vienna", src: placeVienna, note: "Vienna — the inner city at dusk, 3:2" },
+  { id: "dest-image-carinthia", labelKey: "dest-carinthia", page: "carinthia", src: placeCarinthia, note: "Carinthia — glacier peak above a green Alpine valley, 3:2 (Almedin, 29.09.2026)" },
+];
+
+const DestinationsRail = () => {
+  const { t, language } = useLocale();
+  const railRef = useRef<HTMLDivElement>(null);
+  const [heading, setHeading] = useState(t("dest-heading"));
+
+  useEffect(() => {
+    setHeading(t("dest-heading"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
+
+  const scrollBy = (dir: 1 | -1) => {
+    const el = railRef.current;
+    if (!el) return;
+    // One card plus its gap, so an arrow click always lands on a card edge.
+    el.scrollBy({ left: dir * 444, behavior: "smooth" });
+  };
+
+  return (
+    <Section size="md" bleed>
+      <Container className="flex items-baseline justify-between gap-md mb-[34px]">
+        <EditableText
+          id="dest-heading"
+          value={heading}
+          onChange={setHeading}
+          as="h2"
+          className="t-section text-foreground"
+        >
+          {heading}
+        </EditableText>
+
+        {/* Always visible, not `hidden md:flex` — on a phone the rail is the
+            only way through the row and the arrows are how you know it moves. */}
+        <div className="flex gap-3 shrink-0">
+          {([-1, 1] as const).map((dir) => (
+            <button
+              key={dir}
+              type="button"
+              onClick={() => scrollBy(dir)}
+              aria-label={dir === -1 ? "Previous destinations" : "Next destinations"}
+              className="h-11 w-11 rounded-full border border-border text-foreground/70 hover:text-foreground hover:border-foreground/40 transition-colors inline-flex items-center justify-center"
+            >
+              {dir === -1 ? (
+                <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
+              ) : (
+                <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+              )}
+            </button>
+          ))}
+        </div>
+      </Container>
+
+      {/* app-bleed-inset lines the first card up with the container above it
+          while the row itself still runs to the viewport edge. */}
+      {/* Three whole cards and the fourth cut off at the right edge — the row
+          has to read as continuing, which a tidy four-up grid does not. Fixed
+          420px cards on a 24px gap, starting at the container's own left edge:
+          110 + 3×420 + 2×24 = 1418 of 1440, so card four shows 22px of itself
+          and the rest is behind the viewport. */}
+      {/* `scroll-pl` matters: with snap alignment and no scroll padding the
+          browser snaps a card's leading edge to the scroll-port edge and eats
+          the container inset, so the row jumps flush to the viewport and the
+          first caption is clipped. */}
+      <div
+        ref={railRef}
+        className="app-bleed-inset scroll-pl-[var(--container-inset)] flex gap-6 overflow-x-auto snap-x snap-proximity pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {PLACES.map((place) => (
+          // A real link to the location page rather than a button into a
+          // filtered search (docs/seo/struktur.md §8): the landing page is the
+          // strongest page on the site, and an <a href> is the only kind of
+          // link a crawler follows from it.
+          <Link
+            key={place.id}
+            to={`/vacation-rentals/${place.page}`}
+            className="group snap-start shrink-0 w-[72vw] sm:w-[44vw] lg:w-[420px] text-left"
+          >
+            <div className="overflow-hidden">
+              <MediaFrame
+                id={place.id}
+                src={place.src}
+                alt={t(place.labelKey)}
+                note={place.note}
+                aspect="wide"
+                className="aspect-[3/2] lg:aspect-auto lg:h-[300px] transition-transform duration-700 group-hover:scale-[1.03]"
+              />
+            </div>
+            <p className="t-card text-foreground mt-3.5 group-hover:text-accent-strong transition-colors">
+              {t(place.labelKey)}
+            </p>
+          </Link>
+        ))}
+      </div>
+    </Section>
+  );
+};
+
+export default DestinationsRail;

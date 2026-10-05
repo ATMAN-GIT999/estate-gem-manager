@@ -4,24 +4,30 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InlineEditProvider } from "./contexts/InlineEditContext";
 import { LocaleProvider } from "./contexts/LocaleContext";
 import { CookieConsentProvider } from "./contexts/CookieConsentContext";
 import EditModeToggle from "./components/admin/EditModeToggle";
+import RequireAdmin from "./components/admin/RequireAdmin";
 import WhatsAppButton from "./components/WhatsAppButton";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import ScrollToTop from "./components/ScrollToTop";
+import PageTransition from "./components/PageTransition";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import About from "./pages/About";
 import Projects from "./pages/Projects";
-import BusinessAreasPage from "./pages/BusinessAreasPage";
+import IstriaProject from "./pages/IstriaProject";
 import Evaluate from "./pages/Evaluate";
 import Auth from "./pages/Auth";
 import PropertyDetail from "./pages/PropertyDetail";
 import Properties from "./pages/Properties";
+import VacationRentals from "./pages/VacationRentals";
+import WinterRentals from "./pages/WinterRentals";
+import WinterRentalCity from "./pages/WinterRentalCity";
+import WinterRentalDetail from "./pages/WinterRentalDetail";
+import VacationRentalCity from "./pages/VacationRentalCity";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import PropertyManagementPage from "./pages/PropertyManagementPage";
 import GuaranteedIncomePage from "./pages/GuaranteedIncomePage";
@@ -44,6 +50,7 @@ import UpdatePassword from "./pages/UpdatePassword";
  */
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminProperties = lazy(() => import("./pages/admin/Properties"));
+const AdminWinterRentals = lazy(() => import("./pages/admin/WinterRentals"));
 const AdminBookings = lazy(() => import("./pages/admin/Bookings"));
 const AdminBlog = lazy(() => import("./pages/admin/Blog"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics"));
@@ -80,11 +87,22 @@ const App = () => (
             <WhatsAppButton />
             <CookieConsentBanner />
             <Suspense fallback={<RouteFallback />}>
+            <PageTransition>
             <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
+            {/* Removed from the header and the site (Almedin, 29.09.2026) —
+                same reasoning as /business-areas just below: a client-side
+                redirect rather than deleting the route outright, so an old
+                bookmark, backlink or indexed Google result still lands
+                somewhere real instead of on NotFound. */}
+            <Route path="/about" element={<Navigate to="/" replace />} />
             <Route path="/projects" element={<Projects />} />
-            <Route path="/business-areas" element={<BusinessAreasPage />} />
+            <Route path="/projects/istria" element={<IstriaProject />} />
+            {/* Orphaned page, not a nav item anymore, and a stale duplicate of
+                /property-management's positioning (docs/PROJECT.md D2). A
+                client-side redirect rather than deleting the route outright,
+                so an old bookmark or backlink still lands somewhere real. */}
+            <Route path="/business-areas" element={<Navigate to="/property-management" replace />} />
             <Route path="/property-management" element={<PropertyManagementPage />} />
             <Route path="/guaranteed-income" element={<GuaranteedIncomePage />} />
             <Route path="/renovations" element={<RenovationsPage />} />
@@ -95,24 +113,34 @@ const App = () => (
             <Route path="/properties" element={<Properties />} />
             <Route path="/booking-confirmation" element={<BookingConfirmation />} />
             <Route path="/property/:slug" element={<PropertyDetail />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/properties" element={<AdminProperties />} />
-            <Route path="/admin/bookings" element={<AdminBookings />} />
-            <Route path="/admin/blog" element={<AdminBlog />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/admin/marketing" element={<AdminMarketing />} />
-            <Route path="/admin/tasks" element={<AdminTasks />} />
-            <Route path="/admin/calendar" element={<AdminCalendar />} />
-            <Route path="/admin/messages" element={<AdminMessages />} />
-            <Route path="/admin/create" element={<AdminCreate />} />
-            <Route path="/admin/builder" element={<AdminBuilder />} />
-            <Route path="/admin/test-harness" element={<AdminTestHarness />} />
+            <Route path="/vacation-rentals" element={<VacationRentals />} />
+            <Route path="/vacation-rentals/:city" element={<VacationRentalCity />} />
+            <Route path="/winter-rentals" element={<WinterRentals />} />
+            <Route path="/winter-rentals/:city" element={<WinterRentalCity />} />
+            <Route path="/winter-rentals/:city/:slug" element={<WinterRentalDetail />} />
+            {/* Every /admin/* route behind one gate (docs/PROJECT.md C8) —
+                see RequireAdmin for why this used to let a visitor with no
+                admin role open the page shell at all, RLS or not. */}
+            <Route path="/admin/dashboard" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
+            <Route path="/admin" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
+            <Route path="/admin/properties" element={<RequireAdmin><AdminProperties /></RequireAdmin>} />
+            <Route path="/admin/winter-rentals" element={<RequireAdmin><AdminWinterRentals /></RequireAdmin>} />
+            <Route path="/admin/bookings" element={<RequireAdmin><AdminBookings /></RequireAdmin>} />
+            <Route path="/admin/blog" element={<RequireAdmin><AdminBlog /></RequireAdmin>} />
+            <Route path="/admin/analytics" element={<RequireAdmin><AdminAnalytics /></RequireAdmin>} />
+            <Route path="/admin/settings" element={<RequireAdmin><AdminSettings /></RequireAdmin>} />
+            <Route path="/admin/marketing" element={<RequireAdmin><AdminMarketing /></RequireAdmin>} />
+            <Route path="/admin/tasks" element={<RequireAdmin><AdminTasks /></RequireAdmin>} />
+            <Route path="/admin/calendar" element={<RequireAdmin><AdminCalendar /></RequireAdmin>} />
+            <Route path="/admin/messages" element={<RequireAdmin><AdminMessages /></RequireAdmin>} />
+            <Route path="/admin/create" element={<RequireAdmin><AdminCreate /></RequireAdmin>} />
+            <Route path="/admin/builder" element={<RequireAdmin><AdminBuilder /></RequireAdmin>} />
+            <Route path="/admin/test-harness" element={<RequireAdmin><AdminTestHarness /></RequireAdmin>} />
             <Route path="/aviso-legal" element={<AvisoLegal />} />
             <Route path="/p/:slug" element={<DynamicPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </PageTransition>
             </Suspense>
           </CookieConsentProvider>
           </LocaleProvider>

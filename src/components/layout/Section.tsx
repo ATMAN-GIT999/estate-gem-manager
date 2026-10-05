@@ -17,12 +17,20 @@ import Container, { type Measure } from "./Container";
 
 /** Which surface the band paints. No new colours — these are the palette. */
 const toneClass = {
-  /** The page itself (#efe6d9). The default; most sections are this. */
+  /** The page itself — white. The default; most sections are this. */
   page: "bg-background",
-  /** A half-step darker, for a band that should separate without shouting. */
-  muted: "bg-secondary/30",
+  /**
+   * The beige accent band (#efe6d9). White is the ground now, so beige is a
+   * surface you place on purpose: the search band on the landing page, the
+   * trust numbers and "two ways" on the owner page. Not a default.
+   */
+  quiet: "bg-quiet text-quiet-foreground",
+  /** A half-step, for a band that should separate without shouting. */
+  muted: "bg-secondary/40",
   /** The sage-green fill. Gold on this needs `accent-on-primary`. */
   primary: "bg-primary text-primary-foreground",
+  /** The darkest surface — the footer and anything that runs into it. */
+  ink: "bg-ink text-ink-foreground",
 } as const;
 
 /**

@@ -1,290 +1,192 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Handshake, Palette, ShieldCheck, TrendingUp } from "lucide-react";
+import { ShieldCheck, TrendingUp } from "lucide-react";
 import EditableText from "./admin/EditableText";
-import { Button } from "@/components/ui/button";
-import { Section, Grid, Stack, Panel, Divider } from "./layout";
+import { Panel, Section } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
+import type { TranslationKey } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 
+/** Index-aligned with the `*-0`/`*-1` id convention: 0 = commission, 1 = Guaranteed Income. */
+const MODEL_ICONS = [TrendingUp, ShieldCheck] as const;
+
 /**
- * The commercial decision, stated as a decision — plus the two side doors for
- * owners it does not fit yet, now merged into one band instead of two.
+ * The commercial decision, as two unequal panels on the page's second beige
+ * band.
  *
- * The two halves used to be separate sections (`WaysToWorkTogether` then,
- * three levels down the page, `RenovationsAndInvestments`), which put a whole
- * heavy `AboutMini` between an offer and its footnotes. Almedin supplied a
- * reference layout that reads both halves as one continuous argument — the
- * two models first, then a labelled break ("Beyond management"), then the two
- * side doors — and asked for About Us to follow directly after. Merged here
- * on that instruction (docs/DECISIONS.md §16).
+ * The asymmetry is the argument and should stay: the fixed rent is wider, on a
+ * filled surface, and carries the gold button, because for most owners of a
+ * second home the model without occupancy risk is the one that fits. The
+ * commission model sits beside it as a text link, for the owner who would
+ * rather keep the upside.
  *
- * The gold rule-label-rule between the two halves is the one deliberate
- * exception to "the gold line is an accent, not a divider between every
- * section" (DESIGN.md §24): this is a genuine sub-chapter break inside one
- * band, not a seam between two sections, which is exactly the case that rule
- * carves out room for.
- *
- * The Renovations/Investments cards lost their `MediaFrame` placeholder image
- * in the move — the reference layout runs icon + text only, no photo slot,
- * and no photograph existed to fill it anyway (`beyond-image-0/1` retired).
+ * ⚠️ The indices do NOT follow the visual order. `*-0` is the commission
+ * model, `*-1` the fixed rent — the same mapping the inline-CMS IDs have
+ * always had. Only `order` decides what appears first.
  */
+
+const MODELS = [1, 0] as const; // visual order: fixed rent, then commission
+
 const WaysToWorkTogether = () => {
   const { t, language } = useLocale();
-  const [eyebrow, setEyebrow] = useState(t("ways-eyebrow"));
+
   const [heading, setHeading] = useState(t("ways-heading"));
-
-  const buildModels = () => [
-    {
-      name: t("ways-model-name-0"),
-      summary: t("ways-model-summary-0"),
-      detail: t("ways-model-detail-0"),
-      href: "/guaranteed-income",
-      linkText: t("ways-model-link-0"),
-      Icon: TrendingUp,
-    },
-    {
-      name: t("ways-model-name-1"),
-      summary: t("ways-model-summary-1"),
-      detail: t("ways-model-detail-1"),
-      href: "/guaranteed-income",
-      linkText: t("ways-model-link-1"),
-      Icon: ShieldCheck,
-    },
-  ];
-  const [models, setModels] = useState(buildModels());
-
-  const [beyondEyebrow, setBeyondEyebrow] = useState(t("beyond-eyebrow"));
-  const [beyondHeading, setBeyondHeading] = useState(t("beyond-heading"));
-
-  const buildPaths = () => [
-    {
-      label: t("ways-sub-title-0"),
-      title: t("beyond-title-0"),
-      description: t("ways-sub-desc-0"),
-      href: "/renovations",
-      linkText: t("ways-sub-link-0"),
-      Icon: Palette,
-    },
-    {
-      label: t("ways-sub-title-1"),
-      title: t("beyond-title-1"),
-      description: t("ways-sub-desc-1"),
-      href: "/investments",
-      linkText: t("ways-sub-link-1"),
-      Icon: Handshake,
-    },
-  ];
-  const [paths, setPaths] = useState(buildPaths());
+  const [lead, setLead] = useState(t("ways-lead"));
+  const [footnote, setFootnote] = useState(t("ways-footnote"));
+  const [models, setModels] = useState(
+    ([0, 1] as const).map((i) => ({
+      tag: t(`ways-model-tag-${i}` as TranslationKey),
+      name: t(`ways-model-name-${i}` as TranslationKey),
+      summary: t(`ways-model-summary-${i}` as TranslationKey),
+      detail: t(`ways-model-detail-${i}` as TranslationKey),
+      link: t(`ways-model-link-${i}` as TranslationKey),
+    }))
+  );
 
   useEffect(() => {
-    setEyebrow(t("ways-eyebrow"));
     setHeading(t("ways-heading"));
-    setModels(buildModels());
-    setBeyondEyebrow(t("beyond-eyebrow"));
-    setBeyondHeading(t("beyond-heading"));
-    setPaths(buildPaths());
+    setLead(t("ways-lead"));
+    setFootnote(t("ways-footnote"));
+    setModels(
+      ([0, 1] as const).map((i) => ({
+        tag: t(`ways-model-tag-${i}` as TranslationKey),
+        name: t(`ways-model-name-${i}` as TranslationKey),
+        summary: t(`ways-model-summary-${i}` as TranslationKey),
+        detail: t(`ways-model-detail-${i}` as TranslationKey),
+        link: t(`ways-model-link-${i}` as TranslationKey),
+      }))
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
-  const updatePath = (index: number, field: string, value: string) => {
-    const u = [...paths]; u[index] = { ...u[index], [field]: value }; setPaths(u);
-  };
+  const update = (
+    index: number,
+    field: "tag" | "name" | "summary" | "detail" | "link",
+    value: string
+  ) => setModels((prev) => prev.map((m, i) => (i === index ? { ...m, [field]: value } : m)));
 
   return (
-    <Section id="ways-to-work" size="lg">
-      <Stack gap="xl">
-        <Stack gap="lg">
-          <div className="max-w-3xl mx-auto text-center space-y-sm">
-            <EditableText
-              id="ways-eyebrow"
-              value={eyebrow}
-              onChange={setEyebrow}
-              as="span"
-              className="block t-meta text-accent-strong"
-            >
-              {eyebrow}
-            </EditableText>
-            <EditableText
-              id="ways-heading"
-              value={heading}
-              onChange={setHeading}
-              as="h2"
-              className="t-section text-primary text-balance"
-            >
-              {heading}
-            </EditableText>
-          </div>
+    // size="lg" (Almedin, 02.10.2026) — see TheSystem.tsx's note.
+    <Section id="ways-to-work" tone="quiet" size="lg">
+      <div className="max-w-2xl mx-auto text-center">
+        <EditableText
+          id="ways-heading"
+          value={heading}
+          onChange={setHeading}
+          as="h2"
+          className="t-section text-foreground text-balance"
+        >
+          {heading}
+        </EditableText>
+        <EditableText
+          id="ways-lead"
+          value={lead}
+          onChange={setLead}
+          as="p"
+          className="t-body text-muted-foreground mt-3"
+        >
+          {lead}
+        </EditableText>
+      </div>
 
-          {/* Raw 12-col grid, not the equal-columns <Grid cols={2}>: Almedin
-              asked for Guaranteed Income to carry more visual weight, since
-              it is the more attractive model for most owners (no occupancy
-              risk on their side) and was previously reading as equally
-              matched with Full-service. Weight comes from width + a solid
-              CTA button rather than a new colour or a "recommended" badge —
-              nothing here is a claim about numbers, which docs/PROJECT.md
-              deliberately keeps out of the site (commission range, contract
-              term). `md:order-*` reorders visually without touching the
-              underlying index, so `ways-model-name-0`/`-1` etc. keep meaning
-              what they've always meant (0 = Full-service, 1 = Guaranteed
-              Income) for anyone editing inline. */}
-          <Grid>
-            {models.map((model, index) => {
-              const Icon = model.Icon;
-              const isGuaranteed = index === 1;
-              return (
-                <div
-                  key={index}
+      {/* A raw 12-column grid, not <Grid cols={2}>: the two halves are
+          deliberately unequal (7 / 5). */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-md mt-lg items-start">
+        {MODELS.map((i) => {
+          const model = models[i];
+          const isPrimary = i === 1;
+          const Icon = MODEL_ICONS[i];
+          return (
+            <div key={i} className={cn(isPrimary ? "md:col-span-7" : "md:col-span-5")}>
+              <Panel className={cn("h-full", isPrimary && "bg-background")}>
+                <Icon className="w-7 h-7 text-accent-strong mb-3" strokeWidth={1.5} />
+                <EditableText
+                  id={`ways-model-tag-${i}`}
+                  value={model.tag}
+                  onChange={(v) => update(i, "tag", v)}
+                  as="p"
+                  className={cn("t-tag", isPrimary ? "text-accent-strong" : "text-muted-foreground")}
+                >
+                  {model.tag}
+                </EditableText>
+
+                <EditableText
+                  id={`ways-model-name-${i}`}
+                  value={model.name}
+                  onChange={(v) => update(i, "name", v)}
+                  as="h3"
                   className={cn(
-                    "col-span-1",
-                    isGuaranteed ? "md:col-span-7 md:order-1" : "md:col-span-5 md:order-2",
+                    "text-foreground text-balance mt-2",
+                    isPrimary ? "t-section" : "t-block"
                   )}
                 >
-                  <Panel className="h-full">
-                    <Stack gap="sm">
-                      <Icon className="w-7 h-7 text-accent-strong" strokeWidth={1.5} />
-                      <EditableText
-                        id={`ways-model-name-${index}`}
-                        value={model.name}
-                        onChange={(v) => { const u = [...models]; u[index] = { ...u[index], name: v }; setModels(u); }}
-                        as="h3"
-                        className="t-block text-primary text-balance"
-                      >
-                        {model.name}
-                      </EditableText>
+                  {model.name}
+                </EditableText>
 
-                      <EditableText
-                        id={`ways-model-summary-${index}`}
-                        value={model.summary}
-                        onChange={(v) => { const u = [...models]; u[index] = { ...u[index], summary: v }; setModels(u); }}
-                        as="p"
-                        multiline
-                        className="t-item text-primary"
-                      >
-                        {model.summary}
-                      </EditableText>
-                      <EditableText
-                        id={`ways-model-detail-${index}`}
-                        value={model.detail}
-                        onChange={(v) => { const u = [...models]; u[index] = { ...u[index], detail: v }; setModels(u); }}
-                        as="p"
-                        multiline
-                        className="t-body text-foreground/70"
-                      >
-                        {model.detail}
-                      </EditableText>
+                <EditableText
+                  id={`ways-model-summary-${i}`}
+                  value={model.summary}
+                  onChange={(v) => update(i, "summary", v)}
+                  as="p"
+                  multiline
+                  className="t-body text-foreground/80 mt-3"
+                >
+                  {model.summary}
+                </EditableText>
 
-                      {model.href && (
-                        isGuaranteed ? (
-                          <Button
-                            asChild
-                            size="lg"
-                            className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-gold px-8 py-6 text-base w-fit mt-xs"
-                          >
-                            <Link to={model.href}>
-                              {model.linkText}
-                              <ArrowRight className="w-5 h-5 ml-2" />
-                            </Link>
-                          </Button>
-                        ) : (
-                          <Link
-                            to={model.href}
-                            className="inline-flex items-center gap-1.5 t-meta text-accent-strong hover:gap-2.5 transition-all"
-                          >
-                            {model.linkText}
-                            <ArrowRight className="w-4 h-4" />
-                          </Link>
-                        )
-                      )}
-                    </Stack>
-                  </Panel>
+                <EditableText
+                  id={`ways-model-detail-${i}`}
+                  value={model.detail}
+                  onChange={(v) => update(i, "detail", v)}
+                  as="p"
+                  multiline
+                  className="t-body text-muted-foreground mt-2"
+                >
+                  {model.detail}
+                </EditableText>
+
+                <div className="mt-md">
+                  {isPrimary ? (
+                    <Link to="/guaranteed-income" className="cta-base cta-primary">
+                      <EditableText
+                        id={`ways-model-link-${i}`}
+                        value={model.link}
+                        onChange={(v) => update(i, "link", v)}
+                        as="span"
+                      >
+                        {model.link}
+                      </EditableText>
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  ) : (
+                    <Link to="/guaranteed-income" className="cta-link">
+                      <EditableText
+                        id={`ways-model-link-${i}`}
+                        value={model.link}
+                        onChange={(v) => update(i, "link", v)}
+                        as="span"
+                      >
+                        {model.link}
+                      </EditableText>{" "}
+                      →
+                    </Link>
+                  )}
                 </div>
-              );
-            })}
-          </Grid>
-        </Stack>
+              </Panel>
+            </div>
+          );
+        })}
+      </div>
 
-        {/* The one deliberate exception to "gold is an accent, not a
-            divider" — see the file comment above. `id`/`scroll-mt-24`: the
-            footer's "Beyond Management" link (docs/DECISIONS.md §32) lands
-            here rather than at the top of the whole `#ways-to-work` section,
-            so it opens straight on the Renovations/Investments cards
-            instead of the two engagement models above them. scroll-mt-24
-            matches the fixed header's own clearance everywhere else an
-            anchor is used on this site. */}
-        <div id="beyond-management" className="scroll-mt-24 flex items-center gap-4 max-w-3xl mx-auto w-full">
-          <Divider tone="gold" className="flex-1" />
-          <EditableText
-            id="beyond-eyebrow"
-            value={beyondEyebrow}
-            onChange={setBeyondEyebrow}
-            as="span"
-            className="t-meta text-accent-strong shrink-0"
-          >
-            {beyondEyebrow}
-          </EditableText>
-          <Divider tone="gold" className="flex-1" />
-        </div>
-
-        <Stack gap="lg">
-          <EditableText
-            id="beyond-heading"
-            value={beyondHeading}
-            onChange={setBeyondHeading}
-            as="h3"
-            className="t-section text-primary text-balance text-center"
-          >
-            {beyondHeading}
-          </EditableText>
-
-          <Grid cols={2}>
-            {paths.map((path, index) => {
-              const Icon = path.Icon;
-              return (
-                <Panel key={index}>
-                  <Icon className="w-7 h-7 text-accent-strong mb-sm" strokeWidth={1.5} />
-                  <EditableText
-                    id={`ways-sub-title-${index}`}
-                    value={path.label}
-                    onChange={(v) => updatePath(index, "label", v)}
-                    as="span"
-                    className="block t-meta text-accent-strong mb-2"
-                  >
-                    {path.label}
-                  </EditableText>
-                  <EditableText
-                    id={`beyond-title-${index}`}
-                    value={path.title}
-                    onChange={(v) => updatePath(index, "title", v)}
-                    as="h4"
-                    className="t-block text-primary text-balance mb-2"
-                  >
-                    {path.title}
-                  </EditableText>
-                  <EditableText
-                    id={`ways-sub-desc-${index}`}
-                    value={path.description}
-                    onChange={(v) => updatePath(index, "description", v)}
-                    as="p"
-                    multiline
-                    className="t-body text-foreground/70 mb-sm"
-                  >
-                    {path.description}
-                  </EditableText>
-
-                  <Link
-                    to={path.href}
-                    className="inline-flex items-center gap-1.5 t-meta text-accent-strong hover:gap-2.5 transition-all"
-                  >
-                    {path.linkText}
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </Panel>
-              );
-            })}
-          </Grid>
-        </Stack>
-      </Stack>
+      <EditableText
+        id="ways-footnote"
+        value={footnote}
+        onChange={setFootnote}
+        as="p"
+        className="t-body text-muted-foreground text-center mt-md max-w-xl mx-auto"
+      >
+        {footnote}
+      </EditableText>
     </Section>
   );
 };

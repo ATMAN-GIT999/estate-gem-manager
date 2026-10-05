@@ -4,6 +4,7 @@ import PageWrapper from "@/components/PageWrapper";
 import { MapPin, Mail, Phone, Globe } from "lucide-react";
 import Seo from "@/components/Seo";
 import { useCookieConsent } from "@/contexts/CookieConsentContext";
+import { Container } from "@/components/layout";
 
 const AvisoLegalContent = () => {
   const { openSettings } = useCookieConsent();
@@ -16,17 +17,17 @@ const AvisoLegalContent = () => {
       />
       <Navigation />
       <main className="flex-1 pt-24">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto animate-fade-in">
-            <h1 className="font-playfair text-4xl md:text-5xl font-bold text-primary mb-6">
+        <Container measure="text" className="py-12">
+          <div className="animate-fade-in">
+            <h1 className="t-display text-primary mb-6">
               Aviso Legal
             </h1>
-            <p className="text-foreground/70 mb-12">
+            <p className="t-body text-foreground/70 mb-12">
               Última actualización: Agosto de 2026.
             </p>
 
             <section className="mb-12">
-              <h2 className="font-playfair text-2xl font-semibold text-primary mb-4">
+              <h2 className="t-section text-primary mb-4">
                 1. Información del titular
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
@@ -48,7 +49,7 @@ const AvisoLegalContent = () => {
             </section>
 
             <section className="mb-12">
-              <h2 className="font-playfair text-2xl font-semibold text-primary mb-4">
+              <h2 className="t-section text-primary mb-4">
                 2. Objeto
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
@@ -74,7 +75,7 @@ const AvisoLegalContent = () => {
             </section>
 
             <section className="mb-12">
-              <h2 className="font-playfair text-2xl font-semibold text-primary mb-4">
+              <h2 className="t-section text-primary mb-4">
                 3. Condiciones de uso
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
@@ -88,7 +89,7 @@ const AvisoLegalContent = () => {
             </section>
 
             <section className="mb-12">
-              <h2 className="font-playfair text-2xl font-semibold text-primary mb-4">
+              <h2 className="t-section text-primary mb-4">
                 4. Propiedad intelectual e industrial
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
@@ -102,7 +103,7 @@ const AvisoLegalContent = () => {
             </section>
 
             <section className="mb-12">
-              <h2 className="font-playfair text-2xl font-semibold text-primary mb-4">
+              <h2 className="t-section text-primary mb-4">
                 5. Responsabilidad
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
@@ -124,7 +125,7 @@ const AvisoLegalContent = () => {
             </section>
 
             <section className="mb-12">
-              <h2 className="font-playfair text-2xl font-semibold text-primary mb-4">
+              <h2 className="t-section text-primary mb-4">
                 6. Enlaces externos
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
@@ -138,7 +139,7 @@ const AvisoLegalContent = () => {
             </section>
 
             <section className="mb-12">
-              <h2 className="font-playfair text-2xl font-semibold text-primary mb-4">
+              <h2 className="t-section text-primary mb-4">
                 7. Protección de datos
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
@@ -152,7 +153,7 @@ const AvisoLegalContent = () => {
             </section>
 
             <section className="mb-12" id="cookies">
-              <h2 className="font-playfair text-2xl font-semibold text-primary mb-4">
+              <h2 className="t-section text-primary mb-4">
                 8. Política de Cookies
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
@@ -164,7 +165,7 @@ const AvisoLegalContent = () => {
                     <strong>Técnicas y necesarias:</strong> permiten el funcionamiento básico del sitio, como mantener la sesión iniciada en el área de gestión. No requieren consentimiento (art. 22.2 LSSI-CE).
                   </li>
                   <li>
-                    <strong>De análisis (opcionales):</strong> registran de forma anónima las páginas visitadas, con fines estadísticos internos. Solo se activan si el usuario las acepta en el aviso mostrado al entrar al sitio.
+                    <strong>De análisis (opcionales):</strong> registran de forma anónima las páginas visitadas y los pasos dados en la calculadora de rentabilidad y en el formulario de contacto para propietarios, sin nombre, correo electrónico ni dirección, con fines estadísticos internos. Los pasos de una misma visita se agrupan mediante un identificador aleatorio que se guarda en el navegador y se elimina al cerrar la pestaña. Solo se activan si el usuario las acepta en el aviso mostrado al entrar al sitio.
                   </li>
                 </ul>
                 <p className="mt-4">
@@ -181,7 +182,7 @@ const AvisoLegalContent = () => {
             </section>
 
             <section className="mb-12">
-              <h2 className="font-playfair text-2xl font-semibold text-primary mb-4">
+              <h2 className="t-section text-primary mb-4">
                 9. Legislación aplicable y jurisdicción
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
@@ -195,7 +196,7 @@ const AvisoLegalContent = () => {
             </section>
 
             <section className="mb-12">
-              <h2 className="font-playfair text-2xl font-semibold text-primary mb-6">
+              <h2 className="t-section text-primary mb-6">
                 10. Contacto
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed mb-6">
@@ -228,7 +229,7 @@ const AvisoLegalContent = () => {
               Última actualización: Agosto de 2026.
             </p>
           </div>
-        </div>
+        </Container>
       </main>
       <Footer />
     </div>

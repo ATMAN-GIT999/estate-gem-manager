@@ -19,6 +19,7 @@ import {
   MessageSquare,
   Paintbrush,
   Beaker,
+  Snowflake,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
   { label: "Properties", icon: Building, href: "/admin/properties" },
+  { label: "Winter Rentals", icon: Snowflake, href: "/admin/winter-rentals" },
   { label: "Bookings", icon: Calendar, href: "/admin/bookings" },
   { label: "Messages", icon: MessageCircle, href: "/admin/messages" },
   { label: "Blog", icon: FileText, href: "/admin/blog" },

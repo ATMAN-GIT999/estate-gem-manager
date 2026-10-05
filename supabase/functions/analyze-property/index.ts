@@ -1,7 +1,16 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+/** docs/PROJECT.md C9: no owner has an account, so this can't stay a limit
+ *  per signed-in user — it's per IP instead. Five is a starting guess for
+ *  "more than a real owner needs, not enough to matter to the AI bill";
+ *  adjust freely, nothing else depends on this exact number. */
+const MAX_REQUESTS_PER_WINDOW = 5;
+const WINDOW_HOURS = 24;
 
 interface PropertyAnalysis {
   monthlyIncome: number;
@@ -59,32 +68,40 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Require authenticated caller (JWT validation)
-    const authHeader = req.headers.get("Authorization") || "";
-    const token = authHeader.replace(/^Bearer\s+/i, "");
-    if (!token) {
+    // docs/PROJECT.md C9: this used to require a signed-in session before
+    // anything else — but no owner has an account, and self-registration
+    // is being switched off anyway (C8), so the hero form on
+    // /property-management ended on the login page for practically every
+    // visitor. Replaced with a per-IP rate limit instead of a per-user one,
+    // since there is no user to key it on anymore.
+    const forwardedFor = req.headers.get("x-forwarded-for") || "";
+    const identifier = forwardedFor.split(",")[0].trim() || "unknown";
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    const windowStart = new Date(Date.now() - WINDOW_HOURS * 60 * 60 * 1000).toISOString();
+    const { count, error: countError } = await supabase
+      .from("evaluator_rate_limits")
+      .select("id", { count: "exact", head: true })
+      .eq("identifier", identifier)
+      .gte("requested_at", windowStart);
+
+    if (countError) {
+      // A broken count must not silently become "unlimited" — fail closed.
+      console.error("Rate limit check failed:", countError);
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Could not verify request limits, please try again shortly." }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    try {
-      const verifyRes = await fetch(`${Deno.env.get("SUPABASE_URL")}/auth/v1/user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          apikey: Deno.env.get("SUPABASE_ANON_KEY") || "",
-        },
-      });
-      if (!verifyRes.ok) {
-        return new Response(
-          JSON.stringify({ error: "Unauthorized" }),
-          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-    } catch {
+
+    if ((count ?? 0) >= MAX_REQUESTS_PER_WINDOW) {
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: `Too many analyses from this connection — try again in a few hours.` }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -102,6 +119,16 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Counts against the limit from here — a request that passed validation
+    // and is about to spend a Gemini call, whether or not Gemini itself
+    // then succeeds. Not awaited: a slow insert must not delay the analysis
+    // the visitor is actually waiting for, and losing a rate-limit row to a
+    // rare failure just makes the limit trivially generous, never unsafe.
+    void supabase.from("evaluator_rate_limits").insert({ identifier }).then(
+      ({ error }) => { if (error) console.error("Rate limit insert failed:", error); }
+    );
+
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
     if (!GEMINI_API_KEY) {
@@ -140,7 +167,7 @@ CRITICAL FORMATTING RULES:
 Property:
 - Address: ${propertyData.address}
 - Bedrooms: ${propertyData.bedrooms}
-- Bathrooms: ${propertyData.bathrooms}
+- Bathrooms: ${propertyData.bathrooms || "Not specified"}
 - Type: ${propertyData.propertyType || "Apartment"}
 - Size: ${propertyData.size ? propertyData.size + " sqm" : "Unknown"}
 - Maximum Guests: ${propertyData.guests || "Not specified"}
