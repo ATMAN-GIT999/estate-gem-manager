@@ -31,7 +31,7 @@ export default function DynamicPage() {
         .select("content_html, content_css")
         .eq("slug", slug)
         .eq("is_published", true)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         setNotFound(true);
