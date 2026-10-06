@@ -1,25 +1,21 @@
 import { useEffect, useState } from "react";
 import { BarChart3, ClipboardCheck, Globe, MessageSquareText, TrendingUp, Wrench } from "lucide-react";
 import EditableText from "./admin/EditableText";
-import { Divider, Section } from "./layout";
+import { Grid, Section } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
 import type { TranslationKey } from "@/lib/translations";
 
 /**
- * "How it works" — six steps, on six hairlines.
+ * "How it works" — six steps, as a bordered list beside the section intro.
  *
- * Back to the original six-step process (Almedin, 22.09.2026) after a round
- * that cut it to three. Step 01 here is a merge, not a straight revert: the
- * three-step version's first two steps (the on-site visit, bringing the
- * property up to standard) and the original six-step version's own step 01
- * ("Optimal Listing") described three parts of the same first phase, so they
- * are now one step instead of being said twice. Steps 02-06 are the original
- * copy, unedited — see the translation keys' own comment in translations.ts.
- *
- * Numbers in the mono face, a rule above each, no panels: the section is a
- * sequence, and a row of boxes reads as a menu. Each step also carries a thin
- * gold line icon opposite its number (Almedin, 26.09.2026), the same treatment
- * as "What every stay includes" and the pillars under Renovations.
+ * Rebuilt 06.10.2026 to match a Lovable reference Almedin pointed to: eyebrow
+ * + heading + lead in a narrow left column, the six steps as rows in a wider
+ * right column (number, icon+title, body in three sub-columns), each row on
+ * its own hairline instead of a 3-column grid of bordered cards. The content
+ * is untouched — same six steps, same copy, same icon set — only the
+ * composition changed. "We don't just manage homes." used to close this same
+ * section; it is its own dark band now (WeEngineerAssets.tsx), the way the
+ * reference treats it, not a line under the steps.
  */
 
 /** Index-aligned with STEP_KEYS: visit & list, pricing, reach, guests, care, reporting. */
@@ -37,15 +33,17 @@ const STEP_KEYS: ReadonlyArray<{ titleKey: TranslationKey; descKey: TranslationK
 const TheSystem = () => {
   const { t, language } = useLocale();
 
+  const [eyebrow, setEyebrow] = useState(t("how-eyebrow"));
   const [heading, setHeading] = useState(t("how-heading"));
-  const [closing, setClosing] = useState(t("sys-closing-line"));
+  const [lead, setLead] = useState(t("how-lead"));
   const [steps, setSteps] = useState(
     STEP_KEYS.map(({ titleKey, descKey }) => ({ title: t(titleKey), desc: t(descKey) }))
   );
 
   useEffect(() => {
+    setEyebrow(t("how-eyebrow"));
     setHeading(t("how-heading"));
-    setClosing(t("sys-closing-line"));
+    setLead(t("how-lead"));
     setSteps(STEP_KEYS.map(({ titleKey, descKey }) => ({ title: t(titleKey), desc: t(descKey) })));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
@@ -54,79 +52,70 @@ const TheSystem = () => {
     setSteps((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
 
   return (
-    // size="lg" (Almedin, 02.10.2026): a Lovable rebuild of this page used
-    // consistently for its content sections (≈96-128px top/bottom at desktop
-    // widths) made ours look cramped by comparison — our own "md" tier tops
-    // out at ~77px. "lg" (our existing --space-2xl step, ~58-112px) gets
-    // within a few px of that without inventing a new spacing value. Applied
-    // the same way across TheClaim, WaysToWorkTogether,
-    // RenovationsAndInvestments and AboutMini; TrustBand and WorkingWith stay
-    // on their lighter "sm" tier on purpose — they are breather bands between
-    // the heavier content sections, which is exactly how the Lovable version
-    // treated its own stats/logos rows too.
     <Section id="the-system" size="lg">
-      <EditableText
-        id="how-heading"
-        value={heading}
-        onChange={setHeading}
-        as="h2"
-        className="t-section text-foreground text-center"
-      >
-        {heading}
-      </EditableText>
+      <Grid className="items-start">
+        <div className="md:col-span-4">
+          <EditableText
+            id="how-eyebrow"
+            value={eyebrow}
+            onChange={setEyebrow}
+            as="p"
+            className="t-tag text-accent-strong"
+          >
+            {eyebrow}
+          </EditableText>
+          <EditableText
+            id="how-heading"
+            value={heading}
+            onChange={setHeading}
+            as="h2"
+            className="t-section text-foreground mt-3"
+          >
+            {heading}
+          </EditableText>
+          <EditableText
+            id="how-lead"
+            value={lead}
+            onChange={setLead}
+            as="p"
+            className="t-body text-muted-foreground mt-md max-w-xs"
+          >
+            {lead}
+          </EditableText>
+        </div>
 
-      <ol className="grid gap-lg md:grid-cols-3 mt-lg">
-        {steps.map((step, index) => {
-          const Icon = STEP_ICONS[index];
-          return (
-          <li key={index} className="border-t-2 border-accent pt-5">
-            <div className="flex items-center justify-between mb-3">
-              <Icon className="w-7 h-7 text-accent-strong" strokeWidth={1.5} aria-hidden="true" />
-              <p className="t-tag text-accent-strong">{String(index + 1).padStart(2, "0")}</p>
-            </div>
-            <EditableText
-              id={STEP_KEYS[index].titleKey}
-              value={step.title}
-              onChange={(v) => update(index, "title", v)}
-              as="h3"
-              className="t-block text-foreground text-balance"
-            >
-              {step.title}
-            </EditableText>
-            <EditableText
-              id={STEP_KEYS[index].descKey}
-              value={step.desc}
-              onChange={(v) => update(index, "desc", v)}
-              as="p"
-              className="t-body text-muted-foreground mt-2"
-            >
-              {step.desc}
-            </EditableText>
-          </li>
-          );
-        })}
-      </ol>
-
-      {/* Divider/heading treatment matched to the Lovable reference
-          (Almedin, 03.10.2026): `bar` (full-opacity gold, not the
-          translucent `gold` tone) at its own width/weight override to land
-          on Lovable's 64px/1px line, and the heading's size/weight/leading
-          overridden the same way Hero.tsx and OwnAProperty.tsx already
-          override .t-display's size — this role reads smaller and medium,
-          not the full H1 scale at font-bold. */}
-      <div className="mt-2xl max-w-4xl mx-auto text-center">
-        <Divider tone="bar" className="w-16 border-t mx-auto mb-lg" />
-        <EditableText
-          id="sys-closing-line"
-          value={closing}
-          onChange={setClosing}
-          as="p"
-          multiline
-          className="t-display font-medium text-[clamp(1.875rem,1.6rem+3vw,3rem)] leading-tight text-foreground text-balance whitespace-pre-line"
-        >
-          {closing}
-        </EditableText>
-      </div>
+        <ol className="md:col-span-7 md:col-start-6 border-t border-foreground">
+          {steps.map((step, index) => {
+            const Icon = STEP_ICONS[index];
+            return (
+              <li key={index} className="grid gap-5 border-b border-border py-md sm:grid-cols-[64px_1fr_2fr] sm:items-start">
+                <p className="t-section text-border">{String(index + 1).padStart(2, "0")}</p>
+                <div className="flex items-center gap-3 sm:block">
+                  <Icon className="w-5 h-5 text-accent-strong shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                  <EditableText
+                    id={STEP_KEYS[index].titleKey}
+                    value={step.title}
+                    onChange={(v) => update(index, "title", v)}
+                    as="h3"
+                    className="t-block text-foreground sm:mt-3"
+                  >
+                    {step.title}
+                  </EditableText>
+                </div>
+                <EditableText
+                  id={STEP_KEYS[index].descKey}
+                  value={step.desc}
+                  onChange={(v) => update(index, "desc", v)}
+                  as="p"
+                  className="t-body text-muted-foreground"
+                >
+                  {step.desc}
+                </EditableText>
+              </li>
+            );
+          })}
+        </ol>
+      </Grid>
     </Section>
   );
 };

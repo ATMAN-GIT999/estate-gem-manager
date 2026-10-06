@@ -8,25 +8,23 @@ import { useLocale } from "@/contexts/LocaleContext";
  * The sentence the whole owner page is an argument for, with one photograph
  * beside it.
  *
- * Rebuilt 02.10.2026 to match the Lovable "template" rebuild Almedin
- * reviewed: a framed photograph (a thick beige border, like a print in a
- * mount, not full-bleed) on one side, a plain two-line heading and a lead
- * paragraph in a quiet box on the other — no overlap, no staggering, no
- * per-line colour split. That replaces the previous staggered/overlapping
- * composition (sage-line/gold-line labels, photo pulled up under the text)
- * from 26.09.2026, which is gone now rather than kept as an alternate path —
- * see git history if it needs resurrecting.
+ * Rebuilt again 06.10.2026 to match a second Lovable reference Almedin
+ * pointed to ("less for you to manage" section): a short rule + eyebrow
+ * sitting directly over the heading in a narrow (4/12) text column, a plain
+ * lead paragraph (no quiet-tone box), and a clean full-bleed photo with a
+ * caption line underneath instead of a thick frame. Replaces the
+ * 02.10.2026 version (framed photo, boxed lead, a second centred
+ * section-level eyebrow above the pairing) — that one is gone rather than
+ * kept as an alternate path; see git history to resurrect it.
  */
 const TheClaim = () => {
   const { t, language } = useLocale();
-  const [sectionHeading, setSectionHeading] = useState(t("claim-section-heading"));
   const [eyebrow, setEyebrow] = useState(t("claim-eyebrow"));
   const [heading, setHeading] = useState(t("claim-heading"));
   const [lead, setLead] = useState(t("claim-lead"));
   const [image, setImage] = useState<string | undefined>(claimImage);
 
   useEffect(() => {
-    setSectionHeading(t("claim-section-heading"));
     setEyebrow(t("claim-eyebrow"));
     setHeading(t("claim-heading"));
     setLead(t("claim-lead"));
@@ -38,50 +36,22 @@ const TheClaim = () => {
     // page's main sections breathe the way the Lovable template comparison
     // did — see TheSystem.tsx's own note for the full reasoning.
     <Section size="lg">
-      {/* Section-level eyebrow above the whole image+text pairing, not part
-          of either column (Almedin, 03.10.2026 — was a t-section heading,
-          corrected to an eyebrow the same day). */}
-      <EditableText
-        id="claim-section-heading"
-        value={sectionHeading}
-        onChange={setSectionHeading}
-        as="p"
-        className="t-tag text-accent-strong text-center mb-lg"
-      >
-        {sectionHeading}
-      </EditableText>
-
-      {/* items-end: the lead box's bottom edge lines up with the photo's,
-          the same bottom-alignment the Lovable reference uses — a
-          deliberate asymmetry (image taller than the text block) rather
-          than a stretched, centred pairing. */}
-      <Grid className="items-end">
-        {/* The thick quiet-tone border is a frame, not a Panel hairline —
-            the one place on this page a photograph is meant to look like a
-            print in a mount rather than full-bleed reportage. Literal px,
-            same precedent as Panel.tsx's own padding: a deliberate shape,
-            not a guess past the spacing ladder. */}
-        <div className="md:col-span-7 border-[14px] border-quiet">
-          <MediaFrame
-            id="claim-image"
-            src={image}
-            onChange={setImage}
-            alt="Villa Higuerón — the stairwell's angled glass over the pool"
-            note="We take it on — Villa Higuerón's stairwell glass over the pool"
-            aspect="photo"
-          />
-        </div>
-
-        <div className="md:col-span-5">
-          <EditableText
-            id="claim-eyebrow"
-            value={eyebrow}
-            onChange={setEyebrow}
-            as="p"
-            className="t-tag text-accent-strong"
-          >
-            {eyebrow}
-          </EditableText>
+      <Grid className="items-start">
+        <div className="md:col-span-4">
+          {/* Short rule + eyebrow sitting directly over the heading, not a
+              separate section-level line above the whole pairing. */}
+          <div className="flex items-center gap-3">
+            <span className="h-px w-9 bg-foreground" aria-hidden="true" />
+            <EditableText
+              id="claim-eyebrow"
+              value={eyebrow}
+              onChange={setEyebrow}
+              as="p"
+              className="t-tag text-foreground"
+            >
+              {eyebrow}
+            </EditableText>
+          </div>
 
           <EditableText
             id="claim-heading"
@@ -89,7 +59,7 @@ const TheClaim = () => {
             onChange={setHeading}
             as="h2"
             multiline
-            className="t-section text-foreground text-balance mt-3 whitespace-pre-line"
+            className="t-section text-foreground text-balance mt-md whitespace-pre-line"
           >
             {heading}
           </EditableText>
@@ -100,11 +70,26 @@ const TheClaim = () => {
             onChange={setLead}
             as="p"
             multiline
-            className="t-body text-quiet-foreground bg-quiet p-md mt-md"
+            className="t-body text-muted-foreground mt-md max-w-sm"
           >
             {lead}
           </EditableText>
         </div>
+
+        <figure className="md:col-span-7 md:col-start-6">
+          <MediaFrame
+            id="claim-image"
+            src={image}
+            onChange={setImage}
+            alt="Villa Higuerón — the stairwell's angled glass over the pool"
+            note="We take it on — Villa Higuerón's stairwell glass over the pool"
+            aspect="photo"
+          />
+          <figcaption className="mt-sm pt-sm border-t border-border flex justify-between t-meta text-muted-foreground">
+            <span>{t("claim-caption-left")}</span>
+            <span>{t("claim-caption-right")}</span>
+          </figcaption>
+        </figure>
       </Grid>
     </Section>
   );

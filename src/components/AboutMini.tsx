@@ -31,6 +31,7 @@ const TEAM_LANGUAGES = ["EN · DE · ES", "EN · ES", "ES · FR"];
 const AboutMini = () => {
   const { t, language } = useLocale();
 
+  const [eyebrow, setEyebrow] = useState(t("team-eyebrow"));
   const [heading, setHeading] = useState(t("team-heading"));
   const [lead, setLead] = useState(t("team-lead"));
   const [region, setRegion] = useState(t("team-region"));
@@ -44,6 +45,7 @@ const AboutMini = () => {
   );
 
   useEffect(() => {
+    setEyebrow(t("team-eyebrow"));
     setHeading(t("team-heading"));
     setLead(t("team-lead"));
     setRegion(t("team-region"));
@@ -77,37 +79,49 @@ const AboutMini = () => {
   return (
     // size="lg" (Almedin, 02.10.2026) — see TheSystem.tsx's note.
     <Section id="about-mini" size="lg">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-        <EditableText
-          id="team-heading"
-          value={heading}
-          onChange={setHeading}
-          as="h2"
-          className="t-section text-foreground text-balance max-w-[18ch]"
-        >
-          {heading}
-        </EditableText>
+      <div className="grid gap-4 border-b border-foreground pb-md md:grid-cols-12 md:items-end">
+        <div className="md:col-span-7">
+          <EditableText
+            id="team-eyebrow"
+            value={eyebrow}
+            onChange={setEyebrow}
+            as="p"
+            className="t-tag text-accent-strong"
+          >
+            {eyebrow}
+          </EditableText>
+          <EditableText
+            id="team-heading"
+            value={heading}
+            onChange={setHeading}
+            as="h2"
+            className="t-section text-foreground text-balance mt-3"
+          >
+            {heading}
+          </EditableText>
+        </div>
         <EditableText
           id="team-lead"
           value={lead}
           onChange={setLead}
           as="p"
-          className="t-body text-muted-foreground mt-2.5 max-w-[50ch]"
+          className="t-body text-muted-foreground md:col-span-4 md:col-start-9"
         >
           {lead}
         </EditableText>
-        </div>
-        <EditableText
-          id="team-region"
-          value={region}
-          onChange={setRegion}
-          as="p"
-          className="t-body text-[15px] text-muted-foreground sm:text-right shrink-0"
-        >
-          {region}
-        </EditableText>
       </div>
+      {/* `region` (the small "Spain · Austria" tag) has no slot in the
+          reference header — kept as a quiet line under the grid rather than
+          dropped, since it is still real, editable content. */}
+      <EditableText
+        id="team-region"
+        value={region}
+        onChange={setRegion}
+        as="p"
+        className="t-meta text-muted-foreground mt-3"
+      >
+        {region}
+      </EditableText>
 
       {/* Fixed 320px cards on a 64px gap, centred — not a stretched grid.
           At 1440 a three-column grid would make each portrait 400px wide and

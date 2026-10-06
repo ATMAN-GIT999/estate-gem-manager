@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import EditableText from "./admin/EditableText";
 import { Section } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
+import { cn } from "@/lib/utils";
 import type { TranslationKey } from "@/lib/translations";
 
 /**
@@ -13,6 +14,13 @@ import type { TranslationKey } from "@/lib/translations";
  * portfolio as it stands, so "41" read as a claim about today while the
  * sitemap listed 23. These four keep that distinction visible — what we have
  * handled since 2019, and what is under management right now.
+ *
+ * Grid-with-dividers layout, not centred text, matches a design reference
+ * Almedin pointed to (Lovable property-management rebuild, 06.10.2026) — left
+ * instead of centre, a hairline between cells instead of open space. Its own
+ * tiny "01/02/03/04" eyebrow above each number was dropped on explicit
+ * instruction; the rest of that cell's structure (number, label, border
+ * logic) is otherwise a straight port.
  *
  * ⚠️ Still hard-coded copy, not live data. Changing a number here changes
  * nothing anywhere else; see docs/PROJECT.md D4.
@@ -44,9 +52,17 @@ const TrustBand = () => {
 
   return (
     <Section tone="quiet" size="sm">
-      <dl className="grid grid-cols-2 gap-lg md:grid-cols-4 text-center">
+      <dl className="grid grid-cols-2 md:grid-cols-4">
         {stats.map((stat, index) => (
-          <div key={index}>
+          <div
+            key={index}
+            className={cn(
+              "px-md py-lg",
+              index % 2 === 0 && "border-r border-border",
+              index < 2 && "border-b border-border md:border-b-0",
+              index === 1 && "md:border-r"
+            )}
+          >
             <EditableText
               id={`trust-${index}-num`}
               value={stat.num}

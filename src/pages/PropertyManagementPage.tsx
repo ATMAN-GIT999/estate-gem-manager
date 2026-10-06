@@ -7,10 +7,12 @@ import OwnerHero from "@/components/OwnerHero";
 import TrustBand from "@/components/TrustBand";
 import TheClaim from "@/components/TheClaim";
 import TheSystem from "@/components/TheSystem";
+import WeEngineerAssets from "@/components/WeEngineerAssets";
 import WorkingWith from "@/components/WorkingWith";
 import AboutMini from "@/components/AboutMini";
 import WaysToWorkTogether from "@/components/WaysToWorkTogether";
 import RenovationsAndInvestments from "@/components/RenovationsAndInvestments";
+import IstriaBand from "@/components/IstriaBand";
 import OwnerContactForm from "@/components/OwnerContactForm";
 import FAQ, { OWNER_FAQ_ITEMS } from "@/components/FAQ";
 import { useEffect } from "react";
@@ -68,9 +70,12 @@ const PropertyManagementPageContent = () => {
       {/* 3 — The sentence the rest of the page argues for. */}
       <TheClaim />
 
-      {/* 4 — Three steps. Not the full operating model; the three things that
-          change for the owner. */}
+      {/* 4 — How it works, six steps. */}
       <TheSystem />
+
+      {/* 4b — One line on its own dark band: the pause between the steps and
+          the commercial decision. */}
+      <WeEngineerAssets />
 
       {/* 5 — The commercial decision. Deliberately unequal: fixed rent leads. */}
       <WaysToWorkTogether />
@@ -80,8 +85,11 @@ const PropertyManagementPageContent = () => {
           On the guest page these same logos would be a leak. */}
       <WorkingWith />
 
-      {/* 7 — The other half of the business, as equals, then one case study. */}
+      {/* 7 — The other half of the business, as equals. */}
       <RenovationsAndInvestments />
+
+      {/* 7b — One case study, full-bleed. */}
+      <IstriaBand />
 
       {/* 8 — Whether there is anyone behind the company. */}
       <AboutMini />
