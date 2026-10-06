@@ -133,3 +133,78 @@ export const statusKey = (status: MidtermStatus) => `wr-status-${status}` as Tra
  */
 export const whatsAppEnquiryUrl = (message: string) =>
   `https://api.whatsapp.com/send?phone=${BUSINESS.phone.replace(/\D/g, "")}&text=${encodeURIComponent(message)}`;
+
+/**
+ * The /winter-rentals search hub's stay-length filter, bucketed rather than a
+ * free month count — the search belongs on `min_stay_months`/`max_stay_months`
+ * (what the owner allows), not on a single picked value. Matching is by
+ * OVERLAP, not containment: a home that allows 2–8 months must still appear
+ * under "6+" or "1–2", because its own range reaches into both.
+ */
+export interface StayLengthBucket {
+  id: "short" | "mid" | "long";
+  minMonths: number;
+  maxMonths: number;
+}
+
+export const STAY_LENGTH_RANGES: StayLengthBucket[] = [
+  { id: "short", minMonths: 1, maxMonths: 2 },
+  { id: "mid", minMonths: 3, maxMonths: 5 },
+  { id: "long", minMonths: 6, maxMonths: Infinity },
+];
+
+export const stayLengthMatches = (
+  home: Pick<MidtermListing, "min_stay_months" | "max_stay_months">,
+  bucketId: StayLengthBucket["id"] | "any"
+): boolean => {
+  if (bucketId === "any") return true;
+  const bucket = STAY_LENGTH_RANGES.find((b) => b.id === bucketId);
+  if (!bucket) return true;
+  // A row with no stated bound is open at that end, not zero — nothing in
+  // this table is let for less than a month, and a missing max means no
+  // upper bound was ever set.
+  const homeMin = home.min_stay_months ?? 1;
+  const homeMax = home.max_stay_months ?? Infinity;
+  return homeMin <= bucket.maxMonths && homeMax >= bucket.minMonths;
+};
+
+/**
+ * Budget filter caps, in raw EUR — always compared against `monthly_price`
+ * itself, never against `convertPrice()`'s display-currency output. A guest
+ * who switched to GBP must not see a home drop in or out of "up to €3,000"
+ * because of the day's indicative exchange rate; only the cap's on-screen
+ * label gets converted, the comparison never does.
+ */
+export const BUDGET_CAPS = [2000, 3000, 5000, 8000] as const;
+
+/**
+ * The one real exclusion filter on the hub page. `status` never excludes a
+ * home — see WinterListingCard.tsx's note on why a let home stays on the
+ * page — but a move-in date the home genuinely cannot meet does.
+ */
+export const isAvailableForMoveIn = (
+  home: Pick<MidtermListing, "available_from" | "available_until">,
+  moveInDate: string | null | undefined
+): boolean => {
+  if (!moveInDate) return true;
+  const target = new Date(moveInDate);
+  if (home.available_from && new Date(home.available_from) > target) return false;
+  if (home.available_until && new Date(home.available_until) < target) return false;
+  return true;
+};
+
+/**
+ * Sort weight only, never a filter: available before reserved before let, so
+ * a home that is spoken for still appears (with its badge) instead of
+ * breaking a ranking URL the day it is rented.
+ */
+export const winterStatusRank = (status: MidtermStatus): number => {
+  switch (status) {
+    case "available":
+      return 0;
+    case "reserved":
+      return 1;
+    case "let":
+      return 2;
+  }
+};
