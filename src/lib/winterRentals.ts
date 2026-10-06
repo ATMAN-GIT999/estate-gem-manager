@@ -87,6 +87,10 @@ export interface MidtermListing {
   images: Array<{ url: string; caption?: string }>;
   description: string | null;
   amenities: string[] | null;
+  idealista_id: string | null;
+  property_id: string | null;
+  guesty_listing_id: string | null;
+  registration_number: string | null;
   sort_order: number;
 }
 
@@ -112,3 +116,58 @@ export const statusKey = (status: MidtermStatus) => `wr-status-${status}` as Tra
  */
 export const whatsAppEnquiryUrl = (message: string) =>
   `https://api.whatsapp.com/send?phone=${BUSINESS.phone.replace(/\D/g, "")}&text=${encodeURIComponent(message)}`;
+
+/**
+ * The self-built search on /winter-rentals (docs: the winter-rentals-as-its-
+ * own-hub decision, 06.10.2026). There is no Guesty calendar behind these
+ * homes, so "availability" is a date comparison against `midterm_listings`
+ * columns the admin already writes — no edge function, no new migration.
+ *
+ * Stay-length is a bucket, not an exact month count, because a guest thinks
+ * "a couple of months" not "I need exactly 4". A home qualifies for a bucket
+ * when its own [min_stay_months, max_stay_months] range *overlaps* the
+ * bucket's range — not merely contains it — so a home with min=3/max=4 still
+ * shows up under "3–5 months" even though its range doesn't fully span it.
+ * `Infinity` stands in for an unset bound (no minimum / no maximum).
+ */
+export type StayLengthBucket = "any" | "short" | "medium" | "long";
+
+export const STAY_LENGTH_RANGES: Record<Exclude<StayLengthBucket, "any">, { lo: number; hi: number }> = {
+  short: { lo: 1, hi: 2 },
+  medium: { lo: 3, hi: 5 },
+  long: { lo: 6, hi: Infinity },
+};
+
+export const stayLengthMatches = (home: MidtermListing, bucket: StayLengthBucket): boolean => {
+  if (bucket === "any") return true;
+  const { lo, hi } = STAY_LENGTH_RANGES[bucket];
+  const homeMin = home.min_stay_months ?? 1;
+  const homeMax = home.max_stay_months ?? Infinity;
+  return homeMin <= hi && homeMax >= lo;
+};
+
+/** Upper-bound budget buckets (EUR, matching the raw `monthly_price` column — never the display currency; see WinterSearchFilters). "any" means no cap. */
+export const BUDGET_CAPS = [2000, 3000, 4000, 6000] as const;
+
+/**
+ * A real exclusion, unlike the other filters below's relationship to
+ * `status`: a move-in date is a hard constraint ("free by then" is either
+ * true or it isn't), so a home outside `available_from`/`available_until`
+ * is dropped from the results rather than merely sorted lower. Unset bounds
+ * read as "available now" / "no end date".
+ *
+ * `status` (reserved/let) is deliberately NOT part of this or any other
+ * filter — see WinterListingCard: a let home stays visible and says so,
+ * rather than 404ing a ranking URL the day it's rented. Status only affects
+ * *order*, via `winterStatusRank` below, never inclusion.
+ */
+export const isAvailableForMoveIn = (home: MidtermListing, desiredMoveIn: string | null): boolean => {
+  if (!desiredMoveIn) return true;
+  if (home.available_from && home.available_from > desiredMoveIn) return false;
+  if (home.available_until && home.available_until < desiredMoveIn) return false;
+  return true;
+};
+
+/** Lower sorts first: open homes before reserved/let, ahead of whichever metric the guest picked. */
+export const winterStatusRank = (home: MidtermListing): number =>
+  home.status === "available" ? 0 : home.status === "reserved" ? 1 : 2;
