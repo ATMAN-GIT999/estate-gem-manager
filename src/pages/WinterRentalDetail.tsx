@@ -142,11 +142,12 @@ const WinterRentalDetailPage = ({
       .replace("{beds}", bedrooms(home.bedrooms))
       .replace("{size}", size ?? "");
 
-  // Deposit and commission are policy, not figures Frontier wants
-  // re-confirmed on every home: 1 month's rent each (DECISIONS.md §57/§58).
-  // Shown as "1 month" rather than the euro amount so the fact reads as the
-  // rule it is — only falls back to the amount if one is ever entered that
-  // is not a whole multiple of the rent.
+  // Deposit is policy, not a figure Frontier wants re-confirmed on every
+  // home: 1 month's rent (DECISIONS.md §57). Shown as "1 month" rather than
+  // the euro amount so the fact reads as the rule it is — only falls back to
+  // the amount if a deposit is ever entered that is not a whole multiple of
+  // the rent. Commission is deliberately not in this list — internal only
+  // (§57, reaffirmed §59 after a brief detour through guest-facing in §58).
   const monthsOrAmount = (value: number) =>
     home.monthly_price > 0 && value % home.monthly_price === 0
       ? months(value / home.monthly_price)
@@ -165,9 +166,6 @@ const WinterRentalDetailPage = ({
       ? ([[t("wr-fact-min-stay"), months(home.min_stay_months)]] as Array<[string, string]>)
       : []),
     ...(home.deposit ? ([[t("wr-fact-deposit"), monthsOrAmount(home.deposit)]] as Array<[string, string]>) : []),
-    ...(home.commission
-      ? ([[t("wr-fact-commission"), monthsOrAmount(home.commission)]] as Array<[string, string]>)
-      : []),
   ];
 
   const enquiryUrl = whatsAppEnquiryUrl(

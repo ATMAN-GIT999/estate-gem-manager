@@ -54,3 +54,14 @@ SET bathrooms = ROUND(p.bathrooms)::integer,
 FROM public.properties AS p
 WHERE m.property_id = p.id
   AND m.slug IN ('apartment-soho', 'townhouse-higueron', 'semi-detached-la-quinta', 'semi-detached-capellania');
+
+-- Follow-up, 06.10.2026: `name` switched from the Idealista listing title to
+-- the Guesty one too — same reasoning as the rest of this file, this is the
+-- real name of the real house, not the advert it was found under. Flows
+-- through everywhere `home.name`/`listing_name` is read (h1, SEO, schema,
+-- breadcrumb, cards, enquiry emails) without any code change.
+UPDATE public.midterm_listings AS m
+SET name = p.name
+FROM public.properties AS p
+WHERE m.property_id = p.id
+  AND m.slug IN ('apartment-soho', 'townhouse-higueron', 'semi-detached-la-quinta', 'semi-detached-capellania');

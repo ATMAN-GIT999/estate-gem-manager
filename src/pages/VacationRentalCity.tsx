@@ -121,10 +121,16 @@ const VacationRentalCityPage = ({ city }: { city: City }) => {
           ]}
         />
 
-        {/* 1 · What this place is, in one real sentence. */}
-        <Section size="sm" measure="text">
-          <h1 className="t-display text-foreground text-balance">{t(vrKey(city.slug, "h1"))}</h1>
-          <p className="t-body text-muted-foreground mt-sm">{t(vrKey(city.slug, "intro"))}</p>
+        {/* 1 · What this place is, in one real sentence. `measure="full"`
+            (the default), not "text" — "text" nests a centered `max-w-3xl`
+            inside the already-centered `.app-container`, shifting this block
+            off the left edge every other section on the page shares (same
+            fix as WinterRentalDetail.tsx, 06.10.2026). */}
+        <Section size="sm">
+          <div className="max-w-3xl">
+            <h1 className="t-display text-foreground text-balance">{t(vrKey(city.slug, "h1"))}</h1>
+            <p className="t-body text-muted-foreground mt-sm">{t(vrKey(city.slug, "intro"))}</p>
+          </div>
         </Section>
 
         {/* 2 · The homes. The same card as /properties, not a new pattern. */}
@@ -163,9 +169,9 @@ const VacationRentalCityPage = ({ city }: { city: City }) => {
 
         {/* 3 · The areas — the part of the page no filtered list can have.
             Hairline above each block rather than a card around it. */}
-        <Section size="md" measure="text">
+        <Section size="md">
           <h2 className="t-section text-foreground mb-md">{t("vr-areas-heading")}</h2>
-          <div className="space-y-md">
+          <div className="space-y-md max-w-2xl">
             {areas.map((i) => (
               <div key={i} className="border-t border-border pt-sm">
                 <h3 className="t-block text-foreground">
@@ -180,8 +186,8 @@ const VacationRentalCityPage = ({ city }: { city: City }) => {
         </Section>
 
         {/* 4 · Getting there and when to come. */}
-        <Section size="sm" measure="text">
-          <Grid cols={2} gap="md">
+        <Section size="sm">
+          <Grid cols={2} gap="md" className="max-w-3xl">
             <div className="border-t border-border pt-sm">
               <h2 className="t-block text-foreground">{t("vr-arrival-heading")}</h2>
               <p className="t-body text-muted-foreground mt-2">{t(vrKey(city.slug, "arrival"))}</p>
@@ -197,11 +203,11 @@ const VacationRentalCityPage = ({ city }: { city: City }) => {
             landing page FAQ (FAQ.tsx explains why it is built on the bare
             Radix primitive). The `FAQPage` markup above is built from the
             same keys, so what is marked up is what is on the page. */}
-        <Section size="md" measure="text">
+        <Section size="md">
           <h2 className="t-section text-foreground mb-md">
             {t("vr-faq-heading").replace("{place}", place)}
           </h2>
-          <AccordionPrimitive.Root type="single" collapsible className="w-full">
+          <AccordionPrimitive.Root type="single" collapsible className="w-full max-w-2xl">
             {faqIndexes.map((i) => (
               <AccordionPrimitive.Item
                 key={i}
@@ -232,7 +238,7 @@ const VacationRentalCityPage = ({ city }: { city: City }) => {
         {/* 6 · One line for owners, and only one. It points at the owner page
             itself: the per-place owner pages (/property-management/<place>)
             are priority two and do not exist yet. */}
-        <Section size="sm" measure="text">
+        <Section size="sm">
           <p className="t-body text-muted-foreground border-t border-border pt-sm flex flex-wrap items-center gap-x-2 gap-y-1">
             {t("vr-owner-bridge").replace("{place}", place)}
             <Link

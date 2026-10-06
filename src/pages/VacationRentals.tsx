@@ -111,10 +111,16 @@ const VacationRentals = () => {
           ]}
         />
 
-        <Section size="sm" measure="text">
-          <p className="t-tag text-accent-strong">{t("vr-overview-eyebrow")}</p>
-          <h1 className="t-display text-foreground text-balance mt-3">{t("vr-overview-h1")}</h1>
-          <p className="t-body text-muted-foreground mt-sm">{t("vr-overview-lead")}</p>
+        {/* `measure="full"` (the default), not "text" — "text" nests a
+            centered `max-w-3xl` inside the already-centered `.app-container`,
+            shifting this block's left edge inward from every full-width
+            section around it (same fix as WinterRentals.tsx, 06.10.2026). */}
+        <Section size="sm">
+          <div className="max-w-3xl">
+            <p className="t-tag text-accent-strong">{t("vr-overview-eyebrow")}</p>
+            <h1 className="t-display text-foreground text-balance mt-3">{t("vr-overview-h1")}</h1>
+            <p className="t-body text-muted-foreground mt-sm">{t("vr-overview-lead")}</p>
+          </div>
         </Section>
 
         <Section size="md">

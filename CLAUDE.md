@@ -142,7 +142,9 @@ Vollständig in `docs/DESIGN.md`. Was man ohne Nachschlagen wissen muss:
 
 ## Git
 
-- Branch für den Umbau: `redesign/v2`. Basis ist `main`.
+- Arbeitsbranch ist `main` (seit 06.10.2026 — der Redesign lief lange auf
+  `redesign/wireframe-2026-09`, ist über PR #2 gemerged, der Branch ist
+  erledigt).
 - **Commit-Messages beschreiben die Wirkung, nicht die Mechanik**, im Imperativ
   und auf Englisch. Etabliertes Muster:
   „Stop shipping the admin area to every visitor",

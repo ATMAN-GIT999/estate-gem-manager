@@ -77,13 +77,6 @@ export interface MidtermListing {
   size_sqm: number | null;
   monthly_price: number;
   deposit: number | null;
-  /**
-   * Agency commission, EUR. Was internal-only (DECISIONS.md §57); made
-   * guest-facing again in §58 (Almedin, 04.10.2026) — `wr-price-note` states
-   * it and `GUEST_LISTING_COLUMNS` now selects it. Don't re-hide it without
-   * updating both.
-   */
-  commission: number | null;
   utilities_included: boolean | null;
   min_stay_months: number | null;
   max_stay_months: number | null;
@@ -109,14 +102,14 @@ export interface MidtermListing {
 }
 
 /**
- * Column list for the public-facing guest queries — deliberately not
- * `select("*")`, so a column added to the table later (another internal one,
- * like `commission` used to be between §57 and §58) doesn't reach a guest
- * just because `*` includes it. `commission` itself is public again as of
- * §58 and is listed below on purpose.
+ * Column list for the public-facing guest queries — never `select("*")`.
+ * `commission` is internal (back to that stance as of §59, after a brief
+ * detour through guest-facing in §58); RLS on `midterm_listings` is
+ * row-level, not column-level, so `*` would still ship it to every visitor.
+ * Add new columns here deliberately.
  */
 export const GUEST_LISTING_COLUMNS =
-  "id, slug, name, city_group, location, property_type, bedrooms, bathrooms, guests, size_sqm, monthly_price, deposit, commission, utilities_included, min_stay_months, max_stay_months, available_from, available_until, status, published, images, description, amenities, sort_order";
+  "id, slug, name, city_group, location, property_type, bedrooms, bathrooms, guests, size_sqm, monthly_price, deposit, utilities_included, min_stay_months, max_stay_months, available_from, available_until, status, published, images, description, amenities, sort_order";
 
 /** The generated row type widens `images` to `Json`; this is the shape the admin writes. */
 export const toMidtermListing = (row: unknown): MidtermListing => {
