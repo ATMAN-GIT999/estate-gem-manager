@@ -83,7 +83,10 @@ const OwnerHero = () => {
     // Not a <Section>: the sage band sets its own geometry — a fixed-height
     // two-column split where the right column IS the photograph, with the
     // result card floating centred on top of it.
-    <section className="relative bg-primary text-primary-foreground overflow-hidden pt-20">
+    <section
+      id="property-calculator"
+      className="relative bg-primary text-primary-foreground overflow-hidden pt-20 scroll-mt-24"
+    >
       {/* ⚠️ Almedin, 02.10.2026 — brought in line with the Lovable "template"
           rebuild (see chat): the text column used to be WIDER than the photo
           (1.12fr vs 1fr), which read as text-led rather than photographic.

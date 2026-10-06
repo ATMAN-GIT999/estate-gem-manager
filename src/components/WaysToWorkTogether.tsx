@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { ShieldCheck, TrendingUp } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Section } from "./layout";
@@ -173,7 +172,12 @@ const WaysToWorkTogether = () => {
 
               <div className="mt-md">
                 {isPrimary ? (
-                  <Link to="/guaranteed-income" className="cta-base cta-primary">
+                  // Same-page anchor to OwnerHero's calculator, not the
+                  // guaranteed-income subpage — "What your property could
+                  // earn" is literally the hero's own question, answered by
+                  // the address field a few sections up, not a second page
+                  // about the model (Almedin, 06.10.2026).
+                  <a href="#property-calculator" className="cta-base cta-primary">
                     <EditableText
                       id={`ways-model-link-${i}`}
                       value={model.link}
@@ -183,7 +187,7 @@ const WaysToWorkTogether = () => {
                       {model.link}
                     </EditableText>
                     <span aria-hidden="true">→</span>
-                  </Link>
+                  </a>
                 ) : (
                   // Same-page anchor to OwnerContactForm, not the
                   // guaranteed-income subpage the primary card links to —

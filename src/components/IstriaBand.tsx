@@ -8,10 +8,16 @@ import { useLocale } from "@/contexts/LocaleContext";
 /**
  * The Istria case study, full-bleed — split out of
  * RenovationsAndInvestments.tsx 06.10.2026 to match a Lovable reference
- * Almedin pointed to precisely: a full-height photograph with the text
- * sitting over a dark fade at the bottom, not a framed photo beside a text
- * column. Same overlay token OwnerContactForm.tsx already uses for its own
- * full-bleed band (`--overlay-ink-fade`), not a new one.
+ * Almedin pointed to: a full-height photograph with the text sitting over a
+ * fade at the bottom, not a framed photo beside a text column.
+ *
+ * ⚠️ Almedin, 06.10.2026: the first pass used OwnerContactForm's full-image
+ * `--overlay-ink-fade`, which darkens the whole photo — too much here; the
+ * reference only fades the bottom third, where the text sits, and leaves
+ * the rest of the photo at full brightness. `bg-gradient-to-t from-primary
+ * to-transparent` instead — the same sage token the fade used, just shaped
+ * as a bottom-only gradient instead of a flat full-image wash. Height is
+ * also the reference's own `min-h-[680px]`, not an approximated clamp.
  *
  * ⚠️ Croatia is not an inventory market — it is where this renovation
  * happened and where /investments looks for opportunities, which is a
@@ -35,7 +41,7 @@ const IstriaBand = () => {
   }, [language]);
 
   return (
-    <section className="relative flex items-end overflow-hidden min-h-[clamp(32rem,68vh,44rem)]">
+    <section className="relative flex items-end overflow-hidden min-h-[680px]">
       <MediaFrame
         id="case-istria-image"
         src={image}
@@ -45,7 +51,7 @@ const IstriaBand = () => {
         fill
         onPrimary
       />
-      <div className="absolute inset-0" style={{ background: "var(--overlay-ink-fade)" }} aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-t from-primary to-transparent" aria-hidden="true" />
 
       <Container className="relative z-10 pb-xl pt-lg">
         <Grid className="border-t border-primary-foreground/60 pt-md items-end">
