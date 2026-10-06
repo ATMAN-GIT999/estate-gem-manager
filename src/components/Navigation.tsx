@@ -8,6 +8,7 @@ import { Container } from "./layout";
 import LanguageCurrencySwitcher from "./LanguageCurrencySwitcher";
 import { useLocale } from "@/contexts/LocaleContext";
 import { AUSTRIA_DESTINATIONS, SPAIN_DESTINATIONS, type Destination } from "@/lib/destinations";
+import { WINTER_RENTALS_PATH, WINTER_RENTAL_CITIES, wrKey, type WinterRentalCity } from "@/lib/winterRentals";
 import villaHigueron from "@/assets/wf-villa-higueron.webp";
 import frontierIcon from "@/assets/frontier-icon.png";
 import frontierIconBeige from "@/assets/frontier-icon-beige.png";
@@ -123,6 +124,12 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
     setPanelOpen(false);
     setIsOpen(false);
     navigate(`/vacation-rentals/${d.page}`);
+  };
+
+  const goToWinterCity = (slug: WinterRentalCity["slug"]) => {
+    setPanelOpen(false);
+    setIsOpen(false);
+    navigate(`${WINTER_RENTALS_PATH}/${slug}`);
   };
 
   const linkClass = cn(
@@ -247,17 +254,26 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
         <div className="hidden lg:block border-t border-border bg-background animate-fade-in">
           <Container className="py-lg">
             <div className="grid grid-cols-12 gap-md">
-              {/* Leftmost on purpose (Almedin, 29.09.2026): the one link
+              {/* Leftmost on purpose (Almedin, 29.09.2026): the one column
                   meant to read as "see everything" leads the row instead of
                   trailing Spain and Austria, where it used to read as an
                   afterthought once those two were already answered. Replaces
                   the old "By occasion" column (golf, families, large groups)
                   — none of the three led anywhere as useful as just browsing
-                  every place at once. Sized up to t-section (the "section
-                  title" role) on purpose — every other word in this panel is
-                  t-tag or t-body, and this link needs to out-weigh all of
-                  them, not blend in as a destination itself. */}
-              <div className="col-span-3 flex flex-col justify-center">
+                  every place at once.
+                  "All destinations" and "All winter rentals" share this
+                  column, top and bottom (Almedin, 06.10.2026) — a same-width
+                  second column for winter rentals existed for one round, but
+                  read as one extra column rather than "the second half of the
+                  same idea". Top-aligned (no more `justify-center`) so
+                  "Explore" starts level with "Spain"/"Austria"; the winter
+                  block sits on `mt-auto` instead of a fixed gap, so it lands
+                  at the bottom of the row — level with "All on the Costa del
+                  Sol →"/"All in Austria →" below their own lists — and the
+                  panel reads as two rows across three columns (this one,
+                  Spain+Austria together, the photo) rather than four columns
+                  in a single row. */}
+              <div className="col-span-3 flex flex-col">
                 <p className="t-tag text-accent-strong mb-4">Explore</p>
                 <Link
                   to="/vacation-rentals"
@@ -270,13 +286,27 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
                     strokeWidth={1.5}
                   />
                 </Link>
-                <Link
-                  to="/winter-rentals"
-                  onClick={() => setPanelOpen(false)}
-                  className="cta-link mt-4 text-[0.9375rem] inline-block"
-                >
-                  {t("wr-nav-label")} →
-                </Link>
+
+                <div className="mt-auto pt-6">
+                  {/* Same face as a property title (WinterListingCard.tsx,
+                      PropertyCard.tsx) — .t-card is Archivo, tracked-out
+                      caps; deliberately NOT .t-section's Sora, so the
+                      question reads as catalogue voice, not a second heading
+                      competing with "All destinations"/"All winter rentals". */}
+                  <p className="t-card text-foreground mb-2">Interested in staying the offseason?</p>
+                  <p className="t-tag text-accent-strong mb-4">Winter-Midterm Rental</p>
+                  <Link
+                    to={WINTER_RENTALS_PATH}
+                    onClick={() => setPanelOpen(false)}
+                    className="group/winter inline-flex items-start gap-2 t-section text-foreground hover:text-accent-strong transition-colors text-balance"
+                  >
+                    All winter rentals
+                    <ArrowRight
+                      className="h-5 w-5 shrink-0 mt-2 transition-transform group-hover/winter:translate-x-1"
+                      strokeWidth={1.5}
+                    />
+                  </Link>
+                </div>
               </div>
 
               <div className="col-span-3">
@@ -354,6 +384,32 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
                   {d.label}
                 </button>
               ))}
+
+              {/* Winter Rentals had no mobile entry point at all before this
+                  (Almedin, 06.10.2026) — the desktop panel's own gap, just
+                  harder to miss here since there is no hover state to stumble
+                  onto it with. Same parallel framing as the desktop panel:
+                  its own heading, not folded into "Destinations" above. */}
+              <p className="t-tag text-accent-strong mb-2 mt-4 pt-4 border-t border-border">
+                Winter &amp; Midterm
+              </p>
+              {WINTER_RENTAL_CITIES.map((city) => (
+                <button
+                  key={city.slug}
+                  type="button"
+                  className={panelLink}
+                  onClick={() => goToWinterCity(city.slug)}
+                >
+                  {t(wrKey(city.slug, "name"))}
+                </button>
+              ))}
+              <Link
+                to={WINTER_RENTALS_PATH}
+                onClick={() => setIsOpen(false)}
+                className="cta-link mt-2 text-[0.9375rem] inline-block"
+              >
+                All winter rentals →
+              </Link>
 
               <Link
                 to="/property-management"
