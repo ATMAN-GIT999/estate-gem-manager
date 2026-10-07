@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import EditableText from "./admin/EditableText";
 import EditableVideo from "./admin/EditableVideo";
 import SearchBar from "./SearchBar";
-import { Container, Stack } from "./layout";
+import { Container } from "./layout";
 import { useLocale } from "@/contexts/LocaleContext";
 import heroPoster from "@/assets/wf-hero-poster.webp";
 
@@ -27,18 +27,44 @@ import heroPoster from "@/assets/wf-hero-poster.webp";
  * argued with it. The subheadline itself came back the same day with new
  * copy naming the actual places rather than a number of villas.
  *
- * It used to be `min-h-screen`: the hero owned the entire first screen and
- * the search bar arrived half a second late on a slide-in from the right,
- * separated from the text above it by up to 48px of empty space. That is what
- * made it read as something laid over the hero rather than part of it, and it
- * meant nothing below the fold existed until the visitor scrolled.
+ * Full-screen again, left-aligned (Almedin, 07.10.2026, taken 1:1 from the
+ * Lovable landing reference): `min-h-[100svh]`, the copy block set into the
+ * bottom-left, the search box on the right of the sub line. This reverses the
+ * ~62vh band below, which existed so the section underneath was already
+ * visible at rest — the reference deliberately spends the whole first screen
+ * on the video instead. If "nothing below the fold" starts to cost
+ * conversions, that band is the thing to go back to.
  *
- * Now the band is ~62vh, so the section underneath is already visible at rest
- * — the video supports the composition instead of being it (§7). The
- * two pieces share one Stack, so the gap between the headline and the field
- * the visitor is meant to type in is one step on the same ladder the rest of
- * the page uses (§8).
+ * The earlier band (for the record): it used to be `min-h-screen` with the
+ * search bar arriving half a second late on a slide-in from the right, up to
+ * 48px of empty space between the text and the bar. That read as something laid
+ * over the hero rather than part of it, so it was cut to ~62vh and the bar and
+ * the text were made one Stack.
  */
+/**
+ * Sets the place name in gold inside the headline — the one coloured phrase of
+ * the page's H1. Found by text, not by position, so the three translations
+ * ("…Costa del Sol…" in EN/DE/ES) and an inline-CMS edit all keep working; a
+ * headline that no longer contains it simply renders plain.
+ */
+const HIGHLIGHT = "Costa del Sol";
+const withHighlight = (text: string) => {
+  const at = text.indexOf(HIGHLIGHT);
+  if (at === -1) return text;
+  return (
+    <>
+      {text.slice(0, at)}
+      {/* `text-accent`, not `accent-on-primary`: this is 99px display type on
+          the darkened video, where the brass reads at full strength and the
+          lighter on-primary variant washes out to beige. The "never
+          `text-accent`" rule is about its 2.19:1 on WHITE — it does not apply
+          here, and must not be copied to a light surface. */}
+      <span className="text-accent">{HIGHLIGHT}</span>
+      {text.slice(at + HIGHLIGHT.length)}
+    </>
+  );
+};
+
 const Hero = () => {
   const { t, language } = useLocale();
   const navigate = useNavigate();
@@ -106,17 +132,12 @@ const Hero = () => {
   };
 
   return (
-    // pt-20 clears the fixed 80px header. The height is clamped at both ends
-    // rather than left at 62vh: the lower bound keeps the stacked mobile
-    // search form from overflowing a short viewport, the upper bound stops the
-    // band from turning back into a full-screen video on a tall monitor.
-    //
-    // `items-center` and `[align-items:safe_center]` are both here on purpose
-    // (the editor flags them as duplicates): the second wins where it is
-    // supported and falls back to top-alignment instead of overflowing in both
-    // directions when the block still does not fit, and the first is what
-    // browsers without `safe` keyword support fall back to.
-    <section className="relative flex items-end overflow-hidden pt-20 min-h-[clamp(36rem,78vh,52rem)]">
+    // `items-end` pins the copy to the bottom of the first screen, the way the
+    // reference does; `pt-20` still clears the fixed 80px header on a short
+    // viewport where the block grows tall enough to reach it. `100svh`, not
+    // `100vh`: on a phone the latter is taller than what is actually visible
+    // once the browser's address bar is up, and would push the search box off.
+    <section className="relative flex items-end overflow-hidden pt-20 min-h-[100svh]">
       <EditableVideo
         id="hero-video"
         type={videoType === "none" ? "file" : videoType}
@@ -167,62 +188,60 @@ const Hero = () => {
       </EditableVideo>
 
       {/* z-10 keeps the block above the overlay; the search bar's own popovers
-          carry higher stacking of their own. `measure="wide"` rather than the
-          full 1440px container: the bar reads as a single control at ~1024px,
-          and stretched to the full container it starts to look like a toolbar
-          welded to the page. */}
-      <Container measure="wide" className="relative z-10 pb-2xl pt-lg text-center">
-        <Stack gap="md" align="center" className="animate-fade-in">
-          {/* +10% over t-tag's fixed 10px (Almedin, 29.09.2026) — `text-[]`
-              only touches font-size, so line-height/tracking/weight still
-              come from t-tag itself. */}
-          <EditableText
-            id="hero-eyebrow"
-            value={eyebrow}
-            onChange={setEyebrow}
-            as="p"
-            className="t-tag text-[0.6875rem] text-white/75"
-          >
-            {eyebrow}
-          </EditableText>
+          carry higher stacking of their own. Full container width and left
+          aligned — the 12-column split below (5 + 7) is what puts the search
+          box to the right of the sub line instead of under a centred stack. */}
+      {/* `md:pb-24` rather than the reference's 56px: the fixed WhatsApp button
+          sits bottom-right and would otherwise overlap the search box's corner. */}
+      <Container className="relative z-10 pb-10 pt-lg md:pb-24 animate-fade-in">
+        <EditableText
+          id="hero-eyebrow"
+          value={eyebrow}
+          onChange={setEyebrow}
+          as="p"
+          className="t-tag text-[0.6875rem] text-accent-on-primary"
+        >
+          {eyebrow}
+        </EditableText>
 
-          {/* +15% over t-display's clamp(1.9rem,1.1rem+3.6vw,3.625rem) — every
-              endpoint scaled by 1.15, same reasoning as above. Recomputed
-              02.10.2026 when the base clamp grew (Lovable comparison); this
-              `text-[]` only touches font-size, so it has to be redone by hand
-              whenever that base changes. */}
-          <EditableText
-            id="hero-headline"
-            value={headline}
-            onChange={setHeadline}
-            as="h1"
-            className="t-display text-[clamp(2.185rem,1.265rem+4.14vw,4.169rem)] text-white text-balance"
-          >
-            {headline}
-          </EditableText>
+        {/* `max-w-5xl` is what makes it break into four short lines instead of
+            two long ones at 99px — a text measure, not a container width. */}
+        <EditableText
+          id="hero-headline"
+          value={headline}
+          onChange={setHeadline}
+          as="h1"
+          className="t-hero mt-6 max-w-5xl text-white"
+        >
+          {withHighlight(headline)}
+        </EditableText>
 
+        <div className="mt-8 grid gap-8 md:grid-cols-12 md:items-end">
           <EditableText
             id="hero-subheadline"
             value={subheadline}
             onChange={setSubheadline}
             as="p"
-            className="t-body text-[19px] text-white/[0.86] max-w-[52ch] mx-auto"
+            className="t-body max-w-md text-white/[0.86] md:col-span-5"
           >
             {subheadline}
           </EditableText>
 
-          <SearchBar
-            location={location}
-            checkInDate={checkInDate}
-            checkOutDate={checkOutDate}
-            guests={guests}
-            onLocationChange={setLocation}
-            onCheckInChange={setCheckInDate}
-            onCheckOutChange={setCheckOutDate}
-            onGuestsChange={setGuests}
-            onSearch={handleSearch}
-          />
-        </Stack>
+          <div className="md:col-span-7">
+            <SearchBar
+              variant="editorial"
+              location={location}
+              checkInDate={checkInDate}
+              checkOutDate={checkOutDate}
+              guests={guests}
+              onLocationChange={setLocation}
+              onCheckInChange={setCheckInDate}
+              onCheckOutChange={setCheckOutDate}
+              onGuestsChange={setGuests}
+              onSearch={handleSearch}
+            />
+          </div>
+        </div>
       </Container>
     </section>
   );

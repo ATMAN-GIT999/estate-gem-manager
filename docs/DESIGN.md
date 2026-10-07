@@ -185,6 +185,33 @@ mehr. Ausgenommen bleiben zwei Ebenen, die nicht zur Content-Typografie gehören
 Die globale `h1…h6`-Regel in `index.css` bleibt als Rückfallebene für den
 Admin-Bereich bestehen; die `.t-*`-Klassen überschreiben sie.
 
+### Stand 07.10.2026 — Tabelle oben ist veraltet, plus drei Rollen für die Startseite
+
+⚠️ **Die Tabelle oben stimmt nicht mehr mit dem Code überein.** Überschriften
+(`.t-display`, `.t-section`, `.t-block`) sind heute **Sora** (Gewicht 300/500),
+Fließtext und Labels **Archivo**, `.t-tag` **IBM Plex Mono** — alles selbst
+gehostet über `@fontsource`. Maßgeblich ist `src/index.css`; die Tabelle ist noch
+nicht nachgezogen.
+
+Für die Startseite kamen drei Rollen dazu (Almedin, 07.10.2026, nach der
+Lovable-Landing-Referenz), alle **Sora 600**:
+
+| Klasse | Größe (Mobil → Desktop) | Wo |
+|---|---:|---|
+| `.t-hero` | 42 → 99px | H1 des Hero |
+| `.t-feature` | 48 → 96px | ein einzelnes großes Wort: „Our homes", „Own a Property?" |
+| `.t-chapter` | 36 → 60px | Kapiteltitel: Includes, Places, FAQ |
+
+Sie stehen **über** den sechs Rollen, nicht an deren Stelle — alle anderen
+Seiten behalten die ruhige 300er-Skala. Dazu `.cta-square` / `.cta-caps` /
+`.cta-brass-outline` (eckige Buttons, siehe `index.css`) und die nummerierten
+Eyebrows `01 — Collection` … `04 — FAQ` (`.t-tag`).
+
+**Places-Leiste (`DestinationsRail`):** Kartenbreite in `vw` (78 / 34 / 28 %),
+nicht in Pixeln und nicht relativ zum Container. Das ist der Zoom-Out-Test aus
+Abschnitt 1, absichtlich umgekehrt: Die Bilder sollen beim Herauszoomen groß
+bleiben. **Nicht auf feste Pixelbreiten „aufräumen".**
+
 ---
 
 ## 6 · Das „weniger Boxen"-Prinzip

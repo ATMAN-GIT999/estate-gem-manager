@@ -12,10 +12,12 @@ import PageWrapper from "@/components/PageWrapper";
 import Seo from "@/components/Seo";
 import { faqSchema, organizationSchema } from "@/lib/schema";
 import { useTrackEvent } from "@/hooks/use-track-event";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const IndexContent = () => {
   const location = useLocation();
   const track = useTrackEvent();
+  const { t } = useLocale();
 
   // Handle hash navigation for Property Evaluation section
   useEffect(() => {
@@ -44,7 +46,7 @@ const IndexContent = () => {
         description="Book luxury villas and apartments in Marbella, Málaga and Vienna directly with Frontier Residences — and see what your own property could earn under our management."
         schema={[organizationSchema(), faqSchema(FAQ_ITEMS)]}
       />
-      <Navigation overlay logoOnDark />
+      <Navigation overlay logoOnDark hideOnScroll />
 
       {/* Seven sections, in the order of the 09/2026 wireframe:
           hero (search bar included again, Almedin 29.09.2026) → homes →
@@ -62,7 +64,7 @@ const IndexContent = () => {
 
       {/* A guest with a question gets it answered before the page asks them
           to switch audiences, not after. */}
-      <FAQ eyebrow="" />
+      <FAQ eyebrow={t("eyebrow-faq")} layout="split" />
 
       <OwnAProperty />
       <Footer />

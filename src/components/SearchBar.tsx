@@ -48,6 +48,13 @@ interface SearchBarProps extends SearchBarValues {
    * controls (Almedin, 29.09.2026).
    */
   fullWidth?: boolean;
+  /**
+   * "editorial" is the landing hero's box (Almedin, 07.10.2026, the Lovable
+   * reference): square, fields on hairline underlines, a black "Search homes"
+   * button. Everywhere else keeps the pill — the controls inside are the same,
+   * only the surface differs, so /properties still looks like itself.
+   */
+  variant?: "pill" | "editorial";
 }
 
 /**
@@ -74,7 +81,9 @@ const SearchBar = ({
   onSearch,
   collapsible = false,
   fullWidth = false,
+  variant = "pill",
 }: SearchBarProps) => {
+  const editorial = variant === "editorial";
   const { t } = useLocale();
   const [datesOpen, setDatesOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
@@ -173,8 +182,10 @@ const SearchBar = ({
 
   // Stacked on mobile, so the dividers have to run horizontally there and
   // switch to vertical only once the fields sit side by side.
-  const fieldDivider = "border-b md:border-b-0 md:border-r border-border";
-  const fieldPad = "px-6 py-2";
+  const fieldDivider = editorial
+    ? "border-b border-border"
+    : "border-b md:border-b-0 md:border-r border-border";
+  const fieldPad = editorial ? "pb-2 pt-1" : "px-6 py-2";
   // Gold micro-label above a dark value — the OmniVillas reference layout.
   // Same look everywhere the bar appears now (hero video, sticky filter
   // strip); the two call sites used to diverge here (colour, background),
@@ -202,13 +213,20 @@ const SearchBar = ({
     // alignment its call site happens to use.
     <div
       className={cn(
-        "relative z-30 mx-auto w-full overflow-visible rounded-2xl border border-border bg-background p-1.5 text-left shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.2)] md:rounded-full",
-        fullWidth ? "max-w-none" : "max-w-[900px]"
+        "relative z-30 mx-auto w-full overflow-visible border border-border bg-background text-left",
+        editorial
+          ? "p-4 shadow-2xl md:p-5"
+          : "rounded-2xl p-1.5 shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.2)] md:rounded-full",
+        fullWidth || editorial ? "max-w-none" : "max-w-[900px]"
       )}
     >
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-0"
+        className={cn(
+          editorial
+            ? "grid gap-x-5 gap-y-4 md:grid-cols-[1.3fr_1fr_1fr_auto] md:items-end"
+            : "flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-0"
+        )}
       >
         <div className={cn("flex-1", fieldPad, fieldDivider)}>
           <LocationAutocomplete value={location} onChange={onLocationChange} label={t("searchbar.whereLabel")} />
@@ -250,7 +268,7 @@ const SearchBar = ({
 
         {/* A little wider than the other fields (`min-w`, not `flex-1`) so a
             two-digit guest count has room instead of looking squeezed. */}
-        <div className={cn("relative shrink-0 min-w-[84px]", fieldPad)}>
+        <div className={cn("relative shrink-0 min-w-[84px]", fieldPad, editorial && fieldDivider)}>
           <span className={fieldLabel}>{t("searchbar.whoLabel")}</span>
           <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
             <PopoverTrigger asChild>
@@ -310,13 +328,27 @@ const SearchBar = ({
         <Button
           type="submit"
           aria-label={t("searchbar.search")}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-none rounded-full h-[52px] w-full md:w-[52px] shrink-0 p-0"
+          className={cn(
+            "shadow-none shrink-0",
+            editorial
+              ? "t-meta h-auto w-full rounded-none bg-foreground px-7 py-4 text-background hover:bg-primary md:w-auto"
+              : "bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-[52px] w-full md:w-[52px] p-0"
+          )}
         >
-          <ArrowRight className="h-5 w-5 hidden md:block" strokeWidth={1.75} />
-          <span className="md:hidden inline-flex items-center gap-2">
-            <Search className="h-4 w-4" />
-            {t("searchbar.search")}
-          </span>
+          {editorial ? (
+            <span className="inline-flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              {t("searchbar.searchHomes")}
+            </span>
+          ) : (
+            <>
+              <ArrowRight className="h-5 w-5 hidden md:block" strokeWidth={1.75} />
+              <span className="md:hidden inline-flex items-center gap-2">
+                <Search className="h-4 w-4" />
+                {t("searchbar.search")}
+              </span>
+            </>
+          )}
         </Button>
       </form>
     </div>

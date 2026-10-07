@@ -42,6 +42,11 @@
 @import '@fontsource/sora/latin-300.css';
 @import '@fontsource/sora/latin-400.css';
 @import '@fontsource/sora/latin-500.css';
+/* 600 for the three editorial roles below (.t-hero/.t-feature/.t-chapter,
+   Almedin 07.10.2026) — the Lovable landing reference sets its big headings
+   semibold, not light. Same self-hosted face, one more weight; without this
+   file the browser would synthesise 600 from 500. */
+@import '@fontsource/sora/latin-600.css';
 
 /* Playfair and Lato are still loaded for the admin area only — the GrapesJS
    page builder injects them into its preview iframe (admin/Builder.tsx) and
@@ -439,6 +444,41 @@ All colors MUST be HSL.
     letter-spacing: 0.16em;
     text-transform: uppercase;
   }
+
+  /* The three editorial roles of the landing page (Almedin, 07.10.2026) — sizes
+     and weight taken from the Lovable landing reference, which sets its big
+     headings semibold and far larger than .t-display/.t-section. They sit
+     ABOVE the six roles above rather than replacing them: every other page
+     keeps the quiet light-weight scale. The clamp() ramps are smoothed from
+     the reference's breakpoint jumps (text-4xl → md:text-6xl etc.) so there is
+     no size step at 768px. Sora, like the other heading roles. */
+  .t-hero,
+  .t-feature,
+  .t-chapter {
+    font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  /* The H1 of the landing hero. 42 → 99px. */
+  .t-hero {
+    font-size: clamp(2.6rem, 0.6rem + 8.3vw, 6.2rem);
+    line-height: 0.98;
+  }
+
+  /* A section's single huge word or phrase ("Our homes", "Own a Property?").
+     48 → 96px. */
+  .t-feature {
+    font-size: clamp(3rem, 0.5rem + 9vw, 6rem);
+    line-height: 1;
+  }
+
+  /* A chapter title on the landing page ("Where we are at home", the FAQ
+     heading). 36 → 60px. */
+  .t-chapter {
+    font-size: clamp(2.25rem, 0.6rem + 6vw, 3.75rem);
+    line-height: 1.05;
+  }
 }
 
 /* Property-management page only: Almedin's call (02.10.2026) to match the
@@ -526,6 +566,32 @@ All colors MUST be HSL.
   }
   .cta-link.on-dark:hover {
     color: #fff;
+  }
+
+  /* The editorial landing page's buttons (Almedin, 07.10.2026): square corners
+     instead of the pill, optionally set in tracked-out capitals. Modifiers,
+     not a fourth shape — they combine with .cta-base/.cta-primary so the
+     pill stays the answer everywhere else on the site. */
+  .cta-square {
+    border-radius: 0;
+  }
+  .cta-caps {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  /* Gold outline for photo bands; fills gold on hover. Gold on a dark photo
+     reads like gold on the green primary, hence accent-on-primary. */
+  .cta-brass-outline {
+    background-color: transparent;
+    border: 1px solid hsl(var(--accent-on-primary));
+    color: hsl(var(--accent-on-primary));
+  }
+  .cta-brass-outline:hover {
+    background-color: hsl(var(--accent));
+    border-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
   }
 }
 

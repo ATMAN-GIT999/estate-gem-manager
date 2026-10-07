@@ -64,14 +64,18 @@ const OwnAProperty = () => {
         aria-hidden="true"
       />
 
-      <Container className="relative z-10 py-2xl text-center">
-        <div className="max-w-xl mx-auto space-y-sm">
+      {/* Left-aligned, the type and button taken from the Lovable landing
+          reference (Almedin, 07.10.2026). The photograph, the ink fade and the
+          seamless join with the footer are deliberately NOT — those stay as
+          they were. */}
+      <Container className="relative z-10 py-2xl">
+        <div className="max-w-xl space-y-sm">
           <EditableText
             id="oap-eyebrow"
             value={eyebrow}
             onChange={setEyebrow}
             as="p"
-            className="t-tag text-white/70"
+            className="t-tag text-accent-on-primary"
           >
             {eyebrow}
           </EditableText>
@@ -86,7 +90,7 @@ const OwnAProperty = () => {
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="t-section text-[clamp(1.8rem,1.32rem+2.16vw,2.7rem)] text-white text-balance"
+            className="t-feature text-white text-balance"
           >
             {heading}
           </EditableText>
@@ -95,17 +99,23 @@ const OwnAProperty = () => {
             value={subheading}
             onChange={setSubheading}
             as="p"
-            className="t-body text-white/85 max-w-md mx-auto"
+            className="t-body text-lg text-white/85 max-w-md"
           >
             {subheading}
           </EditableText>
 
           <div className="pt-sm">
-            <Link to="/property-management" className="cta-base cta-primary">
+            <Link
+              to="/property-management"
+              className="group cta-base cta-square cta-caps cta-brass-outline h-auto py-4 px-7"
+            >
               <EditableText id="oap-cta" value={ctaText} onChange={setCtaText} as="span">
                 {ctaText}
               </EditableText>
-              <ArrowRight className="w-4 h-4" strokeWidth={2} />
+              <ArrowRight
+                className="w-4 h-4 transition-transform group-hover:translate-x-1"
+                strokeWidth={2}
+              />
             </Link>
           </div>
         </div>

@@ -27,8 +27,18 @@ export interface Property {
   images?: Array<{ url: string; caption?: string }>;
 }
 
+export type PropertyCardVariant = "default" | "feature" | "row" | "stacked";
+
 interface PropertyCardProps {
   property: Property;
+  /**
+   * "default" is the 3:4 catalogue card used on /properties and the location
+   * pages. The other three are the landing page's "Our homes" grid (Almedin,
+   * 07.10.2026, the Lovable reference): 4:3 photo, the price as a gold tag on
+   * the photograph, place above the name — `feature` is the big one, `row`
+   * puts the photo beside the text from `lg`, `stacked` is the plain small one.
+   */
+  variant?: PropertyCardVariant;
 }
 
 // "villa-in-higueron", "peninsula-corner-villa-higueron" and
@@ -42,7 +52,8 @@ const propertyImages: Record<string, string> = {
   "los-monteros-retreat": losMonterosCard,
 };
 
-const PropertyCard = ({ property }: PropertyCardProps) => {
+const PropertyCard = ({ property, variant = "default" }: PropertyCardProps) => {
+  const editorial = variant !== "default";
   const [searchParams] = useSearchParams();
   const { convertPrice, currencySymbol, t } = useLocale();
   const [index, setIndex] = useState(0);
@@ -104,12 +115,23 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   };
 
   return (
-    <Link to={buildLink()} className="group block">
+    <Link
+      to={buildLink()}
+      className={cn(
+        "group block",
+        variant === "row" && "grid grid-cols-[42%_1fr] gap-5 md:grid-cols-1 lg:grid-cols-[48%_1fr]"
+      )}
+    >
       {/* 3:4 and frameless. The card used to be a 4:3 photo inside a rounded,
           shadowed panel; on a white ground that panel reads as a box drawn
           around a picture. The portrait crop is what makes a row of three
           scan as a catalogue rather than as search results. */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-secondary">
+      <div
+        className={cn(
+          "relative overflow-hidden bg-secondary",
+          editorial ? "aspect-[4/3]" : "aspect-[3/4]"
+        )}
+      >
         {/* Every photo is stacked, and only the current one is opaque — a
             cross-fade rather than swapping one <img> src, which flashes the
             frame empty for as long as the next file takes to decode. The
@@ -138,6 +160,19 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             )}
           />
         ))}
+
+        {/* The price rides on the photograph in the editorial cards, so the
+            text block below can drop its price row. Same rule as the default
+            card: only labelled "from" when the rate is Guesty's, never "the
+            price" (docs/PROJECT.md §6, C4). */}
+        {editorial && (
+          <span className="t-meta absolute left-0 top-0 z-10 bg-accent px-3 py-1.5 text-accent-foreground">
+            {property.guesty_listing_id && `${t("propertycard.from")} `}
+            {currencySymbol}
+            {convertPrice(property.price_per_night)}
+            <span className="font-normal normal-case tracking-normal opacity-75"> {t("propertycard.perNight")}</span>
+          </span>
+        )}
 
         {images.length > 1 && (
           <>
@@ -185,14 +220,24 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
         )}
       </div>
 
-      <div className="pt-4">
-        <h3 className="t-card text-foreground group-hover:text-accent-strong transition-colors">
+      <div className={cn(editorial ? (variant === "row" ? "pt-1" : "pt-5") : "pt-4")}>
+        {editorial && <p className="t-tag text-accent-strong">{displayLocation}</p>}
+
+        <h3
+          className={cn(
+            "text-foreground group-hover:text-accent-strong transition-colors",
+            editorial && "mt-2",
+            variant === "feature"
+              ? "t-section font-semibold uppercase leading-tight"
+              : cn("t-card", editorial && "font-semibold leading-tight")
+          )}
+        >
           {property.name}
         </h3>
 
-        <p className="t-body text-muted-foreground mt-1">{displayLocation}</p>
+        {!editorial && <p className="t-body text-muted-foreground mt-1">{displayLocation}</p>}
 
-        <p className="t-body text-muted-foreground mt-0.5">
+        <p className={cn("t-body text-muted-foreground", editorial ? "mt-2" : "mt-0.5")}>
           {property.guests} {property.guests === 1 ? t("propertycard.guest") : t("propertycard.guests")} ·{" "}
           {property.bedrooms === 0 ? t("propertycard.studio") : `${property.bedrooms} ${property.bedrooms === 1 ? t("propertycard.bedroom") : t("propertycard.bedrooms")}`} ·{" "}
           {property.bathrooms} {property.bathrooms === 1 ? t("propertycard.bathroom") : t("propertycard.bathrooms")}
@@ -203,16 +248,18 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             dates a visitor has in mind. Every listing prices dynamically, so
             this stays labelled "from" rather than presented as today's rate.
             See docs/PROJECT.md §6 (C4). */}
-        <div className="mt-3 pt-3 border-t border-border">
-          {property.guesty_listing_id && (
-            <span className="t-body text-muted-foreground">{t("propertycard.from")} </span>
-          )}
-          <span className="t-item text-foreground">
-            {currencySymbol}
-            {convertPrice(property.price_per_night)}
-          </span>
-          <span className="t-body text-muted-foreground"> {t("propertycard.perNight")}</span>
-        </div>
+        {!editorial && (
+          <div className="mt-3 pt-3 border-t border-border">
+            {property.guesty_listing_id && (
+              <span className="t-body text-muted-foreground">{t("propertycard.from")} </span>
+            )}
+            <span className="t-item text-foreground">
+              {currencySymbol}
+              {convertPrice(property.price_per_night)}
+            </span>
+            <span className="t-body text-muted-foreground"> {t("propertycard.perNight")}</span>
+          </div>
+        )}
       </div>
     </Link>
   );

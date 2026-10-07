@@ -474,6 +474,13 @@ export const en = {
   "dest-vienna": "Vienna",
   "dest-carinthia": "Carinthia",
   "oap-eyebrow": "For owners",
+  // Numbered eyebrows of the landing page (07.10.2026) — the section's place in
+  // the page's story, not a count of anything. "02" belongs to GuestManagement.
+  "eyebrow-collection": "01 — Collection",
+  "eyebrow-stay": "02 — Every stay",
+  "eyebrow-places": "03 — Places",
+  "eyebrow-faq": "04 — FAQ",
+  "searchbar.searchHomes": "Search homes",
 
   // Property management page, wireframe 09/2026
   "pmp-hero-alt": "Or talk to us directly",
@@ -1204,6 +1211,11 @@ export const de: Record<TranslationKey, string> = {
   "dest-vienna": "Wien",
   "dest-carinthia": "Kärnten",
   "oap-eyebrow": "Für Eigentümer",
+  "eyebrow-collection": "01 — Kollektion",
+  "eyebrow-stay": "02 — Jeder Aufenthalt",
+  "eyebrow-places": "03 — Orte",
+  "eyebrow-faq": "04 — FAQ",
+  "searchbar.searchHomes": "Häuser suchen",
 
   "pmp-hero-alt": "Oder sprechen Sie direkt mit uns",
   "ev-card-title": "Geschätzte Einnahmen",
@@ -1922,6 +1934,11 @@ export const es: Record<TranslationKey, string> = {
   "dest-vienna": "Viena",
   "dest-carinthia": "Carintia",
   "oap-eyebrow": "Para propietarios",
+  "eyebrow-collection": "01 — Colección",
+  "eyebrow-stay": "02 — Cada estancia",
+  "eyebrow-places": "03 — Lugares",
+  "eyebrow-faq": "04 — FAQ",
+  "searchbar.searchHomes": "Buscar casas",
 
   "pmp-hero-alt": "O hable directamente con nosotros",
   "ev-card-title": "Ingresos estimados",

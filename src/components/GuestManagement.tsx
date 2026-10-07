@@ -69,12 +69,17 @@ const GuestManagement = () => {
         </div>
 
         <div className="lg:flex-1">
+          {/* Eyebrow and the larger heading role only (Almedin, 07.10.2026):
+              the copy below is the checked guest text and is untouched, and the
+              layout is as before. The heading takes the chapter size so it does
+              not sit lighter than the sections around it. */}
+          <p className="t-tag text-accent-strong">{t("eyebrow-stay")}</p>
           <EditableText
             id="stay-heading"
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="t-section text-foreground text-balance max-w-[16ch]"
+            className="t-chapter mt-4 text-foreground text-balance max-w-[16ch]"
           >
             {heading}
           </EditableText>

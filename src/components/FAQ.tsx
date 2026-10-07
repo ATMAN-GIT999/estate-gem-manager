@@ -4,6 +4,7 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ArrowRight, Minus, Plus } from "lucide-react";
 import EditableText from "./admin/EditableText";
 import { Section, Stack } from "./layout";
+import { cn } from "@/lib/utils";
 import { useLocale } from "@/contexts/LocaleContext";
 import type { TranslationKey } from "@/lib/translations";
 
@@ -131,10 +132,20 @@ interface FAQProps {
    *  on the last item — an owner reading this FAQ is already on the owner
    *  page, so the last question just answers itself like the other four. */
   variant?: "guest" | "owner";
+  /** "split" is the landing page's FAQ (Almedin, 07.10.2026, Lovable reference):
+   *  the heading on the left, the accordion on the right, on the white page.
+   *  The default stays the narrow centred column the owner page keeps. */
+  layout?: "centered" | "split";
 }
 
-const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp, variant = "guest" }: FAQProps = {}) => {
+const FAQ = ({
+  eyebrow: eyebrowProp,
+  heading: headingProp,
+  variant = "guest",
+  layout = "centered",
+}: FAQProps = {}) => {
   const { t, language } = useLocale();
+  const split = layout === "split";
   const isOwner = variant === "owner";
   const items = isOwner ? OWNER_FAQ_ITEMS : FAQ_ITEMS;
   const keyPrefix = isOwner ? "faq-owner" : "faq";
@@ -148,7 +159,7 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp, variant = "guest" }: 
   );
 
   useEffect(() => {
-    if (eyebrowProp === undefined) setEyebrow(t("faq-eyebrow"));
+    setEyebrow(eyebrowProp ?? t("faq-eyebrow"));
     if (headingProp === undefined) setHeading(t(isOwner ? "faq-owner-heading" : "faq-heading"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, isOwner]);
@@ -157,9 +168,15 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp, variant = "guest" }: 
     // size="lg" only for the owner page (Almedin, 02.10.2026, see
     // TheSystem.tsx's note) — the guest landing page's FAQ wasn't part of
     // that comparison and keeps its existing "md" rhythm unchanged.
-    <Section id="faq" size={isOwner ? "lg" : "md"} containerClassName="max-w-[820px] mx-auto">
-      <Stack gap="sm">
-        <div className="space-y-sm">
+    <Section
+      id="faq"
+      size={isOwner ? "lg" : "md"}
+      containerClassName={split ? undefined : "max-w-[820px] mx-auto"}
+    >
+      {/* Split: a 4 / 7 column grid instead of one stacked column. Plain div,
+          not Stack — Stack is a vertical rhythm helper and this is a grid. */}
+      <Stack gap="sm" className={split ? "md:grid md:grid-cols-12 md:items-start md:gap-x-10 md:gap-y-0" : undefined}>
+        <div className={cn("space-y-sm", split && "md:col-span-4")}>
           {eyebrow && (
             <EditableText
               id="faq-eyebrow"
@@ -176,7 +193,7 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp, variant = "guest" }: 
             value={heading}
             onChange={setHeading}
             as="h2"
-            className="t-section text-foreground mb-[26px]"
+            className={cn("text-foreground", split ? "t-chapter mt-4" : "t-section mb-[26px]")}
           >
             {heading}
           </EditableText>
@@ -191,7 +208,11 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp, variant = "guest" }: 
             because that wrapper hard-codes a rotating chevron; the a11y and
             the open/close animation come from Radix and the keyframes in
             tailwind.config.ts either way. */}
-        <AccordionPrimitive.Root type="single" collapsible className="w-full">
+        <AccordionPrimitive.Root
+          type="single"
+          collapsible
+          className={cn("w-full", split && "md:col-span-7 md:col-start-6 md:!mt-0")}
+        >
           {items.map((_item, index) => {
             // Only the guest set's last item crosses over to the owner page
             // — an owner reading OWNER_FAQ_ITEMS is already there.
@@ -204,9 +225,12 @@ const FAQ = ({ eyebrow: eyebrowProp, heading: headingProp, variant = "guest" }: 
             >
               <AccordionPrimitive.Header>
                 <AccordionPrimitive.Trigger
-                  className="group flex w-full items-center justify-between gap-6 py-[22px] text-left"
+                  className={cn(
+                    "group flex w-full items-center justify-between gap-6 text-left",
+                    split ? "py-6" : "py-[22px]"
+                  )}
                 >
-                  <span className="t-item text-[18px] text-foreground">
+                  <span className={cn("text-foreground", split ? "t-block md:text-[1.25rem]" : "t-item text-[18px]")}>
                     {t(`${keyPrefix}-q-${index}` as TranslationKey)}
                   </span>
                   {/* A genuine glyph swap, not a rotating chevron — Plus and

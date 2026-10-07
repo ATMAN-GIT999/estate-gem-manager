@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
 import CollectionTabs from "@/components/CollectionTabs";
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import EditableText from "@/components/admin/EditableText";
-import { Grid, Section } from "@/components/layout";
+import { Section } from "@/components/layout";
 import { useLocale } from "@/contexts/LocaleContext";
 import { cn } from "@/lib/utils";
 import {
@@ -18,28 +17,28 @@ import {
 } from "@/lib/homeCollections";
 
 /**
- * "Our homes" — one tabbed row, paged with arrows.
+ * "Our homes" — the region tabs above one editorial grid of six.
  *
- * Three horizontal rails showed nine cropped cards and made the section the
- * tallest thing on the page; the tabs show three whole ones at a time and put
- * the choice where a guest actually makes it — the region first, the house
- * second. Arrows page through the rest of that region's homes without leaving
- * the landing page (Almedin, 26.09.2026): the row used to stop at the first
- * three, so a guest who liked the Costa del Sol had to go to /properties to
- * see the fourth.
+ * Rebuilt on the Lovable landing reference (Almedin, 07.10.2026): one big
+ * feature card, two beside it, three underneath, no frames on the photographs.
+ * It replaces the three-up carousel, which showed three whole cards at a time.
+ * The carousel's one real job — letting a guest page through a region's homes
+ * without leaving the landing page (Almedin, 26.09.2026) — is kept as paging in
+ * steps of six: arrows next to the "See all" link, shown only when a region
+ * holds more than one page.
  *
  * Which house belongs to which tab lives in src/lib/homeCollections.ts, shared
  * with the filter on /properties.
  */
+
+const PAGE_SIZE = 6;
 
 const PropertyCollections = () => {
   const { t, language } = useLocale();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<CollectionId>("costa");
-  const [api, setApi] = useState<CarouselApi>();
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
+  const [page, setPage] = useState(0);
 
   const [heading, setHeading] = useState(t("trio-heading"));
   const [viewAllText, setViewAllText] = useState(t("collections-view-all"));
@@ -95,122 +94,91 @@ const PropertyCollections = () => {
   const current = visibleTabs.some((tab) => tab.id === active) ? active : visibleTabs[0]?.id ?? "costa";
   const shown = byTab[current];
 
-  // Arrow state follows the carousel. The carousel is remounted per tab (see
-  // `key` below), so this re-subscribes to a fresh api on every switch.
-  useEffect(() => {
-    if (!api) return;
-    const sync = () => {
-      setCanPrev(api.canScrollPrev());
-      setCanNext(api.canScrollNext());
-    };
-    sync();
-    api.on("select", sync);
-    api.on("reInit", sync);
-    return () => {
-      api.off("select", sync);
-      api.off("reInit", sync);
-    };
-  }, [api]);
+  const pageCount = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const visible = shown.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+  const [feature, ...rest] = visible;
+
+  // A short page cannot use the 7 + 5 + 4×3 composition without leaving holes
+  // in it: one home stands alone at feature width, two split the row evenly.
+  const sides = visible.length >= 3 ? rest.slice(0, 2) : [];
+  const stacked = visible.length >= 3 ? rest.slice(2) : rest;
 
   return (
     <Section id="stays" size="md">
-      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 mb-lg">
+      <div className="flex flex-col justify-between gap-8 border-b border-border pb-8 md:flex-row md:items-end">
         {/* Links to /vacation-rentals (Almedin, 04.10.2026) — the heading
             doubles as a second way into the same destination the "View all"
             link below already opens. */}
-        <Link to="/vacation-rentals" className="group">
-          <EditableText
-            id="trio-heading"
-            value={heading}
-            onChange={setHeading}
-            as="h2"
-            className="t-section text-foreground transition-colors group-hover:text-accent-strong"
-          >
-            {heading}
-          </EditableText>
-        </Link>
+        <div>
+          <p className="t-tag text-accent-strong">{t("eyebrow-collection")}</p>
+          <Link to="/vacation-rentals" className="group mt-4 block">
+            <EditableText
+              id="trio-heading"
+              value={heading}
+              onChange={setHeading}
+              as="h2"
+              className="t-feature text-foreground transition-colors group-hover:text-accent-strong"
+            >
+              {heading}
+            </EditableText>
+          </Link>
+        </div>
 
-        <CollectionTabs<CollectionId> tabs={visibleTabs} current={current} onSelect={setActive} />
+        <CollectionTabs<CollectionId>
+          variant="boxed"
+          tabs={visibleTabs}
+          current={current}
+          onSelect={(id) => {
+            setActive(id);
+            setPage(0);
+          }}
+        />
       </div>
 
       {loading ? (
-        <Grid cols={3} gap="md">
+        <div className="mt-lg grid gap-6 md:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <div key={i} className="space-y-3">
-              <Skeleton className="aspect-[3/4] w-full" />
+              <Skeleton className="aspect-[4/3] w-full" />
               <Skeleton className="h-5 w-3/4" />
               <Skeleton className="h-4 w-1/2" />
             </div>
           ))}
-        </Grid>
+        </div>
       ) : (
-        /* A carousel, not a grid: the arrows appear only when the tab holds
-           more homes than fit in one view. Vienna and Carinthia hold one or
-           two, and a three-column grid would strand those against the left
-           edge — so a short row is centred instead, which at three items
-           lands on exactly the same column widths.
-
-           Below `lg` the arrows sit under the row; from `lg` they move out
-           into the page gutter (74px+ there), at the height of the photograph
-           rather than of the whole card. Not on the photograph itself: each
-           card already has its own photo arrows there, and two pairs on one
-           image would read as one control. */
-        <div className="relative">
-          <Carousel
-            key={current}
-            setApi={setApi}
-            opts={{ align: "start", slidesToScroll: "auto", containScroll: "trimSnaps" }}
-          >
-            <CarouselContent
+        <div className="mt-lg grid gap-6 md:grid-cols-12 md:gap-y-10">
+          {feature && (
+            <div
               className={cn(
-                "-ml-[var(--space-md)]",
-                shown.length < 3 && "sm:justify-center",
-                shown.length < 2 && "justify-center"
+                visible.length === 2 ? "md:col-span-6" : "md:col-span-7",
+                visible.length >= 3 && "md:row-span-2 md:pr-6"
               )}
             >
-              {shown.map((property) => (
-                <CarouselItem
-                  key={property.id}
-                  className="pl-[var(--space-md)] basis-full sm:basis-1/2 lg:basis-1/3"
-                >
-                  <PropertyCard property={property} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-
-          {(canPrev || canNext) && (
-            <div className="mt-md flex justify-center gap-3 lg:mt-0 lg:contents">
-              {([-1, 1] as const).map((delta) => (
-                <button
-                  key={delta}
-                  type="button"
-                  onClick={() => (delta === -1 ? api?.scrollPrev() : api?.scrollNext())}
-                  disabled={delta === -1 ? !canPrev : !canNext}
-                  aria-label={delta === -1 ? "Previous homes" : "Next homes"}
-                  className={cn(
-                    "h-11 w-11 rounded-full border border-border bg-background text-foreground",
-                    "inline-flex items-center justify-center transition-colors",
-                    "hover:border-accent-strong hover:text-accent-strong",
-                    "disabled:opacity-30 disabled:pointer-events-none",
-                    "lg:absolute lg:top-[38%] lg:-translate-y-1/2",
-                    delta === -1 ? "lg:-left-14" : "lg:-right-14"
-                  )}
-                >
-                  {delta === -1 ? (
-                    <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
-                  ) : (
-                    <ChevronRight className="h-5 w-5" strokeWidth={1.5} />
-                  )}
-                </button>
+              <PropertyCard property={feature} variant={visible.length === 2 ? "stacked" : "feature"} />
+            </div>
+          )}
+          {/* One column spanning both rows, not two grid cells: as separate
+              cells each card sat at the top of its own half of the feature's
+              height and left a hole between them. `justify-between` pins the
+              first card to the feature's top edge and the second to its bottom. */}
+          {sides.length > 0 && (
+            <div className="flex flex-col justify-between gap-6 md:col-span-5 md:row-span-2">
+              {sides.map((property) => (
+                <PropertyCard key={property.id} property={property} variant="row" />
               ))}
             </div>
           )}
+          {stacked.map((property) => (
+            <div key={property.id} className={visible.length === 2 ? "md:col-span-6" : "md:col-span-4"}>
+              <PropertyCard property={property} variant="stacked" />
+            </div>
+          ))}
         </div>
       )}
 
-      <div className="mt-lg text-center">
-        <Link to="/properties" className="cta-link">
+      <div className="mt-lg flex flex-wrap items-center justify-between gap-6">
+        <Link to="/properties" className="group t-block inline-flex items-center gap-3 text-foreground">
           <EditableText
             id="collections-view-all"
             value={viewAllText}
@@ -218,9 +186,33 @@ const PropertyCollections = () => {
             as="span"
           >
             {viewAllText}
-          </EditableText>{" "}
-          →
+          </EditableText>
+          <ArrowRight
+            className="h-5 w-5 transition-transform group-hover:translate-x-1"
+            strokeWidth={1.5}
+          />
         </Link>
+
+        {pageCount > 1 && (
+          <div className="flex gap-2">
+            {([-1, 1] as const).map((delta) => (
+              <button
+                key={delta}
+                type="button"
+                onClick={() => setPage(currentPage + delta)}
+                disabled={delta === -1 ? currentPage === 0 : currentPage === pageCount - 1}
+                aria-label={delta === -1 ? "Previous homes" : "Next homes"}
+                className="inline-flex h-11 w-11 items-center justify-center border border-foreground text-foreground transition-colors hover:bg-foreground hover:text-background disabled:pointer-events-none disabled:opacity-30"
+              >
+                {delta === -1 ? (
+                  <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
+                ) : (
+                  <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </Section>
   );

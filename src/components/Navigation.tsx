@@ -10,8 +10,8 @@ import { useLocale } from "@/contexts/LocaleContext";
 import { AUSTRIA_DESTINATIONS, SPAIN_DESTINATIONS, type Destination } from "@/lib/destinations";
 import { WINTER_RENTALS_PATH, WINTER_RENTAL_CITIES, wrKey, type WinterRentalCity } from "@/lib/winterRentals";
 import villaHigueron from "@/assets/wf-villa-higueron.webp";
-import frontierIcon from "@/assets/frontier-icon.png";
-import frontierIconBeige from "@/assets/frontier-icon-beige.png";
+import frontierLockup from "@/assets/frontier-lockup.svg";
+import frontierLockupBeige from "@/assets/frontier-lockup-beige.svg";
 
 /**
  * The header has three states, and only three — there is no in-between.
@@ -30,6 +30,11 @@ import frontierIconBeige from "@/assets/frontier-icon-beige.png";
  *
  * Croatia deliberately does not appear in the panel: it is not an inventory
  * market, only a target market on /investments (docs/PROJECT.md §1).
+ *
+ * Logo left, links right (Almedin, 07.10.2026, matching the Lovable landing
+ * reference) with the typed wordmark lockup from the brand folder instead of
+ * the centred monogram: the green lockup on white, the all-beige one while the
+ * bar floats over a hero.
  */
 
 interface NavigationProps {
@@ -37,28 +42,46 @@ interface NavigationProps {
   variant?: "default" | "propertyManagement";
   /**
    * Sit transparently on top of a full-bleed hero instead of opening solid
-   * white. Only the two pages that open on a hero pass this.
+   * white. Only the pages that open on a hero pass this.
    */
   overlay?: boolean;
   /**
-   * The badge's letters are sage-green — fine on white, but low-contrast
-   * wherever the transparent bar floats over something busy or green itself:
-   * `/` (video) and `/property-management` (`OwnerHero`'s solid green fill)
-   * both pass this (Almedin, 29.09.2026). Swaps in the all-beige badge only
-   * while still floating (`overlay && !solid`); once scrolled solid, or on a
-   * page that never passes this at all (a plain photo hero has enough of its
-   * own darkening — see `.overlay-media` — for the regular badge to read),
-   * the regular one is back.
+   * Kept for call-site compatibility. The lockup's green letters vanish on any
+   * dark photo or on the owner page's green fill, so the beige lockup now
+   * replaces the green one for EVERY floating bar (`overlay && !solid`), not
+   * only where this was passed — a regular lockup over a darkened photo was the
+   * one case the old monogram could get away with and the wordmark cannot.
    */
   logoOnDark?: boolean;
+  /**
+   * Slide away while the visitor scrolls down and come back — white — on the
+   * first upward scroll (Almedin, 07.10.2026). Opt-in and only passed by `/`:
+   * /properties parks a sticky filter strip directly under this bar, and a bar
+   * that leaves would strand that strip with a gap above it.
+   */
+  hideOnScroll?: boolean;
 }
+
+/** Scroll depth after which a hide-on-scroll bar may leave. Below it the bar is
+ *  still over the hero, where leaving would only flicker. */
+const HIDE_AFTER = 120;
+/** Scroll depth at which a hide-on-scroll bar stops being transparent. Small on
+ *  purpose: it only ever shows below this line after an upward scroll, and a
+ *  transparent bar over page content would be unreadable. */
+const SOLID_AT = 24;
 
 const SPAIN = SPAIN_DESTINATIONS;
 const AUSTRIA = AUSTRIA_DESTINATIONS;
 
-const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }: NavigationProps) => {
+const Navigation = ({
+  variant = "default",
+  overlay = false,
+  logoOnDark = false,
+  hideOnScroll = false,
+}: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [scrolledDown, setScrolledDown] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -67,11 +90,27 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
 
   useEffect(() => {
     if (!overlay) return;
-    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.6);
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (!hideOnScroll) {
+        setScrolled(y > window.innerHeight * 0.6);
+        return;
+      }
+      setScrolled(y > SOLID_AT);
+      // Direction is read off a few pixels of travel, not every event: trackpad
+      // inertia and iOS rubber-banding fire tiny opposite-signed deltas that
+      // would make the bar flicker. `lastY` only advances once the threshold is
+      // crossed, so a slow scroll still accumulates into a direction.
+      const delta = y - lastY;
+      if (Math.abs(delta) < 4) return;
+      setScrolledDown(delta > 0 && y > HIDE_AFTER);
+      lastY = y;
+    };
     onScroll(); // a reload part-way down the page must not start transparent
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [overlay]);
+  }, [overlay, hideOnScroll]);
 
   // The panel is a sheet, not a dropdown — clicking anywhere else closes it.
   useEffect(() => {
@@ -91,6 +130,9 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
   // State 2 whenever the bar is not floating over a hero, or once the page has
   // scrolled, or while either overlay (mobile menu / destinations) is open.
   const solid = !overlay || scrolled || isOpen || panelOpen;
+  // Never hide a bar whose menu or destinations sheet is open — they hang off
+  // it and would vanish under the visitor's cursor.
+  const offscreen = hideOnScroll && scrolledDown && !isOpen && !panelOpen;
 
   const [listYourHome, setListYourHome] = useState(t("nav-list-your-home"));
   const [destinationsLabel, setDestinationsLabel] = useState(t("nav-destinations"));
@@ -146,19 +188,36 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
   return (
     <nav
       ref={panelRef}
+      // Tabbing into a bar that has slid away would focus something the
+      // visitor cannot see — bringing it back is the only sane answer.
+      onFocusCapture={() => setScrolledDown(false)}
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
-        solid ? "bg-background border-b border-border" : "bg-transparent"
+        "fixed top-0 left-0 right-0 z-50 transition-[transform,background-color] duration-300 motion-reduce:transition-none",
+        solid ? "bg-background border-b border-border" : "bg-transparent",
+        offscreen && "-translate-y-full"
       )}
     >
       <Container>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-20 gap-4">
-          {/* Left — destinations panel trigger and the owner entry point. */}
-          <div className="hidden lg:flex items-center gap-7 whitespace-nowrap">
+        <div className="flex items-center justify-between h-20 gap-4">
+          {/* Left — the wordmark lockup. Green on white; all-beige while the
+              bar floats over a hero (see `logoOnDark` above). The two SVGs are
+              cropped to their artwork, so the height alone sets the size. */}
+          <Link to="/" className="shrink-0 transition-opacity hover:opacity-80">
+            <img
+              src={overlay && !solid ? frontierLockupBeige : frontierLockup}
+              alt="Frontier Residences"
+              width={566}
+              height={179}
+              className="h-10 sm:h-12 w-auto"
+            />
+          </Link>
+
+          {/* Right — destinations, owner entry, utilities, the one filled action. */}
+          <div className="flex items-center gap-4 lg:gap-7 whitespace-nowrap">
             <button
               type="button"
               onClick={() => setPanelOpen((v) => !v)}
-              className={cn(linkClass, "inline-flex items-center gap-1.5")}
+              className={cn(linkClass, "hidden lg:inline-flex items-center gap-1.5")}
               aria-expanded={panelOpen}
             >
               <EditableText
@@ -175,7 +234,7 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
               />
             </button>
 
-            <Link to="/property-management" className={linkClass}>
+            <Link to="/property-management" className={cn(linkClass, "hidden lg:inline")}>
               <EditableText
                 id="nav-list-your-home"
                 value={listYourHome}
@@ -185,45 +244,6 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
                 {listYourHome}
               </EditableText>
             </Link>
-          </div>
-
-          {/* Mobile menu button sits where the left column is on desktop. */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className={cn("lg:hidden justify-self-start p-2", solid ? "text-foreground" : "text-white")}
-            aria-label="Menu"
-          >
-            {isOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
-
-          {/* Centre — the monogram badge, trying out for the typed wordmark
-              (Almedin, 29.09.2026). The PNG's own ring and letters are the
-              only opaque pixels in it — no card behind them — so unlike the
-              text this mostly no longer needs the transparent/solid colour
-              swap: beige ring and sage-green letters read on white (state
-              2/3) fine. The one exception is `logoOnDark`, see the prop doc
-              above — an all-beige badge swaps in while still transparent. */}
-          <Link to="/" className="justify-self-center transition-opacity hover:opacity-80">
-            <img
-              src={logoOnDark && !solid ? frontierIconBeige : frontierIcon}
-              alt="Frontier Residences"
-              width={1736}
-              height={2670}
-              className="h-[52px] w-auto"
-            />
-          </Link>
-
-          {/* Right — utilities and the one filled action. */}
-          <div className="justify-self-end flex items-center gap-4 whitespace-nowrap">
-            <Link
-              to={user ? authDestination : "/auth"}
-              className={cn(linkClass, "hidden lg:inline-flex items-center")}
-              aria-label={user ? authLabel : signInLabel}
-            >
-              <Heart className="h-4 w-4" strokeWidth={1.5} />
-            </Link>
-
-            <span className={cn("hidden lg:block h-4 w-px", solid ? "bg-border" : "bg-white/30")} />
 
             <div className="hidden lg:block">
               <LanguageCurrencySwitcher
@@ -234,7 +254,17 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
               />
             </div>
 
-            <Link to="/properties" className="cta-base cta-primary h-10 px-5 text-[0.9375rem]">
+            <Link
+              to={user ? authDestination : "/auth"}
+              className={cn(linkClass, "hidden lg:inline-flex items-center")}
+              aria-label={user ? authLabel : signInLabel}
+            >
+              <Heart className="h-4 w-4" strokeWidth={1.5} />
+            </Link>
+
+            {/* Square, no arrow — the landing reference's button, and the only
+                gold fill in the bar. */}
+            <Link to="/properties" className="cta-base cta-primary cta-square h-10 px-5 text-[0.9375rem]">
               <EditableText
                 id="nav-book-stay-cta"
                 value={bookAStayLabel}
@@ -243,8 +273,17 @@ const Navigation = ({ variant = "default", overlay = false, logoOnDark = false }
               >
                 {bookAStayLabel}
               </EditableText>
-              <ArrowRight className="h-4 w-4 hidden sm:block" strokeWidth={2} />
             </Link>
+
+            {/* Mobile menu button — after the CTA now that the logo owns the
+                left edge. */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className={cn("lg:hidden p-2 -mr-2", solid ? "text-foreground" : "text-white")}
+              aria-label="Menu"
+            >
+              {isOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
       </Container>
