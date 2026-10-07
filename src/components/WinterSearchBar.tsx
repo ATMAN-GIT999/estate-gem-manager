@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format, startOfDay } from "date-fns";
-import { ArrowRight, CalendarIcon } from "lucide-react";
+import { ArrowRight, CalendarIcon, ChevronDown, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -37,7 +37,14 @@ const fieldLabel = "block t-tag text-accent-strong mb-1";
 const WinterSearchBar = ({ place, moveInDate, onPlaceChange, onMoveInChange, onSearch }: WinterSearchBarProps) => {
   const { t } = useLocale();
   const [dateOpen, setDateOpen] = useState(false);
+  const [placeOpen, setPlaceOpen] = useState(false);
   const today = startOfDay(new Date());
+
+  const cityOptions = WINTER_RENTAL_CITIES.map((city) => ({
+    slug: city.slug,
+    label: t(wrKey(city.slug, "name")),
+  }));
+  const placeLabel = cityOptions.find((c) => c.slug === place)?.label ?? t("wr-search-place-any");
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -47,21 +54,50 @@ const WinterSearchBar = ({ place, moveInDate, onPlaceChange, onMoveInChange, onS
   return (
     <div className="relative z-30 mx-auto w-full max-w-[560px] overflow-visible rounded-2xl border border-border bg-background p-1.5 text-left shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.2)] md:rounded-full">
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-0">
+        {/* A popover list, not a native <select>: the browser's own dropdown
+            ignores the site's fonts, colours and rounded corners, so it read
+            as a different control from the landing page's place field
+            (Almedin, 07.10.2026). Same panel and rows as LocationAutocomplete
+            — but a closed choice (five places, plus "all"), so there is no
+            text input to type into. */}
         <div className={cn("relative flex-1", fieldPad, fieldDivider)}>
           <span className={fieldLabel}>{t("wr-search-place-label")}</span>
-          <select
-            value={place}
-            onChange={(e) => onPlaceChange(e.target.value as WinterRentalCity["slug"] | "")}
-            aria-label={t("wr-search-place-label")}
-            className="w-full appearance-none border-0 bg-transparent p-0 text-[15px] text-foreground focus:outline-none focus-visible:ring-0"
-          >
-            <option value="">{t("wr-search-place-any")}</option>
-            {WINTER_RENTAL_CITIES.map((city) => (
-              <option key={city.slug} value={city.slug}>
-                {t(wrKey(city.slug, "name"))}
-              </option>
-            ))}
-          </select>
+          <Popover open={placeOpen} onOpenChange={setPlaceOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                aria-label={t("wr-search-place-label")}
+                className={cn(triggerClass, "flex w-full items-center gap-1.5 text-[15px] text-foreground")}
+              >
+                <span className="truncate">{placeLabel}</span>
+                <ChevronDown
+                  className={cn(
+                    "ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform",
+                    placeOpen && "rotate-180"
+                  )}
+                />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="z-[70] w-max min-w-[240px] max-w-xs p-0 max-h-60 overflow-auto" align="start" sideOffset={8}>
+              {[{ slug: "" as const, label: t("wr-search-place-any") }, ...cityOptions].map((option) => (
+                <button
+                  key={option.slug || "all"}
+                  type="button"
+                  onClick={() => {
+                    onPlaceChange(option.slug);
+                    setPlaceOpen(false);
+                  }}
+                  className={cn(
+                    "w-full px-4 py-3 text-left hover:bg-muted transition-colors border-b border-border last:border-b-0 flex items-center gap-2",
+                    option.slug === place && "bg-muted"
+                  )}
+                >
+                  <MapPin className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-sm text-foreground">{option.label}</span>
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className={cn("relative flex-1", fieldPad)}>
@@ -76,8 +112,11 @@ const WinterSearchBar = ({ place, moveInDate, onPlaceChange, onMoveInChange, onS
               </Button>
             </PopoverTrigger>
             <PopoverContent className="z-[70] w-auto p-0" align="start">
+              {/* Two months side by side, as on the landing page's bar —
+                  Calendar stacks them on a phone by itself. */}
               <Calendar
                 mode="single"
+                numberOfMonths={2}
                 selected={moveInDate}
                 onSelect={(date) => {
                   onMoveInChange(date);
