@@ -62,6 +62,105 @@ interface PropertyAnalysis {
   marketInsights: string;
 }
 
+/** Claude's structured outputs (output_config.format) guarantee that the reply
+ *  parses and carries every field below, which is why the prompt no longer
+ *  needs to spell out a JSON template. Why not a forced tool call: the docs
+ *  list tool_choice "tool"/"any" as unsupported on Sonnet 5.5 and name
+ *  structured outputs as the replacement.
+ *
+ *  Constraints worth knowing before editing this: every object needs
+ *  `additionalProperties: false`, and min/max-style keywords are not
+ *  supported — so "exactly 12 months" and "whole-number occupancy" can only
+ *  live in the prompt, not here. Keep this in sync with PropertyAnalysis above
+ *  and with the interface in src/pages/Evaluate.tsx. */
+const ANTHROPIC_MODEL = "claude-sonnet-5-5";
+
+const num = { type: "number" } as const;
+const str = { type: "string" } as const;
+
+const seasonSchema = {
+  type: "object",
+  properties: { period: str, occupancy: num, nightlyRate: num, monthlyIncome: num },
+  required: ["period", "occupancy", "nightlyRate", "monthlyIncome"],
+  additionalProperties: false,
+} as const;
+
+const priceRangeSchema = {
+  type: "object",
+  properties: { min: num, max: num },
+  required: ["min", "max"],
+  additionalProperties: false,
+} as const;
+
+const ANALYSIS_SCHEMA = {
+  type: "object",
+  properties: {
+    monthlyIncome: num,
+    annualRevenue: num,
+    occupancyRate: num,
+    peakSeason: seasonSchema,
+    midSeason: seasonSchema,
+    lowSeason: seasonSchema,
+    monthlyData: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { month: str, revenue: num, occupancy: num },
+        required: ["month", "revenue", "occupancy"],
+        additionalProperties: false,
+      },
+    },
+    rentalRates: {
+      type: "object",
+      properties: { low: priceRangeSchema, mid: priceRangeSchema, high: priceRangeSchema },
+      required: ["low", "mid", "high"],
+      additionalProperties: false,
+    },
+    expenses: {
+      type: "object",
+      properties: {
+        cleaning: num,
+        maintenance: num,
+        utilities: num,
+        insurance: num,
+        platformFees: num,
+        management: num,
+        total: num,
+      },
+      required: ["cleaning", "maintenance", "utilities", "insurance", "platformFees", "management", "total"],
+      additionalProperties: false,
+    },
+    longTermRental: {
+      type: "object",
+      properties: { monthlyRent: num, annualIncome: num, occupancyRate: num },
+      required: ["monthlyRent", "annualIncome", "occupancyRate"],
+      additionalProperties: false,
+    },
+    comparison: {
+      type: "object",
+      properties: { shortTermAnnual: num, longTermAnnual: num, recommendation: str },
+      required: ["shortTermAnnual", "longTermAnnual", "recommendation"],
+      additionalProperties: false,
+    },
+    marketInsights: str,
+  },
+  required: [
+    "monthlyIncome",
+    "annualRevenue",
+    "occupancyRate",
+    "peakSeason",
+    "midSeason",
+    "lowSeason",
+    "monthlyData",
+    "rentalRates",
+    "expenses",
+    "longTermRental",
+    "comparison",
+    "marketInsights",
+  ],
+  additionalProperties: false,
+} as const;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -121,7 +220,7 @@ Deno.serve(async (req) => {
     }
 
     // Counts against the limit from here — a request that passed validation
-    // and is about to spend a Gemini call, whether or not Gemini itself
+    // and is about to spend a Claude call, whether or not Claude itself
     // then succeeds. Not awaited: a slow insert must not delay the analysis
     // the visitor is actually waiting for, and losing a rate-limit row to a
     // rare failure just makes the limit trivially generous, never unsafe.
@@ -129,10 +228,10 @@ Deno.serve(async (req) => {
       ({ error }) => { if (error) console.error("Rate limit insert failed:", error); }
     );
 
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
-    if (!GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY is not configured");
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error("ANTHROPIC_API_KEY is not configured");
     }
 
     console.log("Analyzing property:", JSON.stringify(propertyData));
@@ -174,31 +273,36 @@ Property:
 
 IMPORTANT: Consider the guest capacity when calculating rates. Properties that can host more guests typically achieve higher nightly rates.
 
-Return this exact JSON structure with realistic EUR values. ALL OCCUPANCY RATES MUST BE WHOLE NUMBERS (e.g., 70 for 70%, NOT 0.7):
-{"monthlyIncome":number,"annualRevenue":number,"occupancyRate":number,"peakSeason":{"period":"Jun-Aug","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"midSeason":{"period":"Apr-May, Sep-Oct","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"lowSeason":{"period":"Nov-Mar","occupancy":number,"nightlyRate":number,"monthlyIncome":number},"monthlyData":[{"month":"Jan","revenue":number,"occupancy":number},{"month":"Feb","revenue":number,"occupancy":number},{"month":"Mar","revenue":number,"occupancy":number},{"month":"Apr","revenue":number,"occupancy":number},{"month":"May","revenue":number,"occupancy":number},{"month":"Jun","revenue":number,"occupancy":number},{"month":"Jul","revenue":number,"occupancy":number},{"month":"Aug","revenue":number,"occupancy":number},{"month":"Sep","revenue":number,"occupancy":number},{"month":"Oct","revenue":number,"occupancy":number},{"month":"Nov","revenue":number,"occupancy":number},{"month":"Dec","revenue":number,"occupancy":number}],"rentalRates":{"low":{"min":number,"max":number},"mid":{"min":number,"max":number},"high":{"min":number,"max":number}},"expenses":{"cleaning":number,"maintenance":number,"utilities":number,"insurance":number,"platformFees":number,"management":number,"total":number},"longTermRental":{"monthlyRent":number,"annualIncome":number,"occupancyRate":number},"comparison":{"shortTermAnnual":number,"longTermAnnual":number,"recommendation":"string"},"marketInsights":"string"}`;
+Fill every field of the structured result with realistic EUR values. monthlyData must contain exactly 12 entries, in the order Jan to Dec. ALL OCCUPANCY RATES MUST BE WHOLE NUMBERS (e.g., 70 for 70%, NOT 0.7). Season periods: peakSeason "Jun-Aug", midSeason "Apr-May, Sep-Oct", lowSeason "Nov-Mar".`;
 
-    // Direct Gemini REST call — the previous version routed through Lovable's
-    // AI Gateway, a "seamless" (zero-config) Lovable integration whose key is
-    // auto-provisioned only when Lovable itself deploys the function. Since
-    // this project is deployed independently now, that key was never set and
-    // never will be through normal means — a real Gemini key from Google AI
-    // Studio replaces it (docs/DECISIONS.md, "Weg 2").
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          generationConfig: { responseMimeType: "application/json" },
-        }),
+    // Direct Anthropic Messages API call, no SDK — keeps the Deno function
+    // dependency-free, the same approach the Gemini version took. The
+    // temperature parameter is deliberately not sent: newest Claude models
+    // are steered by the prompt, and the docs call it less commonly used.
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
       },
-    );
+      body: JSON.stringify({
+        model: ANTHROPIC_MODEL,
+        // The full result is roughly 2k tokens; 4096 leaves headroom so a
+        // long marketInsights text cannot cut the JSON off mid-object.
+        max_tokens: 4096,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }],
+        output_config: { format: { type: "json_schema", schema: ANALYSIS_SCHEMA } },
+      }),
+      // Give up before the platform's own wall-clock limit does, so the
+      // visitor gets our error message instead of a gateway timeout.
+      signal: AbortSignal.timeout(90_000),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Gemini API error:", response.status, errorText);
+      console.error("Anthropic API error:", response.status, errorText);
 
       if (response.status === 429) {
         return new Response(
@@ -206,31 +310,42 @@ Return this exact JSON structure with realistic EUR values. ALL OCCUPANCY RATES 
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      throw new Error(`AI API error: ${response.status} - ${errorText}`);
+      if (response.status === 529) {
+        // Anthropic's "overloaded" status — temporary, worth a retry.
+        return new Response(
+          JSON.stringify({ error: "The analysis service is busy right now, please try again in a few minutes." }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      // The provider's response body stays in the log — this message reaches
+      // the visitor, and an error body can name keys, models or account state.
+      throw new Error(`AI API error: ${response.status}`);
     }
 
     const data = await response.json();
     console.log("AI response received");
 
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    // Structured outputs only guarantee the schema for a finished answer:
+    // "max_tokens" cuts the JSON off mid-object and "refusal" may not match
+    // the schema at all. Neither is worth parsing.
+    if (data.stop_reason === "max_tokens" || data.stop_reason === "refusal") {
+      console.error("Unusable AI response, stop_reason:", data.stop_reason);
+      throw new Error("The analysis could not be completed, please try again.");
+    }
+
+    const content = Array.isArray(data.content)
+      ? data.content.find((block: { type: string }) => block.type === "text")?.text
+      : undefined;
     if (!content) {
       throw new Error("No content in AI response");
     }
 
     let analysis: PropertyAnalysis;
     try {
-      // Try direct parse first
       analysis = JSON.parse(content);
     } catch (parseError) {
-      // Try to extract JSON from markdown code blocks or text
-      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const jsonStr = jsonMatch[1] || jsonMatch[0];
-        analysis = JSON.parse(jsonStr);
-      } else {
-        console.error("Failed to parse AI response:", content);
-        throw new Error("Invalid JSON in AI response");
-      }
+      console.error("Failed to parse AI response:", content);
+      throw new Error("Invalid JSON in AI response");
     }
 
     console.log("Parsed analysis successfully");
