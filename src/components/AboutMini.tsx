@@ -9,7 +9,7 @@ import teamLorenz from "@/assets/team-lorenz.webp";
 import teamJulien from "@/assets/team-julien.webp";
 
 /**
- * Three faces, three languages, and the one thing an owner is actually asking:
+ * Three faces, four languages, and the one thing an owner is actually asking:
  * is there a person behind this.
  *
  * Fixed-width cards, centred, rather than three columns stretched across the
