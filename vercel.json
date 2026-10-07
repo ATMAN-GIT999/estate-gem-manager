@@ -1,7 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
-    { "source": "/business-areas", "destination": "/property-management", "permanent": true }
+    { "source": "/business-areas", "destination": "/property-management", "permanent": true },
+    { "source": "/about", "destination": "/", "permanent": true },
+    { "source": "/book", "destination": "/properties", "permanent": true }
   ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }

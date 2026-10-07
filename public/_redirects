@@ -6,6 +6,14 @@
 # matching rule.
 /business-areas    /property-management   301
 
+# /about became a client-side <Navigate> to / on 29.09.2026 and /book (the old
+# "Book Your Perfect Stay" page) no longer has a route at all. Google still
+# lists both as sitelinks under the brand name with the old generic snippet;
+# only a real 301 tells it to drop them, where the client-side redirect looks
+# to a crawler like a live page and the unrouted /book like a soft 404.
+/about    /               301
+/book     /properties     301
+
 # Property pages moved from the Guesty-derived slug to Frontier's own
 # `seo_slug` on 25.09.2026 (src/lib/propertyUrl.ts). 301 so a search engine
 # moves any ranking over to the new address instead of seeing two pages.
