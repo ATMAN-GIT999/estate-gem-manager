@@ -20,7 +20,16 @@ import { useLocale } from "@/contexts/LocaleContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTrackEvent } from "@/hooks/use-track-event";
 
-const PropertyEvaluator = () => {
+interface PropertyEvaluatorProps {
+  /**
+   * `h1` only where this form *is* the page (/evaluate). On the landing page
+   * it is one section among several and the page already has its own h1 — two
+   * would be as wrong as none, which is what /evaluate had until now.
+   */
+  headingAs?: "h1" | "h2";
+}
+
+const PropertyEvaluator = ({ headingAs = "h2" }: PropertyEvaluatorProps) => {
   const [loading, setLoading] = useState(false);
   const [showCustomSize, setShowCustomSize] = useState(false);
   const [formData, setFormData] = useState({
@@ -118,7 +127,7 @@ const PropertyEvaluator = () => {
               id="pe-section-title"
               value={sectionTitle}
               onChange={setSectionTitle}
-              as="h2"
+              as={headingAs}
               className="t-section text-primary mb-4"
             >
               {sectionTitle}

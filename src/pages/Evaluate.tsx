@@ -186,7 +186,7 @@ const EvaluateContent = () => {
           takes over. */}
       {!propertyData ? (
         <main className="pt-24">
-          <PropertyEvaluator />
+          <PropertyEvaluator headingAs="h1" />
         </main>
       ) : (
       <Section size="lg" className="pt-24 bg-background">

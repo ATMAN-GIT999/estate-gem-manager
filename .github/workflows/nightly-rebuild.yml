@@ -1,0 +1,30 @@
+# Rebuilds and redeploys the site every night, and on demand.
+#
+# Why this exists: the pages are saved as static HTML at build time
+# (scripts/prerender.mjs), so what a crawler reads is only as fresh as the last
+# build. Property data changes in Supabase without a commit — a Guesty import,
+# a status change — and without this nothing would trigger a new build.
+#
+# Needs one repository secret, NETLIFY_BUILD_HOOK: the URL from Netlify →
+# Site configuration → Build & deploy → Build hooks (production branch).
+# Actions → "Nightly rebuild" → Run workflow does the same thing by hand.
+name: Nightly rebuild
+
+on:
+  schedule:
+    - cron: "0 4 * * *" # 04:00 UTC
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Netlify build hook
+        env:
+          HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "Repository secret NETLIFY_BUILD_HOOK is not set." >&2
+            exit 1
+          fi
+          curl --fail --silent --show-error -X POST -d '{}' "$HOOK"

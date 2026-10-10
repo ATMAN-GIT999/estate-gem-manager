@@ -2663,3 +2663,103 @@ beschreibt, keine Historie.
 **Verifikation:** `tsc`, Build und `eslint` sauber, keine neuen Befunde
 gegenüber dem vorherigen Stand.
 
+
+---
+
+## 59 · Prerendering: jede indexierbare Seite wird beim Build als HTML gespeichert
+
+**Ausgangslage (geprüft am 09.10.2026):** Der Quelltext von
+`/vacation-rentals/malaga` war 2.912 Bytes — der generische Startseiten-Title,
+kein `<h1>`, keine Canonical, kein `og:title`, nur `<div id="root"></div>`.
+Google rendert JavaScript und kommt damit zurecht; WhatsApp, LinkedIn,
+Facebook und die meisten KI-Crawler tun es nicht und sahen auf allen 47
+Adressen dieselbe leere Seite. Gehostet wird auf Netlify (PROJECT.md §3),
+nicht „offen" wie §55 noch schrieb.
+
+**Entscheidung (Almedin, 10.10.2026): Variante A.** Ein Schritt nach
+`vite build` + Sitemap öffnet jede Sitemap-Route in Headless-Chromium
+(Playwright) und speichert das Ergebnis als `dist/<route>.html`.
+
+**Verworfen:**
+
+| Variante | Warum nicht |
+|---|---|
+| `vite-react-ssg` | Verlangt den Umbau von `App.tsx`, `lazy()`-Admin, den Contexts (`localStorage`, `window`) und der datengetriebenen Routen. Viel Risiko an einer Seite mit echten Zahlungen, für dasselbe Ergebnis. |
+| Prerender-Dienst nur für Bots | Laufende Kosten, und Bots sähen etwas anderes als Menschen — dieselbe Frage, die man später bei jedem Fehler stellen müsste. |
+
+### Entscheidungen im Detail, die man nicht „aufräumen" soll
+
+- **Die Routenliste ist `dist/sitemap.xml`, keine zweite Liste.** Eine Seite
+  wird genau dann gespeichert, wenn sie Suchmaschinen angeboten wird. Was
+  `noindex` ist, steht nicht in der Sitemap und bleibt SPA.
+- **Alle Edge-Function-Aufrufe werden im Build abgebrochen**, vor allem
+  `guesty-*`. Jede Objektseite fragt beim Laden den Kalender an; Guesty erlaubt
+  nur 3 Tokens / 24 h, und rund 40 Seiten pro Build plus der nächtliche
+  wären genau der Weg, das Kontingent zu verbrennen. Beim Test blieb der Zähler
+  deshalb auf 0: auch die App selbst feuert im Snapshot nichts (siehe nächster
+  Punkt).
+- **`AvailabilityCalendar` ruft im Snapshot nichts auf und zeigt keinen
+  Kalender** (`isPrerendering()`, `src/lib/prerender.ts`). Sonst stünde
+  „Live availability is temporarily unavailable" in der gespeicherten Seite —
+  oder, schlimmer, ein Monatsraster, in dem jeder Tag „verfügbar" ist. Das ist
+  eine Anzeigekomponente; Buchungs-, Quote- und Zahlungsfluss sind unverändert.
+- **Die App hydriert nicht (`createRoot` bleibt).** `hydrateRoot` würde an den
+  datenabhängigen Teilen (Karten, die der Client erst nach der Supabase-Antwort
+  kennt) mit Hydration-Fehlern scheitern. Stattdessen liegt die gespeicherte
+  Seite in einem eigenen `<div id="prerendered">` **über** dem leeren `#root`
+  und wird entfernt, sobald die Live-App einen `<h1>` gezeichnet hat und 250 ms
+  lang kein DOM mehr geändert wurde (Obergrenze 4 s). Läge der Snapshot im
+  `#root`, wäre die Seite beim ersten React-Commit kurz leer — schlechter als
+  heute.
+- **`PageTransition` überspringt den Einblend-Effekt auf der ersten Seite**,
+  wenn ein Snapshot da ist. Sonst blendete der Übergang genau im Moment der
+  Übergabe die schon sichtbare Seite von null ein.
+- **Das Cookie-Banner wird aus dem Snapshot entfernt, die Einwilligung wird
+  nicht vorab gesetzt.** Vorab gesetzt, würde der Build `page_view`-Einträge
+  in Supabase schreiben.
+- **`app-shell.html`**: `index.html` ist nach dem Prerender die Startseite. Die
+  Catch-all-Regel in `_redirects` zeigt deshalb auf eine unveränderte Kopie der
+  Vite-Hülle. Würde jemand sie auf `index.html` zurückstellen, bekäme `/auth`
+  die Startseite als Vorschau und React müsste sie ersetzen.
+- **Plausibilitätsprüfung pro Seite:** Eine Listenseite wird nur gespeichert,
+  wenn sie mindestens einen Objekt-Link enthält (und nie mit Spinner,
+  `noindex` oder falscher Canonical). Ohne das würde ein Supabase-Aussetzer
+  als „keine Objekte in Málaga" gespeichert und bis zum nächsten Build an jeden
+  Crawler ausgeliefert.
+- **Ausfall wird gemeldet, blockiert aber keinen Production-Deploy.**
+  Produktion fällt auf die reine SPA zurück; Deploy-Previews und Branch-Deploys
+  laufen mit `PRERENDER_STRICT=1` und scheitern sichtbar (`netlify.toml`).
+- **Dateiform `<route>.html`** statt `<route>/index.html`: Netlify leitet ein
+  Verzeichnis meist auf `/…/` um, und die Canonical hat keinen Slash. Per
+  `PRERENDER_FORM=dir` umschaltbar, falls der Netlify-Test das Gegenteil zeigt.
+
+### Beim Bau gefunden und behoben
+
+`/evaluate` hatte im Eingabezustand **gar keine `<h1>`** — die Überschrift des
+Formulars war ein `h2`, der `h1` existierte nur in der Ergebnisansicht.
+`PropertyEvaluator` bekam `headingAs`; nur `/evaluate` setzt `h1`, auf `/` und
+der Eigentümerseite bleibt es `h2`.
+
+### Offen, nicht verifiziert
+
+- **Chromium im Netlify-Build.** Lokal 47/47 Seiten, strikt, ohne einen
+  Edge-Function-Aufruf. Auf Netlify noch nie gelaufen — die Forenberichte
+  sind gemischt. Der Test ist der erste Branch-Deploy (PROJECT.md B8).
+  Scheitert er, ist der Ausweg ein Build per GitHub Action mit Deploy an
+  Netlify; das wäre ein Eingriff in den Deploy-Weg und braucht eine eigene
+  Absprache.
+- **URL-Form auf Netlify** (200 statt Redirect für `/…/malaga`).
+- **`bun.lock` / `bun.lockb`** liegen noch im Repo (Lovable-Altlast). Der
+  Build-Befehl führt deshalb `npm ci` explizit aus. Löschen wäre sauberer —
+  nicht ungefragt getan.
+- **Aktualität:** Der Nightly-Workflow braucht einen Netlify-Build-Hook als
+  GitHub-Secret `NETLIFY_BUILD_HOOK`. Ein Datenbank-Webhook bei Änderungen
+  an `properties`, `midterm_listings` und `blog_posts` kommt später, wenn das
+  Journal Inhalte bekommt.
+
+**Verifikation:** `tsc` sauber; `npm run build` mit `PRERENDER_STRICT=1`
+47/47; die gespeicherten Seiten ohne JS geholt (Title, `<h1>`, ein
+`og:title`, eine Description, Canonical, kein Cookie-Banner, kein
+Fehlertext); im Browser: Übergabe erfolgt, keine doppelten Head-Tags, keine
+Konsolenfehler, Cookie-Banner erscheint danach. Unbekannte URLs bekommen die
+leere Hülle. Nicht geprüft: Netlify selbst, mobile Breite des Snapshots.

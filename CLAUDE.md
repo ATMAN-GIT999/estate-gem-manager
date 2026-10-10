@@ -43,7 +43,7 @@ Paketmanager ist **npm**.
 
 ```bash
 npm run dev      # Dev-Server auf Port 8080
-npm run build    # Vite-Build + scripts/generate-sitemap.mjs
+npm run build    # Vite-Build + Sitemap + Prerender (Chromium nötig, siehe README)
 npm run lint     # ESLint
 npx tsc --noEmit # Typprüfung (läuft NICHT automatisch im Build)
 ```

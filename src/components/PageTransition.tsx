@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
+import { PRERENDERED_ID } from "@/lib/prerender";
 
 /**
  * A quick fade + rise on every route change, so clicking through the site
@@ -25,8 +26,22 @@ import { useLocation } from "react-router-dom";
  */
 const PageTransition = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
+
+  // On a prerendered page the visitor is already looking at the saved copy
+  // (src/lib/prerender.ts) while the live app draws itself underneath. Fading
+  // that copy in from zero would make the page blink right as it is handed
+  // over, so the *first* page skips the entrance. Every later navigation
+  // animates as before.
+  const landing = useRef({
+    path: pathname,
+    skip: document.getElementById(PRERENDERED_ID) !== null,
+  });
+  if (landing.current.skip && pathname !== landing.current.path) {
+    landing.current.skip = false;
+  }
+
   return (
-    <div key={pathname} className="animate-page-in">
+    <div key={pathname} className={landing.current.skip ? undefined : "animate-page-in"}>
       {children}
     </div>
   );

@@ -51,4 +51,12 @@
 # any route but "/" 404s at the host instead of reaching React at all.
 # Netlify and Cloudflare Pages both read this exact file/syntax; see
 # vercel.json for the equivalent rule if the project ever serves from Vercel.
-/*    /index.html   200
+#
+# The target is app-shell.html, not index.html, on purpose: the build
+# (scripts/prerender.mjs) overwrites index.html with the rendered home page,
+# and an unknown route — /auth, /admin, a typo — must get the *empty* shell,
+# not a copy of the home page that React then has to replace. app-shell.html
+# is a byte-for-byte copy of Vite's own index.html, made by that same script.
+# A real file always wins over this rule, which is also how the prerendered
+# pages (dist/<route>.html) are served without being listed here.
+/*    /app-shell.html   200

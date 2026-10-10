@@ -33,7 +33,7 @@ Paketmanager ist **npm**.
 ```bash
 npm install
 npm run dev      # Dev-Server auf Port 8080
-npm run build    # Vite-Build + scripts/generate-sitemap.mjs
+npm run build    # Vite-Build + Sitemap + Prerender (braucht Chromium: npx playwright install --only-shell chromium)
 npm run lint     # ESLint
 npx tsc --noEmit # Typprüfung (läuft nicht automatisch im Build)
 ```
@@ -62,6 +62,7 @@ supabase/
 └── migrations/         nicht ungefragt auf die Live-DB anwenden
 
 scripts/generate-sitemap.mjs   läuft im Build, Slugs live aus Supabase
+scripts/prerender.mjs          läuft danach, speichert jede Sitemap-Route als fertiges HTML
 docs/                          siehe Tabelle oben
 ```
 

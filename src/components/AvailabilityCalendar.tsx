@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { isPrerendering } from "@/lib/prerender";
 
 interface CalendarDay {
   date: string;
@@ -55,6 +56,10 @@ const AvailabilityCalendar = ({
 
   useEffect(() => {
     if (!listingId) return;
+    // The build-time snapshot blocks every Guesty call (scripts/prerender.mjs),
+    // so fetching here would only bake "Live availability is temporarily
+    // unavailable" into the saved page.
+    if (isPrerendering()) return;
 
     // Always keep the cache extending forward from today, in 12-month chunks.
     // We only fetch when the currently visible window (month .. month + months + 1)
@@ -241,6 +246,11 @@ const AvailabilityCalendar = ({
     }
     return sum;
     }, [range, days, fallbackNightlyRate]);
+
+  // In the saved copy this would be a month grid with every day "available" —
+  // a claim nobody checked. Leave the space instead, so the page does not jump
+  // when the live calendar takes over.
+  if (isPrerendering()) return <div aria-hidden="true" className="min-h-[22rem]" />;
 
   return (
     <div className="space-y-3">

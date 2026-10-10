@@ -1,0 +1,28 @@
+# Build settings used to live only in the Netlify dashboard, where nothing in
+# the repo could see them. They are here now so the build is reproducible and a
+# change to it shows up in git. Redirects stay in public/_redirects.
+
+[build]
+  # `npm ci` explicitly: the repo still carries bun.lock/bun.lockb from the
+  # Lovable days, and Netlify picks its installer from whichever lockfile it
+  # finds — playwright is only in package-lock.json.
+  # Chromium is installed here, not in a postinstall hook, so a build that
+  # only needs the Vite output does not have to download it.
+  command = "npm ci && npx playwright install --only-shell chromium && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Puts the browser inside node_modules, which Netlify caches between builds,
+  # instead of a home directory that is gone after every build.
+  PLAYWRIGHT_BROWSERS_PATH = "0"
+
+# A prerender problem must not take down a production deploy that fixes
+# something else (scripts/prerender.mjs) — production degrades to the plain
+# SPA and says so in the log. Previews fail instead, so a broken prerender
+# shows up *before* it reaches main.
+[context.deploy-preview.environment]
+  PRERENDER_STRICT = "1"
+
+[context.branch-deploy.environment]
+  PRERENDER_STRICT = "1"
