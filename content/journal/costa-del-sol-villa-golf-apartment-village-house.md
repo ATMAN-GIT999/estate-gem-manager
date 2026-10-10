@@ -1,7 +1,7 @@
 ---
 title: Villa, golf apartment or village home?
 description: Between Fuengirola and Marbella we manage four kinds of home: a gated villa with its own pool, a golf apartment, a village house, an apartment near the beaches.
-date: 2026-10-22
+date: 2026-10-10
 status: published
 places: [fuengirola, marbella]
 properties: [fuengirola-the-one-higueron, fuengirola-higueron-infinity-villa, marbella-los-flamingos-golf-retreat, marbella-los-flamingos-hideaway, fuengirola-calahonda-oaks-and-thistle, marbella-casa-heredia, marbella-los-monteros-retreat]

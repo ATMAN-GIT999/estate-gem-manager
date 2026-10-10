@@ -1,7 +1,7 @@
 ---
 title: Which alpine lodge suits your group?
 description: Five lodges on one estate in Carinthia's Gerlitzen Alps. Which Lima Alpine Lodge fits a group of six, eight or twelve, and which one starts at the ski slope.
-date: 2026-10-29
+date: 2026-10-10
 status: published
 places: [carinthia]
 properties: [carinthia-lima-almhaus-gertraud, carinthia-lima-almhaus-theresia, carinthia-lima-troadkasten-lisa, carinthia-lima-troadkasten-matthias, carinthia-lima-almhaus-petra]

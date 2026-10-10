@@ -1,7 +1,7 @@
 ---
 title: Málaga: stay in Soho or on the beach?
 description: City break or beach holiday? How our Soho apartments, the quiet streets north of the old town and the first-line flats in Torremolinos differ, and who each suits.
-date: 2026-10-15
+date: 2026-10-10
 status: published
 places: [malaga]
 properties: [malaga-soho-art-experience, malaga-soho-alameda-art-district, malaga-native-quarter-centro, malaga-centro-studio, malaga-torremolinos-first-line-beach-apartment, malaga-torremolinos-playa-mar-ground-floor, malaga-torremolinos-sol-arena-y-mar-studio]

@@ -2825,6 +2825,13 @@ gelöscht (Entscheidung steht aus).
   Artikel wird **nicht** gerendert; `#` im Text wird als `h2` gesetzt, weil die
   Seite ihren einen `h1` schon hat.
 
+### Dev-Server: Aktualisierung unter Windows
+
+Das Vite-Plugin verglich Pfade mit Backslashes gegen die Slash-Pfade des
+Watchers, deshalb wurden neue und geänderte Artikel im laufenden Dev-Server
+nie nachgeladen (im Build und in Produktion nicht betroffen). Behoben am
+10.10.2026; Test: Datum geändert → Modul aktualisiert → zurückgesetzt.
+
 ### Warnungen, die nicht blockieren
 
 Titel über 60 Zeichen mit Marke, Description außerhalb von 120–165 Zeichen,
@@ -2849,23 +2856,30 @@ weniger als 300 Wörter („mehr als eine Keyword-Seite?").
 
 ### Offen
 
-- **Die ersten drei Artikel stehen (10.10.2026), `status: published`, aber
-  datiert in der Zukunft** — sie erscheinen gestaffelt per nächtlichem Build:
-  15.10. *Málaga: stay in Soho or on the beach?*, 22.10. *Villa, golf apartment
-  or village home?*, 29.10. *Which alpine lodge suits your group?*. Bis zum
-  15.10. ist das Journal unsichtbar (noindex, keine Sitemap, kein Footer-Link);
-  das schaltet sich am Morgen des ersten Datums von selbst ein. Fakten stammen
+- **Sechs Artikel (Stand 10.10.2026).** Drei sind seit dem 10.10. live:
+  *Málaga: stay in Soho or on the beach?*, *Villa, golf apartment or village
+  home?*, *Which alpine lodge suits your group?*. Drei weitere sind
+  `status: published`, aber datiert und erscheinen im Wochenrhythmus per
+  nächtlichem Build (04:00 UTC): 17.10. *Vienna: Landstraße or Ottakring?*,
+  24.10. *Group stays: homes for 7 to 12 guests*, 31.10. *THE ONE or the
+  infinity-pool villa?*. **Almedin hat die Reihenfolge freigegeben, die
+  letzten drei aber noch nicht gegengelesen** — vor dem 17.10. lesen (lokal
+  als „Vorschau“ sichtbar) oder per `status: draft` anhalten. Fakten stammen
   ausschließlich aus Guesty-Beschreibungen, Ausstattungslisten und den
   belegten Ortstexten (translations.ts, `vr-*`); Fotos aus den Galerien der
   verlinkten Objekte, in `public/journal/`. **Frontier sollte gegenlesen:**
-  Parkplatz bei Playa Mar und Los Flamingos, „Haustiere erlaubt“ bei allen
-  fünf Lodges, 1.670 m bei Gertraud/Theresia, „kein Pool“ bei Los Monteros.
+  Parkplatz bei Playa Mar, Los Flamingos, THE ONE und der Infinity-Villa;
+  „Haustiere erlaubt“ bei allen fünf Lodges; 1.670 m bei Gertraud/Theresia;
+  „kein Pool“ bei Los Monteros; der Garagenplatz in Ottakring (der Tagespreis
+  steht nur in der Guesty-Beschreibung, im Artikel bewusst ohne Zahl); Anzahl
+  Bäder und Schlafplätze der Gruppen-Objekte.
   Die Kärnten-Fotos liegen in Guesty nur in 800–1200 px vor — Originale aus
   dem Drive-Ordner „Lima Alpine Lodges“ wären besser. Die Bilder der noch nicht
   erschienenen Artikel liegen im Build und sind über die exakte Adresse
   erreichbar.
   Weitere Themen und Texte sind Almedins Teil (SEO-Handoff, Nicht-Coding
-  Punkt 5); nächster Kandidat: Wien (Landstraße oder Ottakring).
+  Punkt 5). Eigentümer-/Investment-Themen brauchen seine Zahlen und
+  Aussagen; Gäste-Themen mit belegten Daten sind weitgehend abgedeckt.
 - **Stufe B, automatische Entwürfe** (n8n + Claude → Pull Request → Vorschau →
   Freigabe) — eigener Auftrag.
 - **`/journal`-Texte** (`journal-lead`, `journal-seo-description`) sind

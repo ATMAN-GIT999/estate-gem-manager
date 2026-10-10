@@ -16,7 +16,6 @@
  * them.
  */
 import { readJournal, readJournalBody } from "./journal.mjs";
-import { sep } from "node:path";
 
 const LIST = "virtual:journal";
 const BODY_PREFIX = "virtual:journal-body/";
@@ -56,10 +55,15 @@ export default function journalPlugin() {
 
     // New, edited or deleted article → rebuild the list and reload the page.
     configureServer(server) {
-      const dir = `${server.config.root}${sep}content${sep}journal`;
+      // Vite hands the watcher forward-slash paths even on Windows, so compare
+      // in that form. Building the directory with the OS separator made every
+      // `startsWith` below fail there, and the article list never refreshed
+      // while the dev server was running.
+      const slashed = (p) => p.replace(/\\/g, "/");
+      const dir = `${slashed(server.config.root)}/content/journal`;
       server.watcher.add(dir);
       const refresh = (file) => {
-        if (!file.startsWith(dir)) return;
+        if (!slashed(file).startsWith(dir)) return;
         for (const id of server.moduleGraph.idToModuleMap.keys()) {
           if (id.includes("virtual:journal")) {
             const mod = server.moduleGraph.getModuleById(id);
