@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Instagram } from "lucide-react";
+import { journalArticles } from "virtual:journal";
 import EditableText from "./admin/EditableText";
 import { Container } from "./layout";
 import { BUSINESS } from "@/lib/siteMeta";
@@ -70,6 +71,10 @@ const Footer = () => {
   ];
 
   const companyLinks = [
+    // Only once there is something behind it — see pages/Journal.tsx.
+    ...(journalArticles.some((a) => a.live)
+      ? [{ label: t("journal-nav-label"), to: "/journal" }]
+      : []),
     { label: t("footer-projects-link"), to: "/projects" },
     { label: t("footer-aviso-legal-link"), to: "/aviso-legal" },
   ];

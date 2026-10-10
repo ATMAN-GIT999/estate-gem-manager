@@ -23,6 +23,13 @@ export const BUSINESS = {
   country: "ES",
 } as const;
 
+/**
+ * Who a Journal article is "by" when its front matter names nobody. The team,
+ * not a person: an invented byline would be a claim about a real individual.
+ * Name a real author per article (`author:`) once there is one to name.
+ */
+export const JOURNAL_AUTHOR = `${BUSINESS.name} Team`;
+
 export const DEFAULT_TITLE =
   "Frontier Residences | Luxury Property Management & Investment Services";
 export const DEFAULT_DESCRIPTION =

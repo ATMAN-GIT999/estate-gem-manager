@@ -104,6 +104,35 @@ export const breadcrumbSchema = (
   })),
 });
 
+/**
+ * A Journal article. `author` is a Person only when the article names one;
+ * otherwise the organisation itself — never an invented byline.
+ */
+export const articleSchema = (article: {
+  headline: string;
+  description: string;
+  path: string;
+  datePublished: string;
+  dateModified?: string | null;
+  authorName?: string | null;
+  /** Absolute URL */
+  image?: string | null;
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: article.headline,
+  description: article.description,
+  inLanguage: "en",
+  datePublished: article.datePublished,
+  dateModified: article.dateModified || article.datePublished,
+  mainEntityOfPage: { "@type": "WebPage", "@id": absoluteUrl(article.path) },
+  author: article.authorName
+    ? { "@type": "Person", name: article.authorName }
+    : { "@id": ORG_ID },
+  publisher: { "@id": ORG_ID },
+  ...(article.image ? { image: [article.image] } : {}),
+});
+
 interface PropertySchemaInput {
   name: string;
   /** The canonical route, from `propertyPath()` — never built from `slug` here. */

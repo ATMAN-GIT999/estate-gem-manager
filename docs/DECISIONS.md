@@ -2740,15 +2740,21 @@ Formulars war ein `h2`, der `h1` existierte nur in der Ergebnisansicht.
 `PropertyEvaluator` bekam `headingAs`; nur `/evaluate` setzt `h1`, auf `/` und
 der Eigentümerseite bleibt es `h2`.
 
-### Offen, nicht verifiziert
+### Auf Netlify bestätigt (10.10.2026)
 
-- **Chromium im Netlify-Build.** Lokal 47/47 Seiten, strikt, ohne einen
-  Edge-Function-Aufruf. Auf Netlify noch nie gelaufen — die Forenberichte
-  sind gemischt. Der Test ist der erste Branch-Deploy (PROJECT.md B8).
-  Scheitert er, ist der Ausweg ein Build per GitHub Action mit Deploy an
-  Netlify; das wäre ein Eingriff in den Deploy-Weg und braucht eine eigene
-  Absprache.
-- **URL-Form auf Netlify** (200 statt Redirect für `/…/malaga`).
+- **Chromium läuft im Netlify-Build.** Deploy von `f0538f3` (Kontext
+  `production`, 119 s, bereit): 48 erzeugte Seiten = 47 Routen plus
+  `app-shell.html`, 27 Weiterleitungsregeln ohne Fehler. Der Build-Befehl aus
+  `netlify.toml` (`npm ci` + `playwright install --only-shell chromium`)
+  hat funktioniert; die Sorge aus den Forenberichten hat sich hier nicht
+  bestätigt.
+- **URL-Form stimmt.** `/vacation-rentals/malaga` antwortet direkt mit 200 und
+  eigenem Inhalt, kein Redirect auf `/…/`; `PRERENDER_FORM=dir` wird nicht
+  gebraucht. Alte Guesty-Slugs antworten weiter mit 301, unbekannte URLs und
+  `/auth` bekommen die leere Hülle (HTTP 200, `<h1>` fehlt dort).
+
+### Offen
+
 - **`bun.lock` / `bun.lockb`** liegen noch im Repo (Lovable-Altlast). Der
   Build-Befehl führt deshalb `npm ci` explizit aus. Löschen wäre sauberer —
   nicht ungefragt getan.
@@ -2762,4 +2768,118 @@ der Eigentümerseite bleibt es `h2`.
 `og:title`, eine Description, Canonical, kein Cookie-Banner, kein
 Fehlertext); im Browser: Übergabe erfolgt, keine doppelten Head-Tags, keine
 Konsolenfehler, Cookie-Banner erscheint danach. Unbekannte URLs bekommen die
-leere Hülle. Nicht geprüft: Netlify selbst, mobile Breite des Snapshots.
+leere Hülle. Nicht geprüft: mobile Breite des Snapshots, und was Netlify im Build-Protokoll
+wörtlich ausgibt (die Schnittstelle liefert kein Protokoll, nur das Ergebnis).
+
+---
+
+## 60 · Journal: Artikel als Markdown-Dateien im Repo
+
+**Entscheidung (Almedin, 10.10.2026):** Das Journal liegt als Dateien im
+Repository, nicht in der Tabelle `blog_posts`. Geschrieben und veröffentlicht
+wird gemeinsam (Almedin und Claude); ein Editor im Browser für den Kunden ist
+nicht gewollt. Die Adresse ist `/journal` (docs/seo/struktur.md), nicht
+`/blog/…` wie im Platzhaltertext des alten Admin-Editors.
+
+**Warum nicht `blog_posts`:** Die Tabelle ist live leer (09.10.2026), der Editor
+speichert JSON-Blöcke ohne Felder für SEO-Description, Autor, Ort/Objekt-Pflicht
+oder Aktualisierungsdatum, und ein Beitrag wäre wegen des Prerenderings (§59)
+erst nach dem nächsten Build sichtbar. Dateien sind prüfbar, mit Verlauf und
+ohne eigenen Editor, der gepflegt werden müsste. `blog_posts` und der
+Admin-Editor bleiben unangetastet im Code — sie sind jetzt tot, nicht
+gelöscht (Entscheidung steht aus).
+
+### Wie es funktioniert
+
+- **Eine Datei = ein Artikel:** `content/journal/<url-slug>.md`, Kopf mit
+  `title`, `description`, `date` (Pflicht), `places` und/oder `properties`
+  (mindestens eins), optional `updated`, `author`, `status`, `image`/`imageAlt`.
+  Vorlage: `content/journal/_TEMPLATE.md` (Dateien mit `_` sind keine Artikel).
+- **Regeln stehen an einer Stelle:** `scripts/journal.mjs`, benutzt vom
+  Vite-Plugin (`scripts/vite-plugin-journal.mjs`) und von der Sitemap. Ein
+  Artikel, der eine Regel bricht (unbekannter Ort, kein Orts-/Objekt-Link,
+  Bild fehlt …), wird **weggelassen und gemeldet**, nie halb veröffentlicht;
+  in Previews (`JOURNAL_STRICT=1`) scheitert stattdessen der Build.
+- **Veröffentlicht ist, was `status` ≠ `draft` hat und dessen `date` heute oder
+  früher ist.** Ein Datum in der Zukunft erscheint dank des nächtlichen Builds
+  (PROJECT.md B8) von selbst am Morgen dieses Tages.
+- **Der Filter passiert beim Build, nicht im Browser** — als virtuelle Module
+  (`virtual:journal`, `virtual:journal-body/<slug>`) statt `import.meta.glob`.
+  Ein Glob hätte den Text eines geplanten Artikels in ein JavaScript-Paket
+  gelegt, das jeder Besucher vor dem Datum herunterladen kann. Geprüft:
+  Marker-Text eines zukünftigen und eines regelbrechenden Testartikels stand
+  in keiner Datei von `dist/`.
+- **Previews zeigen alles** (Entwürfe, Zukunftsdaten), markiert als Vorschau
+  und `noindex` (`JOURNAL_INCLUDE_UNPUBLISHED=1` in `netlify.toml`). Das ist
+  der Weg für die spätere automatische Entwurfs-Stufe: Entwurf als Pull
+  Request, Netlify baut die Vorschau, Almedin liest und mergt. **Nichts geht
+  ohne seine Freigabe live.**
+- **Prerender:** greift automatisch, weil er aus der Sitemap liest. Ein
+  Artikel wird nur gespeichert, wenn sein Text da ist (`article p`); beim
+  Laden zeigt die Seite einen Spinner, damit der Prerenderer nicht eine
+  Überschrift über leerer Seite festhält.
+- **Autor:** Standard „Frontier Residences Team" (`JOURNAL_AUTHOR` in
+  `siteMeta.ts`), im Schema die Organisation — kein erfundener Personenname.
+  Ein echter Autor wird pro Artikel mit `author:` gesetzt.
+- **Markdown-Darstellung:** `react-markdown` (neue Abhängigkeit), rohes HTML im
+  Artikel wird **nicht** gerendert; `#` im Text wird als `h2` gesetzt, weil die
+  Seite ihren einen `h1` schon hat.
+
+### Warnungen, die nicht blockieren
+
+Titel über 60 Zeichen mit Marke, Description außerhalb von 120–165 Zeichen,
+weniger als 300 Wörter („mehr als eine Keyword-Seite?").
+
+### Beim Bau gefunden
+
+- **`npx tsc --noEmit` prüft in diesem Projekt nichts** — die Wurzel-
+  `tsconfig.json` hat `"files": []` und nur `references`. Die echte Prüfung ist
+  `npx tsc -p tsconfig.app.json --noEmit`; sie zeigt 4 Altlast-Fehler
+  (`as="dt"`/`"dd"` in `GuestManagement.tsx`, `TrustBand.tsx`), die vor diesem
+  Auftrag schon da waren. Die „tsc sauber"-Angaben in §59 beruhten auf dem
+  leeren Befehl; die in §59 geänderten Dateien sind gegen das App-Projekt
+  nachgeprüft und ohne Befund.
+- **Doppelte Social-Tags im Snapshot:** `index.html` trägt Fallbacks
+  (`og:type`, `og:image`, `twitter:card` …), Helmet setzt die eigenen daneben;
+  ein Crawler, der den ersten liest, bekam für einen Artikel `og:type=website`.
+  Der Prerender behält jetzt pro Schlüssel nur den Helmet-Eintrag.
+- **Breadcrumb und Artikel müssen dieselbe linke Kante haben:**
+  `measure="text"` rückt die Spalte zentriert ein (dieselbe Falle wie in
+  `VacationRentals.tsx`), deshalb Standard-Breite mit innerem `max-w-3xl`.
+
+### Offen
+
+- **Die ersten drei Artikel stehen (10.10.2026), `status: published`, aber
+  datiert in der Zukunft** — sie erscheinen gestaffelt per nächtlichem Build:
+  15.10. *Málaga: stay in Soho or on the beach?*, 22.10. *Villa, golf apartment
+  or village home?*, 29.10. *Which alpine lodge suits your group?*. Bis zum
+  15.10. ist das Journal unsichtbar (noindex, keine Sitemap, kein Footer-Link);
+  das schaltet sich am Morgen des ersten Datums von selbst ein. Fakten stammen
+  ausschließlich aus Guesty-Beschreibungen, Ausstattungslisten und den
+  belegten Ortstexten (translations.ts, `vr-*`); Fotos aus den Galerien der
+  verlinkten Objekte, in `public/journal/`. **Frontier sollte gegenlesen:**
+  Parkplatz bei Playa Mar und Los Flamingos, „Haustiere erlaubt“ bei allen
+  fünf Lodges, 1.670 m bei Gertraud/Theresia, „kein Pool“ bei Los Monteros.
+  Die Kärnten-Fotos liegen in Guesty nur in 800–1200 px vor — Originale aus
+  dem Drive-Ordner „Lima Alpine Lodges“ wären besser. Die Bilder der noch nicht
+  erschienenen Artikel liegen im Build und sind über die exakte Adresse
+  erreichbar.
+  Weitere Themen und Texte sind Almedins Teil (SEO-Handoff, Nicht-Coding
+  Punkt 5); nächster Kandidat: Wien (Landstraße oder Ottakring).
+- **Stufe B, automatische Entwürfe** (n8n + Claude → Pull Request → Vorschau →
+  Freigabe) — eigener Auftrag.
+- **`/journal`-Texte** (`journal-lead`, `journal-seo-description`) sind
+  Platzhalter aus Almedins Themenliste; DE/ES maschinell, ungeprüft.
+- **Das Repository ist laut Netlify öffentlich:** ein Entwurf als Datei oder
+  Pull Request ist auf GitHub lesbar, auch wenn er nicht auf der Seite steht.
+- **`blog_posts` / `src/pages/admin/Blog.tsx`:** tot, nicht entfernt.
+- **Kein Bild-Workflow:** Bilder gehören nach `public/journal/`, werden
+  nicht automatisch optimiert.
+
+**Verifikation:** `tsc -p tsconfig.app.json` ohne neue Fehler; Build mit drei
+Testartikeln (live, zukünftig, regelbrechend): nur der live erschien in
+Sitemap, `dist/` und Prerender; ohne Artikel: kein Journal in Sitemap, kein
+Footer-Link, `/journal` zeigt den Leerzustand und ist `noindex`. Im Browser:
+Übergabe vom Snapshot, ein `h1`, Byline, Markdown, interne Links, Orts- und
+Objektblock, keine Konsolenfehler. Nicht geprüft: mobile Breite, ein Artikel
+mit Bild, der Netlify-Build selbst (noch nicht gepusht).

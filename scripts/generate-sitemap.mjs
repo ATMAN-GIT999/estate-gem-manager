@@ -14,6 +14,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readJournal } from "./journal.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -122,6 +123,23 @@ const entry = ({ path, priority, changefreq, lastmod }) =>
 
 const properties = await fetchPropertySlugs();
 const winter = await fetchWinterListings();
+
+// Only what is live today: the same call, with the same environment, that the
+// app's build makes (scripts/vite-plugin-journal.mjs), so the sitemap cannot
+// list an article the site does not have. The plugin has already reported any
+// problems; repeating them here would only double the log.
+const journal = readJournal({ report: () => {} }).articles.filter((a) => a.live);
+for (const article of journal) {
+  const known = new Set(properties.map((p) => p.seo_slug).filter(Boolean));
+  // `properties` is empty when Supabase was unreachable — then there is
+  // nothing to compare against, and a warning would be noise.
+  if (!known.size) break;
+  for (const home of article.properties) {
+    if (!known.has(home)) {
+      console.warn(`[sitemap] journal/${article.slug} links to "${home}", which is not an available home.`);
+    }
+  }
+}
 const winterCities = [...new Set(winter.map((w) => w.city_group))];
 
 const urls = [
@@ -137,6 +155,21 @@ const urls = [
       lastmod: p.updated_at ? p.updated_at.slice(0, 10) : today,
     }),
   ),
+  // The index page exists in the sitemap only with an article behind it, the
+  // same rule as an empty place page (docs/seo/struktur.md §11).
+  ...(journal.length
+    ? [
+        entry({ path: "/journal", priority: "0.7", changefreq: "weekly" }),
+        ...journal.map((a) =>
+          entry({
+            path: `/journal/${a.slug}`,
+            priority: "0.6",
+            changefreq: "monthly",
+            lastmod: a.updated || a.date,
+          }),
+        ),
+      ]
+    : []),
   ...(winter.length
     ? [
         entry({ path: "/winter-rentals", priority: "0.8", changefreq: "weekly" }),
@@ -164,5 +197,5 @@ ${urls.join("\n")}
 const outPath = resolve(root, "dist", "sitemap.xml");
 writeFileSync(outPath, xml, "utf8");
 console.log(
-  `[sitemap] ${urls.length} URLs written (${STATIC_ROUTES.length} static, ${properties.length} properties, ${winter.length} winter rentals).`,
+  `[sitemap] ${urls.length} URLs written (${STATIC_ROUTES.length} static, ${properties.length} properties, ${winter.length} winter rentals, ${journal.length} journal articles).`,
 );

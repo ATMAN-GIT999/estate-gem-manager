@@ -28,6 +28,8 @@ import WinterRentals from "./pages/WinterRentals";
 import WinterRentalCity from "./pages/WinterRentalCity";
 import WinterRentalDetail from "./pages/WinterRentalDetail";
 import VacationRentalCity from "./pages/VacationRentalCity";
+import Journal from "./pages/Journal";
+import JournalArticle from "./pages/JournalArticle";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import PropertyManagementPage from "./pages/PropertyManagementPage";
 import GuaranteedIncomePage from "./pages/GuaranteedIncomePage";
@@ -115,6 +117,8 @@ const App = () => (
             <Route path="/property/:slug" element={<PropertyDetail />} />
             <Route path="/vacation-rentals" element={<VacationRentals />} />
             <Route path="/vacation-rentals/:city" element={<VacationRentalCity />} />
+            <Route path="/journal" element={<Journal />} />
+            <Route path="/journal/:slug" element={<JournalArticle />} />
             <Route path="/winter-rentals" element={<WinterRentals />} />
             <Route path="/winter-rentals/:city" element={<WinterRentalCity />} />
             <Route path="/winter-rentals/:city/:slug" element={<WinterRentalDetail />} />

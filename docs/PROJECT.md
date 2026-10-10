@@ -50,6 +50,7 @@ Zielgruppenwechsel auf `/` passiert **genau einmal**, bei „Own a Property?".
 | `/properties` · `/property/:slug` · `/booking-confirmation` | Buchungsflow | Gast |
 | `/vacation-rentals` · `/vacation-rentals/:city` | Ortsseiten (seit 25.09.2026): Übersicht + fünf Orte `malaga` · `marbella` · `fuengirola` · `vienna` · `carinthia`, geladen über `city_group`. Konfiguration in `src/lib/vacationRentals.ts`; ein unbekannter Ort ist eine echte 404. Ortstexte nur aus Guesty-Daten und berechneten Luftlinien — Quelle im Kommentar über den `vr-*`-Schlüsseln in `translations.ts`. „6th floor Malaga Soho" (D9) ist dort bewusst ausgeblendet | Gast |
 | `/winter-rentals` · `/winter-rentals/:city` · `/winter-rentals/:city/:slug` | Winter-/Mittelfristmieten (Monatsmiete, seit 04.10.2026): Übersicht, Ort (`malaga` · `marbella` · `fuengirola` · `estepona`), Objekt. Daten aus der eigenen Tabelle `midterm_listings` (nicht `properties`), Konfiguration in `src/lib/winterRentals.ts`. Estepona gibt es **nur** hier, nicht bei den Ferienunterkünften. Anfrageformular auf der Objektseite → `midterm_requests`; Status pflegt Frontier unter `/admin/winter-rentals`. Kein Preis im Schema, keine Buchung/Zahlung auf der Seite — Frontier bestätigt, dann Stripe-Link von Hand (DECISIONS §56) | Gast |
+| `/journal` · `/journal/:slug` | Journal (seit 10.10.2026): ein Artikel pro Markdown-Datei in `content/journal/`, Regeln und Vorlage in `scripts/journal.mjs` / `_TEMPLATE.md`, DECISIONS §60. **Ohne veröffentlichten Artikel** ist `/journal` `noindex`, steht nicht in der Sitemap und nicht im Footer — das schaltet sich mit dem ersten Artikel von selbst ein | beide |
 | `/evaluate` | Cashflow-Analyse | Eigentümer |
 | `/about` · `/projects` | Vertrauen / Portfolio | beide |
 | `/projects/istria` | Case Study Istrien (`IstriaProject.tsx`): Vollbild-Hero, bewusst kurz — Umfang/Fotos/Zahlen fehlen, bis Almedin sie liefert. Ziel von „Explore the project“ auf `/property-management` | Eigentümer |
@@ -275,10 +276,13 @@ sind Altlast aus der Lovable-Zeit).
 npm run dev      # Dev-Server auf Port 8080
 npm run build    # Vite-Build + Sitemap + Prerender (Chromium nötig, siehe README)
 npm run lint     # ESLint
-npx tsc --noEmit # Typprüfung (läuft NICHT automatisch im Build)
+npx tsc -p tsconfig.app.json --noEmit # Typprüfung (läuft NICHT automatisch im Build)
 ```
 
-**Es gibt keine Tests.** Verifikation heißt hier: `npx tsc --noEmit`,
+**Es gibt keine Tests.** Verifikation heißt hier: `npx tsc -p tsconfig.app.json --noEmit`
+(ein nacktes `npx tsc --noEmit` prüft **nichts**, weil die Wurzel-`tsconfig.json`
+nur auf Unterprojekte verweist; 4 Altlast-Fehler in `GuestManagement.tsx` und
+`TrustBand.tsx` — `as="dt"`/`"dd"` — sind der Ausgangswert, entdeckt am 10.10.2026),
 `npm run build`, und die betroffene Seite im Dev-Server ansehen.
 
 `npm run lint` meldet **9 Altlast-Fehler** in `Properties.tsx` und
@@ -473,9 +477,9 @@ Umgesetzt und verifiziert:
 **Prerendering (seit 10.10.2026, DECISIONS §59):** WhatsApp, LinkedIn,
 Facebook und die meisten KI-Crawler führen kein JS aus. Sie bekommen jetzt pro
 Sitemap-Route ein fertiges HTML mit eigenem Title, Description, Canonical,
-og-Tags, Schema und `<h1>`. **Gilt erst, wenn der Netlify-Build es
-nachweislich erzeugt** — siehe B8; lokal ist es verifiziert, auf Netlify
-nicht.
+og-Tags, Schema und `<h1>`. **Live seit 10.10.2026** (Deploy von `f0538f3`,
+Build 119 s, 47 Seiten plus `app-shell.html`; Live-URLs per `curl` geprüft,
+siehe DECISIONS §59).
 
 **Grenzen, die bleiben:**
 
@@ -500,7 +504,7 @@ nicht.
 | B4 | **Material vom Besitzer:** Echte Vorher/Nachher-Fotos für die drei Case-Studies (Proof zeigt seit 19.08.2026 stattdessen jedes Objekts aktuelles Bestandsfoto aus dem Drive-Ordner „Listing Pictures" — kein Vorher/Nachher-Paar, siehe DECISIONS §14), Eigentümer-Testimonials. Der Cal.com-Link-Teil ist erledigt (DECISIONS §49) — nicht durch einen eigenen Cal.com-Account, sondern durch Entfernen: der zweite Button in `OwnerContactForm` führt jetzt auf WhatsApp statt auf Almedins persönlichen Cal.com-Link. |
 | ~~B5~~ | ~~Der PM-Hero läuft auf dem falschen Motiv~~ — **erledigt am 19.08.2026** (DECISIONS §17). `OwnerHero.tsx` zeigt jetzt ein eigenes, von Almedin per Drive-Link geliefertes Foto (`pmp-hero-villa-higueron.webp`, „Villa Higueron-11.jpg"), kein wiederverwendetes Karten-/Detailbild mehr. |
 | B6 | **`property-5.webp` (Bild hinter „Own a Property" auf `/`) hat keine bestätigte Herkunft.** Der Code ordnet es `villa-in-higueron` zu, aber das Motiv (beiges Sofa, gemusterte Tapete, klassisches TV-Sideboard) passt stilistisch nicht zu den bestätigten Villa-Higuerón-Fotos (durchgehend minimalistisch, Marmor, Glasfronten). Vermutlich eine falsche Lovable-Altlast. Wartet darauf, dass Almedin den richtigen Drive-Ordner nennt oder das Foto direkt liefert (DECISIONS §17). |
-| B8 | **Prerender live bringen** (DECISIONS §59). (1) Branch pushen und den Netlify-Branch-Deploy ansehen — Chromium im Netlify-Build ist **nicht** bewiesen, der Preview-Build läuft absichtlich strikt und scheitert sichtbar. Danach per `curl -I` prüfen, dass `/vacation-rentals/malaga` direkt mit 200 antwortet (kein Redirect auf `/…/`); sonst `PRERENDER_FORM=dir`. (2) Netlify → Build hooks einen Hook anlegen, die URL als GitHub-Secret `NETLIFY_BUILD_HOOK` hinterlegen — ohne das schlägt der nächtliche Workflow fehl. (3) Im Netlify-UI prüfen, ob dort ein eigener Build-Befehl steht; `netlify.toml` überschreibt ihn. |
+| ~~B8~~ | ~~Prerender live bringen und nächtlichen Rebuild einrichten~~ — **erledigt am 10.10.2026** (DECISIONS §59). Chromium läuft im Netlify-Build, `/vacation-rentals/malaga` antwortet direkt mit 200. Netlify-Build-Hook „Nightly rebuild" (Branch `main`) liegt als GitHub-Secret `NETLIFY_BUILD_HOOK`; der Workflow wurde von Hand gestartet und löste in Netlify den Deploy „Deploy triggered by hook: Nightly rebuild" aus (production, 74 s, bereit). Läuft ab jetzt täglich um 04:00 UTC. Fällt der Hook aus, schlägt der Workflow rot fehl — dann Adresse in Netlify neu anlegen und `gh secret set NETLIFY_BUILD_HOOK` neu setzen. |
 | B7 | **Winter-Rentals vor dem Go-live:** (1) ~~Zuordnung der 4 Guesty-Duplikate~~ — **erledigt am 04.10.2026** (DECISIONS §57): `apartment-soho`, `townhouse-higueron`, `semi-detached-la-quinta`, `semi-detached-capellania` sind an ihr Guesty-Haus verknüpft (`property_id`), tragen dessen echte Fotos und Beschreibung und sind **veröffentlicht**. Die restlichen 3 (`apartment-las-gaviotas`, `apartment-casasola`, `penthouse-los-alamos`) sind nicht in Guesty und bleiben unveröffentlicht, bis Frontier eigene Fotos und Texte liefert; (2) Web3Forms-Schlüssel mit `hello@frontier-residences.com` erzeugen (Bestätigungscode kommt an dieses Postfach), als `VITE_WEB3FORMS_ACCESS_KEY` in Netlify setzen, neu deployen — ohne ihn kommt keine Benachrichtigungsmail, Anfragen stehen nur in `/admin/winter-rentals`; (3) Antwortzeit-Versprechen („within one working day") bestätigen; (4) ~~Kaution, Kommission, Mindestaufenthalt~~ — **erledigt am 04.10.2026** (DECISIONS §57): alle 7 Objekte haben Kaution = Kommission = 1 Monatsmiete, Mindestaufenthalt = 1 Monat. Nebenkosten (`utilities_included`) bleibt offen, Almedin war sich selbst unsicher; (5) rechtlich: spanische Registrierungsnummer (fehlt auch bei den 4 verknüpften Objekten — identische Lücke wie bei den zugehörigen Guesty-Häusern), Mietvertrag, Stornobedingungen — vor dem endgültigen Go-live der ganzen Seitenschiene. |
 
 ### 🔴 Offen im Code

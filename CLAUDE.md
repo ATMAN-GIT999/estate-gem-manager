@@ -45,10 +45,13 @@ Paketmanager ist **npm**.
 npm run dev      # Dev-Server auf Port 8080
 npm run build    # Vite-Build + Sitemap + Prerender (Chromium nötig, siehe README)
 npm run lint     # ESLint
-npx tsc --noEmit # Typprüfung (läuft NICHT automatisch im Build)
+npx tsc -p tsconfig.app.json --noEmit # Typprüfung (läuft NICHT automatisch im Build)
 ```
 
-**Es gibt keine Tests.** Verifikation heißt: `npx tsc --noEmit`,
+**Es gibt keine Tests.** Verifikation heißt: `npx tsc -p tsconfig.app.json --noEmit`
+(die Wurzel-`tsconfig.json` verweist nur auf Unterprojekte — ein nacktes
+`npx tsc --noEmit` prüft **nichts**; 4 Altlast-Fehler in `GuestManagement.tsx`
+und `TrustBand.tsx` sind der Ausgangswert),
 `npm run build`, und die betroffene Seite im Dev-Server ansehen. Behaupte nie,
 etwas sei geprüft, wenn nur der Build durchgelaufen ist.
 

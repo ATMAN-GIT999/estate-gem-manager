@@ -57,6 +57,9 @@ const MUST_CONTAIN = [
   { test: (p) => /^\/vacation-rentals\/[^/]+$/.test(p), selector: 'a[href^="/property/"]' },
   { test: (p) => p === "/vacation-rentals", selector: 'a[href^="/vacation-rentals/"]' },
   { test: (p) => /^\/winter-rentals\/[^/]+$/.test(p), selector: 'a[href^="/winter-rentals/"]' },
+  { test: (p) => p === "/journal", selector: 'a[href^="/journal/"]' },
+  // An article saved before its text arrived is a headline over an empty page.
+  { test: (p) => /^\/journal\/[^/]+$/.test(p), selector: "article p" },
 ];
 
 const log = (msg) => console.log(`[prerender] ${msg}`);
@@ -263,11 +266,20 @@ async function renderRoute(path) {
           ?.closest('[role="region"]')
           ?.remove();
 
-        // index.html carries a generic description; Helmet adds the page's own
-        // beside it. Search engines should see one, and the right one.
-        const descriptions = [...document.head.querySelectorAll('meta[name="description"]')];
-        if (descriptions.length > 1) {
-          descriptions.filter((m) => !m.hasAttribute("data-rh")).forEach((m) => m.remove());
+        // index.html carries site-level fallbacks (description, og:type,
+        // og:image, twitter:card …) and Helmet adds the page's own beside
+        // them. A crawler that reads the first tag would get the fallback — for
+        // an article that is og:type "website". Keep only Helmet's where it
+        // set one; a tag only index.html has stays.
+        const byKey = new Map();
+        for (const meta of document.head.querySelectorAll("meta[name], meta[property]")) {
+          const key = meta.getAttribute("name") ?? meta.getAttribute("property");
+          byKey.set(key, [...(byKey.get(key) ?? []), meta]);
+        }
+        for (const metas of byKey.values()) {
+          if (metas.length > 1 && metas.some((m) => m.hasAttribute("data-rh"))) {
+            metas.filter((m) => !m.hasAttribute("data-rh")).forEach((m) => m.remove());
+          }
         }
 
         // The saved page goes *above* the empty #root, not inside it — see

@@ -21,8 +21,17 @@
 # something else (scripts/prerender.mjs) — production degrades to the plain
 # SPA and says so in the log. Previews fail instead, so a broken prerender
 # shows up *before* it reaches main.
+# JOURNAL_*: a preview also shows drafts and articles dated in the future (marked
+# as a preview, noindex), so a pull request that adds one can be read before it
+# goes live; production shows only what is published today. STRICT makes an
+# article that breaks a rule fail the preview instead of being left out quietly
+# (scripts/journal.mjs).
 [context.deploy-preview.environment]
   PRERENDER_STRICT = "1"
+  JOURNAL_STRICT = "1"
+  JOURNAL_INCLUDE_UNPUBLISHED = "1"
 
 [context.branch-deploy.environment]
   PRERENDER_STRICT = "1"
+  JOURNAL_STRICT = "1"
+  JOURNAL_INCLUDE_UNPUBLISHED = "1"
