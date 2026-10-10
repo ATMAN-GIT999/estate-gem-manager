@@ -77,10 +77,10 @@ const Journal = () => {
                   {article.image && (
                     <div className="aspect-[3/2] overflow-hidden bg-secondary">
                       <img
-                        src={article.image}
+                        src={article.cardImage ?? article.image}
                         alt={article.imageAlt ?? ""}
-                        width={900}
-                        height={600}
+                        width={720}
+                        height={480}
                         loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
@@ -94,8 +94,8 @@ const Journal = () => {
                       {" · "}
                       <time dateTime={article.date}>{formatJournalDate(article.date, language)}</time>
                     </p>
-                    <h2 className="t-card text-foreground mt-1">{article.title}</h2>
-                    <p className="t-body text-muted-foreground mt-1">{article.description}</p>
+                    <h2 className="t-card text-foreground mt-2">{article.title}</h2>
+                    <p className="t-body text-muted-foreground mt-3">{article.description}</p>
                     {!article.live && (
                       <p className="t-meta text-muted-foreground mt-2">{t("journal-preview-note")}</p>
                     )}

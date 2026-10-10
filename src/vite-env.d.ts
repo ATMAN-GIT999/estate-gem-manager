@@ -20,6 +20,8 @@ declare module "virtual:journal" {
     properties: string[];
     /** Path under public/, e.g. /journal/x.webp */
     image: string | null;
+    /** 720 px version for lists (`x-card.webp`), else the same as `image` */
+    cardImage: string | null;
     imageAlt: string | null;
     /** false = a draft or a future date, shown only as a preview */
     live: boolean;

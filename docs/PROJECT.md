@@ -78,34 +78,22 @@ seither, was die Seite wirklich setzt.
 |---|---|---|
 | 1 | `Navigation` | — |
 | 2 | `Hero` (enthält `SearchBar`) | Gast |
-| 3 | `Stats heading=""` — nur die Zahlen, **ohne** Überschrift | Gast |
-| 4 | `PropertyCollections` | Gast |
-| 5 | `GuestManagement` — „It's in the details." | Gast |
-| 6 | `OwnAProperty` — **die einzige Übergabe** | Eigentümer |
-| 7 | `PropertyEvaluator` | Eigentümer |
-| 8 | `FAQ` | Gast |
+| 3 | `PropertyCollections` | Gast |
+| 4 | `GuestManagement` — „It's in the details." | Gast |
+| 5 | `DestinationsRail` — „Where we are at home" | Gast |
+| 6 | `JournalTeaser` — Überschrift „Blog", die drei neuesten veröffentlichten Artikel; **rendert nichts**, solange keiner veröffentlicht ist (DECISIONS §61) | Gast |
+| 7 | `FAQ` | Gast |
+| 8 | `OwnAProperty` — **die einzige Übergabe** | Eigentümer |
 | 9 | `Footer` | — |
 
-⚠️ `Stats` läuft hier bewusst **ohne** Überschrift. „A Portfolio Built on
-Precision & Performance" ist an Eigentümer geschrieben; die vier Zahlen selbst
-sind für Gäste lesbarer Trust. Wer die Überschrift auf `/` einschaltet, holt
-Eigentümer-Sprache auf die Gäste-Seite zurück.
+⚠️ Diese Tabelle führte bis zum 10.10.2026 noch `Stats` und `PropertyEvaluator`
+auf der Startseite. Beide stehen dort nicht mehr (`Index.tsx` importiert sie
+nicht): der Evaluator ist der Hero von `/property-management`, und `Stats` mit
+seiner an Eigentümer geschriebenen Überschrift lebt auf der PM-Seite weiter
+(`Proof`). Wer die Zahlen auf `/` zurückholt, holt Eigentümer-Sprache auf die
+Gäste-Seite zurück.
 
-### Property-Management-Seite — tatsächliche Reihenfolge
-
-Umgebaut am 16.08.2026 nach der Design-Referenz in
-`docs/property-management-page.html`. Zehn Sections statt dreizehn; die
-Begründungen stehen in [DECISIONS.md](DECISIONS.md) §11. Reihenfolge von
-Ebene 5/6 am 18.08.2026 getauscht (§13) — Zwei Wege liegt jetzt vor About.
-Am 19.08.2026 (§15) auf acht Sections reduziert: „We manage while you relax"
-hat keine eigene Ebene mehr, sondern lebt jetzt als Bild + Überschrift im
-Kontaktformular am Seitenende. Noch am selben Tag (§16) auf sieben Sections
-weiter reduziert: Renovations & Investments ist keine eigene Ebene mehr,
-sondern die zweite Hälfte von „Zwei Wege", hinter einer goldenen
-Trennlinie mit Label („Beyond management").
-
-| # | Ebene | Komponente | Gewicht |
-|---|---|---|---|
+---|---|---|---|
 | 1 | **Hero** — Bild, H1, zwei CTAs | `OwnerHero` | hoch |
 | 2 | **Das System** — 6 Schritte auf einer Goldlinie, jetzt als Panel-Cards | `TheSystem` | sehr hoch |
 | 3 | **Proof** — 4 Zahlen + 3 Case Studies, auf Grün | `Proof` | hoch |

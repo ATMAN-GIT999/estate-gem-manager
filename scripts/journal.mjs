@@ -132,6 +132,16 @@ export function readJournal({
       warnings.push('"imageAlt" without "image"');
     }
 
+    // Lists show a 720 px version of the photo (`x.webp` → `x-card.webp`), so
+    // the home page does not pull three full-size heroes below the fold.
+    // Without one the list falls back to the full photo, and says so here.
+    let cardImage = data.image || null;
+    if (data.image) {
+      const card = data.image.replace(/\.webp$/, "-card.webp");
+      if (card !== data.image && existsSync(join(root, "public", card))) cardImage = card;
+      else warnings.push(`no ${card.split("/").pop()} — lists will load the full-size photo`);
+    }
+
     // Not blockers — search-snippet hygiene (struktur.md §4) and a nudge
     // against the thin pages the SEO notes rule out.
     if (data.title && data.title.length + BRAND_SUFFIX.length > 60) {
@@ -159,6 +169,7 @@ export function readJournal({
       places,
       properties,
       image: data.image || null,
+      cardImage,
       imageAlt: data.imageAlt || null,
       live,
       status,

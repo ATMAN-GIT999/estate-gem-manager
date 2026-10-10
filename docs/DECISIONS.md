@@ -2897,3 +2897,60 @@ Footer-Link, `/journal` zeigt den Leerzustand und ist `noindex`. Im Browser:
 Übergabe vom Snapshot, ein `h1`, Byline, Markdown, interne Links, Orts- und
 Objektblock, keine Konsolenfehler. Nicht geprüft: mobile Breite, ein Artikel
 mit Bild, der Netlify-Build selbst (noch nicht gepusht).
+
+---
+
+## 61 · Das Journal auf der Startseite: drei Artikel, vor der FAQ
+
+**Entscheidung (Almedin, 10.10.2026):** Eine kleine Section „More about your
+holiday" mit den **drei** neuesten veröffentlichten Artikeln steht auf der
+Landing Page, **nicht** auf `/property-management`.
+
+**Warum nicht auf die PM-Seite:** Alle bisherigen Artikel sind Gäste-Artikel;
+auf der Eigentümerseite wäre das der historische Hauptfehler (Gäste-Inhalt auf
+der Eigentümerseite), und die Seite ist mit sieben Sections und festem Rhythmus
+ohnehin voll. Eigentümer-Artikel könnten dort später einen eigenen Streifen
+bekommen — dafür bräuchte der Artikelkopf ein Feld `audience`.
+
+**Warum dort, wo sie steht:** zwischen „Where we are at home" und der FAQ. Der
+Gast hat gesehen, wo es Häuser gibt, und bekommt jetzt Hilfe bei der Wahl;
+danach kommen die offenen Fragen. Die Section liegt vor der einzigen Übergabe
+an Eigentümer (die Zielgruppe wechselt weiterhin genau einmal), und der
+Rhythmus bleibt leicht–leicht–schwer.
+
+### Wie es funktioniert
+
+- `JournalTeaser.tsx` zeigt `journalArticles.filter(live).slice(0, 3)`: **nie
+  eine Vorschau.** Dev-Server und Netlify-Previews tragen Entwürfe und
+  Zukunftsdaten in der Liste; die Startseite ist die Stelle, an der ein
+  versehentlich sichtbarer unveröffentlichter Artikel jeder sähe.
+- **Ohne veröffentlichten Artikel rendert sie nichts** — dieselbe Regel, die
+  `/journal` aus Sitemap und Footer heraushält.
+- Mit dem nächtlichen Build rücken die geplanten Artikel von selbst nach
+  (neuester zuerst, bei gleichem Datum nach Dateiname).
+- **Vorschaubilder:** `x.webp` → `x-card.webp` (720×480, 3:2 zugeschnitten),
+  gelesen in `scripts/journal.mjs` als `cardImage`. Fehlt die Datei, fällt die
+  Liste auf das große Foto zurück und `journal.mjs` warnt. Ohne sie wäre die
+  Startseite um rund 500 KB schwerer. Die Listenseite `/journal` nutzt
+  dieselben Vorschaubilder.
+- Keine Karten, kein Rahmen: Foto, Ort · Datum, Titel, ein Satz — wie die
+  Ziele darüber. Auf dem Handy eine Spalte, kein seitliches Überlaufen.
+- **Überschrift** vom Besitzer vorgegeben: zuerst „More about your holiday",
+  am selben Tag auf „Blog" geändert (alle drei Sprachen). Der Link „All
+  articles", die Adresse `/journal` und der Footer-Eintrag heißen weiter
+  „Journal" — die Benennung ist damit nicht überall gleich.
+
+### Beim Bauen gefunden
+
+Die Tabelle „Landingpage `/` — tatsächliche Reihenfolge" in PROJECT.md führte
+noch `Stats` und `PropertyEvaluator`, die auf der Startseite nicht mehr
+stehen. Auf den Code nachgezogen.
+
+### Offen
+
+- **Ortsseiten → Artikel.** `/vacation-rentals/<ort>` verlinkt noch nicht auf
+  die Artikel zu diesem Ort, nur umgekehrt. Eine Zeile „From the journal" dort
+  wäre der stärkere interne Link als jede Platzierung auf einer Sammelseite.
+- **Zu wenig Artikel für „drei neueste" mit Aussagekraft:** solange nur ein
+  oder zwei veröffentlicht sind, zeigt die Section entsprechend weniger.
+

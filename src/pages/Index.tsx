@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import PropertyCollections from "@/components/PropertyCollections";
 import GuestManagement from "@/components/GuestManagement";
 import DestinationsRail from "@/components/DestinationsRail";
+import JournalTeaser from "@/components/JournalTeaser";
 import OwnAProperty from "@/components/OwnAProperty";
 import FAQ, { FAQ_ITEMS } from "@/components/FAQ";
 import { useEffect } from "react";
@@ -59,6 +60,12 @@ const IndexContent = () => {
       <PropertyCollections />
       <GuestManagement />
       <DestinationsRail />
+
+      {/* Help with choosing, straight after the places: the three newest
+          journal articles, all written for guests. Renders nothing until one
+          is published. Deliberately before the FAQ and well before the owner
+          hand-off — it is guest content and the page changes audience once. */}
+      <JournalTeaser />
 
       {/* A guest with a question gets it answered before the page asks them
           to switch audiences, not after. */}
