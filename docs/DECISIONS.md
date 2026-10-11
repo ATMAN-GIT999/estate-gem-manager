@@ -2954,3 +2954,107 @@ stehen. Auf den Code nachgezogen.
 - **Zu wenig Artikel für „drei neueste" mit Aussagekraft:** solange nur ein
   oder zwei veröffentlicht sind, zeigt die Section entsprechend weniger.
 
+---
+
+## 62 · Die Artikelseite wird eine Magazinseite
+
+**Anlass (Almedin, 10.10.2026):** Die Journal-Seiten wirkten „langweilig".
+Befund beim Ansehen in voller Länge: ein 768-px-Textstreifen links mit rund
+40 % ungenutzter Breite, das schönste Foto in dieselbe schmale Spalte
+gezwängt, jeder Abschnitt gleich aufgebaut, die nützlichste Passage (die
+Entscheidungslisten) als normale Aufzählung, am Ende nur eine Linkliste.
+
+**Entscheidung:** fünf Bausteine, freigegeben mit „ok":
+
+1. Titelbild über die volle Breite mit der Überschrift darauf.
+2. Abschnitte als Zeilen: Überschrift links (läuft mit), Text rechts, Fotos
+   brechen nach rechts bis zum Rand aus.
+3. Zahlenzeile aus den verlinkten Objekten.
+4. Entscheidungslisten als Tabellenzeilen.
+5. Am Ende die erwähnten Häuser (bestehende `PropertyCard`) und „Read next".
+
+Beschrieben ist das Muster in DESIGN.md §12.
+
+### Entscheidungen, die man nicht „aufräumen" soll
+
+- **Die Zahlen werden berechnet, nicht geschrieben.** Sie kommen aus denselben
+  Objekten, die der Artikel verlinkt. Ein geschriebener Satz „sieben Wohnungen"
+  veraltet, sobald ein Objekt wegfällt; die Zeile nicht. Bei einem Artikel,
+  dessen Aussage die Spanne verfälscht (Gruppenreisen: die Objekte reichen von
+  6 bis 9 Gäste, der Titel sagt „7 to 12", weil zwei Lodges zusammen buchbar
+  sind), wählt `facts: [homes, bedrooms]` die passenden Zahlen aus.
+- **Schnitt nach Zeilen, nicht per Layout-Markup.** `splitJournalBody`
+  versteht nur die Formen, die die Artikel benutzen (`##`, ein Foto allein in
+  der Zeile, eine Liste mit durchgehend fetten Labels). Alles andere bleibt
+  Markdown und wird gerendert wie zuvor. So bleibt ein Artikel eine Datei, die
+  man im Diff lesen kann.
+- **Fotos brechen nur nach rechts aus,** nicht beidseitig: Die linke Spalte
+  gehört der Überschrift. Und die Breite bleibt so, dass ein 1200-px-Foto nicht
+  über ~1,1-fach vergrößert wird.
+- **`heroLayout: framed` statt Hochskalieren.** Das Kärnten-Titelbild liegt in
+  Guesty nur mit 800 px vor; in voller Breite wäre es weich. Auf Handy und
+  Desktop steht es neben der Überschrift, in dem Maß, das es füllen kann. Sobald
+  Originale da sind, fällt die Zeile im Artikelkopf weg.
+- **Die Navigation nutzt `overlay` nur mit Bild-Hero** (DESIGN.md §10). Bei
+  der gerahmten Variante bleibt sie solide und der Inhalt beginnt unter ihr.
+- **Der Preis auf den Haus-Karten ist der „ab €"-Importwert** wie auf jeder
+  anderen Seite; kein neuer Preisweg.
+- **Antworten der Entscheidungstabelle werden per CSS großgeschrieben**
+  (`first-letter:uppercase`): sie sind als Ende eines Listenpunkts geschrieben
+  („…: the La Roca studio.") und stünden sonst klein.
+
+### Bildunterschriften
+
+`![alt](/journal/x.webp "Kurze Unterschrift")` — der Titel des Markdown-Bildes
+ist die Unterschrift. Alle 16 vorhandenen Bilder haben jetzt eine, mit dem
+Namen des Objekts.
+
+### Verifikation
+
+`tsc -p tsconfig.app.json` und `eslint` sauber; strikter Produktions-Build
+51/51 Seiten, Text, Unterschriften, Zahlenzeile und Karten stehen im
+gespeicherten HTML. Im Browser alle sechs Artikel auf Handy-Breite (375 px):
+ein `h1`, kein seitliches Überlaufen, Zeilen/Bilder/Karten da; ein Artikel
+auf Desktop-Breite durchgesehen (Titelbild, Zahlenzeile, Zeilen, Foto,
+Tabelle, Karten). **Nicht geprüft:** ein Artikel ohne Titelbild; Tablet-
+Breiten zwischen 768 und 1023 px nur am Málaga-Artikel; das mitlaufende
+Überschrift-Verhalten über sehr lange Abschnitte.
+
+---
+
+## 63 · Die Foto-Galerie blieb bei Hochformat-Fotos stehen
+
+**Meldung (Almedin, 11.10.2026):** Auf einer Objektseite lässt sich ab dem
+vierten oder fünften Foto nicht mehr vor- und zurückblättern, und vom Foto sieht
+man nur etwa 20 %.
+
+**Reproduziert** auf `/property/marbella-casa-heredia`: Fotos 1–7 sind
+Querformat (3000×2000), ab Foto 8 Hochformat (3000×4500). Dort wurde das Bild
+1.488 px hoch in einem 704 px hohen Fenster, nur die Mitte war zu sehen, und
+die Pfeile — in der Mitte dieser überhohen Fläche zentriert — saßen bei
+y = 756 auf einem 768-px-Bildschirm, also außerhalb. Wer bei einem Hochformat-
+Foto ankam, kam weder weiter noch zurück.
+
+**Ursache:** `DialogContent` ist ein CSS-Grid, das Bild saß in einem
+`h-full`-Kind. Eine Prozenthöhe in einer Grid-Zeile, die sich nach ihrem Inhalt
+richtet, ist zirkulär: das Bild bestimmte die Zeilenhöhe, `max-h-full` begrenzte
+nichts.
+
+**Behoben:** eine gemeinsame `PhotoLightbox` (für Ferien- *und* Winter-
+Objektseite — dort steckte derselbe Fehler). Das Foto liegt in einer
+`absolute inset-0`-Fläche, deren Größe vom festen Fenster kommt, `object-contain`
+löst sich dagegen auf. Dazu:
+
+- **Pfeiltasten** links/rechts und **Wischen** auf dem Handy,
+- das nächste und vorherige Foto werden vorgeladen,
+- das Schließen-Kreuz bekommt einen hellen Kreis, damit es auf einem dunklen
+  Foto nicht verschwindet.
+
+**Geprüft:** 14 Fotos des Casa Heredia (Hoch- und Querformat gemischt) und 12
+der Winter-Wohnung: Foto komplett im Fenster, Pfeil sichtbar, Pfeiltasten
+blättern. Auf 375 px Breite Foto 8 (Hochformat): 326×489 im 326×711-Fenster,
+beide Pfeile sichtbar.
+
+**Offen:** Das Cookie-Banner (`z-[60]`) liegt über dem Dialog (`z-50`) und
+verdeckt bei einem Erstbesuch den Zähler „13 / 44" unten, bis eine Wahl
+getroffen ist. Die Pfeile und das Kreuz bleiben erreichbar.

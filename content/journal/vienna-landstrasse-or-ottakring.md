@@ -13,7 +13,7 @@ Our two Vienna apartments are for the same kind of trip, a city break, but they 
 
 ## Landstraße, 3rd district: the apartment near the old town
 
-![Living room of the apartment in the 3rd district, with a sofa, a floor lamp and tall windows](/journal/vienna-landstrasse-or-ottakring-landstrasse.webp)
+![Living room of the apartment in the 3rd district, with a sofa, a floor lamp and tall windows](/journal/vienna-landstrasse-or-ottakring-landstrasse.webp "The apartment in the 3rd district")
 
 The [2BR Apartment Near Prater & City Center](/property/vienna-prater-two-bedroom) is in the Weißgerberviertel, a calm residential quarter within walking distance of Wien Mitte, the Danube Canal and the historic centre. Trams, buses and the U-Bahn are close by. St. Stephen's Cathedral, the State Opera, the Belvedere and Schönbrunn are easy to reach by public transport, and so is Vienna International Airport.
 
@@ -21,7 +21,7 @@ It has two bedrooms and one bathroom with a bathtub, and sleeps up to five. Ther
 
 ## Ottakring, 16th district: the duplex
 
-![Long dining table and the wooden staircase to the upper floor of the Ottakring duplex](/journal/vienna-landstrasse-or-ottakring-ottakring.webp)
+![Long dining table and the wooden staircase to the upper floor of the Ottakring duplex](/journal/vienna-landstrasse-or-ottakring-ottakring.webp "The duplex in Ottakring")
 
 The [Vienna City Duplex Apartment Ottakring](/property/vienna-ottakring-duplex) is a two-storey home in a lively district west of the centre, with good public transport into the city. It has four bedrooms and two bathrooms and sleeps up to nine, which makes it the one for a family or a group of friends who want to be under one roof.
 

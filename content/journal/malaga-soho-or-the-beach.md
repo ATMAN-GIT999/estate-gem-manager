@@ -15,7 +15,7 @@ Our homes in the Málaga area fall into two groups that suit two different trips
 
 Soho is Málaga's arts district, between the port and the Alameda, known for its street art, galleries and small restaurants. Our apartments here are on Calle Martínez Campos, Calle Alemania and the Alameda de Colón, under a kilometre from the cathedral. The old town, the port and the Alameda are on your doorstep, so a day in the city is a walk rather than a journey.
 
-![Living and dining area of the Soho Art Experience apartment, with a grey sofa, a dining table and parquet flooring](/journal/malaga-soho-or-the-beach-soho.webp)
+![Living and dining area of the Soho Art Experience apartment, with a grey sofa, a dining table and parquet flooring](/journal/malaga-soho-or-the-beach-soho.webp "Soho Art Experience, Soho")
 
 The two apartments we would start with are [Soho Art Experience](/property/malaga-soho-art-experience), with two bedrooms and two bathrooms for up to six guests, and [Soho Alameda Art District](/property/malaga-soho-alameda-art-district), also two bedrooms and two bathrooms, for up to five, on the Alameda de Colón. Both have an elevator and air conditioning.
 
@@ -27,7 +27,7 @@ One thing to plan for in the centre is the car. Most of these apartments rely on
 
 Torremolinos is the opposite trip: first-line apartments on the promenade at Playa Mar and in La Roca, with direct access to the beach. Málaga's centre is about 12 kilometres away.
 
-![Living room of the first-line beach apartment at Playa Mar, with a television and colourful cushions](/journal/malaga-soho-or-the-beach-playa-mar.webp)
+![Living room of the first-line beach apartment at Playa Mar, with a television and colourful cushions](/journal/malaga-soho-or-the-beach-playa-mar.webp "First-line apartment at Playa Mar, Torremolinos")
 
 At Playa Mar there are two two-bedroom apartments on the ground floor of a first-line building, each for up to four guests: the [New Renovated First Line Beach Apartment](/property/malaga-torremolinos-first-line-beach-apartment) and the [Cozy Ground-Floor 2BR](/property/malaga-torremolinos-playa-mar-ground-floor). Both have parking on the premises.
 

@@ -34,6 +34,8 @@ export const PLACE_SLUGS = ["malaga", "marbella", "fuengirola", "vienna", "carin
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const BRAND_SUFFIX = " | Frontier Residences";
+/** The numbers the article page can show under the headline. */
+const FACT_KEYS = ["homes", "bedrooms", "guests"];
 
 const isDate = (s) => DATE_RE.test(s) && !Number.isNaN(Date.parse(`${s}T00:00:00Z`));
 const unquote = (s) => (/^(["']).*\1$/.test(s) ? s.slice(1, -1) : s);
@@ -123,6 +125,15 @@ export function readJournal({
     const status = data.status ?? "published";
     if (!["published", "draft"].includes(status)) errors.push('"status" is "published" or "draft"');
 
+    // `full`: the photograph runs the width of the page with the headline on
+    // it. `framed` is for one too small to be enlarged that far.
+    const heroLayout = data.heroLayout ?? "full";
+    if (!["full", "framed"].includes(heroLayout)) errors.push('"heroLayout" is "full" or "framed"');
+    const facts = data.facts !== undefined ? asList(data.facts) : FACT_KEYS;
+    for (const fact of facts) {
+      if (!FACT_KEYS.includes(fact)) errors.push(`unknown fact "${fact}" (${FACT_KEYS.join(", ")})`);
+    }
+
     if (data.image) {
       if (!data.imageAlt) errors.push('"image" needs an "imageAlt"');
       else if (!existsSync(join(root, "public", data.image))) {
@@ -171,6 +182,8 @@ export function readJournal({
       image: data.image || null,
       cardImage,
       imageAlt: data.imageAlt || null,
+      heroLayout,
+      facts,
       live,
       status,
     });

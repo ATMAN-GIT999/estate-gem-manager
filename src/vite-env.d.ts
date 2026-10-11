@@ -23,6 +23,10 @@ declare module "virtual:journal" {
     /** 720 px version for lists (`x-card.webp`), else the same as `image` */
     cardImage: string | null;
     imageAlt: string | null;
+    /** `full` = photograph across the page, `framed` = beside the headline */
+    heroLayout: "full" | "framed";
+    /** Which numbers to show under the headline: homes, bedrooms, guests */
+    facts: string[];
     /** false = a draft or a future date, shown only as a preview */
     live: boolean;
     status: "published" | "draft";

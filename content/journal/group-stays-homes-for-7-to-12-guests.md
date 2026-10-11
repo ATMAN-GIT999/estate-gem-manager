@@ -6,6 +6,7 @@ status: published
 places: [malaga, fuengirola, carinthia, vienna]
 properties: [malaga-centro-historico-soho, fuengirola-the-one-higueron, carinthia-lima-almhaus-petra, vienna-ottakring-duplex, carinthia-lima-almhaus-gertraud, carinthia-lima-almhaus-theresia]
 image: /journal/group-stays-7-to-12-guests-hero.webp
+facts: [homes, bedrooms]
 imageAlt: Long wooden dining table on the terrace of THE ONE in Higuerón, with palm trees and the sea beyond
 ---
 
@@ -13,7 +14,7 @@ Most of our homes sleep four to six. A handful sleep more, and they are very dif
 
 ## Seven guests: Centro Histórico Soho, Málaga
 
-![Living area of Centro Histórico Soho, with a pale sofa, a green plant wall and a light floor](/journal/group-stays-7-to-12-guests-soho.webp)
+![Living area of Centro Histórico Soho, with a pale sofa, a green plant wall and a light floor](/journal/group-stays-7-to-12-guests-soho.webp "Centro Histórico Soho, Málaga")
 
 [Centro Histórico Soho](/property/malaga-centro-historico-soho) is a four-bedroom apartment in Málaga's Soho arts district, with a boho interior, an elevator and air conditioning, for up to seven guests. It has one bathroom, which is the thing to weigh: it suits a family or friends who are happy to share, less so seven adults on a longer stay.
 
@@ -25,13 +26,13 @@ Most of our homes sleep four to six. A handful sleep more, and they are very dif
 
 ## Nine guests: the Ottakring duplex, Vienna
 
-![Long dining table and the wooden staircase to the upper floor of the Ottakring duplex](/journal/group-stays-7-to-12-guests-ottakring.webp)
+![Long dining table and the wooden staircase to the upper floor of the Ottakring duplex](/journal/group-stays-7-to-12-guests-ottakring.webp "Vienna City Duplex, Ottakring")
 
 The [Vienna City Duplex Apartment Ottakring](/property/vienna-ottakring-duplex) is a two-storey home with four bedrooms and two bathrooms for up to nine guests, in a lively district with good public transport into the city. A parking garage is right next door, where a space can be booked.
 
 ## Twelve guests: Almhaus Gertraud and Almhaus Theresia
 
-![A lodge on a forest clearing in Carinthia, with a covered wooden terrace, picnic benches and a barbecue on the grass](/journal/group-stays-7-to-12-guests-gertraud.webp)
+![A lodge on a forest clearing in Carinthia, with a covered wooden terrace, picnic benches and a barbecue on the grass](/journal/group-stays-7-to-12-guests-gertraud.webp "Almhaus Gertraud, Carinthia")
 
 The two lodges stand on the same forest clearing at 1,670 metres, and they can be booked together as a double lodge for up to twelve guests. [Almhaus Gertraud](/property/carinthia-lima-almhaus-gertraud) and [Almhaus Theresia](/property/carinthia-lima-almhaus-theresia) each have two bedrooms and one bathroom, and each has a sauna and a fireplace. Ski slopes and hiking trails start right outside the door.
 

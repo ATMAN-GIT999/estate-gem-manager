@@ -19,6 +19,15 @@ properties: []
 # status: draft                a draft is never built for the live site
 # image: /journal/example.webp a file in public/journal/
 # imageAlt: What the picture shows
+#                              also add example-card.webp (720x480) for lists
+# heroLayout: framed          photo beside the headline instead of across the
+#                              page — for a photo under ~1400 px wide
+# facts: [homes, bedrooms]    numbers under the headline, from the linked homes
+#                              (homes, bedrooms, guests); default: all three
+#
+# In the text: a photo on its own line takes an optional caption,
+#   ![alt text](/journal/x.webp "Short caption")
+# and a list whose every item starts with a bold label becomes a table.
 #
 # A date in the future publishes itself on that morning (the site is rebuilt
 # every night). Only what is true and checked goes in — no invented place facts.

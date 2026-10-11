@@ -15,7 +15,7 @@ Between Fuengirola and Marbella we manage four very different kinds of home. The
 
 The Reserva del Higuerón is a gated community on the edge of Fuengirola, with 24-hour security and landscaped grounds, a few minutes from beaches, golf courses, restaurants and beach clubs. Both of our villas here look out over the Mediterranean, and each has a pool of its own.
 
-![Living and dining area of the Higuerón infinity-pool villa, with a glass front opening onto a terrace above the sea](/journal/costa-del-sol-villa-golf-village-higueron.webp)
+![Living and dining area of the Higuerón infinity-pool villa, with a glass front opening onto a terrace above the sea](/journal/costa-del-sol-villa-golf-village-higueron.webp "Infinity-pool villa, Reserva del Higuerón")
 
 [THE ONE](/property/fuengirola-the-one-higueron) has four bedrooms and five bathrooms for up to eight guests. The [Luxury Villa with Infinity Pool](/property/fuengirola-higueron-infinity-villa) has three bedrooms and four bathrooms for up to six. Málaga Airport is about 14 kilometres away in a straight line, and the beach is a few minutes by car.
 
@@ -23,7 +23,7 @@ The Reserva del Higuerón is a gated community on the edge of Fuengirola, with 2
 
 Los Flamingos is a golf resort west of Marbella, with views across the course to the sea and the mountains. Our two apartments there, [The Hideaway](/property/marbella-los-flamingos-hideaway) and [Luxury Escape](/property/marbella-los-flamingos-golf-retreat), face the golf course and share the resort's pools. Each has two bedrooms and sleeps up to four, with parking on the premises. Puerto Banús is about 8 kilometres away in a straight line.
 
-![Covered terrace of the Luxury Escape apartment at Los Flamingos, with a laid dining table and a view across the coast towards the mountains](/journal/costa-del-sol-villa-golf-village-flamingos.webp)
+![Covered terrace of the Luxury Escape apartment at Los Flamingos, with a laid dining table and a view across the coast towards the mountains](/journal/costa-del-sol-villa-golf-village-flamingos.webp "Luxury Escape, Los Flamingos")
 
 [Oaks&Thistle](/property/fuengirola-calahonda-oaks-and-thistle) in Calahonda is the same idea on a smaller scale: two bedrooms for up to four guests, beside the La Siesta golf course, with the Cabopino and Miraflores courses about five minutes away and three pools in the complex. It sits between Fuengirola and Marbella, the beach is a few minutes by car, and the airport is about 28 kilometres away in a straight line.
 
@@ -31,7 +31,7 @@ Los Flamingos is a golf resort west of Marbella, with views across the course to
 
 [Casa Heredia](/property/marbella-casa-heredia) is in La Heredia, a whitewashed village in the hills behind the coast, around ten minutes' drive from Puerto Banús and Marbella. It has two bedrooms and two bathrooms for up to four guests, an indoor fireplace and access to a shared pool. There are hiking trails close by, and the beaches are within easy reach.
 
-![Balcony of Casa Heredia with a wooden sofa, looking across the whitewashed rooftops of La Heredia](/journal/costa-del-sol-villa-golf-village-heredia.webp)
+![Balcony of Casa Heredia with a wooden sofa, looking across the whitewashed rooftops of La Heredia](/journal/costa-del-sol-villa-golf-village-heredia.webp "Casa Heredia, La Heredia")
 
 ## An apartment close to Marbella's beaches: Los Monteros
 

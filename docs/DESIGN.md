@@ -378,3 +378,25 @@ Gold, für den Fall, dass eine Linie **ein Card-Textblock öffnet** statt Zeilen
 in einer Liste zu trennen. Nicht für Listen mit echten Zeilen (FAQ) — dort
 bleibt die volle Haarlinie, sonst zerfällt die Liste optisch. Aktuell nur an
 einer Stelle im Einsatz: den drei Proof-Case-Karten.
+
+---
+
+## 12 · Die Artikelseite (Journal, 10.10.2026)
+
+Ein Artikel ist eine Magazinseite, keine Textspalte. Das Muster, in der
+Reihenfolge, in der es gelesen wird:
+
+| Teil | Wie |
+|---|---|
+| **Titelbild** | volle Breite, `min-h clamp(28rem,72vh,46rem)`, Überschrift darauf (`t-display`, weiß), Ort als `t-tag`, Byline als `t-meta`. Schleier ist `.overlay-media` — das Marken-Grün, nie Schwarz. Die Navigation läuft dort mit `overlay` (§10); ohne Bild-Hero nicht. |
+| **Gerahmte Variante** | `heroLayout: framed` im Artikelkopf: Überschrift links (5 Spalten), Foto rechts (7). Für Fotos unter ~1400 px, die in voller Breite weich würden. |
+| **Zahlenzeile** | Haarlinie oben, bis zu drei Zahlen (`t-section`) mit `t-meta`-Label darunter, **aus den verlinkten Objekten berechnet** (Anzahl, Schlafzimmer, Gäste). Kein eigener Text. `facts:` im Kopf wählt aus. |
+| **Einleitung** | in den rechten 8 von 12 Spalten, auf der Textkante der Abschnitte. |
+| **Abschnitte** | je ein `##`: Haarlinie oben, Überschrift (`t-block`) in den linken 4 Spalten und beim Scrollen mitlaufend, Text in den rechten 8. Das ist das „Haarlinie oben · Abstand darunter"-Muster aus §6, nicht eine Karte. |
+| **Fotos** | eigene Zeile in den rechten 8 Spalten, **laufen bis zum rechten Bildschirmrand** (`-mr-[var(--container-inset)]`), Bildunterschrift als `t-meta`. Text danach läuft in denselben Spalten weiter, ohne die Überschrift zu wiederholen. |
+| **Entscheidungsliste** | eine Liste, deren *jeder* Punkt mit einem fetten Label beginnt, wird zur Tabelle: Label (`t-item`) links, Antwort rechts, Haarlinien dazwischen. Gemischte Listen bleiben Listen. |
+| **Ende** | die erwähnten Häuser als `PropertyCard` (bis zu drei, der „ab €"-Preis wie überall), darunter die Ortsseiten als Links; dann „Read next" auf beigem Band. |
+
+Keine neue Farbe, keine neue Schriftgröße, keine neue Box. Der Schnitt von
+Markdown in diese Teile passiert in `src/lib/journalBody.ts`, nicht im
+Artikeltext — die Artikel bleiben reines Markdown.

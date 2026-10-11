@@ -17,17 +17,17 @@ Both are in the Reserva del Higuerón, a gated community on the edge of Fuengiro
 
 ## THE ONE: more rooms, more people
 
-![Open-plan living and dining area of THE ONE, with a curved sofa, a marble floor and a glass wall to the terrace](/journal/the-one-or-the-infinity-pool-villa-the-one.webp)
+![Open-plan living and dining area of THE ONE, with a curved sofa, a marble floor and a glass wall to the terrace](/journal/the-one-or-the-infinity-pool-villa-the-one.webp "THE ONE")
 
 [THE ONE](/property/fuengirola-the-one-higueron) has four bedrooms and five bathrooms for up to eight guests. The listing describes panoramic sea views and a private pool, and says the villa is positioned between Málaga and Marbella. The amenity list adds a fire pit, an indoor fireplace, a barbecue, a sound system and a safe.
 
-![Bathroom in THE ONE, with a double washbasin, a freestanding bath and a glass wall towards the sea](/journal/the-one-or-the-infinity-pool-villa-bathroom.webp)
+![Bathroom in THE ONE, with a double washbasin, a freestanding bath and a glass wall towards the sea](/journal/the-one-or-the-infinity-pool-villa-bathroom.webp "THE ONE, bathroom")
 
 ## The infinity-pool villa: the smaller of the two
 
 The [Luxury Villa with Infinity Pool & Sea Views](/property/fuengirola-higueron-infinity-villa) has three bedrooms and four bathrooms for up to six guests. The listing is built around the outdoors: a private infinity pool, panoramic sea views from sun-drenched terraces, contemporary design and a seamless flow between inside and out. The photos also show a lawn with a sun lounger.
 
-![Lawn with a sun lounger at the Higuerón infinity-pool villa, with the sea beyond a low hedge](/journal/the-one-or-the-infinity-pool-villa-garden.webp)
+![Lawn with a sun lounger at the Higuerón infinity-pool villa, with the sea beyond a low hedge](/journal/the-one-or-the-infinity-pool-villa-garden.webp "The infinity-pool villa, garden")
 
 ## How to choose
 
