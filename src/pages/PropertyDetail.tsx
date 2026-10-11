@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Container, Grid, Panel, Section } from "@/components/layout";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
 import SurroundingsMap from "@/components/SurroundingsMap";
-import { ArrowRight, Bed, Bath, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Bed, Bath, Users } from "lucide-react";
 import { getAmenityIcon } from "@/lib/amenityIcons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Seo from "@/components/Seo";
+import PhotoLightbox from "@/components/PhotoLightbox";
 import Breadcrumb from "@/components/Breadcrumb";
 import { propertyPath } from "@/lib/propertyUrl";
 import {
@@ -378,53 +379,16 @@ const PropertyDetail = () => {
           </div>
         </Container>
 
-        {/* Solo lightbox — one photo at a time, uncropped (`object-contain`,
-            not `object-cover`, so nothing gets sliced off to fill the frame
-            the way the grid thumbnails do). */}
-        <Dialog open={lightboxIndex !== null} onOpenChange={(open) => !open && setLightboxIndex(null)}>
-          <DialogContent className="max-w-6xl w-[calc(100vw-2rem)] h-[calc(100vh-4rem)] p-0 bg-background/95 border-0 [&>button]:text-foreground [&>button]:opacity-100">
-            <DialogTitle className="sr-only">
-              {property.name} — photo {lightboxIndex !== null ? lightboxIndex + 1 : 0} of {images.length}
-            </DialogTitle>
-            {lightboxIndex !== null && (
-              <div className="relative flex h-full items-center justify-center">
-                <img
-                  src={images[lightboxIndex]}
-                  alt={photoAlt(lightboxIndex + 1)}
-                  loading="lazy"
-                  className="max-h-full max-w-full object-contain"
-                />
-                {images.length > 1 && (
-                  <>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      aria-label={t("pd-previous-photo")}
-                      onClick={() => setLightboxIndex((lightboxIndex - 1 + images.length) % images.length)}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      aria-label={t("pd-next-photo")}
-                      onClick={() => setLightboxIndex((lightboxIndex + 1) % images.length)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </Button>
-                    <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-background/90 px-3 py-1 t-body text-foreground shadow-elegant">
-                      {lightboxIndex + 1} / {images.length}
-                    </span>
-                  </>
-                )}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+        {/* One photo at a time, whole, with arrows, keys and swipe. The
+            layout trap that once hid the arrows on portrait photos is
+            explained in PhotoLightbox. */}
+        <PhotoLightbox
+          images={images}
+          index={lightboxIndex}
+          onIndexChange={setLightboxIndex}
+          title={property.name}
+          altFor={photoAlt}
+        />
 
         {/* Head and booking. */}
         <Section size="md">

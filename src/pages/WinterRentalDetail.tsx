@@ -9,9 +9,8 @@ import WinterEnquiryForm from "@/components/winter/WinterEnquiryForm";
 import { useBedroomsLabel, useTypeLabel } from "@/hooks/useWinterLabels";
 import { Container, Grid, Panel, Section } from "@/components/layout";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Bath, Bed, ChevronLeft, ChevronRight, Users } from "lucide-react";
+import PhotoLightbox from "@/components/PhotoLightbox";
+import { Bath, Bed, Users } from "lucide-react";
 import { getAmenityIcon } from "@/lib/amenityIcons";
 import SurroundingsMap from "@/components/SurroundingsMap";
 import { supabase } from "@/lib/supabaseClient";
@@ -268,52 +267,13 @@ const WinterRentalDetailPage = ({
           </div>
         </Container>
 
-        <Dialog open={lightboxIndex !== null} onOpenChange={(o) => !o && setLightboxIndex(null)}>
-          <DialogContent className="max-w-6xl w-[calc(100vw-2rem)] h-[calc(100vh-4rem)] p-0 bg-background/95 border-0 [&>button]:text-foreground [&>button]:opacity-100">
-            <DialogTitle className="sr-only">
-              {home.name} — photo {lightboxIndex !== null ? lightboxIndex + 1 : 0} of {home.images.length}
-            </DialogTitle>
-            {lightboxIndex !== null && (
-              <div className="relative flex h-full items-center justify-center">
-                <img
-                  src={home.images[lightboxIndex].url}
-                  alt={photoAlt(lightboxIndex + 1)}
-                  loading="lazy"
-                  className="max-h-full max-w-full object-contain"
-                />
-                {home.images.length > 1 && (
-                  <>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      aria-label={t("pd-previous-photo")}
-                      onClick={() =>
-                        setLightboxIndex((lightboxIndex - 1 + home.images.length) % home.images.length)
-                      }
-                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      aria-label={t("pd-next-photo")}
-                      onClick={() => setLightboxIndex((lightboxIndex + 1) % home.images.length)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 hover:bg-background shadow-elegant"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </Button>
-                    <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-background/90 px-3 py-1 t-body text-foreground shadow-elegant">
-                      {lightboxIndex + 1} / {home.images.length}
-                    </span>
-                  </>
-                )}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+        <PhotoLightbox
+          images={home.images.map((i) => i.url)}
+          index={lightboxIndex}
+          onIndexChange={setLightboxIndex}
+          title={home.name}
+          altFor={photoAlt}
+        />
 
         {/* Head and enquiry panel — the same 12-col split as PropertyDetail's
             head-and-booking section, Panel standing in for its booking card
