@@ -10,12 +10,26 @@ import type { TranslationKey } from "@/lib/translations";
 /** How many articles the home page shows — three, like every other row on it. */
 const COUNT = 3;
 
+interface JournalTeaserProps {
+  /**
+   * A place slug (`malaga`, `carinthia` …): show only the articles about that
+   * place. Omit it for the three newest overall — the landing page.
+   */
+  place?: string;
+}
+
 /**
- * The three newest journal articles, for the landing page.
+ * The newest journal articles, for the landing page and — with `place` — for
+ * a location page.
  *
- * Guest content only, so it sits in the guest half of the page, after the
- * places and before the FAQ — not on /property-management, which speaks to
- * owners and would have to switch audience for it.
+ * Guest content only, so it sits in the guest half of a page, before the FAQ
+ * and well before any hand-off to owners — not on /property-management, which
+ * speaks to owners and would have to switch audience for it.
+ *
+ * On a location page this is the way from "I am looking at Málaga" to the
+ * article that helps choose there, and the link back that docs/seo/struktur.md
+ * §8 asks for: every article already links its place, the place now links
+ * its articles.
  *
  * It lists *published* articles (`live`), never previews: the dev server and
  * Netlify previews also carry drafts and future dates in `journalArticles`,
@@ -25,9 +39,11 @@ const COUNT = 3;
  *
  * No cards — a photo, a line and a headline, like the destinations above it.
  */
-const JournalTeaser = () => {
+const JournalTeaser = ({ place }: JournalTeaserProps) => {
   const { t, language } = useLocale();
-  const articles = journalArticles.filter((a) => a.live).slice(0, COUNT);
+  const articles = journalArticles
+    .filter((a) => a.live && (!place || a.places.includes(place)))
+    .slice(0, COUNT);
   if (articles.length === 0) return null;
 
   return (
@@ -59,8 +75,11 @@ const JournalTeaser = () => {
               </div>
             )}
             <p className="t-meta text-accent-strong mt-4">
-              {article.places[0]
-                ? t(vrKey(article.places[0] as never, "name") as TranslationKey)
+              {/* On a place page the label is that place, even for an article
+                  that covers several — "Málaga" over a Vienna piece would be
+                  wrong. */}
+              {place || article.places[0]
+                ? t(vrKey((place ?? article.places[0]) as never, "name") as TranslationKey)
                 : t("journal-eyebrow")}
               {" · "}
               <time dateTime={article.date}>{formatJournalDate(article.date, language)}</time>

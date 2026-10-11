@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 import Breadcrumb from "@/components/Breadcrumb";
 import PropertyCard, { type Property } from "@/components/PropertyCard";
+import JournalTeaser from "@/components/JournalTeaser";
 import { Grid, Section } from "@/components/layout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabaseClient";
@@ -199,7 +200,12 @@ const VacationRentalCityPage = ({ city }: { city: City }) => {
           </Grid>
         </Section>
 
-        {/* 5 · Questions. The same hairline-and-gold-± accordion as the
+        {/* 5 · The journal articles about this place, if any are published —
+            help with choosing, ahead of the questions, and before the one
+            line for owners. Renders nothing otherwise. */}
+        <JournalTeaser place={city.slug} />
+
+        {/* 6 · Questions. The same hairline-and-gold-± accordion as the
             landing page FAQ (FAQ.tsx explains why it is built on the bare
             Radix primitive). The `FAQPage` markup above is built from the
             same keys, so what is marked up is what is on the page. */}
@@ -235,7 +241,7 @@ const VacationRentalCityPage = ({ city }: { city: City }) => {
           </AccordionPrimitive.Root>
         </Section>
 
-        {/* 6 · One line for owners, and only one. It points at the owner page
+        {/* 7 · One line for owners, and only one. It points at the owner page
             itself: the per-place owner pages (/property-management/<place>)
             are priority two and do not exist yet. */}
         <Section size="sm">

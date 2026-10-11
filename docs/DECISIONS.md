@@ -3058,3 +3058,34 @@ beide Pfeile sichtbar.
 **Offen:** Das Cookie-Banner (`z-[60]`) liegt über dem Dialog (`z-50`) und
 verdeckt bei einem Erstbesuch den Zähler „13 / 44" unten, bis eine Wahl
 getroffen ist. Die Pfeile und das Kreuz bleiben erreichbar.
+
+---
+
+## 64 · Die Ortsseiten verlinken ihre Artikel
+
+**Auftrag (Almedin, 11.10.2026).** Jeder Artikel verlinkte seinen Ort
+(docs/seo/struktur.md §8), der Ort aber keinen Artikel. Jetzt zeigt
+`/vacation-rentals/<ort>` die veröffentlichten Artikel, in deren `places` der
+Ort steht — bis zu drei, neueste zuerst.
+
+- **Dieselbe Komponente wie die Startseite** (`JournalTeaser`, neue Eigenschaft
+  `place`), dieselbe Überschrift „Blog" und derselbe Link „All articles". Wer
+  die Überschrift ändert, ändert beide (ein Schlüssel,
+  `journal-teaser-heading`).
+- **Stelle:** vor der FAQ, nach „When to come" — Hilfe bei der Wahl, dann
+  Fragen, dann die eine Eigentümer-Zeile. Die Zielgruppe wechselt auch hier
+  erst am Ende.
+- **Die Ortsmarke ist immer dieser Ort.** Ein Artikel, der mehrere Orte
+  behandelt (die Gruppenreisen: Málaga, Fuengirola, Kärnten, Wien), trägt auf
+  der Wien-Seite „Vienna", nicht „Málaga".
+- **Nur Veröffentlichtes.** Vorschauen (Entwürfe, Zukunftsdaten) erscheinen
+  auch hier nie. Ohne passenden Artikel rendert der Abschnitt nichts: heute
+  zeigen Málaga, Marbella, Fuengirola und Kärnten je einen Artikel, Wien keinen
+  (der Wien-Artikel erscheint am 17.10.).
+- **Mit einem Artikel steht eine einzelne Karte links in einem Dreier-Raster.**
+  Das füllt sich mit den nächsten Artikeln; es wurde nicht künstlich
+  aufgefüllt.
+
+**Verifikation:** `tsc`, `eslint` und strikter Build sauber, die gespeicherten
+Ortsseiten tragen die Artikel-Links im HTML; alle fünf Ortsseiten im Browser
+geprüft.
