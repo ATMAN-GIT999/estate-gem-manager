@@ -80,7 +80,7 @@ export const en = {
 
   // Hero (landing)
   "hero-headline": "Luxury Villas & Vacation Rentals on the Costa del Sol & Austria",
-  "hero-subheadline": "Handpicked homes on the Costa del Sol, in Málaga, Vienna and the Austrian Alps — booked directly with the team that manages them.",
+  "hero-subheadline": "From Málaga to Marbella, Frontier Residences curates and manages a select collection of exceptional homes – private villas with pools, golf-front apartments, traditional Andalusian townhouses and beachside residences – for stays of a few nights to several months.",
 
   // Properties page header
   "properties-page-eyebrow": "Our Collection",

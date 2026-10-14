@@ -107,14 +107,14 @@ const PropertyDetail = () => {
       // lookups rather than one `.or()` filter, because `slug` comes straight
       // from the address bar and a comma or bracket in it would be read as
       // filter syntax.
-      const bySeoSlug = await supabase
+      const bySeoSlug = await (supabase as any)
         .from("properties")
         .select("*")
         .eq("seo_slug", slug ?? "")
         .maybeSingle();
       const { data, error } = bySeoSlug.data
         ? bySeoSlug
-        : await supabase.from("properties").select("*").eq("slug", slug ?? "").maybeSingle();
+        : await (supabase as any).from("properties").select("*").eq("slug", slug ?? "").maybeSingle();
 
       if (error || !data) {
         toast({
@@ -131,7 +131,7 @@ const PropertyDetail = () => {
       // a 301 on the live host; this covers the dev server, in-app links from
       // before the switch, and any home whose seo_slug is set after the
       // redirect list was written.
-      if (data.seo_slug && data.seo_slug !== slug) {
+      if ((data as any).seo_slug && (data as any).seo_slug !== slug) {
         navigate(`${propertyPath(data)}${window.location.search}`, { replace: true });
       }
 
@@ -156,7 +156,7 @@ const PropertyDetail = () => {
     if (!property?.id) return;
     let cancelled = false;
     const load = async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("properties")
         .select("*")
         .eq("available", true)
@@ -533,7 +533,7 @@ const PropertyDetail = () => {
                   <p className="t-body text-muted-foreground mt-3">
                     {t("pd-available-note")} ·{" "}
                     <a href="tel:+34649429678" className="text-accent-strong hover:underline">
-                      +34 649 429 678
+                      +34 649 42 96 78
                     </a>
                   </p>
                 </div>

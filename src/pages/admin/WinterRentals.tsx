@@ -38,7 +38,9 @@ const STATUS_OPTIONS: Array<{ value: MidtermStatus; label: string }> = [
   { value: "let", label: "Let" },
 ];
 
-type Enquiry = Database["public"]["Tables"]["midterm_requests"]["Row"];
+// midterm_requests is not in the generated types for this backend yet.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Enquiry = any;
 const ENQUIRY_STATUS = ["new", "contacted", "confirmed", "declined"] as const;
 
 const AdminWinterRentals = () => {
@@ -49,7 +51,7 @@ const AdminWinterRentals = () => {
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("midterm_listings")
         .select("*")
         .order("city_group", { ascending: true })
@@ -58,7 +60,7 @@ const AdminWinterRentals = () => {
         toast({ title: "Could not load winter rentals", description: error.message, variant: "destructive" });
       }
       setHomes((data ?? []).map(toMidtermListing));
-      const { data: requests } = await supabase
+      const { data: requests } = await (supabase as any)
         .from("midterm_requests")
         .select("*")
         .order("created_at", { ascending: false });
@@ -72,7 +74,7 @@ const AdminWinterRentals = () => {
   const save = async (id: string, patch: Partial<MidtermListing>) => {
     const previous = homes;
     setHomes((rows) => rows.map((h) => (h.id === id ? { ...h, ...patch } : h)));
-    const { error } = await supabase.from("midterm_listings").update(patch).eq("id", id);
+    const { error } = await (supabase as any).from("midterm_listings").update(patch).eq("id", id);
     if (error) {
       setHomes(previous);
       toast({ title: "Not saved", description: error.message, variant: "destructive" });
@@ -84,7 +86,7 @@ const AdminWinterRentals = () => {
   const setEnquiryStatus = async (id: string, status: string) => {
     const previous = enquiries;
     setEnquiries((rows) => rows.map((r) => (r.id === id ? { ...r, status } : r)));
-    const { error } = await supabase.from("midterm_requests").update({ status }).eq("id", id);
+    const { error } = await (supabase as any).from("midterm_requests").update({ status }).eq("id", id);
     if (error) {
       setEnquiries(previous);
       toast({ title: "Not saved", description: error.message, variant: "destructive" });

@@ -214,7 +214,7 @@ const OwnerHero = () => {
             </EditableText>{" "}
             ·{" "}
             <a href="tel:+34649429678" className="transition-colors hover:text-accent-on-primary">
-              +34 649 429 678
+              +34 649 42 96 78
             </a>
           </p>
         </div>

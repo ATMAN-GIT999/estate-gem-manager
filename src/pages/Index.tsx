@@ -4,6 +4,8 @@ import Footer from "@/components/Footer";
 import PropertyCollections from "@/components/PropertyCollections";
 import GuestManagement from "@/components/GuestManagement";
 import DestinationsRail from "@/components/DestinationsRail";
+import OurServices from "@/components/OurServices";
+import WhereWeOperate from "@/components/WhereWeOperate";
 import JournalTeaser from "@/components/JournalTeaser";
 import OwnAProperty from "@/components/OwnAProperty";
 import FAQ, { FAQ_ITEMS } from "@/components/FAQ";
@@ -42,7 +44,7 @@ const IndexContent = () => {
           @id from every other page, so the whole site resolves to one business. */}
       <Seo
         path="/"
-        description="Book luxury villas and apartments in Marbella, Málaga and Vienna directly with Frontier Residences — and see what your own property could earn under our management."
+        description="Boutique luxury rental agency on the Costa del Sol. Short and mid-term stays, full property management, renovation and investment in Marbella and Málaga."
         schema={[organizationSchema(), faqSchema(FAQ_ITEMS)]}
       />
       <Navigation overlay logoOnDark />
@@ -59,7 +61,9 @@ const IndexContent = () => {
       <Hero />
       <PropertyCollections />
       <GuestManagement />
+      <OurServices />
       <DestinationsRail />
+      <WhereWeOperate />
 
       {/* Help with choosing, straight after the places: the three newest
           journal articles, all written for guests. Renders nothing until one

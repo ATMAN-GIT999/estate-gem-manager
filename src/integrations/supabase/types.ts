@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -547,24 +547,6 @@ export type Database = {
           },
         ]
       }
-      evaluator_rate_limits: {
-        Row: {
-          id: string
-          identifier: string
-          requested_at: string
-        }
-        Insert: {
-          id?: string
-          identifier: string
-          requested_at?: string
-        }
-        Update: {
-          id?: string
-          identifier?: string
-          requested_at?: string
-        }
-        Relationships: []
-      }
       guesty_calendar_cache: {
         Row: {
           created_at: string
@@ -692,172 +674,6 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      midterm_listings: {
-        Row: {
-          amenities: string[] | null
-          available_from: string | null
-          available_until: string | null
-          bathrooms: number | null
-          bedrooms: number
-          city_group: string
-          commission: number | null
-          created_at: string
-          deposit: number | null
-          description: string | null
-          guests: number | null
-          guesty_listing_id: string | null
-          id: string
-          idealista_id: string | null
-          images: Json
-          location: string
-          max_stay_months: number | null
-          min_stay_months: number | null
-          monthly_price: number
-          name: string
-          property_id: string | null
-          property_type: string
-          published: boolean
-          registration_number: string | null
-          size_sqm: number | null
-          slug: string
-          sort_order: number
-          status: string
-          updated_at: string
-          utilities_included: boolean | null
-        }
-        Insert: {
-          amenities?: string[] | null
-          available_from?: string | null
-          available_until?: string | null
-          bathrooms?: number | null
-          bedrooms: number
-          city_group: string
-          commission?: number | null
-          created_at?: string
-          deposit?: number | null
-          description?: string | null
-          guests?: number | null
-          guesty_listing_id?: string | null
-          id?: string
-          idealista_id?: string | null
-          images?: Json
-          location: string
-          max_stay_months?: number | null
-          min_stay_months?: number | null
-          monthly_price: number
-          name: string
-          property_id?: string | null
-          property_type: string
-          published?: boolean
-          registration_number?: string | null
-          size_sqm?: number | null
-          slug: string
-          sort_order?: number
-          status?: string
-          updated_at?: string
-          utilities_included?: boolean | null
-        }
-        Update: {
-          amenities?: string[] | null
-          available_from?: string | null
-          available_until?: string | null
-          bathrooms?: number | null
-          bedrooms?: number
-          city_group?: string
-          commission?: number | null
-          created_at?: string
-          deposit?: number | null
-          description?: string | null
-          guests?: number | null
-          guesty_listing_id?: string | null
-          id?: string
-          idealista_id?: string | null
-          images?: Json
-          location?: string
-          max_stay_months?: number | null
-          min_stay_months?: number | null
-          monthly_price?: number
-          name?: string
-          property_id?: string | null
-          property_type?: string
-          published?: boolean
-          registration_number?: string | null
-          size_sqm?: number | null
-          slug?: string
-          sort_order?: number
-          status?: string
-          updated_at?: string
-          utilities_included?: boolean | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "midterm_listings_property_id_fkey"
-            columns: ["property_id"]
-            isOneToOne: false
-            referencedRelation: "properties"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      midterm_requests: {
-        Row: {
-          created_at: string
-          desired_from: string | null
-          desired_months: number | null
-          email: string
-          first_name: string
-          guests: number | null
-          id: string
-          last_name: string | null
-          listing_id: string | null
-          listing_name: string
-          message: string | null
-          phone: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          desired_from?: string | null
-          desired_months?: number | null
-          email: string
-          first_name: string
-          guests?: number | null
-          id?: string
-          last_name?: string | null
-          listing_id?: string | null
-          listing_name: string
-          message?: string | null
-          phone?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          desired_from?: string | null
-          desired_months?: number | null
-          email?: string
-          first_name?: string
-          guests?: number | null
-          id?: string
-          last_name?: string | null
-          listing_id?: string | null
-          listing_name?: string
-          message?: string | null
-          phone?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "midterm_requests_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "midterm_listings"
             referencedColumns: ["id"]
           },
         ]
@@ -992,10 +808,8 @@ export type Database = {
           available: boolean | null
           bathrooms: number
           bedrooms: number
-          city_group: string | null
           created_at: string
           description: string | null
-          editorial_description: string | null
           featured: boolean | null
           guests: number
           guesty_listing_id: string | null
@@ -1009,8 +823,6 @@ export type Database = {
           price_last_synced_at: string | null
           price_per_night: number
           registration_number: string | null
-          seo_slug: string | null
-          size_sqm: number | null
           slug: string
           type: string
           updated_at: string
@@ -1021,10 +833,8 @@ export type Database = {
           available?: boolean | null
           bathrooms: number
           bedrooms: number
-          city_group?: string | null
           created_at?: string
           description?: string | null
-          editorial_description?: string | null
           featured?: boolean | null
           guests: number
           guesty_listing_id?: string | null
@@ -1038,8 +848,6 @@ export type Database = {
           price_last_synced_at?: string | null
           price_per_night: number
           registration_number?: string | null
-          seo_slug?: string | null
-          size_sqm?: number | null
           slug: string
           type: string
           updated_at?: string
@@ -1050,10 +858,8 @@ export type Database = {
           available?: boolean | null
           bathrooms?: number
           bedrooms?: number
-          city_group?: string | null
           created_at?: string
           description?: string | null
-          editorial_description?: string | null
           featured?: boolean | null
           guests?: number
           guesty_listing_id?: string | null
@@ -1067,8 +873,6 @@ export type Database = {
           price_last_synced_at?: string | null
           price_per_night?: number
           registration_number?: string | null
-          seo_slug?: string | null
-          size_sqm?: number | null
           slug?: string
           type?: string
           updated_at?: string
@@ -1240,14 +1044,6 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
-      }
-      sync_guesty_prices: {
-        Args: never
-        Returns: {
-          detail: string
-          ok: boolean
-          slug: string
-        }[]
       }
     }
     Enums: {
