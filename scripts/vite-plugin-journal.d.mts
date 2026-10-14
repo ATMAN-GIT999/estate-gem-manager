@@ -2,4 +2,3 @@
 import type { Plugin } from "vite";
 declare const plugin: (...args: unknown[]) => Plugin;
 export default plugin;
-export declare function journalPlugin(...args: unknown[]): Plugin;
