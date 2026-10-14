@@ -30,6 +30,19 @@
 @import '@fontsource/ibm-plex-mono/latin-500.css';
 @import '@fontsource/ibm-plex-mono/latin-600.css';
 
+/* "Quiet modern" pairing (Frontier, 14.10.2026): Libre Baskerville for the
+   heading roles, IBM Plex Sans for everything else — chosen to lift the
+   pages below the hero to the same luxury register. Plex Sans shares a
+   family with the mono eyebrow face, so tags and body now read as one voice.
+   Baskerville has no 300 cut; heading roles use 400 so nothing is synthesised. */
+@import '@fontsource/libre-baskerville/latin-400.css';
+@import '@fontsource/libre-baskerville/latin-400-italic.css';
+@import '@fontsource/libre-baskerville/latin-700.css';
+@import '@fontsource/ibm-plex-sans/latin-300.css';
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+
 /* Sora — headings only (Almedin, 02.10.2026, matching the Lovable "template"
    rebuild's font-display). Archivo stays the body/tag/meta face; Sora takes
    over `.t-display`/`.t-section`/`.t-block` only, see the rule below. 300 is
