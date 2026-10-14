@@ -131,7 +131,7 @@ const PropertyDetail = () => {
       // a 301 on the live host; this covers the dev server, in-app links from
       // before the switch, and any home whose seo_slug is set after the
       // redirect list was written.
-      if (data.seo_slug && data.seo_slug !== slug) {
+      if ((data as any).seo_slug && (data as any).seo_slug !== slug) {
         navigate(`${propertyPath(data)}${window.location.search}`, { replace: true });
       }
 

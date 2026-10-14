@@ -38,7 +38,9 @@ const STATUS_OPTIONS: Array<{ value: MidtermStatus; label: string }> = [
   { value: "let", label: "Let" },
 ];
 
-type Enquiry = Database["public"]["Tables"]["midterm_requests"]["Row"];
+// midterm_requests is not in the generated types for this backend yet.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Enquiry = any;
 const ENQUIRY_STATUS = ["new", "contacted", "confirmed", "declined"] as const;
 
 const AdminWinterRentals = () => {
