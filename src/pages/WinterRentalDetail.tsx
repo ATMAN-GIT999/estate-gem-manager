@@ -80,7 +80,7 @@ const WinterRentalDetailPage = ({
       // on any city with just one home (Málaga, Marbella right now) — same
       // problem PropertyDetail.tsx's own `similar` query solves by ranking
       // same-place first but falling back across the whole set.
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("midterm_listings")
         .select(`${GUEST_LISTING_COLUMNS}, property:property_id(latitude, longitude, address)`)
         .eq("published", true)

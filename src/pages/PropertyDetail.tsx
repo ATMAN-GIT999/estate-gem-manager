@@ -107,14 +107,14 @@ const PropertyDetail = () => {
       // lookups rather than one `.or()` filter, because `slug` comes straight
       // from the address bar and a comma or bracket in it would be read as
       // filter syntax.
-      const bySeoSlug = await supabase
+      const bySeoSlug = await (supabase as any)
         .from("properties")
         .select("*")
         .eq("seo_slug", slug ?? "")
         .maybeSingle();
       const { data, error } = bySeoSlug.data
         ? bySeoSlug
-        : await supabase.from("properties").select("*").eq("slug", slug ?? "").maybeSingle();
+        : await (supabase as any).from("properties").select("*").eq("slug", slug ?? "").maybeSingle();
 
       if (error || !data) {
         toast({
@@ -156,7 +156,7 @@ const PropertyDetail = () => {
     if (!property?.id) return;
     let cancelled = false;
     const load = async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("properties")
         .select("*")
         .eq("available", true)
