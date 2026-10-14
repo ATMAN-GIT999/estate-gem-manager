@@ -533,7 +533,7 @@ const PropertyDetail = () => {
                   <p className="t-body text-muted-foreground mt-3">
                     {t("pd-available-note")} ·{" "}
                     <a href="tel:+34649429678" className="text-accent-strong hover:underline">
-                      +34 649 429 678
+                      +34 649 42 96 78
                     </a>
                   </p>
                 </div>

@@ -23,7 +23,7 @@ const postalAddress = {
  */
 export const organizationSchema = () => ({
   "@context": "https://schema.org",
-  "@type": "RealEstateAgent",
+  "@type": ["Organization", "RealEstateAgent"],
   "@id": ORG_ID,
   name: BUSINESS.name,
   legalName: BUSINESS.legalName,
@@ -33,12 +33,14 @@ export const organizationSchema = () => ({
   telephone: BUSINESS.phone,
   address: postalAddress,
   areaServed: [
-    { "@type": "Place", name: "Marbella, Spain" },
-    { "@type": "Place", name: "Málaga, Spain" },
-    { "@type": "Place", name: "Costa del Sol, Spain" },
-    { "@type": "Place", name: "Vienna, Austria" },
-    { "@type": "Place", name: "Carinthia, Austria" },
+    { "@type": "City", name: "Marbella" },
+    { "@type": "City", name: "Benahavís" },
+    { "@type": "City", name: "Fuengirola" },
+    { "@type": "City", name: "Mijas" },
+    { "@type": "City", name: "Málaga" },
+    { "@type": "City", name: "Vienna" },
   ],
+  sameAs: ["https://www.instagram.com/frontier.residences"],
   knowsLanguage: ["en", "es", "de"],
   makesOffer: [
     {
