@@ -56,7 +56,7 @@ const VacationRentalCityPage = ({ city }: { city: City }) => {
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("properties")
         .select("*")
         .eq("available", true)

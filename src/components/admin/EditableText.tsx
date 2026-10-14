@@ -9,7 +9,7 @@ interface EditableTextProps {
   value: string;
   onChange?: (value: string) => void;
   className?: string;
-  as?: "h1" | "h2" | "h3" | "h4" | "p" | "span" | "dt" | "dd";
+  as?: "h1" | "h2" | "h3" | "h4" | "p" | "span";
   multiline?: boolean;
   children?: React.ReactNode;
 }

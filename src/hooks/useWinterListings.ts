@@ -14,7 +14,7 @@ export const useWinterListings = (city?: string) => {
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      let query = (supabase as any)
+      let query = supabase
         .from("midterm_listings")
         .select(GUEST_LISTING_COLUMNS)
         .eq("published", true)

@@ -38,8 +38,8 @@ const AvisoLegalContent = () => {
                   <li><strong>Titular:</strong> Frontier Residences Real Estate Management S.L.</li>
                   <li><strong>CIF:</strong> ESB70848841</li>
                   <li><strong>Domicilio social:</strong> Calle Fresnos de Guadalmar, 15, 29004 Málaga, España</li>
-                  <li><strong>Correo electrónico:</strong> office@frontier-residences.com</li>
-                  <li><strong>Teléfono:</strong> +34 649 42 96 78</li>
+                  <li><strong>Correo electrónico:</strong> hello@frontier-residences.com</li>
+                  <li><strong>Teléfono:</strong> +34 649 429 678</li>
                   <li><strong>Sitio web:</strong> https://frontier-residences.com</li>
                 </ul>
                 <p className="mt-4">
@@ -212,11 +212,11 @@ const AvisoLegalContent = () => {
                 </div>
                 <div className="flex items-center gap-3 text-foreground/80">
                   <Mail className="w-5 h-5 shrink-0" />
-                  <span>office@frontier-residences.com</span>
+                  <span>hello@frontier-residences.com</span>
                 </div>
                 <div className="flex items-center gap-3 text-foreground/80">
                   <Phone className="w-5 h-5 shrink-0" />
-                  <span>+34 649 42 96 78</span>
+                  <span>+34 649 429 678</span>
                 </div>
                 <div className="flex items-center gap-3 text-foreground/80">
                   <Globe className="w-5 h-5 shrink-0" />

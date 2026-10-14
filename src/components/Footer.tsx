@@ -35,7 +35,7 @@ const Footer = () => {
   const [copyright, setCopyright] = useState(t("footer-copyright"));
   // Must stay identical to the Aviso Legal and the Google Business Profile —
   // local search reads a mismatched number as two different businesses.
-  const [phone, setPhone] = useState("+34 649 42 96 78");
+  const [phone, setPhone] = useState("+34 649 429 678");
 
   useEffect(() => {
     setPositioning(t("footer-positioning"));

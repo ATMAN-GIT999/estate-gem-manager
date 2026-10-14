@@ -126,7 +126,7 @@ const WinterEnquiryForm = ({ home }: { home: MidtermListing }) => {
     // The id is made here because visitors cannot read the row back; the notify
     // function needs it to find the enquiry.
     const id = crypto.randomUUID();
-    const { error } = await (supabase as any).from("midterm_requests").insert({
+    const { error } = await supabase.from("midterm_requests").insert({
       id,
       listing_id: home.id,
       listing_name: home.name,

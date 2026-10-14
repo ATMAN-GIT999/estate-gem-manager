@@ -15,8 +15,8 @@ export const BUSINESS = {
   /** Registered entity, for the legal fields only. */
   legalName: "Frontier Residences Real Estate Management S.L.",
   taxId: "ESB70848841",
-  email: "office@frontier-residences.com",
-  phone: "+34 649 42 96 78",
+  email: "hello@frontier-residences.com",
+  phone: "+34649429678",
   street: "Calle Fresnos de Guadalmar, 15",
   postalCode: "29004",
   city: "Málaga",
