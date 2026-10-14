@@ -32,6 +32,7 @@ const SERVICES = [
 const OurServices = () => (
   <Section id="services" size="md">
     <SectionIntro
+      idPrefix="services"
       eyebrow="Our Services"
       heading="Luxury holiday rentals and property management in Marbella"
       lead="One boutique team for guests and owners alike, across the Costa del Sol."

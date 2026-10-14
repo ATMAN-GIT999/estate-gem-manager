@@ -23,6 +23,7 @@ const AREAS = [
 const WhereWeOperate = () => (
   <Section id="where-we-operate" tone="quiet" size="md">
     <SectionIntro
+      idPrefix="operate"
       eyebrow="Where We Operate"
       heading="Short-term rentals across the Costa del Sol"
     />
