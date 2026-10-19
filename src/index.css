@@ -30,19 +30,6 @@
 @import '@fontsource/ibm-plex-mono/latin-500.css';
 @import '@fontsource/ibm-plex-mono/latin-600.css';
 
-/* "Quiet modern" pairing (Frontier, 14.10.2026): Libre Baskerville for the
-   heading roles, IBM Plex Sans for everything else — chosen to lift the
-   pages below the hero to the same luxury register. Plex Sans shares a
-   family with the mono eyebrow face, so tags and body now read as one voice.
-   Baskerville has no 300 cut; heading roles use 400 so nothing is synthesised. */
-@import '@fontsource/libre-baskerville/latin-400.css';
-@import '@fontsource/libre-baskerville/latin-400-italic.css';
-@import '@fontsource/libre-baskerville/latin-700.css';
-@import '@fontsource/ibm-plex-sans/latin-300.css';
-@import '@fontsource/ibm-plex-sans/latin-400.css';
-@import '@fontsource/ibm-plex-sans/latin-500.css';
-@import '@fontsource/ibm-plex-sans/latin-600.css';
-
 /* Sora — headings only (Almedin, 02.10.2026, matching the Lovable "template"
    rebuild's font-display). Archivo stays the body/tag/meta face; Sora takes
    over `.t-display`/`.t-section`/`.t-block` only, see the rule below. 300 is
@@ -300,7 +287,7 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   /* The variable cut registers under its own family name, so it has to be
@@ -311,7 +298,7 @@ All colors MUST be HSL.
      type scale below (and for the admin area, which is out of scope). Anything
      public should carry a .t-* class, which overrides both of these. */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 600;
   }
 }
@@ -346,7 +333,7 @@ All colors MUST be HSL.
   .t-item,
   .t-body,
   .t-meta {
-    font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   /* .t-display/.t-section/.t-block are Sora, not Archivo (Almedin,
@@ -358,7 +345,7 @@ All colors MUST be HSL.
   .t-display,
   .t-section,
   .t-block {
-    font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+    font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   /* H1 — once per page, never more.
@@ -379,9 +366,9 @@ All colors MUST be HSL.
      see the note below — only weight/tracking reverted. */
   .t-display {
     font-size: clamp(1.9rem, 1.1rem + 3.6vw, 3.625rem); /* 30 → 58 */
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: 0;
+    font-weight: 300;
   }
 
   /* H2 — the title of a section. Same 0.8× as Display. Line-height all the
@@ -391,9 +378,9 @@ All colors MUST be HSL.
      as .t-display above. Size stays raised — see the note below. */
   .t-section {
     font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.25rem); /* 24 → 36 */
-    line-height: 1.3;
-    letter-spacing: -0.005em;
-    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: 0;
+    font-weight: 300;
   }
 
   /* H3 — a sub-unit inside a section. Same 0.8×. Weight 500 rather than
@@ -403,9 +390,9 @@ All colors MUST be HSL.
      the reference. */
   .t-block {
     font-size: clamp(1rem, 0.896rem + 0.424vw, 1.2rem); /* 16 → 19 */
-    line-height: 1.35;
-    letter-spacing: 0;
-    font-weight: 400;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    font-weight: 500;
   }
 
   /* Property names and other catalogue titles. Caps and tracked out — this
@@ -429,7 +416,7 @@ All colors MUST be HSL.
 
   .t-body {
     font-size: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem); /* 16 → 17 */
-    line-height: 1.7;
+    line-height: 1.6;
     font-weight: 400;
   }
 
@@ -465,7 +452,7 @@ All colors MUST be HSL.
 .pmp-manrope .t-item,
 .pmp-manrope .t-card,
 .pmp-manrope .t-meta {
-  font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 /* ---------------------------------------------------------------------------

@@ -129,9 +129,8 @@ export default {
         /* Archivo carries every text role; the mono face is for eyebrow tags
            and meta markers only. Both are self-hosted via @fontsource — never
            add a fonts.googleapis.com link (GDPR, clients in Austria). */
-        sans: ["IBM Plex Sans", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
-        archivo: ["IBM Plex Sans", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
-        serif: ["Libre Baskerville", "Georgia", "serif"],
+        sans: ["Archivo", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        archivo: ["Archivo", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
         mono: ["IBM Plex Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
         /* Admin area only (the GrapesJS builder preview). */
         playfair: ["Playfair Display Variable", "Playfair Display", "serif"],
