@@ -48,6 +48,13 @@ const JournalTeaser = ({ place }: JournalTeaserProps) => {
 
   return (
     <Section size="md">
+      {/* data-nosnippet: Google builds the search-result text from whatever on
+          the page best matches the query, and on `/` that was the first
+          article's description ("Between Fuengirola and Marbella we manage
+          four kinds of home…") instead of the meta description. Marking the
+          teaser keeps article blurbs out of the home page's snippet; the
+          articles' own pages are unaffected. Don't "tidy" the wrapper away. */}
+      <div data-nosnippet>
       <div className="flex items-baseline justify-between gap-md mb-lg">
         <h2 className="t-section text-foreground">{t("journal-teaser-heading")}</h2>
         <Link
@@ -91,6 +98,7 @@ const JournalTeaser = ({ place }: JournalTeaserProps) => {
           </Link>
         ))}
       </Grid>
+      </div>
     </Section>
   );
 };

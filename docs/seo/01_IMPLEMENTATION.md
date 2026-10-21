@@ -83,8 +83,9 @@ Lovable-Editor setzt sie still auf ein totes Altprojekt zurück.
 | DE | `Luxus-Ferienunterkünfte in Spanien und Österreich` |
 | ES | `Alquileres vacacionales de lujo en España y Austria` |
 
-Begründung in DECISIONS §12. **`Luxury Villas & Apartments to Book` auf
-`/properties` bleibt** — dort stimmt es.
+Begründung in DECISIONS §12. ~~`Luxury Villas & Apartments to Book` auf
+`/properties` bleibt~~ — am 21.10.2026 durch „Book Your Perfect Stay" ersetzt
+(DECISIONS §66), damit Google diesen Namen als Sitelink übernimmt.
 
 ### A3 · `PageWrapper` entsperren
 

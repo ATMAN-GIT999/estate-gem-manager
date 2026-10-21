@@ -16,7 +16,7 @@ import {
 } from "@/lib/vacationRentals";
 import { en } from "@/lib/translations";
 
-const SEO_TITLE = "Vacation Rentals by Destination";
+const SEO_TITLE = "Vacation Rentals";
 const SEO_DESCRIPTION =
   "Vacation rentals in Málaga, Marbella, Fuengirola, Vienna and Carinthia — homes managed by our own team and booked directly, without the platform mark-up.";
 

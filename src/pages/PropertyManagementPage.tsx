@@ -33,7 +33,7 @@ const PropertyManagementPageContent = () => {
   // scoped here, not site-wide.
   <div className="min-h-screen flex flex-col pmp-manrope">
     <Seo
-      title="Bespoke Property Management in Marbella, Málaga & Vienna"
+      title="Property Management"
       description="Full-service short-term rental management for luxury homes on the Costa del Sol and in Austria — listing, dynamic pricing, guests, housekeeping and owner reporting. Or lease your property to us for a fixed monthly income."
       path="/property-management"
       schema={[

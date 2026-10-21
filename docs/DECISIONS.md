@@ -3089,3 +3089,60 @@ Ort steht — bis zu drei, neueste zuerst.
 **Verifikation:** `tsc`, `eslint` und strikter Build sauber, die gespeicherten
 Ortsseiten tragen die Artikel-Links im HTML; alle fünf Ortsseiten im Browser
 geprüft.
+
+---
+
+## 66 · Der Google-Text der Startseite kam aus dem Journal-Teaser
+
+**Anlass (Almedin, 21.10.2026):** Unter „Frontier Residences" in der Google-Suche
+stand „Between Fuengirola and Marbella we manage four kinds of home …" statt der
+Meta-Description.
+
+**Befund:** Das ist die `description` des neuesten Journal-Artikels, die der
+`JournalTeaser` auf `/` ausgibt. Google nimmt für den Suchtext, was auf der
+Seite am besten zur Suchanfrage passt — die Meta-Description ist nur ein
+Vorschlag, kein Befehl.
+
+**Geändert:**
+- `Index.tsx`: Description jetzt „From the Costa del Sol to Austria, we offer
+  Bespoke Property Management and the perfect Stay for your Vacation
+  Destination." (Almedin schrieb „Costa de Sol" — der Ortsname ist
+  *Costa del Sol*, so steht er überall auf der Seite.)
+- `JournalTeaser.tsx`: Inhalt in `<div data-nosnippet>`, damit Artikel-Teaser
+  nicht mehr in den Suchtext der Startseite geraten. Die Artikelseiten selbst
+  sind nicht betroffen.
+
+**Nicht umgesetzt — Sitelinks (die Zeilen unter dem Treffer):** Die wählt
+Google selbst; es gibt kein Tag, das sie vorgibt. Der Seitentitel wird zum
+Sitelink-Namen. Die heutigen Titel weichen von der gewünschten Liste ab
+(`/properties`: „Luxury Villas & Apartments to Book" — bewusst, siehe §12;
+`/vacation-rentals`: „Vacation Rentals by Destination"; `/winter-rentals`:
+„Winter & Midterm Rentals on the Costa del Sol"; `/property-management`:
+„Bespoke Property Management in Marbella, Málaga & Vienna"). Und „About Us"
+gibt es nicht mehr als Seite: `/about` ist ein 301 auf `/`.
+
+**Wirkung erst nach dem nächsten Crawl:** Die Änderung muss deployt und die
+Startseite in der Search Console neu zur Indexierung eingereicht werden;
+Google zeigt den neuen Text dann binnen Tagen bis wenigen Wochen.
+
+**Zusatz, gleicher Tag — PM-Hero (`OwnerHero.tsx`):** Adressfeld und
+Schlafzimmer-Pills sind durch einen einzigen Button ersetzt, der auf `/evaluate`
+führt (Almedin). Weiß mit dünnem Rand, beim Hover Gold mit schwarzer Schrift
+und einem Pfeil, der am Ende einfährt; Text „Calculate your Income now"
+(Schlüssel `pmp-hero-calc-cta`, DE/ES maschinell). Grund: der Eigentümer
+beantwortete dieselben Fragen zweimal, im Hero und danach auf `/evaluate`, das
+ohne Daten direkt den vollständigen Rechner zeigt. Der Klick wird nicht mehr als
+`evaluator_submitted` gezählt — das passiert erst beim echten Absenden auf
+`/evaluate` (`entry: "evaluate-page"`); der Wert `entry: "owner-hero"` kommt
+nicht mehr vor.
+
+**Titel für die Sitelinks (Almedin, 21.10.2026):** Seitentitel gekürzt auf die
+gewünschten Sitelink-Namen — `/properties` „Book Your Perfect Stay" (ersetzt
+„Luxury Villas & Apartments to Book" aus §12), `/property-management`
+„Property Management", `/vacation-rentals` „Vacation Rentals",
+`/winter-rentals` „Winter Rentals"; `/evaluate` hieß schon „Property
+Evaluator". Preis: Orts- und Suchbegriffe („Marbella", „Costa del Sol") stehen
+nicht mehr im Titel, sondern nur noch in Description und H1. Google übernimmt
+Titel als Sitelink-Namen nicht garantiert. „About Us" gibt es nicht, eine neue
+Seite ist ausdrücklich nicht gewünscht; für Platz 2 („Visit Us") ist die Seite
+noch offen.

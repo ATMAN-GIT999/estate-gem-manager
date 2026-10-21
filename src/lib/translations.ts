@@ -300,7 +300,7 @@ export const en = {
   // OwnerHero (Property Management page)
   "pmp-hero-eyebrow": "Property Management",
   "pmp-page-title": "Find out what your property could earn",
-  "pmp-page-lead": "Enter the address, pick the bedrooms — the estimate takes 30 seconds.",
+  "pmp-page-lead": "Get an estimate of your property's rental income in about 30 seconds.",
   "pmp-hero-cta-1": "Contact Us",
   "pmp-hero-cta-2": "See what yours could earn",
 
@@ -477,6 +477,7 @@ export const en = {
 
   // Property management page, wireframe 09/2026
   "pmp-hero-alt": "Or talk to us directly",
+  "pmp-hero-calc-cta": "Calculate your Income now",
   "ev-card-title": "Estimated income",
   "ev-address-placeholder": "Your property address",
   "ev-bedrooms-label": "Choose bedrooms",
@@ -1067,7 +1068,7 @@ export const de: Record<TranslationKey, string> = {
 
   "pmp-hero-eyebrow": "Immobilienverwaltung",
   "pmp-page-title": "Finden Sie heraus, was Ihre Immobilie bringen könnte",
-  "pmp-page-lead": "Adresse eingeben, Schlafzimmer wählen — die Schätzung dauert 30 Sekunden.",
+  "pmp-page-lead": "Erhalten Sie in etwa 30 Sekunden eine Schätzung der Mieteinnahmen Ihrer Immobilie.",
   "pmp-hero-cta-1": "Kontaktieren Sie uns",
   "pmp-hero-cta-2": "Erfahren Sie, was Ihre Immobilie einbringen könnte",
 
@@ -1228,6 +1229,7 @@ export const de: Record<TranslationKey, string> = {
   "oap-eyebrow": "Für Eigentümer",
 
   "pmp-hero-alt": "Oder sprechen Sie direkt mit uns",
+  "pmp-hero-calc-cta": "Berechnen Sie jetzt Ihr Einkommen",
   "ev-card-title": "Geschätzte Einnahmen",
   "ev-address-placeholder": "Adresse Ihrer Immobilie",
   "ev-bedrooms-label": "Schlafzimmer wählen",
@@ -1807,7 +1809,7 @@ export const es: Record<TranslationKey, string> = {
 
   "pmp-hero-eyebrow": "Gestión de Propiedades",
   "pmp-page-title": "Descubra lo que podría generar su propiedad",
-  "pmp-page-lead": "Introduzca la dirección y elija los dormitorios: la estimación tarda 30 segundos.",
+  "pmp-page-lead": "Obtenga en unos 30 segundos una estimación de los ingresos por alquiler de su propiedad.",
   "pmp-hero-cta-1": "Contáctanos",
   "pmp-hero-cta-2": "Descubre lo que la tuya podría generar",
 
@@ -1968,6 +1970,7 @@ export const es: Record<TranslationKey, string> = {
   "oap-eyebrow": "Para propietarios",
 
   "pmp-hero-alt": "O hable directamente con nosotros",
+  "pmp-hero-calc-cta": "Calcule sus ingresos ahora",
   "ev-card-title": "Ingresos estimados",
   "ev-address-placeholder": "Dirección de su propiedad",
   "ev-bedrooms-label": "Elija los dormitorios",

@@ -236,7 +236,7 @@ const PropertiesContent = () => {
     // only one or two listings; without it the footer rode up into view.
     <div className="min-h-screen flex flex-col">
       <Seo
-        title="Luxury Villas & Apartments to Book"
+        title="Book Your Perfect Stay"
         description="The full Frontier Residences portfolio — villas, city apartments and cabins in Marbella, Málaga, Vienna and beyond, bookable directly with us."
         path="/properties"
         schema={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Properties", path: "/properties" }])}

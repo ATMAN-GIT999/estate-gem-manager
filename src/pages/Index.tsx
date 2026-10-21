@@ -42,7 +42,7 @@ const IndexContent = () => {
           @id from every other page, so the whole site resolves to one business. */}
       <Seo
         path="/"
-        description="Book luxury villas and apartments in Marbella, Málaga and Vienna directly with Frontier Residences — and see what your own property could earn under our management."
+        description="From the Costa del Sol to Austria, we offer Bespoke Property Management and the perfect Stay for your Vacation Destination."
         schema={[organizationSchema(), faqSchema(FAQ_ITEMS)]}
       />
       <Navigation overlay logoOnDark />

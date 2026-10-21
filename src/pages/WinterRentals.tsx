@@ -26,7 +26,7 @@ import {
 } from "@/lib/winterRentals";
 import { en } from "@/lib/translations";
 
-const SEO_TITLE = "Winter & Midterm Rentals on the Costa del Sol";
+const SEO_TITLE = "Winter Rentals";
 const SEO_DESCRIPTION =
   "Homes to rent by the month on the Costa del Sol — Málaga, Marbella, Fuengirola and Estepona. Search by place, move-in date, budget and stay length; enquire directly with Frontier Residences.";
 
